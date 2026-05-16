@@ -6,7 +6,6 @@
 <title>GynoAdmin · Pannello di Controllo</title>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -427,27 +426,47 @@ input[type=range]{width:100%;accent-color:var(--pr)}
 
 <!-- ══ PDF ══ -->
 <div id="p-pdf" class="panel">
-  <div class="ph"><div><div class="pt">PDF Linee Guida</div><div class="ps">Carica PDF su Firebase Storage · Visibili in GynoSystem nella sezione Linee Guida</div></div></div>
+  <div class="ph"><div><div class="pt">PDF Linee Guida</div><div class="ps">Aggiungi link a PDF esterni (Google Drive, GitHub, ecc.) · Salvati su Firestore</div></div></div>
+
+  <!-- Info banner -->
+  <div style="background:rgba(0,122,255,0.08);border:1px solid rgba(0,122,255,0.2);border-radius:var(--r);padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px;">
+    <span style="font-size:1.2rem;flex-shrink:0">ℹ️</span>
+    <div style="font-size:.83rem;color:var(--l2);line-height:1.6">
+      <strong>Come aggiungere un PDF:</strong><br>
+      1. Carica il PDF su <strong>Google Drive</strong> → Condividi → "Chiunque con il link" → copia il link<br>
+      2. Oppure caricalo nel tuo <strong>repository GitHub</strong> nella cartella <code style="background:var(--sf3);padding:1px 5px;border-radius:4px">pdf/</code> → usa il link Raw<br>
+      3. Incolla il link nel campo qui sotto e salva
+    </div>
+  </div>
+
   <div class="card" style="margin-bottom:16px">
-    <div class="sl">Carica Nuovo PDF</div>
-    <div class="gr3" style="margin-bottom:12px">
+    <div class="sl">Aggiungi Nuovo PDF</div>
+    <div class="gr2" style="margin-bottom:12px">
       <div class="fg"><label class="fl">Titolo *</label><input type="text" id="pdf-title" placeholder="es. Linee Guida ACOG 2024"></div>
       <div class="fg"><label class="fl">Categoria</label>
         <select id="pdf-cat"><option>Ostetricia</option><option>Ginecologia</option><option>Ecografia</option><option>Laboratorio</option><option>Oncologia</option><option>Contraccezione</option><option>Altro</option></select>
       </div>
-      <div class="fg"><label class="fl">Anno</label><input type="number" id="pdf-year" placeholder="2024"></div>
     </div>
-    <div class="uz" id="uzone" onclick="document.getElementById('pfi').click()" ondragover="dov(event)" ondragleave="dol(event)" ondrop="ddr(event)">
-      <div class="uzi">📄</div>
-      <p><strong>Clicca o trascina</strong> un file PDF qui</p>
-      <p style="font-size:.75rem;margin-top:4px">Max 20MB · Solo PDF</p>
+    <div class="gr2" style="margin-bottom:12px">
+      <div class="fg"><label class="fl">Anno Pubblicazione</label><input type="number" id="pdf-year" placeholder="2024"></div>
+      <div class="fg"><label class="fl">Autore / Organizzazione</label><input type="text" id="pdf-author" placeholder="es. ACOG, SIGO, FIGO"></div>
     </div>
-    <input type="file" id="pfi" accept=".pdf" style="display:none" onchange="uploadPDF(this.files[0])">
-    <div class="progbar" id="ppb"><div class="pbf" id="ppbf"></div></div>
+    <div class="fg" style="margin-bottom:16px">
+      <label class="fl">URL del PDF * <span style="text-transform:none;font-weight:400;color:var(--l4)">(Google Drive, GitHub Raw, Dropbox, link diretto)</span></label>
+      <input type="url" id="pdf-url" placeholder="https://drive.google.com/file/d/... oppure https://raw.githubusercontent.com/...">
+      <div class="hint" style="margin-top:4px">
+        💡 Google Drive: apri il file → Condividi → Chiunque con il link → copia URL
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn bp" onclick="savePDF()">💾 Salva su Firestore</button>
+      <button class="btn bgh" onclick="testPDFUrl()">👁 Testa Link</button>
+    </div>
   </div>
+
   <div class="card">
-    <div class="sl">PDF Caricati su Firebase</div>
-    <div id="pdf-list"><div class="empty"><div class="ei">📁</div><p>Nessun PDF caricato</p></div></div>
+    <div class="sl">PDF in Archivio</div>
+    <div id="pdf-list"><div class="empty"><div class="ei">📁</div><p>Nessun PDF aggiunto</p></div></div>
   </div>
 </div>
 
@@ -490,11 +509,12 @@ input[type=range]{width:100%;accent-color:var(--pr)}
       <div class="sl">Logo Studio</div>
       <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
         <div id="logo-prev" style="width:100px;height:100px;border-radius:16px;background:linear-gradient(135deg,#007AFF,#AF52DE);display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:2rem;color:#fff">CG</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn bgh bsm" onclick="document.getElementById('logo-inp').click()">📁 Carica Logo</button>
-          <button class="btn bdn bsm" onclick="removeLogo()">✕ Rimuovi</button>
+        <div class="fg" style="width:100%">
+          <label class="fl">URL Logo <span style="text-transform:none;font-weight:400;color:var(--l4)">(link pubblico immagine)</span></label>
+          <input type="url" id="logo-url-inp" placeholder="https://... link immagine pubblica" oninput="previewLogo(this.value)">
+          <div class="hint" style="margin-top:4px">💡 Carica su GitHub o Google Drive e incolla il link diretto</div>
         </div>
-        <input type="file" id="logo-inp" accept="image/*" style="display:none" onchange="uploadLogo(this.files[0])">
+        <button class="btn bdn bsm" onclick="removeLogo()">✕ Rimuovi Logo</button>
         <div style="width:100%">
           <div class="tr"><div><div class="tit">Mostra Logo</div></div><label class="tgl"><input type="checkbox" id="pr-logo" checked><div class="ts"></div></label></div>
           <div class="tr"><div><div class="tit">Mostra Data Visita</div></div><label class="tgl"><input type="checkbox" id="pr-date" checked><div class="ts"></div></label></div>
@@ -599,21 +619,19 @@ input[type=range]{width:100%;accent-color:var(--pr)}
   <div class="ph"><div><div class="pt">Guida Integrazione Firebase</div><div class="ps">Come collegare GynoSystem a questo pannello admin</div></div></div>
   <div class="card" style="margin-bottom:14px">
     <div class="cht" style="margin-bottom:4px">Passo 1 · Firebase SDK in GynoSystem</div>
-    <div class="chs" style="margin-bottom:12px">Aggiungi nell'&lt;head&gt; di GynoSystem_v15.html</div>
+    <div class="chs" style="margin-bottom:12px">Aggiungi nell'&lt;head&gt; di GynoSystem_v15.html (solo Firestore, no Storage)</div>
     <div class="cb">&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"&gt;&lt;/script&gt;
-&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"&gt;&lt;/script&gt;
-&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"&gt;&lt;/script&gt;<button class="cc" onclick="copyCode(this)">Copia</button></div>
+&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"&gt;&lt;/script&gt;<button class="cc" onclick="copyCode(this)">Copia</button></div>
   </div>
   <div class="card" style="margin-bottom:14px">
     <div class="cht" style="margin-bottom:4px">Passo 2 · Init + Carica Config</div>
     <div class="chs" style="margin-bottom:12px">Incolla in fondo al &lt;body&gt; di GynoSystem, prima del &lt;/body&gt;</div>
     <div class="cb">const firebaseConfig={apiKey:"AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",
   authDomain:"gynosistem.firebaseapp.com",projectId:"gynosistem",
-  storageBucket:"gynosistem.firebasestorage.app",
   messagingSenderId:"355036111162",
   appId:"1:355036111162:web:dfe1e1aa73a1086d4ab003"};
 if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore(), storage=firebase.storage();
+const db=firebase.firestore();
 
 async function loadAdminConfig(){
   try{
@@ -625,7 +643,7 @@ async function loadAdminConfig(){
     }
     const print=await db.collection('config').doc('print').get();
     if(print.exists) window._printCfg=print.data();
-    const fSnap=await db.collection('farmaci').orderBy('nome').get();
+    const fSnap=await db.collection('farmaci').get();
     if(!fSnap.empty) window._adminFarmaci=fSnap.docs.map(d=>({id:d.id,...d.data()}));
     const gSnap=await db.collection('lineeGuida').get();
     if(!gSnap.empty) window._adminGuide=gSnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -637,14 +655,29 @@ loadAdminConfig();<button class="cc" onclick="copyCode(this)">Copia</button></di
   </div>
   <div class="card">
     <div class="cht" style="margin-bottom:4px">Passo 3 · Regole Firestore</div>
-    <div class="chs" style="margin-bottom:12px">Configura nella Firebase Console → Firestore → Rules</div>
-    <div class="cb">rules_version='2';
-service cloud.firestore{
-  match/databases/{database}/documents{
-    match/config/{doc}{allow read:if true;allow write:if false;}
-    match/farmaci/{doc}{allow read:if true;allow write:if false;}
-    match/lineeGuida/{doc}{allow read:if true;allow write:if false;}
-    match/pdfGuide/{doc}{allow read:if true;allow write:if false;}
+    <div class="chs" style="margin-bottom:12px">Firebase Console → Firestore → Rules · Senza scadenza, senza Storage</div>
+    <div class="cb">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /farmaci/{doc} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /lineeGuida/{doc} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /pdfGuide/{doc} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }<button class="cc" onclick="copyCode(this)">Copia</button></div>
   </div>
@@ -702,9 +735,9 @@ service cloud.firestore{
 // ═══════════════════════════════
 //  FIREBASE
 // ═══════════════════════════════
-const FB_CFG={apiKey:"AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",authDomain:"gynosistem.firebaseapp.com",projectId:"gynosistem",storageBucket:"gynosistem.firebasestorage.app",messagingSenderId:"355036111162",appId:"1:355036111162:web:dfe1e1aa73a1086d4ab003",measurementId:"G-FE51JFB7SK"};
-let db,storage,fbOK=false;
-try{if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.firestore();storage=firebase.storage();fbOK=true;setFB('ok','Connesso a Firebase');}catch(e){setFB('err','Errore Firebase');}
+const FB_CFG={apiKey:"AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",authDomain:"gynosistem.firebaseapp.com",projectId:"gynosistem",messagingSenderId:"355036111162",appId:"1:355036111162:web:dfe1e1aa73a1086d4ab003"};
+let db,fbOK=false;
+try{if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.firestore();fbOK=true;setFB('ok','Connesso a Firebase');}catch(e){setFB('err','Errore Firebase');}
 function setFB(st,msg){const d=document.getElementById('fbd'),t=document.getElementById('fbst'),s=document.getElementById('sfbs');d.className='fbd '+st;t.textContent=msg;if(s)s.textContent=st==='ok'?'Connesso ✓':'Errore ✗';}
 
 // ═══════════════════════════════
@@ -1105,44 +1138,51 @@ async function delFarm(id){
 // ═══════════════════════════════
 //  PDF UPLOAD
 // ═══════════════════════════════
-function dov(e){e.preventDefault();document.getElementById('uzone').classList.add('dov');}
-function dol(e){document.getElementById('uzone').classList.remove('dov');}
-function ddr(e){e.preventDefault();dol();if(e.dataTransfer.files[0])uploadPDF(e.dataTransfer.files[0]);}
-async function uploadPDF(file){
-  if(!file||file.type!=='application/pdf'){toast('Solo file PDF','e');return;}
-  if(file.size>20*1024*1024){toast('File troppo grande (max 20MB)','e');return;}
-  const title=v('pdf-title').trim()||file.name.replace('.pdf','');
+// ═══════════════════════════════
+//  PDF — link esterno, no Storage
+// ═══════════════════════════════
+async function savePDF(){
+  const title=v('pdf-title').trim();
+  const url=v('pdf-url').trim();
   if(!title){toast('Inserisci un titolo','e');return;}
-  const pb=document.getElementById('ppb'),pf=document.getElementById('ppbf');
-  pb.style.display='block';pf.style.width='0%';
+  if(!url||!url.startsWith('http')){toast('Inserisci un URL valido (https://...)','e');return;}
+  const data={title,category:v('pdf-cat'),year:parseInt(v('pdf-year')||new Date().getFullYear()),author:v('pdf-author')||'',url,addedAt:new Date().toISOString()};
   try{
-    const ref=storage.ref(`pdfGuide/${Date.now()}_${file.name}`);
-    const task=ref.put(file);
-    task.on('state_changed',s=>{pf.style.width=Math.round(s.bytesTransferred/s.totalBytes*100)+'%';});
-    await task;
-    const url=await ref.getDownloadURL();
-    const data={title,category:v('pdf-cat'),year:v('pdf-year')||new Date().getFullYear(),url,filename:file.name,uploadedAt:new Date().toISOString()};
     const r=await db.collection('pdfGuide').add(data);
     PDFS.push({id:r.id,...data});
-    renderPDFList();pb.style.display='none';sv('pdf-title','');
-    toast(`📄 "${title}" caricato`,'s');
-  }catch(e){pb.style.display='none';toast('Errore upload: '+e.message,'e');}
+    renderPDFList();
+    sv('pdf-title','');sv('pdf-url','');sv('pdf-year','');sv('pdf-author','');
+    toast(`📄 "${title}" salvato su Firestore`,'s');
+  }catch(e){toast('Errore: '+e.message,'e');}
+}
+function testPDFUrl(){
+  const url=v('pdf-url').trim();
+  if(!url){toast('Inserisci prima un URL','e');return;}
+  window.open(url,'_blank');
 }
 function renderPDFList(){
   const c=document.getElementById('pdf-list');
-  if(!PDFS.length){c.innerHTML='<div class="empty"><div class="ei">📁</div><p>Nessun PDF caricato</p></div>';return;}
-  c.innerHTML=PDFS.map(p=>`<div class="pdi">
-    <div class="pdic">📄</div>
-    <div style="flex:1"><div class="pdin">${p.title}</div><div class="pdim">${p.category} · ${p.year} · ${p.filename}</div></div>
-    <div style="display:flex;gap:6px">
-      <a href="${p.url}" target="_blank" class="btn bgh bsm">👁 Apri</a>
-      <button class="btn bdn bsm" onclick="delPDF('${p.id}')">🗑️</button>
-    </div>
-  </div>`).join('');
+  if(!PDFS.length){c.innerHTML='<div class="empty"><div class="ei">📁</div><p>Nessun PDF aggiunto</p></div>';return;}
+  const byCat={};PDFS.forEach(p=>{if(!byCat[p.category])byCat[p.category]=[];byCat[p.category].push(p);});
+  c.innerHTML=Object.entries(byCat).map(([cat,items])=>`
+    <div style="margin-bottom:16px">
+      <div style="font-size:.7rem;font-weight:700;color:var(--l4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${cat}</div>
+      ${items.map(p=>`<div class="pdi">
+        <div class="pdic">📄</div>
+        <div style="flex:1">
+          <div class="pdin">${p.title}</div>
+          <div class="pdim">${p.author?p.author+' · ':''}${p.year||''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="${p.url}" target="_blank" class="btn bgh bsm">👁 Apri</a>
+          <button class="btn bdn bsm" onclick="delPDF('${p.id}')">🗑️</button>
+        </div>
+      </div>`).join('')}
+    </div>`).join('');
 }
 async function delPDF(id){
-  if(!confirm('Eliminare questo PDF?'))return;
-  try{await db.collection('pdfGuide').doc(id).delete();PDFS=PDFS.filter(x=>x.id!==id);renderPDFList();toast('PDF eliminato','s');}
+  if(!confirm('Rimuovere questo PDF dall\'archivio?'))return;
+  try{await db.collection('pdfGuide').doc(id).delete();PDFS=PDFS.filter(x=>x.id!==id);renderPDFList();toast('PDF rimosso','s');}
   catch(e){toast('Errore: '+e.message,'e');}
 }
 
@@ -1222,20 +1262,24 @@ function renderPrintPreview(){
 }
 
 // ═══════════════════════════════
-//  LOGO UPLOAD
+//  LOGO — URL esterno
 // ═══════════════════════════════
-async function uploadLogo(file){
-  if(!file||!file.type.startsWith('image/')){toast('Solo immagini','e');return;}
-  try{
-    const ref=storage.ref(`logo/${Date.now()}_${file.name}`);
-    await ref.put(file);
-    logoURL=await ref.getDownloadURL();
-    CFG.print.header.logoUrl=logoURL;
-    document.getElementById('logo-prev').innerHTML=`<img src="${logoURL}" style="width:100px;height:100px;border-radius:16px;object-fit:contain">`;
-    toast('Logo caricato','s');renderPrintPreview();
-  }catch(e){toast('Errore upload: '+e.message,'e');}
+function previewLogo(url){
+  const prev=document.getElementById('logo-prev');
+  if(url&&url.startsWith('http')){
+    prev.innerHTML=`<img src="${url}" style="width:100px;height:100px;border-radius:16px;object-fit:contain" onerror="this.parentElement.innerHTML='<span style=font-size:1.5rem>❌</span><div style=font-size:.7rem;color:#ff6b6b;margin-top:4px>URL non raggiungibile</div>'">`;
+    logoURL=url; CFG.print.header.logoUrl=url;
+  } else {
+    prev.innerHTML='<div style="font-family:var(--fs);font-size:2rem;color:#fff">CG</div>';
+    logoURL=''; CFG.print.header.logoUrl='';
+  }
+  renderPrintPreview();
 }
-function removeLogo(){logoURL='';CFG.print.header.logoUrl='';document.getElementById('logo-prev').innerHTML='<div style="width:100px;height:100px;border-radius:16px;background:linear-gradient(135deg,#007AFF,#AF52DE);display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:2rem;color:#fff">CG</div>';renderPrintPreview();}
+function removeLogo(){
+  logoURL='';CFG.print.header.logoUrl='';sv('logo-url-inp','');
+  document.getElementById('logo-prev').innerHTML='<div style="font-family:var(--fs);font-size:2rem;color:#fff">CG</div>';
+  renderPrintPreview();
+}
 
 // ═══════════════════════════════
 //  SECURITY
