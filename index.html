@@ -2669,7 +2669,7 @@ function setFbStatus(state, msg) {
 async function loadAdminConfig() {
   if (!gsFirebaseReady) return;
   try {
-    // ── 1. Tema / Colori ──────────────────────────
+    // ── 1. Tema / Colori ──
     const themeDoc = await gsDb.collection('config').doc('theme').get();
     if (themeDoc.exists) {
       const cssVars = themeDoc.data().cssVars || {};
@@ -2678,11 +2678,11 @@ async function loadAdminConfig() {
       });
     }
 
-    // ── 2. Config stampa ──────────────────────────
+    // ── 2. Config stampa ──
     const printDoc = await gsDb.collection('config').doc('print').get();
     if (printDoc.exists) window._printCfg = printDoc.data();
 
-    // ── 3. Tipografia ────────────────────────────
+    // ── 3. Tipografia ──
     const typoDoc = await gsDb.collection('config').doc('typography').get();
     if (typoDoc.exists) {
       const t = typoDoc.data();
@@ -2691,14 +2691,54 @@ async function loadAdminConfig() {
       if (t.fontSize) document.documentElement.style.fontSize = t.fontSize + 'px';
     }
 
-    // ── 4. Farmaci da Firestore ───────────────────
+    // ── 4. Layout ── (NUOVO)
+    const layoutDoc = await gsDb.collection('config').doc('layout').get();
+    if (layoutDoc.exists) {
+      const l = layoutDoc.data();
+      if (l.sidebarWidth) document.querySelector('aside').style.width = l.sidebarWidth + 'px';
+      if (l.radius) {
+        document.documentElement.style.setProperty('--radius', l.radius + 'px');
+        document.documentElement.style.setProperty('--radius-sm', Math.max(4, l.radius - 4) + 'px');
+        document.documentElement.style.setProperty('--radius-lg', (l.radius + 6) + 'px');
+      }
+      if (l.sidebarStyle === 'light') document.documentElement.style.setProperty('--sidebar', '#ffffff');
+      else if (l.sidebarStyle === 'primary') document.documentElement.style.setProperty('--sidebar', 'var(--primary)');
+    }
+
+    // ── 5. Dashboard ── (NUOVO)
+    const dashDoc = await gsDb.collection('config').doc('dashboard').get();
+    if (dashDoc.exists) {
+      const d = dashDoc.data();
+      if (d.title) document.querySelector('.page-title').textContent = d.title;
+      if (d.welcome) document.querySelector('.page-subtitle').textContent = d.welcome;
+      if (d.showStats) {
+        const cards = document.querySelectorAll('.stat-card');
+        if (cards[0]) cards[0].style.display = d.showStats.pazienti !== false ? 'flex' : 'none';
+        if (cards[1]) cards[1].style.display = d.showStats.visite !== false ? 'flex' : 'none';
+        if (cards[2]) cards[2].style.display = d.showStats.alert !== false ? 'flex' : 'none';
+        if (cards[3]) cards[3].style.display = d.showStats.oggi !== false ? 'flex' : 'none';
+      }
+    }
+
+    // ── 6. Macro & Testi ── (NUOVO)
+    const macroDoc = await gsDb.collection('config').doc('macros').get();
+    if (macroDoc.exists) {
+      const m = macroDoc.data();
+      MAC.gyno.anamnesi = m.an || MAC.gyno.anamnesi;
+      MAC.gyno.speculo = m.sp || MAC.gyno.speculo;
+      MAC.gyno.bimanuale = m.bi || MAC.gyno.bimanuale;
+      MAC.diagnosi = m.di || MAC.diagnosi;
+      MAC.terapia = m.te || MAC.terapia;
+      MAC.consigli = m.co || MAC.consigli;
+    }
+
+    // ── 7. Farmaci ──
     const farmaciSnap = await gsDb.collection('farmaci').get();
     if (!farmaciSnap.empty) {
       window._adminFarmaci = farmaciSnap.docs.map(d => ({
-        id: d.id, n: d.data().nome, p: d.data().pa||d.data().principio,
+        id: d.id, n: d.data().nome, p: d.data().pa || d.data().principio,
         dose: d.data().dose, cat: d.data().cat
       }));
-      // Sovrascrive FARMACI locale con quelli da Firebase
       if (window._adminFarmaci.length) {
         FARMACI.length = 0;
         window._adminFarmaci.forEach(f => FARMACI.push(f));
@@ -2706,22 +2746,21 @@ async function loadAdminConfig() {
       }
     }
 
-    // ── 5. Linee Guida testuali ───────────────────
+    // ── 8. Linee Guida ──
     const guideSnap = await gsDb.collection('lineeGuida').get();
     if (!guideSnap.empty) {
       window._adminGuide = guideSnap.docs.map(d => ({id: d.id, ...d.data()}));
-      // Integra le guide da Firebase nella sezione linee guida
       applyAdminGuides(window._adminGuide);
     }
 
-    // ── 6. PDF Linee Guida ────────────────────────
+    // ── 9. PDF ──
     const pdfSnap = await gsDb.collection('pdfGuide').get();
     if (!pdfSnap.empty) {
       window._adminPDF = pdfSnap.docs.map(d => ({id: d.id, ...d.data()}));
       injectPDFSection(window._adminPDF);
     }
 
-    // ── 7. Password da Firebase ───────────────────
+    // ── 10. Security ──
     const secDoc = await gsDb.collection('config').doc('security').get();
     if (secDoc.exists) {
       const sec = secDoc.data();
