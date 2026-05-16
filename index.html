@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GynoAdmin · Pannello di Controllo</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2f2f7;--sf:#fff;--sf2:#f5f5fa;--sf3:#ebebf0;
+  --side:#161618;--pr:#007AFF;--prdim:rgba(0,122,255,.12);
+  --gn:#34C759;--gndim:rgba(52,199,89,.12);
+  --rd:#FF3B30;--rddim:rgba(255,59,48,.12);
+  --or:#FF9500;--ordim:rgba(255,149,0,.12);
+  --pu:#AF52DE;
+  --lb:#1c1c1e;--l2:#3a3a3c;--l3:#636366;--l4:#8e8e93;
+  --sep:rgba(60,60,67,.12);
+  --r:12px;--rsm:8px;--rlg:20px;
+  --sh:0 2px 16px rgba(0,0,0,.06);--sh2:0 8px 30px rgba(0,0,0,.10);
+  --fn:-apple-system,'DM Sans',sans-serif;
+  --mn:'JetBrains Mono',monospace;
+  --fs:'DM Serif Display',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{font-family:var(--fn);background:var(--bg);color:var(--lb);display:flex;height:100vh;overflow:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:10px}
+/* LOGIN */
+#lov{position:fixed;inset:0;background:var(--side);z-index:9999;display:flex;align-items:center;justify-content:center}
+.lc{background:rgba(255,255,255,.05);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.1);padding:48px 44px;border-radius:24px;width:380px;text-align:center}
+.lc h1{font-family:var(--fs);color:#fff;font-size:2rem;margin-bottom:6px}
+.lc p{color:rgba(255,255,255,.4);font-size:.85rem;margin-bottom:28px}
+.lbadge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,59,48,.2);color:#ff6b6b;padding:4px 14px;border-radius:20px;font-size:.7rem;font-weight:700;margin-bottom:18px;letter-spacing:.5px}
+.li{width:100%;padding:13px 18px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.12);border-radius:12px;color:#fff;font-size:1rem;text-align:center;letter-spacing:4px;font-family:var(--fn);transition:.2s}
+.li:focus{outline:none;border-color:var(--pr);background:rgba(0,122,255,.15)}
+.li::placeholder{letter-spacing:0;color:rgba(255,255,255,.25)}
+.lbtn{width:100%;margin-top:14px;padding:13px;background:var(--pr);border:none;border-radius:12px;color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;font-family:var(--fn);transition:.2s}
+.lbtn:hover{background:#0066d6;transform:translateY(-1px)}
+.lerr{color:#ff6b6b;font-size:.82rem;margin-top:10px;display:none}
+/* SIDEBAR */
+aside{width:260px;background:var(--side);display:flex;flex-direction:column;flex-shrink:0}
+.brand{padding:22px 18px 14px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px}
+.bav{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--rd),var(--or));display:flex;align-items:center;justify-content:center;font-family:var(--fs);color:#fff;font-size:.95rem;flex-shrink:0}
+.bname{color:#fff;font-weight:700;font-size:.9rem}
+.bsub{color:rgba(255,255,255,.35);font-size:.7rem;margin-top:1px}
+.fbst{display:flex;align-items:center;gap:6px;padding:8px 18px;font-size:.7rem;color:rgba(255,255,255,.3)}
+.fbd{width:6px;height:6px;border-radius:50%;background:var(--l4);flex-shrink:0;transition:background .3s}
+.fbd.ok{background:var(--gn)}.fbd.err{background:var(--rd)}
+.tree{flex:1;overflow-y:auto;padding:8px 10px}
+.fhdr{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.4);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.9px;transition:.15s;user-select:none}
+.fhdr:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.7)}
+.fhdr.open{color:rgba(255,255,255,.6)}
+.fhdr .ch{margin-left:auto;font-size:.6rem;transition:transform .2s}
+.fhdr.open .ch{transform:rotate(90deg)}
+.fitems{display:none;padding-left:6px}
+.fhdr.open+.fitems{display:block}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.5);font-size:.82rem;font-weight:500;transition:all .15s;margin-bottom:1px}
+.ni:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.ni.active{background:rgba(0,122,255,.22);color:#fff;font-weight:600}
+.ni .ico{font-size:.88rem;width:18px;text-align:center}
+.sfoot{padding:10px 10px 16px;border-top:1px solid rgba(255,255,255,.06)}
+.sfbtn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;background:transparent;border:none;color:rgba(255,255,255,.35);font-family:var(--fn);font-size:.78rem;cursor:pointer;border-radius:8px;transition:.15s}
+.sfbtn:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
+/* MAIN */
+main{flex:1;overflow-y:auto}
+.panel{display:none;padding:30px 36px;animation:fu .25s ease}
+.panel.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:26px}
+.pt{font-family:var(--fs);font-size:1.8rem;color:var(--lb)}
+.ps{color:var(--l4);font-size:.82rem;margin-top:4px}
+/* CARD */
+.card{background:var(--sf);border:1px solid var(--sep);border-radius:var(--r);padding:22px;margin-bottom:14px;box-shadow:var(--sh)}
+.card:hover{box-shadow:var(--sh2)}
+.cht{font-size:.92rem;font-weight:700;color:var(--lb);margin-bottom:4px}
+.chs{font-size:.78rem;color:var(--l4)}
+.chdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.sl{font-size:.68rem;font-weight:700;color:var(--l4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sl::after{content:'';flex:1;height:1px;background:var(--sep)}
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:5px}
+label.fl{font-size:.7rem;font-weight:700;color:var(--l4);text-transform:uppercase;letter-spacing:.4px}
+input[type=text],input[type=email],input[type=password],input[type=number],select,textarea{width:100%;padding:9px 13px;background:var(--sf2);border:1.5px solid transparent;border-radius:var(--rsm);font-family:var(--fn);font-size:.875rem;color:var(--lb);transition:.15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pr);background:#fff;box-shadow:0 0 0 3px var(--prdim)}
+textarea{resize:vertical;min-height:72px;line-height:1.6}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%238e8e93' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:28px}
+input[type=color]{width:42px;height:34px;padding:2px;border-radius:7px;cursor:pointer;border:1.5px solid var(--sep)}
+.gr2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.gr4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hint{font-size:.72rem;color:var(--l4)}
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:var(--rsm);cursor:pointer;font-weight:600;font-family:var(--fn);font-size:.85rem;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.bp{background:var(--pr);color:#fff}.bp:hover{background:#0066d6}
+.bg{background:var(--gn);color:#fff}.bg:hover{background:#28a745}
+.br{background:var(--rd);color:#fff}
+.bgh{background:var(--sf2);color:var(--l2);border:1.5px solid var(--sep)}.bgh:hover{background:var(--sf3)}
+.bsm{padding:6px 12px;font-size:.78rem;border-radius:7px}
+.bic{width:32px;height:32px;padding:0;justify-content:center;border-radius:7px}
+.bdn{background:var(--rddim);color:var(--rd);border:1px solid transparent}.bdn:hover{background:var(--rd);color:#fff}
+/* TOGGLE */
+.tr{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--sep)}
+.tr:last-child{border-bottom:none}
+.tit{font-size:.875rem;font-weight:600;color:var(--lb)}
+.tis{font-size:.76rem;color:var(--l4);margin-top:2px}
+.tgl{position:relative;width:44px;height:26px;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0}
+.ts{position:absolute;inset:0;background:var(--sf3);border-radius:13px;cursor:pointer;transition:.2s}
+.ts::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.tgl input:checked+.ts{background:var(--gn)}
+.tgl input:checked+.ts::before{transform:translateX(18px)}
+/* COLOR ROW */
+.cr{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sep)}
+.cr:last-child{border-bottom:none}
+.crn{font-size:.875rem;font-weight:600;color:var(--lb)}
+.crv{font-size:.7rem;color:var(--l4);font-family:var(--mn)}
+.crp{width:26px;height:26px;border-radius:6px;border:1px solid var(--sep);flex-shrink:0}
+/* SORTABLE */
+.sl-list{display:flex;flex-direction:column;gap:6px}
+.si{background:var(--sf);border:1.5px solid var(--sep);border-radius:var(--rsm);padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:grab;transition:.15s;user-select:none}
+.si:active{cursor:grabbing}
+.si.dragging{opacity:.4}
+.si.dov{border-color:var(--pr);background:var(--prdim)}
+.si .sh{color:var(--l4);font-size:1rem;cursor:grab}
+.si .slab{flex:1;font-size:.875rem;font-weight:500;color:var(--lb)}
+.si .sedit{display:none;background:transparent;border:1.5px solid var(--sep);border-radius:6px;padding:4px 8px;font-size:.85rem;font-family:var(--fn);color:var(--lb);flex:1}
+.si .sedit.show{display:block}
+.sbadge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.sbadge.req{background:var(--rddim);color:var(--rd)}
+.sbadge.opt{background:var(--sf2);color:var(--l4)}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{padding:10px 14px;text-align:left;font-size:.68rem;font-weight:700;color:var(--l4);text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--sep)}
+.tbl td{padding:11px 14px;font-size:.875rem;color:var(--l2);border-bottom:1px solid var(--sep)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--sf2)}
+.tdn{font-weight:600;color:var(--lb)}
+/* UPLOAD */
+.uz{border:2px dashed var(--sep);border-radius:var(--r);padding:30px;text-align:center;cursor:pointer;transition:.2s}
+.uz:hover,.uz.dov{border-color:var(--pr);background:var(--prdim)}
+.uz .uzi{font-size:2.2rem;margin-bottom:10px}
+.uz p{color:var(--l4);font-size:.875rem}
+.uz strong{color:var(--pr)}
+.progbar{height:4px;background:var(--sep);border-radius:2px;overflow:hidden;margin-top:10px;display:none}
+.pbf{height:100%;background:var(--pr);border-radius:2px;transition:width .3s}
+/* PDF LIST */
+.pdi{background:var(--sf);border:1px solid var(--sep);border-radius:var(--rsm);padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:.15s}
+.pdi:hover{box-shadow:var(--sh)}
+.pdic{width:38px;height:38px;border-radius:9px;background:var(--rddim);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.pdin{font-weight:600;font-size:.875rem;color:var(--lb)}
+.pdim{font-size:.73rem;color:var(--l4);margin-top:2px}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:700}
+.bb{background:var(--prdim);color:var(--pr)}
+.bgr{background:var(--gndim);color:#1a7a32}
+.brd{background:var(--rddim);color:#c0392b}
+.bgr2{background:var(--sf3);color:var(--l4)}
+.bor{background:var(--ordim);color:#b35900}
+/* TOAST */
+#tc{position:fixed;bottom:22px;right:22px;z-index:9000;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:#1c1c1e;color:#fff;padding:11px 16px;border-radius:11px;font-size:.83rem;font-weight:500;display:flex;align-items:center;gap:9px;box-shadow:0 8px 30px rgba(0,0,0,.3);pointer-events:auto;animation:tin .3s ease;max-width:310px}
+.toast.s{border-left:3px solid var(--gn)}.toast.e{border-left:3px solid var(--rd)}.toast.i{border-left:3px solid var(--pr)}
+@keyframes tin{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+/* MODAL */
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:5000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.mov.show{display:flex}
+.mbox{background:var(--sf);border-radius:var(--rlg);padding:30px;width:540px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mbox h3{font-family:var(--fs);font-size:1.35rem;margin-bottom:6px}
+.mbox .mp{color:var(--l4);font-size:.83rem;margin-bottom:20px}
+/* CODE */
+.cb{background:var(--side);border-radius:var(--rsm);padding:16px;font-family:var(--mn);font-size:.75rem;color:#a8ff78;line-height:1.7;overflow-x:auto;position:relative;white-space:pre}
+.cc{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:.7rem;font-family:var(--fn)}
+.cc:hover{background:rgba(255,255,255,.2);color:#fff}
+/* TABS */
+.tabbar{display:flex;gap:5px;margin-bottom:18px;background:var(--sf2);border-radius:9px;padding:4px}
+.tp{padding:6px 15px;border-radius:7px;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--l4);border:none;background:transparent;font-family:var(--fn);transition:.15s}
+.tp.active{background:var(--sf);color:var(--lb);box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.sub{display:none}.sub.active{display:block}
+/* RANGE */
+input[type=range]{width:100%;accent-color:var(--pr)}
+.rv{font-size:.85rem;font-weight:700;color:var(--pr);min-width:38px;text-align:right}
+/* MISC */
+.empty{text-align:center;padding:40px 20px;color:var(--l4)}
+.empty .ei{font-size:2.2rem;margin-bottom:10px}
+.divider{height:1px;background:var(--sep);margin:18px 0}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="lov">
+  <div class="lc">
+    <div class="lbadge">🛡️ ACCESSO AMMINISTRATORE</div>
+    <h1>GynoAdmin</h1>
+    <p>Pannello controllo · GynoSystem v15</p>
+    <input type="password" id="lpass" class="li" placeholder="Password admin" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Accedi al Pannello</button>
+    <div id="lerr" class="lerr">Password non valida. Riprova.</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside>
+  <div class="brand">
+    <div class="bav">GA</div>
+    <div><div class="bname">GynoAdmin</div><div class="bsub">Pannello di Controllo</div></div>
+  </div>
+  <div class="fbst"><div class="fbd" id="fbd"></div><span id="fbst">Connessione...</span></div>
+  <div class="tree">
+
+    <div class="folder">
+      <div class="fhdr open" onclick="this.classList.toggle('open')"><span>🎨</span>Grafica<span class="ch">›</span></div>
+      <div class="fitems">
+        <div class="ni active" onclick="go(this,'p-colors')"><span class="ico">🎨</span>Colori & Tema</div>
+        <div class="ni" onclick="go(this,'p-typo')"><span class="ico">✏️</span>Tipografia</div>
+        <div class="ni" onclick="go(this,'p-layout')"><span class="ico">📐</span>Layout & Sidebar</div>
+      </div>
+    </div>
+
+    <div class="folder">
+      <div class="fhdr" onclick="this.classList.toggle('open')"><span>📋</span>Contenuto<span class="ch">›</span></div>
+      <div class="fitems">
+        <div class="ni" onclick="go(this,'p-dashboard')"><span class="ico">🏠</span>Dashboard</div>
+        <div class="ni" onclick="go(this,'p-ana')"><span class="ico">👤</span>Anagrafica</div>
+        <div class="ni" onclick="go(this,'p-visite')"><span class="ico">🩺</span>Schede Visita</div>
+        <div class="ni" onclick="go(this,'p-macro')"><span class="ico">📝</span>Macro & Testi</div>
+      </div>
+    </div>
+
+    <div class="folder">
+      <div class="fhdr" onclick="this.classList.toggle('open')"><span>📚</span>Documenti<span class="ch">›</span></div>
+      <div class="fitems">
+        <div class="ni" onclick="go(this,'p-pdf')"><span class="ico">📄</span>PDF Linee Guida</div>
+        <div class="ni" onclick="go(this,'p-guide')"><span class="ico">📋</span>Voci Testuali</div>
+        <div class="ni" onclick="go(this,'p-farmaci')"><span class="ico">💊</span>Farmacia</div>
+      </div>
+    </div>
+
+    <div class="folder">
+      <div class="fhdr" onclick="this.classList.toggle('open')"><span>🖨️</span>Stampa Referto<span class="ch">›</span></div>
+      <div class="fitems">
+        <div class="ni" onclick="go(this,'p-phdr')"><span class="ico">🖼️</span>Intestazione & Logo</div>
+        <div class="ni" onclick="go(this,'p-psec')"><span class="ico">☑️</span>Sezioni Mostrate</div>
+        <div class="ni" onclick="go(this,'p-play')"><span class="ico">📐</span>Layout & Stile</div>
+      </div>
+    </div>
+
+    <div class="folder">
+      <div class="fhdr" onclick="this.classList.toggle('open')"><span>⚙️</span>Sistema<span class="ch">›</span></div>
+      <div class="fitems">
+        <div class="ni" onclick="go(this,'p-sec')"><span class="ico">🔐</span>Password & Accesso</div>
+        <div class="ni" onclick="go(this,'p-export')"><span class="ico">📤</span>Export Config</div>
+        <div class="ni" onclick="go(this,'p-integ')"><span class="ico">🔗</span>Integrazione</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="sfoot">
+    <button class="sfbtn" onclick="saveAll()">💾 Salva tutto su Firebase</button>
+    <button class="sfbtn" onclick="window.open('GynoSystem_v15.html','_blank')">↗️ Apri GynoSystem</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main>
+
+<!-- ══ COLORI ══ -->
+<div id="p-colors" class="panel active">
+  <div class="ph">
+    <div><div class="pt">Colori & Tema</div><div class="ps">Palette cromatica applicata a GynoSystem via Firebase</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn bgh" onclick="resetColors()">↺ Default</button>
+      <button class="btn bp" onclick="saveSection('theme')">💾 Salva Tema</button>
+    </div>
+  </div>
+  <div class="gr2">
+    <div class="card"><div class="chdr"><div><div class="cht">Colori Principali</div><div class="chs">Accenti e UI</div></div></div><div id="cprim"></div></div>
+    <div class="card"><div class="chdr"><div><div class="cht">Sfondi & Superfici</div><div class="chs">Background e card</div></div></div><div id="csurf"></div></div>
+  </div>
+  <div class="card">
+    <div class="cht" style="margin-bottom:14px">Anteprima Live</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;padding:16px;background:var(--sf2);border-radius:8px;border:1px solid var(--sep)">
+      <div id="pv-pr" style="padding:9px 20px;border-radius:8px;color:#fff;font-weight:600;font-size:.85rem">Primario</div>
+      <div id="pv-gn" style="padding:9px 20px;border-radius:8px;color:#fff;font-weight:600;font-size:.85rem">Conferma</div>
+      <div id="pv-rd" style="padding:9px 20px;border-radius:8px;color:#fff;font-weight:600;font-size:.85rem">Elimina</div>
+      <div id="pv-sd" style="padding:9px 20px;border-radius:8px;color:#fff;font-weight:600;font-size:.85rem">Sidebar</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TIPOGRAFIA ══ -->
+<div id="p-typo" class="panel">
+  <div class="ph"><div><div class="pt">Tipografia</div><div class="ps">Font, dimensioni e stile del testo</div></div><button class="btn bp" onclick="saveSection('typography')">💾 Salva</button></div>
+  <div class="gr2">
+    <div class="card">
+      <div class="cht" style="margin-bottom:18px">Font Principale</div>
+      <div class="fg" style="margin-bottom:14px"><label class="fl">Famiglia Font</label>
+        <select id="t-fmain">
+          <option value="-apple-system,'DM Sans',sans-serif">DM Sans (Default)</option>
+          <option value="-apple-system,'Inter',sans-serif">Inter</option>
+          <option value="-apple-system,sans-serif">System UI</option>
+          <option value="'Roboto',sans-serif">Roboto</option>
+          <option value="'Lato',sans-serif">Lato</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Dimensione Base (px)</label>
+        <div style="display:flex;align-items:center;gap:10px">
+          <input type="range" id="t-fsize" min="13" max="18" value="15" oninput="this.nextElementSibling.textContent=this.value+'px'">
+          <span class="rv">15px</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cht" style="margin-bottom:18px">Font Titoli & Stampa</div>
+      <div class="fg" style="margin-bottom:14px"><label class="fl">Font Serif (Titoli)</label>
+        <select id="t-fserif">
+          <option value="'DM Serif Display',Georgia,serif">DM Serif Display (Default)</option>
+          <option value="'Playfair Display',Georgia,serif">Playfair Display</option>
+          <option value="Georgia,serif">Georgia</option>
+          <option value="'Times New Roman',serif">Times New Roman</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Font Codice / Monospazio</label>
+        <select id="t-fmono">
+          <option value="'JetBrains Mono',monospace">JetBrains Mono (Default)</option>
+          <option value="'Courier New',monospace">Courier New</option>
+          <option value="monospace">Sistema</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="cht" style="margin-bottom:12px">Anteprima</div>
+    <div style="border:1px solid var(--sep);border-radius:8px;padding:20px;background:var(--sf2)">
+      <div style="font-family:var(--fs);font-size:1.5rem;margin-bottom:8px">Referto Ginecologico · Dr.ssa Guidi</div>
+      <div style="font-size:.875rem;color:var(--l3);line-height:1.7">La paziente si presenta per controllo annuale. Esame obiettivo nella norma. Portio epitelizzata, os chiuso. Utero normodimensionato, mobile, non dolente. Annessi negativi bilateralmente. Nessuna patologia rilevata.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LAYOUT ══ -->
+<div id="p-layout" class="panel">
+  <div class="ph"><div><div class="pt">Layout & Sidebar</div><div class="ps">Dimensioni, raggi e struttura interfaccia</div></div><button class="btn bp" onclick="saveSection('layout')">💾 Salva</button></div>
+  <div class="gr2">
+    <div class="card">
+      <div class="cht" style="margin-bottom:18px">Dimensioni Interfaccia</div>
+      <div class="fg" style="margin-bottom:14px"><label class="fl">Larghezza Sidebar (px)</label>
+        <div style="display:flex;align-items:center;gap:10px"><input type="range" id="l-sw" min="200" max="320" value="260" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="rv">260px</span></div>
+      </div>
+      <div class="fg"><label class="fl">Border Radius (px)</label>
+        <div style="display:flex;align-items:center;gap:10px"><input type="range" id="l-rad" min="0" max="24" value="14" oninput="this.nextElementSibling.textContent=this.value+'px'"><span class="rv">14px</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="cht" style="margin-bottom:18px">Stile Interfaccia</div>
+      <div class="fg" style="margin-bottom:14px"><label class="fl">Intensità Ombre</label>
+        <select id="l-shad"><option value="none">Nessuna</option><option value="light" selected>Lieve (Default)</option><option value="medium">Media</option><option value="strong">Pronunciata</option></select>
+      </div>
+      <div class="fg"><label class="fl">Tema Sidebar</label>
+        <select id="l-stheme"><option value="dark" selected>Scuro (Default)</option><option value="light">Chiaro</option><option value="primary">Blu Primario</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="p-dashboard" class="panel">
+  <div class="ph"><div><div class="pt">Dashboard</div><div class="ps">Widget, statistiche e testi dell'interfaccia principale</div></div><button class="btn bp" onclick="saveSection('dashboard')">💾 Salva</button></div>
+  <div class="gr2">
+    <div class="card"><div class="cht" style="margin-bottom:18px">Widget Statistiche</div><div id="dw-list"></div></div>
+    <div class="card">
+      <div class="cht" style="margin-bottom:18px">Testi</div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Titolo Dashboard</label><input type="text" id="d-title" value="Dashboard"></div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Messaggio Benvenuto</label><input type="text" id="d-welcome" value="Benvenuta, Dr.ssa Guidi"></div>
+      <div class="tr"><div><div class="tit">Orologio digitale</div><div class="tis">Mostra ora e data in tempo reale</div></div>
+        <label class="tgl"><input type="checkbox" id="d-clock" checked><div class="ts"></div></label>
+      </div>
+      <div class="tr" style="margin-top:4px"><div><div class="tit">Calendario nella Dashboard</div></div>
+        <label class="tgl"><input type="checkbox" id="d-cal" checked><div class="ts"></div></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ANAGRAFICA ══ -->
+<div id="p-ana" class="panel">
+  <div class="ph"><div><div class="pt">Campi Anagrafica</div><div class="ps">Trascina per riordinare · Toggle visibilità · Modifica etichette</div></div>
+    <div style="display:flex;gap:8px"><button class="btn bgh" onclick="addAnaField()">+ Campo</button><button class="btn bp" onclick="saveSection('anagrafica')">💾 Salva</button></div>
+  </div>
+  <div class="card"><div class="sl-list" id="ana-list"></div></div>
+</div>
+
+<!-- ══ VISITE ══ -->
+<div id="p-visite" class="panel">
+  <div class="ph"><div><div class="pt">Schede Visita</div><div class="ps">Configura campi per ogni tipo di visita · I toggle si salvano su Firebase</div></div><button class="btn bp" onclick="saveSection('visite')">💾 Salva</button></div>
+  <div class="tabbar">
+    <button class="tp active" onclick="swTab(this,'vt-gyno')">🌸 Ginecologica</button>
+    <button class="tp" onclick="swTab(this,'vt-ob')">🤰 Ostetrica</button>
+    <button class="tp" onclick="swTab(this,'vt-eco')">🖥️ Ecografia</button>
+  </div>
+  <div id="vt-gyno" class="sub active"><div id="gyno-fl"></div></div>
+  <div id="vt-ob" class="sub"><div id="ob-fl"></div></div>
+  <div id="vt-eco" class="sub"><div id="eco-fl"></div></div>
+</div>
+
+<!-- ══ MACRO ══ -->
+<div id="p-macro" class="panel">
+  <div class="ph"><div><div class="pt">Macro & Testi Precompilati</div><div class="ps">Modifica i testi rapidi disponibili durante la compilazione del referto</div></div><button class="btn bp" onclick="saveSection('macros')">💾 Salva</button></div>
+  <div class="tabbar">
+    <button class="tp active" onclick="swTab(this,'mt-an')">Anamnesi</button>
+    <button class="tp" onclick="swTab(this,'mt-sp')">Speculoscopia</button>
+    <button class="tp" onclick="swTab(this,'mt-bi')">Bimanuale</button>
+    <button class="tp" onclick="swTab(this,'mt-di')">Diagnosi</button>
+    <button class="tp" onclick="swTab(this,'mt-te')">Terapia</button>
+    <button class="tp" onclick="swTab(this,'mt-co')">Consigli</button>
+  </div>
+  <div id="mt-an" class="sub active"><div class="card"><div id="ml-an"></div><button class="btn bgh bsm" style="margin-top:10px" onclick="addMacro('an')">+ Aggiungi</button></div></div>
+  <div id="mt-sp" class="sub"><div class="card"><div id="ml-sp"></div><button class="btn bgh bsm" style="margin-top:10px" onclick="addMacro('sp')">+ Aggiungi</button></div></div>
+  <div id="mt-bi" class="sub"><div class="card"><div id="ml-bi"></div><button class="btn bgh bsm" style="margin-top:10px" onclick="addMacro('bi')">+ Aggiungi</button></div></div>
+  <div id="mt-di" class="sub"><div class="card"><div id="ml-di"></div><button class="btn bgh bsm" style="margin-top:10px" onclick="addMacro('di')">+ Aggiungi</button></div></div>
+  <div id="mt-te" class="sub"><div class="card"><div id="ml-te"></div><button class="btn bgh bsm" style="margin-top:10px" onclick="addMacro('te')">+ Aggiungi</button></div></div>
+  <div id="mt-co" class="sub"><div class="card"><div id="ml-co"></div><button class="btn bgh bsm" style="margin-top:10px" onclick="addMacro('co')">+ Aggiungi</button></div></div>
+</div>
+
+<!-- ══ PDF ══ -->
+<div id="p-pdf" class="panel">
+  <div class="ph"><div><div class="pt">PDF Linee Guida</div><div class="ps">Carica PDF su Firebase Storage · Visibili in GynoSystem nella sezione Linee Guida</div></div></div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="sl">Carica Nuovo PDF</div>
+    <div class="gr3" style="margin-bottom:12px">
+      <div class="fg"><label class="fl">Titolo *</label><input type="text" id="pdf-title" placeholder="es. Linee Guida ACOG 2024"></div>
+      <div class="fg"><label class="fl">Categoria</label>
+        <select id="pdf-cat"><option>Ostetricia</option><option>Ginecologia</option><option>Ecografia</option><option>Laboratorio</option><option>Oncologia</option><option>Contraccezione</option><option>Altro</option></select>
+      </div>
+      <div class="fg"><label class="fl">Anno</label><input type="number" id="pdf-year" placeholder="2024"></div>
+    </div>
+    <div class="uz" id="uzone" onclick="document.getElementById('pfi').click()" ondragover="dov(event)" ondragleave="dol(event)" ondrop="ddr(event)">
+      <div class="uzi">📄</div>
+      <p><strong>Clicca o trascina</strong> un file PDF qui</p>
+      <p style="font-size:.75rem;margin-top:4px">Max 20MB · Solo PDF</p>
+    </div>
+    <input type="file" id="pfi" accept=".pdf" style="display:none" onchange="uploadPDF(this.files[0])">
+    <div class="progbar" id="ppb"><div class="pbf" id="ppbf"></div></div>
+  </div>
+  <div class="card">
+    <div class="sl">PDF Caricati su Firebase</div>
+    <div id="pdf-list"><div class="empty"><div class="ei">📁</div><p>Nessun PDF caricato</p></div></div>
+  </div>
+</div>
+
+<!-- ══ GUIDE TESTUALI ══ -->
+<div id="p-guide" class="panel">
+  <div class="ph"><div><div class="pt">Voci Testuali Linee Guida</div><div class="ps">Schede accordion visibili in GynoSystem · Salvate su Firestore</div></div>
+    <button class="btn bp" onclick="openGuideModal()">+ Nuova Voce</button>
+  </div>
+  <div id="guide-list"><div class="empty"><div class="ei">📋</div><p>Nessuna voce. Clicca "+ Nuova Voce".</p></div></div>
+</div>
+
+<!-- ══ FARMACIA ══ -->
+<div id="p-farmaci" class="panel">
+  <div class="ph"><div><div class="pt">Prontuario Farmaceutico</div><div class="ps">CRUD completo del database farmaci · Sincronizzato con Firebase</div></div>
+    <button class="btn bp" onclick="openFarmModal()">+ Farmaco</button>
+  </div>
+  <div class="card">
+    <input type="text" id="fs" placeholder="🔍  Cerca farmaco o principio attivo..." oninput="renderFarmaci()" style="max-width:380px;margin-bottom:14px">
+    <table class="tbl">
+      <thead><tr><th>Nome Commerciale</th><th>Principio Attivo</th><th>Dosaggio / Note</th><th>Categoria</th><th>Azioni</th></tr></thead>
+      <tbody id="ftb"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ STAMPA INTESTAZIONE ══ -->
+<div id="p-phdr" class="panel">
+  <div class="ph"><div><div class="pt">Intestazione Referto</div><div class="ps">Dati medico, logo e header del documento stampato</div></div><button class="btn bp" onclick="saveSection('print')">💾 Salva</button></div>
+  <div class="gr2">
+    <div class="card">
+      <div class="sl">Dati del Medico</div>
+      <div class="fg" style="margin-bottom:11px"><label class="fl">Nome e Cognome</label><input type="text" id="pr-name" value="Dr.ssa Cristina Guidi"></div>
+      <div class="fg" style="margin-bottom:11px"><label class="fl">Specializzazione</label><input type="text" id="pr-spec" value="Medico Chirurgo · Specialista in Ginecologia e Ostetricia"></div>
+      <div class="fg" style="margin-bottom:11px"><label class="fl">Indirizzo Studio</label><input type="text" id="pr-addr" value="Viale della Repubblica, 12 · 47890 San Marino"></div>
+      <div class="fg" style="margin-bottom:11px"><label class="fl">Telefono</label><input type="text" id="pr-tel" value="0549 999999"></div>
+      <div class="fg" style="margin-bottom:11px"><label class="fl">Email</label><input type="email" id="pr-email" value="cristina.guidi@med.sm"></div>
+      <div class="fg"><label class="fl">Partita IVA / CF Medico (opzionale)</label><input type="text" id="pr-piva" placeholder="Opzionale"></div>
+    </div>
+    <div class="card">
+      <div class="sl">Logo Studio</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div id="logo-prev" style="width:100px;height:100px;border-radius:16px;background:linear-gradient(135deg,#007AFF,#AF52DE);display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:2rem;color:#fff">CG</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn bgh bsm" onclick="document.getElementById('logo-inp').click()">📁 Carica Logo</button>
+          <button class="btn bdn bsm" onclick="removeLogo()">✕ Rimuovi</button>
+        </div>
+        <input type="file" id="logo-inp" accept="image/*" style="display:none" onchange="uploadLogo(this.files[0])">
+        <div style="width:100%">
+          <div class="tr"><div><div class="tit">Mostra Logo</div></div><label class="tgl"><input type="checkbox" id="pr-logo" checked><div class="ts"></div></label></div>
+          <div class="tr"><div><div class="tit">Mostra Data Visita</div></div><label class="tgl"><input type="checkbox" id="pr-date" checked><div class="ts"></div></label></div>
+          <div class="tr"><div><div class="tit">Mostra CF Paziente</div></div><label class="tgl"><input type="checkbox" id="pr-cf" checked><div class="ts"></div></label></div>
+          <div class="tr"><div><div class="tit">Mostra Data di Nascita</div></div><label class="tgl"><input type="checkbox" id="pr-dob" checked><div class="ts"></div></label></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sl">Anteprima Intestazione Stampa</div>
+    <div id="phdr-preview" style="border:1px solid var(--sep);border-radius:8px;padding:20px;background:#fff;font-family:'Times New Roman',serif"></div>
+    <button class="btn bgh bsm" style="margin-top:10px" onclick="renderPrintPreview()">↺ Aggiorna Anteprima</button>
+  </div>
+</div>
+
+<!-- ══ STAMPA SEZIONI ══ -->
+<div id="p-psec" class="panel">
+  <div class="ph"><div><div class="pt">Sezioni Referto</div><div class="ps">Scegli quali sezioni appaiono nel documento stampato</div></div><button class="btn bp" onclick="saveSection('print')">💾 Salva</button></div>
+  <div class="card"><div id="psec-list"></div></div>
+</div>
+
+<!-- ══ STAMPA LAYOUT ══ -->
+<div id="p-play" class="panel">
+  <div class="ph"><div><div class="pt">Layout & Stile Stampa</div><div class="ps">Margini, font e impaginazione del documento A4</div></div><button class="btn bp" onclick="saveSection('print')">💾 Salva</button></div>
+  <div class="gr2">
+    <div class="card">
+      <div class="sl">Margini Pagina (mm)</div>
+      <div class="gr2" style="margin-bottom:14px">
+        <div class="fg"><label class="fl">Superiore</label><input type="number" id="pl-mt" value="15" min="5" max="40"></div>
+        <div class="fg"><label class="fl">Inferiore</label><input type="number" id="pl-mb" value="15" min="5" max="40"></div>
+        <div class="fg"><label class="fl">Sinistro</label><input type="number" id="pl-ml" value="15" min="5" max="40"></div>
+        <div class="fg"><label class="fl">Destro</label><input type="number" id="pl-mr" value="15" min="5" max="40"></div>
+      </div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Font Referto</label>
+        <select id="pl-font"><option value="'Times New Roman',serif">Times New Roman (Classico)</option><option value="Georgia,serif">Georgia</option><option value="Arial,sans-serif">Arial</option><option value="'DM Sans',sans-serif">DM Sans (Moderno)</option></select>
+      </div>
+      <div class="fg"><label class="fl">Dimensione Testo (pt)</label>
+        <div style="display:flex;align-items:center;gap:10px"><input type="range" id="pl-sz" min="9" max="14" value="11" oninput="this.nextElementSibling.textContent=this.value+'pt'"><span class="rv">11pt</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sl">Stile Intestazione</div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Colore Linea Intestazione</label>
+        <div style="display:flex;align-items:center;gap:10px"><input type="color" id="pl-hc" value="#1c1c1e"><span class="hint">Linea divisoria header/body</span></div>
+      </div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Spessore Linea (px)</label><input type="number" id="pl-lw" value="2" min="1" max="6"></div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Interlinea Testo</label>
+        <select id="pl-lh"><option value="1.4">Compatta (1.4)</option><option value="1.6" selected>Normale (1.6)</option><option value="1.8">Ariosa (1.8)</option></select>
+      </div>
+      <div class="divider"></div>
+      <div class="fg"><label class="fl">Testo Footer / Note Legali</label>
+        <textarea id="pl-footer" rows="3">Documento generato da GynoSystem v15 · Copia per il paziente</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SICUREZZA ══ -->
+<div id="p-sec" class="panel">
+  <div class="ph"><div><div class="pt">Password & Accesso</div><div class="ps">Gestione credenziali di GynoSystem e GynoAdmin</div></div></div>
+  <div class="gr2">
+    <div class="card">
+      <div class="cht" style="margin-bottom:16px">Password GynoSystem</div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Password Principale</label><input type="text" id="gs-p1" value="CristinaSamu"><div class="hint">Usata per accedere a GynoSystem</div></div>
+      <div class="fg" style="margin-bottom:16px"><label class="fl">Password Alternativa</label><input type="text" id="gs-p2" value="Samuele2025"></div>
+      <button class="btn bp" onclick="saveGSPass()">💾 Salva Password</button>
+    </div>
+    <div class="card">
+      <div class="cht" style="margin-bottom:16px">Password Admin Panel</div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Password Attuale</label><input type="password" id="adm-cur" placeholder="Password attuale"></div>
+      <div class="fg" style="margin-bottom:12px"><label class="fl">Nuova Password</label><input type="password" id="adm-n1" placeholder="min. 8 caratteri"></div>
+      <div class="fg" style="margin-bottom:16px"><label class="fl">Conferma Nuova Password</label><input type="password" id="adm-n2"></div>
+      <button class="btn bp" onclick="changeAdminPass()">🔐 Cambia Password Admin</button>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px">
+    <div class="cht" style="margin-bottom:14px">Sessione Attiva</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="background:var(--sf2);padding:11px 16px;border-radius:8px;font-size:.82rem"><span style="color:var(--l4)">Accesso:</span> <strong id="slt">--</strong></div>
+      <div style="background:var(--sf2);padding:11px 16px;border-radius:8px;font-size:.82rem"><span style="color:var(--l4)">Firebase:</span> <strong id="sfbs">--</strong></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EXPORT ══ -->
+<div id="p-export" class="panel">
+  <div class="ph"><div><div class="pt">Export Configurazione</div><div class="ps">Scarica o visualizza la configurazione attuale</div></div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="cht" style="margin-bottom:6px">Config Completa (JSON)</div>
+    <div class="chs" style="margin-bottom:16px">Contiene tutte le impostazioni attualmente salvate</div>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn bp" onclick="exportConfig()">📥 Scarica config.json</button>
+      <button class="btn bgh" onclick="loadAll()">🔄 Ricarica da Firebase</button>
+    </div>
+    <div id="exp-prev" style="max-height:320px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ══ INTEGRAZIONE ══ -->
+<div id="p-integ" class="panel">
+  <div class="ph"><div><div class="pt">Guida Integrazione Firebase</div><div class="ps">Come collegare GynoSystem a questo pannello admin</div></div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="cht" style="margin-bottom:4px">Passo 1 · Firebase SDK in GynoSystem</div>
+    <div class="chs" style="margin-bottom:12px">Aggiungi nell'&lt;head&gt; di GynoSystem_v15.html</div>
+    <div class="cb">&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"&gt;&lt;/script&gt;
+&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"&gt;&lt;/script&gt;
+&lt;script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"&gt;&lt;/script&gt;<button class="cc" onclick="copyCode(this)">Copia</button></div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="cht" style="margin-bottom:4px">Passo 2 · Init + Carica Config</div>
+    <div class="chs" style="margin-bottom:12px">Incolla in fondo al &lt;body&gt; di GynoSystem, prima del &lt;/body&gt;</div>
+    <div class="cb">const firebaseConfig={apiKey:"AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",
+  authDomain:"gynosistem.firebaseapp.com",projectId:"gynosistem",
+  storageBucket:"gynosistem.firebasestorage.app",
+  messagingSenderId:"355036111162",
+  appId:"1:355036111162:web:dfe1e1aa73a1086d4ab003"};
+if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore(), storage=firebase.storage();
+
+async function loadAdminConfig(){
+  try{
+    const theme=await db.collection('config').doc('theme').get();
+    if(theme.exists){
+      Object.entries(theme.data().cssVars||{}).forEach(([k,v])=>{
+        document.documentElement.style.setProperty(k,v);
+      });
+    }
+    const print=await db.collection('config').doc('print').get();
+    if(print.exists) window._printCfg=print.data();
+    const fSnap=await db.collection('farmaci').orderBy('nome').get();
+    if(!fSnap.empty) window._adminFarmaci=fSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const gSnap=await db.collection('lineeGuida').get();
+    if(!gSnap.empty) window._adminGuide=gSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const pSnap=await db.collection('pdfGuide').get();
+    if(!pSnap.empty) window._adminPDF=pSnap.docs.map(d=>({id:d.id,...d.data()}));
+  }catch(e){console.warn('Config admin:',e);}
+}
+loadAdminConfig();<button class="cc" onclick="copyCode(this)">Copia</button></div>
+  </div>
+  <div class="card">
+    <div class="cht" style="margin-bottom:4px">Passo 3 · Regole Firestore</div>
+    <div class="chs" style="margin-bottom:12px">Configura nella Firebase Console → Firestore → Rules</div>
+    <div class="cb">rules_version='2';
+service cloud.firestore{
+  match/databases/{database}/documents{
+    match/config/{doc}{allow read:if true;allow write:if false;}
+    match/farmaci/{doc}{allow read:if true;allow write:if false;}
+    match/lineeGuida/{doc}{allow read:if true;allow write:if false;}
+    match/pdfGuide/{doc}{allow read:if true;allow write:if false;}
+  }
+}<button class="cc" onclick="copyCode(this)">Copia</button></div>
+  </div>
+</div>
+
+</main>
+
+<!-- MODAL FARMACO -->
+<div id="mf" class="mov">
+  <div class="mbox">
+    <h3 id="mft">Nuovo Farmaco</h3>
+    <div class="mp">Compila i campi · Salvato direttamente su Firebase Firestore</div>
+    <div class="gr2" style="margin-bottom:11px">
+      <div class="fg"><label class="fl">Nome Commerciale *</label><input type="text" id="mf-nome" placeholder="es. Progeffik 200"></div>
+      <div class="fg"><label class="fl">Principio Attivo *</label><input type="text" id="mf-pa" placeholder="es. Progesterone micronizzato"></div>
+    </div>
+    <div class="fg" style="margin-bottom:11px"><label class="fl">Dosaggio / Note *</label><textarea id="mf-dose" rows="2" placeholder="es. 200mg ovuli vaginali ore 22 per 10gg"></textarea></div>
+    <div class="fg" style="margin-bottom:20px"><label class="fl">Categoria</label>
+      <select id="mf-cat"><option value="integ">Integratore</option><option value="anti">Antibiotico</option><option value="ormo">Ormonale</option><option value="altro">Altro</option></select>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn bgh" onclick="closeModal('mf')">Annulla</button>
+      <button class="btn bp" onclick="saveFarmaco()">💾 Salva Farmaco</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GUIDA -->
+<div id="mg" class="mov">
+  <div class="mbox">
+    <h3 id="mgt">Nuova Voce Linee Guida</h3>
+    <div class="mp">Verrà salvata su Firestore e visibile in GynoSystem → Linee Guida</div>
+    <div class="gr2" style="margin-bottom:11px">
+      <div class="fg"><label class="fl">Titolo *</label><input type="text" id="mg-ti" placeholder="es. Ipertensione Gestazionale"></div>
+      <div class="fg"><label class="fl">Categoria</label>
+        <select id="mg-cat"><option>Ostetricia</option><option>Ginecologia</option><option>Ecografia</option><option>Laboratorio</option><option>Oncologia</option><option>Contraccezione</option></select>
+      </div>
+    </div>
+    <div class="gr2" style="margin-bottom:11px">
+      <div class="fg"><label class="fl">Icona Emoji</label><input type="text" id="mg-ico" placeholder="🩺" maxlength="4"></div>
+      <div class="fg"><label class="fl">Fonte / Riferimento</label><input type="text" id="mg-src" placeholder="es. ACOG 2024 / SIGO"></div>
+    </div>
+    <div class="fg" style="margin-bottom:20px"><label class="fl">Contenuto (HTML supportato)</label>
+      <textarea id="mg-body" rows="9" placeholder="&lt;strong&gt;Definizione:&lt;/strong&gt;&lt;br&gt;...&#10;&#10;Puoi usare tag HTML come &lt;br&gt;, &lt;strong&gt;, &lt;em&gt;, &lt;ul&gt;/&lt;li&gt;"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn bgh" onclick="closeModal('mg')">Annulla</button>
+      <button class="btn bp" onclick="saveGuide()">💾 Salva Voce</button>
+    </div>
+  </div>
+</div>
+
+<div id="tc"></div>
+<script>
+// ═══════════════════════════════
+//  FIREBASE
+// ═══════════════════════════════
+const FB_CFG={apiKey:"AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",authDomain:"gynosistem.firebaseapp.com",projectId:"gynosistem",storageBucket:"gynosistem.firebasestorage.app",messagingSenderId:"355036111162",appId:"1:355036111162:web:dfe1e1aa73a1086d4ab003",measurementId:"G-FE51JFB7SK"};
+let db,storage,fbOK=false;
+try{if(!firebase.apps.length)firebase.initializeApp(FB_CFG);db=firebase.firestore();storage=firebase.storage();fbOK=true;setFB('ok','Connesso a Firebase');}catch(e){setFB('err','Errore Firebase');}
+function setFB(st,msg){const d=document.getElementById('fbd'),t=document.getElementById('fbst'),s=document.getElementById('sfbs');d.className='fbd '+st;t.textContent=msg;if(s)s.textContent=st==='ok'?'Connesso ✓':'Errore ✗';}
+
+// ═══════════════════════════════
+//  STATE
+// ═══════════════════════════════
+let APASS='Samuele2025';
+let editFId=null,editGId=null,logoURL='';
+let FARMS=[],GUIDES=[],PDFS=[];
+
+const CFG={
+  theme:{cssVars:{'--primary':'#007AFF','--green':'#34C759','--red':'#FF3B30','--orange':'#FF9500','--purple':'#AF52DE','--bg':'#f2f2f7','--surface':'#ffffff','--sidebar':'#1c1c1e'}},
+  typography:{fontMain:"-apple-system,'DM Sans',sans-serif",fontSerif:"'DM Serif Display',Georgia,serif",fontSize:15},
+  layout:{sidebarWidth:260,radius:14,shadow:'light',sidebarStyle:'dark'},
+  dashboard:{showStats:{pazienti:true,visite:true,alert:true,oggi:true},clock:true,calendar:true,title:'Dashboard',welcome:'Benvenuta, Dr.ssa Guidi'},
+  print:{
+    header:{name:'Dr.ssa Cristina Guidi',spec:'Medico Chirurgo · Specialista in Ginecologia e Ostetricia',addr:'Viale della Repubblica, 12 · 47890 San Marino',tel:'0549 999999',email:'cristina.guidi@med.sm',piva:'',showLogo:true,showDate:true,showCF:true,showDOB:true,logoUrl:''},
+    sections:{vitali:true,menopausa:true,para:true,anamnesi:true,obiettivo:true,eco:true,biometria:true,diagnosi:true,esami:true,terapia:true,consigli:true,followup:true},
+    layout:{mt:15,mb:15,ml:15,mr:15,font:"'Times New Roman',serif",size:11,hdrColor:'#1c1c1e',lineW:2,lineH:'1.6',footer:'Documento generato da GynoSystem v15 · Copia per il paziente'}
+  },
+  anagrafica:[
+    {id:'nome',label:'Nome',required:true,visible:true},
+    {id:'cognome',label:'Cognome',required:true,visible:true},
+    {id:'nascita',label:'Data di Nascita',required:false,visible:true},
+    {id:'tel',label:'Telefono',required:false,visible:true},
+    {id:'email',label:'Email',required:false,visible:true},
+    {id:'cf',label:'Codice Fiscale',required:false,visible:true},
+    {id:'note',label:'Note Iniziali',required:false,visible:true}
+  ],
+  visite:{
+    gyno:[
+      {id:'um',label:'UM (Ultima Mestruazione)',section:'Dati Generali',visible:true},
+      {id:'peso',label:'Peso (kg)',section:'Dati Generali',visible:true},
+      {id:'altezza',label:'Altezza (cm)',section:'Dati Generali',visible:true},
+      {id:'pa',label:'PA (mmHg)',section:'Dati Generali',visible:true},
+      {id:'para',label:'PARA',section:'Dati Generali',visible:true},
+      {id:'menopausa',label:'Menopausa',section:'Dati Generali',visible:true},
+      {id:'contraccezione',label:'Contraccettivo',section:'Dati Generali',visible:true},
+      {id:'fumo',label:'Fumo',section:'Dati Generali',visible:true},
+      {id:'anamnesi',label:'Anamnesi Principale',section:'Anamnesi',visible:true},
+      {id:'anamnesiFam',label:'Anamnesi Familiare',section:'Anamnesi',visible:true},
+      {id:'allergie',label:'Allergie / Farmaci Assunti',section:'Anamnesi',visible:true},
+      {id:'ciclo',label:'Ciclo Mestruale',section:'Sintomi',visible:true},
+      {id:'dispareunia',label:'Dispareunia',section:'Sintomi',visible:true},
+      {id:'perdite',label:'Perdite Vaginali',section:'Sintomi',visible:true},
+      {id:'speculo',label:'Speculoscopia',section:'Esame Obiettivo',visible:true},
+      {id:'bimanuale',label:'Esplorazione Bimanuale',section:'Esame Obiettivo',visible:true},
+      {id:'pap',label:'Pap Test / HPV',section:'Prelievi',visible:true},
+      {id:'tampone',label:'Tampone Vaginale',section:'Prelievi',visible:true},
+    ],
+    ob:[
+      {id:'lmp',label:'LMP / UM',section:'Dati Generali',visible:true},
+      {id:'settimane',label:'Settimane Gestazionali',section:'Dati Generali',visible:true},
+      {id:'peso',label:'Peso (kg)',section:'Dati Generali',visible:true},
+      {id:'pa',label:'PA (mmHg)',section:'Dati Generali',visible:true},
+      {id:'para',label:'PARA',section:'Dati Generali',visible:true},
+      {id:'bcf',label:'BCF (bpm)',section:'Obiettivo',visible:true},
+      {id:'maf',label:'MAF',section:'Obiettivo',visible:true},
+      {id:'au',label:'Altezza Uterina (cm)',section:'Obiettivo',visible:true},
+      {id:'presentazione',label:'Presentazione Fetale',section:'Obiettivo',visible:true},
+      {id:'edemi',label:'Edemi',section:'Obiettivo',visible:true},
+      {id:'proteinuria',label:'Proteinuria',section:'Obiettivo',visible:true},
+      {id:'collo',label:'Esame Collo Uterino',section:'Obiettivo',visible:true},
+    ],
+    eco:[
+      {id:'sonda',label:'Sonda (TV/TA)',section:'Tecnica',visible:true},
+      {id:'indicazione',label:'Indicazione Clinica',section:'Tecnica',visible:true},
+      {id:'crl',label:'CRL (mm)',section:'Biometria Fetale',visible:true},
+      {id:'bpd',label:'BPD (mm)',section:'Biometria Fetale',visible:true},
+      {id:'hc',label:'HC (mm)',section:'Biometria Fetale',visible:true},
+      {id:'ac',label:'AC (mm)',section:'Biometria Fetale',visible:true},
+      {id:'fl',label:'FL (mm)',section:'Biometria Fetale',visible:true},
+      {id:'efw',label:'EFW - Peso Stimato (g)',section:'Biometria Fetale',visible:true},
+      {id:'utero',label:'Utero - Dimensioni',section:'Ecografia Ginecologica',visible:true},
+      {id:'endo',label:'Endometrio (mm)',section:'Ecografia Ginecologica',visible:true},
+      {id:'ovDx',label:'Ovaio Destro',section:'Ecografia Ginecologica',visible:true},
+      {id:'ovSx',label:'Ovaio Sinistro',section:'Ecografia Ginecologica',visible:true},
+    ]
+  },
+  macros:{
+    an:['Asintomatica. Visita di controllo routinario.','Cicli mestruali regolari (28±3 gg), durata 4-5 gg.','Dolore pelvico ciclico, massimo in fase premestruale.','Riferisce spotting intermestruale da 2 cicli.'],
+    sp:['Genitali esterni nella norma. Portio liscia, epitelizzata, os chiuso. Secrezione fisiologica.','Mucosa vaginale trofica con pliche presenti. Leucorrea fisiologica.','Mucosa vaginale atrofica, pallida. Secrezione scarsa.','Leucorrea biancastra non maleodorante. Portio epitelizzata.'],
+    bi:['Utero antefisso, normodimensionato, mobile, non dolente. Annessi bilateralmente negativi. Cavo di Douglas libero.','Utero retro-fisso, mobile. Parametri liberi. Annessi negativi.','Dolorabilità al fornice posteriore. Douglas impastato (sospetta endometriosi).'],
+    di:['Esame ginecologico nella norma. Nessuna patologia rilevata.','Vaginosi batterica (N76.0) – terapia avviata.','Vulvovaginite da Candida albicans (B37.3).','PCOS (E28.2) – avviata diagnostica ormonale.','Mioma uterino interstiziale – follow-up ecografico.','Endometrioma ovaio dx – monitoraggio trimestrale.','Gravidanza fisiologica in evoluzione.'],
+    te:['Nessuna terapia necessaria. Controllo annuale.','Progeffik 200mg ovuli vaginali ore 22 per 10 giorni.','Monuril 3g: 1 bustina singola dose.','Clindamicina vaginale crema 1 appl./sera per 7 giorni.','Acido folico 400mcg/die continuare.'],
+    co:['Mantenere igiene intima con detergenti a pH 3.5-4.5. Evitare lavande interne.','Attività fisica regolare (150 min/settimana a intensità moderata).','Evitare biancheria sintetica, preferire cotone.','In gravidanza: evitare cibi crudi, alcol, fumo, ambienti con rischio infettivo.']
+  }
+};
+
+const CSECT=[
+  {id:'vitali',l:'Parametri Vitali',s:'Peso, Altezza, BMI, Pressione Arteriosa'},
+  {id:'menopausa',l:'Stato Menopausale',s:'Menopausa fisiologica / chirurgica / indotta'},
+  {id:'para',l:'PARA',s:'Parità della paziente'},
+  {id:'anamnesi',l:'Anamnesi',s:'Motivo visita e storia clinica rilevante'},
+  {id:'obiettivo',l:'Esame Obiettivo',s:'Speculoscopia, bimanuale, esame generale'},
+  {id:'eco',l:'Ecografia - Descrizione',s:'Testo narrativo descrittivo ecografico'},
+  {id:'biometria',l:'Biometria Fetale',s:'CRL, BPD, HC, AC, FL, EFW, BCF'},
+  {id:'diagnosi',l:'Diagnosi',s:'Diagnosi principale, secondarie e codice ICD-10'},
+  {id:'esami',l:'Esami Richiesti',s:'Lista esami prescritti o consigliati'},
+  {id:'terapia',l:'Terapia Consigliata',s:'Farmaci, dosaggi e durata trattamento'},
+  {id:'consigli',l:'Consigli Comportamentali',s:'Stile di vita, dieta, integratori'},
+  {id:'followup',l:'Follow-up',s:'Prossimo controllo, data appuntamento, urgenza'},
+];
+
+const CDEFS=[
+  {v:'--primary',l:'Colore Primario (Blu)',def:'#007AFF',grp:'p'},
+  {v:'--green',l:'Verde · Conferma',def:'#34C759',grp:'p'},
+  {v:'--red',l:'Rosso · Elimina',def:'#FF3B30',grp:'p'},
+  {v:'--orange',l:'Arancione · Warning',def:'#FF9500',grp:'p'},
+  {v:'--purple',l:'Viola · Accento',def:'#AF52DE',grp:'p'},
+  {v:'--bg',l:'Sfondo App',def:'#f2f2f7',grp:'s'},
+  {v:'--surface',l:'Superficie Card',def:'#ffffff',grp:'s'},
+  {v:'--sidebar',l:'Colore Sidebar',def:'#1c1c1e',grp:'s'},
+];
+
+const CLAB={integ:'Integratore',anti:'Antibiotico',ormo:'Ormonale',altro:'Altro'};
+const CBADGE={integ:'bgr',anti:'brd',ormo:'bb',altro:'bgr2'};
+
+// ═══════════════════════════════
+//  LOGIN
+// ═══════════════════════════════
+function doLogin(){
+  if(document.getElementById('lpass').value===APASS){
+    document.getElementById('lov').style.display='none';
+    document.getElementById('slt').textContent=new Date().toLocaleTimeString('it-IT');
+    init();
+  } else {
+    const e=document.getElementById('lerr');e.style.display='block';
+    document.getElementById('lpass').value='';
+    setTimeout(()=>e.style.display='none',3000);
+  }
+}
+document.getElementById('lpass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ═══════════════════════════════
+//  INIT
+// ═══════════════════════════════
+async function init(){
+  await loadAll();
+  renderColors();renderDashboard();renderAna();renderVisite();
+  renderMacros();renderFarmaci();renderPDFList();renderGuideList();
+  renderPSections();renderPrintPreview();
+}
+
+// ═══════════════════════════════
+//  FIREBASE LOAD/SAVE
+// ═══════════════════════════════
+async function loadAll(){
+  if(!fbOK)return;
+  try{
+    for(const d of['theme','typography','layout','dashboard','print','anagrafica','visite','macros']){
+      const s=await db.collection('config').doc(d).get();
+      if(s.exists)mergeDeep(CFG,{[d]:s.data()});
+    }
+    const fs=await db.collection('farmaci').get();
+    FARMS=fs.docs.map(d=>({id:d.id,...d.data()}));
+    const gs=await db.collection('lineeGuida').get();
+    GUIDES=gs.docs.map(d=>({id:d.id,...d.data()}));
+    const ps=await db.collection('pdfGuide').get();
+    PDFS=ps.docs.map(d=>({id:d.id,...d.data()}));
+    toast('Configurazione caricata da Firebase','s');
+  }catch(e){toast('Modalità locale (Firebase offline)','i');}
+}
+
+async function saveSection(sec){
+  if(!fbOK){toast('Firebase non disponibile','e');return;}
+  try{
+    collectAll();
+    await db.collection('config').doc(sec).set(CFG[sec],{merge:true});
+    toast(`✅ "${sec}" salvato su Firebase`,'s');
+  }catch(e){toast('Errore: '+e.message,'e');}
+}
+
+async function saveAll(){
+  if(!fbOK){toast('Firebase non disponibile','e');return;}
+  collectAll();
+  try{
+    for(const s of['theme','typography','layout','dashboard','print','anagrafica','visite','macros']){
+      await db.collection('config').doc(s).set(CFG[s],{merge:true});
+    }
+    toast('✅ Tutto salvato su Firebase','s');
+  }catch(e){toast('Errore: '+e.message,'e');}
+}
+
+function collectAll(){
+  // Theme
+  document.querySelectorAll('input[type=color][data-v]').forEach(el=>{CFG.theme.cssVars[el.dataset.v]=el.value;});
+  // Typo
+  CFG.typography={fontMain:v('t-fmain'),fontSerif:v('t-fserif'),fontSize:parseInt(v('t-fsize')||15)};
+  // Layout
+  CFG.layout={sidebarWidth:parseInt(v('l-sw')||260),radius:parseInt(v('l-rad')||14),shadow:v('l-shad'),sidebarStyle:v('l-stheme')};
+  // Dashboard
+  CFG.dashboard={showStats:{pazienti:chk('dw-p'),visite:chk('dw-v'),alert:chk('dw-a'),oggi:chk('dw-o')},clock:chk('d-clock'),calendar:chk('d-cal'),title:v('d-title'),welcome:v('d-welcome')};
+  // Macros
+  for(const k of['an','sp','bi','di','te','co']){
+    CFG.macros[k]=[];
+    document.querySelectorAll(`.mac-inp[data-k="${k}"]`).forEach(i=>CFG.macros[k].push(i.value));
+  }
+  // Print header
+  const h=CFG.print.header;
+  ['name','spec','addr','tel','email','piva'].forEach(k=>{const el=document.getElementById('pr-'+k);if(el)h[k]=el.value;});
+  h.showLogo=chk('pr-logo');h.showDate=chk('pr-date');h.showCF=chk('pr-cf');h.showDOB=chk('pr-dob');
+  // Print sections
+  CSECT.forEach(s=>{const el=document.getElementById('ps-'+s.id);if(el)CFG.print.sections[s.id]=el.checked;});
+  // Print layout
+  CFG.print.layout={mt:parseInt(v('pl-mt')||15),mb:parseInt(v('pl-mb')||15),ml:parseInt(v('pl-ml')||15),mr:parseInt(v('pl-mr')||15),font:v('pl-font'),size:parseInt(v('pl-sz')||11),hdrColor:v('pl-hc')||'#1c1c1e',lineW:parseInt(v('pl-lw')||2),lineH:v('pl-lh'),footer:v('pl-footer')};
+}
+
+function v(id){const el=document.getElementById(id);return el?el.value:'';}
+function chk(id){const el=document.getElementById(id);return el?el.checked:false;}
+
+function mergeDeep(t,s){Object.entries(s).forEach(([k,val])=>{if(val&&typeof val==='object'&&!Array.isArray(val)){if(!t[k])t[k]={};mergeDeep(t[k],val);}else t[k]=val;});}
+
+// ═══════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════
+function go(el,pid){
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(pid).classList.add('active');
+}
+function swTab(btn,id){
+  const bar=btn.closest('.tabbar');
+  bar.querySelectorAll('.tp').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  let el=bar.nextElementSibling;
+  while(el&&el.classList.contains('sub')){el.classList.remove('active');el=el.nextElementSibling;}
+  const target=document.getElementById(id);if(target)target.classList.add('active');
+}
+
+// ═══════════════════════════════
+//  COLORS
+// ═══════════════════════════════
+function renderColors(){
+  const prim=CDEFS.filter(d=>d.grp==='p'),surf=CDEFS.filter(d=>d.grp==='s');
+  document.getElementById('cprim').innerHTML=prim.map(d=>colorRow(d)).join('');
+  document.getElementById('csurf').innerHTML=surf.map(d=>colorRow(d)).join('');
+  updatePreviews();
+}
+function colorRow(d){
+  const val=CFG.theme.cssVars[d.v]||d.def;
+  return `<div class="cr">
+    <div style="flex:1"><div class="crn">${d.l}</div><div class="crv">${d.v}</div></div>
+    <div class="crp" id="sw${d.v.replace(/-/g,'_')}" style="background:${val}"></div>
+    <input type="color" value="${val}" data-v="${d.v}" oninput="onColor(this)">
+  </div>`;
+}
+function onColor(el){
+  const val=el.value,vr=el.dataset.v;
+  document.documentElement.style.setProperty(vr,val);
+  CFG.theme.cssVars[vr]=val;
+  const sw=document.getElementById('sw'+vr.replace(/-/g,'_'));
+  if(sw)sw.style.background=val;
+  updatePreviews();
+}
+function updatePreviews(){
+  const cv=CFG.theme.cssVars;
+  const set=(id,vr)=>{const e=document.getElementById(id);if(e)e.style.background=cv[vr]||'';};
+  set('pv-pr','--primary');set('pv-gn','--green');set('pv-rd','--red');set('pv-sd','--sidebar');
+}
+function resetColors(){
+  CDEFS.forEach(d=>{CFG.theme.cssVars[d.v]=d.def;document.documentElement.style.setProperty(d.v,d.def);});
+  renderColors();toast('Colori ripristinati ai valori default','i');
+}
+
+// ═══════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════
+function renderDashboard(){
+  const ds=CFG.dashboard,ss=ds.showStats||{};
+  const ws=[{id:'dw-p',k:'pazienti',l:'Widget Pazienti Totali',s:'Contatore pazienti in archivio'},
+            {id:'dw-v',k:'visite',l:'Widget Visite Totali',s:'Contatore visite effettuate'},
+            {id:'dw-a',k:'alert',l:'Widget Promemoria',s:'Badge promemoria attivi'},
+            {id:'dw-o',k:'oggi',l:'Widget Visite Oggi',s:'Accessi della giornata corrente'}];
+  document.getElementById('dw-list').innerHTML=ws.map(w=>`
+    <div class="tr"><div><div class="tit">${w.l}</div><div class="tis">${w.s}</div></div>
+    <label class="tgl"><input type="checkbox" id="${w.id}" ${ss[w.k]!==false?'checked':''}><div class="ts"></div></label></div>
+  `).join('');
+  const dt=document.getElementById('d-title'),dw=document.getElementById('d-welcome');
+  if(dt)dt.value=ds.title||'Dashboard';if(dw)dw.value=ds.welcome||'Benvenuta, Dr.ssa Guidi';
+}
+
+// ═══════════════════════════════
+//  ANAGRAFICA (SORTABLE)
+// ═══════════════════════════════
+function renderAna(){
+  document.getElementById('ana-list').innerHTML=(CFG.anagrafica||[]).map((f,i)=>`
+    <div class="si" draggable="true" data-i="${i}" ondragstart="ds(event,${i})" ondragover="dov(event,this)" ondrop="ddp(event,this,${i},'ana')" ondragleave="dl(this)">
+      <span class="sh">⠿</span>
+      <span class="slab" id="asl${i}">${f.label}</span>
+      <input class="sedit" id="ae${i}" value="${f.label}" onblur="CFG.anagrafica[${i}].label=this.value;document.getElementById('asl${i}').textContent=this.value">
+      <span class="sbadge ${f.required?'req':'opt'}">${f.required?'Richiesto':'Opzionale'}</span>
+      <div style="display:flex;gap:4px">
+        <button class="btn bgh bic bsm" onclick="toggleEdit(${i},'ae')" title="Rinomina">✏️</button>
+        <button class="btn bgh bic bsm" onclick="togReq(${i})" title="Toggle Richiesto">⭐</button>
+        <button class="btn bdn bic bsm" onclick="delAna(${i})" title="Elimina">✕</button>
+      </div>
+    </div>`).join('');
+}
+function addAnaField(){const l=prompt('Nome del nuovo campo:');if(l&&l.trim()){CFG.anagrafica.push({id:'c_'+Date.now(),label:l.trim(),required:false,visible:true});renderAna();}}
+function delAna(i){if(confirm('Rimuovere?')){CFG.anagrafica.splice(i,1);renderAna();}}
+function togReq(i){CFG.anagrafica[i].required=!CFG.anagrafica[i].required;renderAna();}
+function toggleEdit(i,pre){const e=document.getElementById(pre+i);if(e){e.classList.toggle('show');if(e.classList.contains('show'))e.focus();}}
+
+// ═══════════════════════════════
+//  DRAG & DROP
+// ═══════════════════════════════
+let dsi=null;
+function ds(e,i){dsi=i;e.currentTarget.classList.add('dragging');}
+function dov(e,el){e.preventDefault();el.classList.add('dov');}
+function dl(el){el.classList.remove('dov');}
+function ddp(e,el,ti,type){
+  e.preventDefault();el.classList.remove('dov');
+  if(dsi===null||dsi===ti)return;
+  if(type==='ana'){const a=CFG.anagrafica,item=a.splice(dsi,1)[0];a.splice(ti,0,item);renderAna();}
+  dsi=null;
+}
+
+// ═══════════════════════════════
+//  VISITE FIELDS
+// ═══════════════════════════════
+function renderVisite(){
+  ['gyno','ob','eco'].forEach(t=>{
+    const fields=CFG.visite[t]||[];
+    const secs={};
+    fields.forEach(f=>{if(!secs[f.section])secs[f.section]=[];secs[f.section].push(f);});
+    document.getElementById(t+'-fl').innerHTML=Object.entries(secs).map(([sec,flds])=>`
+      <div class="card">
+        <div class="cht" style="margin-bottom:14px">📋 ${sec}</div>
+        ${flds.map(f=>`<div class="tr">
+          <div><div class="tit">${f.label}</div><div class="tis" style="font-family:var(--mn);font-size:.7rem">id: ${f.id}</div></div>
+          <label class="tgl"><input type="checkbox" ${f.visible!==false?'checked':''} onchange="setVF('${t}','${f.id}',this.checked)"><div class="ts"></div></label>
+        </div>`).join('')}
+        <button class="btn bgh bsm" style="margin-top:10px" onclick="addVF('${t}','${sec}')">+ Campo in "${sec}"</button>
+      </div>`).join('');
+  });
+}
+function setVF(t,id,v){const f=CFG.visite[t].find(x=>x.id===id);if(f)f.visible=v;}
+function addVF(t,sec){const l=prompt(`Nuovo campo per "${sec}":`);if(l&&l.trim()){CFG.visite[t].push({id:'c_'+Date.now(),label:l.trim(),section:sec,visible:true});renderVisite();}}
+
+// ═══════════════════════════════
+//  MACROS
+// ═══════════════════════════════
+function renderMacros(){
+  for(const k of['an','sp','bi','di','te','co']){
+    const list=CFG.macros[k]||[];
+    document.getElementById('ml-'+k).innerHTML=list.map((t,i)=>`
+      <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:8px">
+        <input type="text" class="mac-inp" data-k="${k}" value="${t.replace(/"/g,'&quot;')}" style="flex:1">
+        <button class="btn bdn bic bsm" onclick="delMacro('${k}',${i})">✕</button>
+      </div>`).join('');
+  }
+}
+function addMacro(k){const t=prompt('Testo della nuova macro:');if(t&&t.trim()){CFG.macros[k].push(t.trim());renderMacros();}}
+function delMacro(k,i){CFG.macros[k].splice(i,1);renderMacros();}
+
+// ═══════════════════════════════
+//  FARMACI CRUD
+// ═══════════════════════════════
+function renderFarmaci(){
+  const q=(document.getElementById('fs')?.value||'').toLowerCase();
+  const list=FARMS.filter(f=>(f.nome||'').toLowerCase().includes(q)||(f.pa||'').toLowerCase().includes(q));
+  const tb=document.getElementById('ftb');
+  if(!list.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--l4);padding:20px">Nessun farmaco trovato</td></tr>';return;}
+  tb.innerHTML=list.map(f=>`<tr>
+    <td class="tdn">${f.nome||''}</td><td>${f.pa||''}</td>
+    <td style="max-width:240px;font-size:.8rem">${f.dose||''}</td>
+    <td><span class="badge ${CBADGE[f.cat]||'bgr2'}">${CLAB[f.cat]||f.cat}</span></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn bgh bic bsm" onclick="editFarm('${f.id}')">✏️</button>
+      <button class="btn bdn bic bsm" onclick="delFarm('${f.id}')">🗑️</button>
+    </div></td>
+  </tr>`).join('');
+}
+function openFarmModal(id=null){
+  editFId=id;document.getElementById('mft').textContent=id?'Modifica Farmaco':'Nuovo Farmaco';
+  if(id){const f=FARMS.find(x=>x.id===id);if(f){sv('mf-nome',f.nome);sv('mf-pa',f.pa);sv('mf-dose',f.dose);sv('mf-cat',f.cat);}}
+  else{['mf-nome','mf-pa','mf-dose'].forEach(i=>sv(i,''));sv('mf-cat','integ');}
+  document.getElementById('mf').classList.add('show');
+}
+function editFarm(id){openFarmModal(id);}
+async function saveFarmaco(){
+  const nome=v('mf-nome').trim(),pa=v('mf-pa').trim(),dose=v('mf-dose').trim();
+  if(!nome||!pa||!dose){toast('Compila tutti i campi obbligatori','e');return;}
+  const data={nome,pa,dose,cat:v('mf-cat')};
+  try{
+    if(editFId){await db.collection('farmaci').doc(editFId).update(data);const i=FARMS.findIndex(f=>f.id===editFId);if(i>=0)FARMS[i]={...FARMS[i],...data};toast('Farmaco aggiornato','s');}
+    else{const r=await db.collection('farmaci').add(data);FARMS.push({id:r.id,...data});toast('Farmaco aggiunto','s');}
+    closeModal('mf');renderFarmaci();
+  }catch(e){toast('Errore: '+e.message,'e');}
+}
+async function delFarm(id){
+  if(!confirm('Eliminare questo farmaco?'))return;
+  try{await db.collection('farmaci').doc(id).delete();FARMS=FARMS.filter(f=>f.id!==id);renderFarmaci();toast('Eliminato','s');}
+  catch(e){toast('Errore: '+e.message,'e');}
+}
+
+// ═══════════════════════════════
+//  PDF UPLOAD
+// ═══════════════════════════════
+function dov(e){e.preventDefault();document.getElementById('uzone').classList.add('dov');}
+function dol(e){document.getElementById('uzone').classList.remove('dov');}
+function ddr(e){e.preventDefault();dol();if(e.dataTransfer.files[0])uploadPDF(e.dataTransfer.files[0]);}
+async function uploadPDF(file){
+  if(!file||file.type!=='application/pdf'){toast('Solo file PDF','e');return;}
+  if(file.size>20*1024*1024){toast('File troppo grande (max 20MB)','e');return;}
+  const title=v('pdf-title').trim()||file.name.replace('.pdf','');
+  if(!title){toast('Inserisci un titolo','e');return;}
+  const pb=document.getElementById('ppb'),pf=document.getElementById('ppbf');
+  pb.style.display='block';pf.style.width='0%';
+  try{
+    const ref=storage.ref(`pdfGuide/${Date.now()}_${file.name}`);
+    const task=ref.put(file);
+    task.on('state_changed',s=>{pf.style.width=Math.round(s.bytesTransferred/s.totalBytes*100)+'%';});
+    await task;
+    const url=await ref.getDownloadURL();
+    const data={title,category:v('pdf-cat'),year:v('pdf-year')||new Date().getFullYear(),url,filename:file.name,uploadedAt:new Date().toISOString()};
+    const r=await db.collection('pdfGuide').add(data);
+    PDFS.push({id:r.id,...data});
+    renderPDFList();pb.style.display='none';sv('pdf-title','');
+    toast(`📄 "${title}" caricato`,'s');
+  }catch(e){pb.style.display='none';toast('Errore upload: '+e.message,'e');}
+}
+function renderPDFList(){
+  const c=document.getElementById('pdf-list');
+  if(!PDFS.length){c.innerHTML='<div class="empty"><div class="ei">📁</div><p>Nessun PDF caricato</p></div>';return;}
+  c.innerHTML=PDFS.map(p=>`<div class="pdi">
+    <div class="pdic">📄</div>
+    <div style="flex:1"><div class="pdin">${p.title}</div><div class="pdim">${p.category} · ${p.year} · ${p.filename}</div></div>
+    <div style="display:flex;gap:6px">
+      <a href="${p.url}" target="_blank" class="btn bgh bsm">👁 Apri</a>
+      <button class="btn bdn bsm" onclick="delPDF('${p.id}')">🗑️</button>
+    </div>
+  </div>`).join('');
+}
+async function delPDF(id){
+  if(!confirm('Eliminare questo PDF?'))return;
+  try{await db.collection('pdfGuide').doc(id).delete();PDFS=PDFS.filter(x=>x.id!==id);renderPDFList();toast('PDF eliminato','s');}
+  catch(e){toast('Errore: '+e.message,'e');}
+}
+
+// ═══════════════════════════════
+//  GUIDE TESTUALI CRUD
+// ═══════════════════════════════
+function openGuideModal(id=null){
+  editGId=id;document.getElementById('mgt').textContent=id?'Modifica Voce':'Nuova Voce Linee Guida';
+  if(id){const g=GUIDES.find(x=>x.id===id);if(g){sv('mg-ti',g.title);sv('mg-cat',g.category);sv('mg-ico',g.icon||'🩺');sv('mg-src',g.source||'');sv('mg-body',g.body||'');}}
+  else{sv('mg-ti','');sv('mg-ico','🩺');sv('mg-src','');sv('mg-body','');}
+  document.getElementById('mg').classList.add('show');
+}
+async function saveGuide(){
+  const title=v('mg-ti').trim();if(!title){toast('Titolo obbligatorio','e');return;}
+  const data={title,category:v('mg-cat'),icon:v('mg-ico')||'🩺',source:v('mg-src'),body:v('mg-body'),updatedAt:new Date().toISOString()};
+  try{
+    if(editGId){await db.collection('lineeGuida').doc(editGId).update(data);const i=GUIDES.findIndex(g=>g.id===editGId);if(i>=0)GUIDES[i]={...GUIDES[i],...data};toast('Voce aggiornata','s');}
+    else{const r=await db.collection('lineeGuida').add(data);GUIDES.push({id:r.id,...data});toast('Voce aggiunta','s');}
+    closeModal('mg');renderGuideList();
+  }catch(e){toast('Errore: '+e.message,'e');}
+}
+function renderGuideList(){
+  const c=document.getElementById('guide-list');
+  if(!GUIDES.length){c.innerHTML='<div class="empty"><div class="ei">📋</div><p>Nessuna voce. Clicca "+ Nuova Voce".</p></div>';return;}
+  const byCat={};GUIDES.forEach(g=>{if(!byCat[g.category])byCat[g.category]=[];byCat[g.category].push(g);});
+  c.innerHTML=Object.entries(byCat).map(([cat,items])=>`
+    <div style="margin-bottom:18px">
+      <div class="sl">${cat}</div>
+      ${items.map(g=>`<div class="card" style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:1.4rem">${g.icon||'🩺'}</div>
+          <div style="flex:1"><div style="font-weight:600;font-size:.9rem">${g.title}</div><div style="font-size:.73rem;color:var(--l4)">${g.source||''} · ${g.category}</div></div>
+          <div style="display:flex;gap:6px">
+            <button class="btn bgh bsm" onclick="openGuideModal('${g.id}')">✏️ Modifica</button>
+            <button class="btn bdn bsm" onclick="delGuide('${g.id}')">🗑️</button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>`).join('');
+}
+async function delGuide(id){
+  if(!confirm('Eliminare questa voce?'))return;
+  try{await db.collection('lineeGuida').doc(id).delete();GUIDES=GUIDES.filter(g=>g.id!==id);renderGuideList();toast('Voce eliminata','s');}
+  catch(e){toast('Errore: '+e.message,'e');}
+}
+
+// ═══════════════════════════════
+//  PRINT SECTIONS TOGGLES
+// ═══════════════════════════════
+function renderPSections(){
+  const secs=CFG.print.sections||{};
+  document.getElementById('psec-list').innerHTML=CSECT.map(s=>`
+    <div class="tr"><div><div class="tit">${s.l}</div><div class="tis">${s.s}</div></div>
+    <label class="tgl"><input type="checkbox" id="ps-${s.id}" ${secs[s.id]!==false?'checked':''}><div class="ts"></div></label></div>`).join('');
+}
+
+// ═══════════════════════════════
+//  PRINT PREVIEW
+// ═══════════════════════════════
+function renderPrintPreview(){
+  const h=CFG.print.header;
+  const lc=CFG.theme.cssVars['--primary']||'#007AFF';
+  document.getElementById('phdr-preview').innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;border-bottom:${h.showLogo?'2px solid '+lc:'2px solid #1c1c1e'};padding-bottom:14px;margin-bottom:16px">
+      ${h.showLogo&&(h.logoUrl||logoURL)?`<img src="${h.logoUrl||logoURL}" style="width:64px;height:64px;border-radius:10px;object-fit:contain">`:`<div style="width:64px;height:64px;border-radius:10px;background:${lc};display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#fff">CG</div>`}
+      <div><h2 style="margin:0;font-size:1.3rem;font-family:'Times New Roman',serif">${h.name||'Dr.ssa Cristina Guidi'}</h2>
+      <p style="margin:2px 0;font-size:.8rem;color:#666">${h.spec||''}</p>
+      <p style="margin:2px 0;font-size:.8rem;color:#666">${h.addr||''}</p>
+      <p style="margin:2px 0;font-size:.8rem;color:#666">Tel: ${h.tel||''} · ${h.email||''}</p></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.85rem;background:#f8f8f8;border-radius:6px;padding:12px">
+      <div><div style="font-size:.7rem;text-transform:uppercase;color:#888;font-weight:700">Paziente</div><div style="font-weight:600">Rossi Mario</div></div>
+      ${h.showDate?'<div style="text-align:right"><div style="font-size:.7rem;text-transform:uppercase;color:#888;font-weight:700">Data Visita</div><div style="font-weight:600">'+new Date().toLocaleDateString('it-IT')+'</div></div>':''}
+      ${h.showDOB?'<div><div style="font-size:.7rem;text-transform:uppercase;color:#888;font-weight:700">Data Nascita</div><div>01/01/1985</div></div>':''}
+      ${h.showCF?'<div style="text-align:right"><div style="font-size:.7rem;text-transform:uppercase;color:#888;font-weight:700">Codice Fiscale</div><div>RSSMRA85A01H501Z</div></div>':''}
+    </div>`;
+}
+
+// ═══════════════════════════════
+//  LOGO UPLOAD
+// ═══════════════════════════════
+async function uploadLogo(file){
+  if(!file||!file.type.startsWith('image/')){toast('Solo immagini','e');return;}
+  try{
+    const ref=storage.ref(`logo/${Date.now()}_${file.name}`);
+    await ref.put(file);
+    logoURL=await ref.getDownloadURL();
+    CFG.print.header.logoUrl=logoURL;
+    document.getElementById('logo-prev').innerHTML=`<img src="${logoURL}" style="width:100px;height:100px;border-radius:16px;object-fit:contain">`;
+    toast('Logo caricato','s');renderPrintPreview();
+  }catch(e){toast('Errore upload: '+e.message,'e');}
+}
+function removeLogo(){logoURL='';CFG.print.header.logoUrl='';document.getElementById('logo-prev').innerHTML='<div style="width:100px;height:100px;border-radius:16px;background:linear-gradient(135deg,#007AFF,#AF52DE);display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:2rem;color:#fff">CG</div>';renderPrintPreview();}
+
+// ═══════════════════════════════
+//  SECURITY
+// ═══════════════════════════════
+async function saveGSPass(){
+  const p1=v('gs-p1').trim(),p2=v('gs-p2').trim();
+  if(!p1){toast('Inserisci almeno una password','e');return;}
+  try{await db.collection('config').doc('security').set({gynoPass1:p1,gynoPass2:p2},{merge:true});toast('Password GynoSystem salvate su Firebase','s');}
+  catch(e){toast('Errore: '+e.message,'e');}
+}
+function changeAdminPass(){
+  const cur=v('adm-cur'),n1=v('adm-n1'),n2=v('adm-n2');
+  if(cur!==APASS){toast('Password attuale non corretta','e');return;}
+  if(n1.length<8){toast('Nuova password: min. 8 caratteri','e');return;}
+  if(n1!==n2){toast('Le password non coincidono','e');return;}
+  APASS=n1;
+  db.collection('config').doc('security').set({adminPass:n1},{merge:true})
+    .then(()=>toast('Password admin aggiornata','s'))
+    .catch(e=>toast('Salvata localmente (Firebase: '+e.message+')','i'));
+  ['adm-cur','adm-n1','adm-n2'].forEach(i=>sv(i,''));
+}
+
+// ═══════════════════════════════
+//  EXPORT
+// ═══════════════════════════════
+function exportConfig(){
+  collectAll();
+  const data=JSON.stringify({config:CFG,farmaci:FARMS,lineeGuida:GUIDES,pdfGuide:PDFS},null,2);
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
+  a.download=`GynoAdmin_config_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  document.getElementById('exp-prev').innerHTML=`<div class="cb" style="max-height:280px;overflow-y:auto">${data.slice(0,2000)}...</div>`;
+}
+
+// ═══════════════════════════════
+//  UTILS
+// ═══════════════════════════════
+function sv(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+function copyCode(btn){
+  const txt=btn.parentElement.textContent.replace('Copia','').trim();
+  navigator.clipboard.writeText(txt).then(()=>{btn.textContent='✓ Copiato!';setTimeout(()=>btn.textContent='Copia',2000);});
+}
+function toast(msg,type='i'){
+  const tc=document.getElementById('tc');
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;t.innerHTML=`<span>${type==='s'?'✅':type==='e'?'❌':'ℹ️'}</span>${msg}`;
+  tc.appendChild(t);setTimeout(()=>t.remove(),3500);
+}
+
+// ═══════════════════════════════
+//  CLICK OUTSIDE MODALS
+// ═══════════════════════════════
+document.querySelectorAll('.mov').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');});});
+</script>
+</body>
+</html>
