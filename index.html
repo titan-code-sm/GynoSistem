@@ -792,6 +792,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <button onclick="naviga('home')" id="nav-home" class="active"><span class="nav-icon">🏠</span>Dashboard</button>
       <button onclick="naviga('archivio')" id="nav-archivio"><span class="nav-icon">👩‍⚕️</span>Pazienti</button>
       <button onclick="naviga('storico-date')" id="nav-storico-date"><span class="nav-icon">📅</span>Storico Visite</button>
+      <button onclick="naviga('appuntamenti')" id="nav-appuntamenti"><span class="nav-icon">📅</span>Appuntamenti</button>
       <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
     </div>
     <div class="nav-group">
@@ -807,8 +808,12 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   <div class="sidebar-footer-new">
     <!-- Popover menu -->
     <div class="opts-popover" id="opts-popover">
-      <button class="opts-item accent" onclick="openAdmin();closeOpts()">
-        <span class="oi">⚙️</span>Pannello Admin
+      <button class="opts-item accent" onclick="window.open('GynoBook.html','_blank');closeOpts()">
+        <span class="oi">📅</span>Apri GynoBook (Prenotazioni)
+      </button>
+      <div class="opts-divider"></div>
+      <button class="opts-item" onclick="naviga('appuntamenti');closeOpts()">
+        <span class="oi">🗓️</span>Vedi Appuntamenti
       </button>
       <div class="opts-divider"></div>
       <button class="opts-item" onclick="backupData();closeOpts()">
@@ -1032,6 +1037,78 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           <tr><td>Glicemia a digiuno (mg/dL)</td><td>70–99</td><td>65–95</td><td>65–95</td><td>65–95</td></tr>
           <tr><td>ALT (U/L)</td><td>&lt;35</td><td>&lt;26</td><td>&lt;26</td><td>&lt;26</td></tr>
         </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- APPUNTAMENTI FIREBASE -->
+<div id="sec-appuntamenti" class="section">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Appuntamenti</div>
+      <div class="page-subtitle">Sincronizzati da Firebase · Creati con GynoBook</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="loadFBAppuntamenti()">🔄 Sincronizza</button>
+      <button class="btn btn-primary" onclick="window.open('GynoBook.html','_blank')">↗ Apri GynoBook</button>
+    </div>
+  </div>
+
+  <!-- Filtro data -->
+  <div class="card" style="padding:14px 20px;margin-bottom:16px">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <div class="form-group" style="flex:none">
+        <label class="form-label">Filtra per data</label>
+        <input type="date" id="appt-filter-date" onchange="renderFBAppts()">
+      </div>
+      <div class="form-group" style="flex:none">
+        <label class="form-label">Tipo</label>
+        <select id="appt-filter-tipo" onchange="renderFBAppts()" style="width:auto">
+          <option value="">Tutti</option>
+          <option value="ginecologica">🌸 Ginecologica</option>
+          <option value="ostetrica">🤰 Ostetrica</option>
+          <option value="ecografia">🖥️ Ecografia</option>
+          <option value="primo_accesso">🔬 Primo Accesso</option>
+          <option value="controllo">💊 Controllo</option>
+        </select>
+      </div>
+      <button class="btn btn-ghost" style="margin-top:20px" onclick="document.getElementById('appt-filter-date').value='';document.getElementById('appt-filter-tipo').value='';renderFBAppts()">✕ Reset filtri</button>
+    </div>
+  </div>
+
+  <!-- Lista oggi -->
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Oggi</div></div>
+          <span class="badge badge-green" id="appt-oggi-badge">0</span>
+        </div>
+        <div id="appt-oggi-list"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Prossimi 7 giorni</div></div>
+          <span class="badge badge-blue" id="appt-next-badge">0</span>
+        </div>
+        <div id="appt-next-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutti -->
+  <div class="card" style="margin-top:4px">
+    <div class="card-header">
+      <div><div class="card-title">Tutti gli Appuntamenti</div></div>
+      <span class="badge badge-blue" id="appt-all-badge">0</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data · Ora</th><th>Paziente</th><th>Tipo</th><th>Durata</th><th>Stato</th><th>Note</th></tr></thead>
+        <tbody id="appt-all-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -2303,7 +2380,18 @@ function creaPaziente(){
   const n=document.getElementById('n-nome').value.trim(), c=document.getElementById('n-cognome').value.trim();
   if(!n||!c){alert('Nome e cognome obbligatori.');return;}
   const p={id:Date.now(),nome:n,cognome:c,nascita:document.getElementById('n-nascita').value,tel:document.getElementById('n-tel').value,email:document.getElementById('n-email').value,cf:document.getElementById('n-cf').value.toUpperCase(),note:document.getElementById('n-note').value,visite:[],alerts:[]};
-  DB.pazienti.push(p);salvaDB();openPaziente(p.id);
+  DB.pazienti.push(p);salvaDB();
+  // Sync anagrafica su Firebase (no dati clinici)
+  syncPazienteFirebase(p);
+  openPaziente(p.id);
+}
+
+function syncPazienteFirebase(p){
+  if(!gsFirebaseReady||!gsDb)return;
+  const data={nome:p.nome,cognome:p.cognome,nascita:p.nascita||'',tel:p.tel||'',email:p.email||'',cf:p.cf||'',updatedAt:new Date().toISOString(),source:'gynosystem'};
+  gsDb.collection('pazienti').doc(String(p.id)).set(data,{merge:true})
+    .then(()=>gsToast('Anagrafica sincronizzata su Firebase','gs-success'))
+    .catch(e=>console.warn('Firebase sync:',e));
 }
 
 function renderPazienti(){
@@ -2362,7 +2450,9 @@ function updateAnagrafica(){
   p.tel=document.getElementById('e-tel').value;
   p.email=document.getElementById('e-email').value;
   p.cf=document.getElementById('e-cf').value.toUpperCase();
-  salvaDB();openPaziente(curPaz);
+  salvaDB();
+  syncPazienteFirebase(p); // sync su Firebase
+  openPaziente(curPaz);
 }
 
 function salvaNote(){
@@ -2900,27 +2990,177 @@ function naviga(id){
 }
 
 // ═══════════════════════════════════════════════════
-//  PWA MANIFEST (inline, non richiede file separato)
+//  PWA — ICONA CON SFONDO COLORATO (fix sfondo bianco)
 // ═══════════════════════════════════════════════════
-(function injectManifest(){
-  const m={
-    name:"GynoSystem",short_name:"GynoSystem",
-    description:"Gestione studio ginecologico · Dr.ssa Cristina Guidi",
-    start_url:"./GynoSystem_v15.html",display:"standalone",
-    orientation:"any",background_color:"#1c1c1e",theme_color:"#007AFF",
-    icons:[
-      {src:"logo.png",sizes:"192x192",type:"image/png",purpose:"any maskable"},
-      {src:"logo.png",sizes:"512x512",type:"image/png",purpose:"any maskable"}
-    ]
+(function buildPWAIcon(){
+  const SZ=512, PAD=88, R=115;
+
+  function drawBackground(ctx){
+    // Arrotondamento angoli stile iOS
+    ctx.beginPath();
+    ctx.moveTo(R,0);
+    ctx.arcTo(SZ,0,  SZ,SZ, R);
+    ctx.arcTo(SZ,SZ, 0, SZ, R);
+    ctx.arcTo(0, SZ, 0, 0,  R);
+    ctx.arcTo(0, 0,  SZ,0,  R);
+    ctx.closePath();
+    ctx.clip();
+    // Gradiente primario (blu → viola, uguale al brand)
+    const g=ctx.createLinearGradient(0,0,SZ,SZ);
+    g.addColorStop(0,'#007AFF');
+    g.addColorStop(1,'#AF52DE');
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,SZ,SZ);
+  }
+
+  function injectIcon(dataUrl){
+    // Aggiorna apple-touch-icon e favicon
+    document.querySelectorAll('link[rel*="icon"]').forEach(l=>l.href=dataUrl);
+    // Aggiorna meta og:image se presente
+    const og=document.querySelector('meta[property="og:image"]');
+    if(og) og.content=dataUrl;
+    // Genera manifest con icona canvas (nessun file esterno)
+    const m={
+      name:"GynoSystem",
+      short_name:"GynoSystem",
+      description:"Gestione studio ginecologico · Dr.ssa Cristina Guidi",
+      start_url:"./GynoSystem_v15.html",
+      display:"standalone",
+      orientation:"any",
+      background_color:"#1c1c1e",
+      theme_color:"#007AFF",
+      icons:[
+        {src:dataUrl, sizes:"192x192", type:"image/png", purpose:"any maskable"},
+        {src:dataUrl, sizes:"512x512", type:"image/png", purpose:"any maskable"}
+      ]
+    };
+    try{
+      const old=document.querySelector('link[rel="manifest"]');
+      if(old) old.remove();
+      const blob=new Blob([JSON.stringify(m)],{type:'application/json'});
+      const link=document.createElement('link');
+      link.rel='manifest'; link.href=URL.createObjectURL(blob);
+      document.head.appendChild(link);
+    }catch(e){}
+  }
+
+  function drawFallbackText(ctx){
+    ctx.fillStyle='rgba(255,255,255,0.92)';
+    ctx.font='bold 190px "DM Serif Display",Georgia,serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillText('CG', SZ/2, SZ/2+8);
+    // Linea decorativa sotto
+    ctx.fillStyle='rgba(255,255,255,0.3)';
+    ctx.fillRect(SZ/2-80, SZ/2+90, 160, 3);
+  }
+
+  const canvas=document.createElement('canvas');
+  canvas.width=canvas.height=SZ;
+  const ctx=canvas.getContext('2d');
+
+  // Tenta di caricare logo.png
+  const img=new Image();
+  img.crossOrigin='anonymous';
+
+  img.onload=function(){
+    drawBackground(ctx);
+    // Logo centrato con padding e ombra morbida
+    ctx.shadowColor='rgba(0,0,0,0.25)';
+    ctx.shadowBlur=20;
+    ctx.drawImage(img, PAD, PAD, SZ-PAD*2, SZ-PAD*2);
+    ctx.shadowBlur=0;
+    injectIcon(canvas.toDataURL('image/png'));
   };
-  try{
-    const blob=new Blob([JSON.stringify(m)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);
-    const link=document.createElement('link');
-    link.rel='manifest'; link.href=url;
-    document.head.appendChild(link);
-  }catch(e){}
+
+  img.onerror=function(){
+    // Nessun logo.png: usa le iniziali "CG" su gradiente
+    drawBackground(ctx);
+    drawFallbackText(ctx);
+    injectIcon(canvas.toDataURL('image/png'));
+  };
+
+  img.src='logo.png?v='+Date.now(); // cache-bust
 })();
+
+// ═══════════════════════════════════════════════════
+//  APPUNTAMENTI FIREBASE (sola lettura)
+// ═══════════════════════════════════════════════════
+let GS_APPTS = [];
+
+async function loadFBAppuntamenti(){
+  if(!gsFirebaseReady){gsToast('Firebase non disponibile','gs-error');return;}
+  try{
+    const snap=await gsDb.collection('appuntamenti').orderBy('data').orderBy('ora').get();
+    GS_APPTS=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderFBAppts();
+    // Aggiorna badge sidebar
+    const oggi=new Date().toISOString().split('T')[0];
+    const todayCt=GS_APPTS.filter(a=>a.data===oggi).length;
+    const nb=document.getElementById('appt-sidebar-badge');
+    if(nb)nb.textContent=todayCt;
+    gsToast(`${GS_APPTS.length} appuntamenti caricati`,'gs-success');
+  }catch(e){gsToast('Errore caricamento appuntamenti','gs-error');}
+}
+
+function renderFBAppts(){
+  const oggi=new Date().toISOString().split('T')[0];
+  const filtDate=document.getElementById('appt-filter-date')?.value||'';
+  const filtTipo=document.getElementById('appt-filter-tipo')?.value||'';
+  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const STATI={confermato:'<span class="badge badge-green">✅</span>',in_attesa:'<span class="badge badge-orange">⏳</span>',cancellato:'<span class="badge badge-red">❌</span>',completato:'<span class="badge badge-gray">✔️</span>'};
+
+  const apptOggi=GS_APPTS.filter(a=>a.data===oggi);
+  const apptNext=GS_APPTS.filter(a=>a.data>oggi).slice(0,8);
+  document.getElementById('appt-oggi-badge').textContent=apptOggi.length;
+  document.getElementById('appt-next-badge').textContent=apptNext.length;
+
+  function apptRow(a,showDate=false){
+    const dStr=showDate?new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' ':'';
+    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid var(--separator)">
+      <div style="min-width:44px;text-align:center;flex-shrink:0">
+        ${showDate?`<div style="font-size:.65rem;color:var(--label4);font-weight:700">${dStr}</div>`:''}
+        <div style="font-family:var(--font-serif);font-size:1.2rem;color:var(--primary);line-height:1">${a.ora?.split(':')[0]||'--'}</div>
+        <div style="font-size:.7rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.875rem;color:var(--label)">${a.pazienteNome||'–'}</div>
+        <div style="font-size:.78rem;color:var(--label3)">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.durata?'· '+a.durata+' min':''}</div>
+        ${a.note?`<div style="font-size:.75rem;color:var(--label4);margin-top:3px;font-style:italic">${a.note}</div>`:''}
+      </div>
+      <div>${STATI[a.stato]||''}</div>
+    </div>`;
+  }
+
+  const oEl=document.getElementById('appt-oggi-list');
+  oEl.innerHTML=apptOggi.length?apptOggi.map(a=>apptRow(a)).join(''):'<div class="empty-state" style="padding:24px 0"><div class="es-icon">📭</div><p>Nessun appuntamento oggi</p></div>';
+  const nEl=document.getElementById('appt-next-list');
+  nEl.innerHTML=apptNext.length?apptNext.map(a=>apptRow(a,true)).join(''):'<div class="empty-state" style="padding:24px 0"><div class="es-icon">📅</div><p>Nessun appuntamento futuro</p></div>';
+
+  // Tabella completa con filtri
+  let filtered=[...GS_APPTS];
+  if(filtDate)filtered=filtered.filter(a=>a.data===filtDate);
+  if(filtTipo)filtered=filtered.filter(a=>a.tipo===filtTipo);
+  filtered.sort((a,b)=>a.data===b.data?a.ora.localeCompare(b.ora):b.data.localeCompare(a.data));
+  document.getElementById('appt-all-badge').textContent=filtered.length;
+  const tb=document.getElementById('appt-all-tbody');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--label4);padding:24px">Nessun appuntamento con questi filtri</td></tr>';return;}
+  tb.innerHTML=filtered.map(a=>`<tr>
+    <td><strong>${new Date(a.data+'T12:00:00').toLocaleDateString('it-IT')}</strong><br><span style="color:var(--label4);font-size:.8rem">${a.ora||'–'}</span></td>
+    <td class="td-name">${a.pazienteNome||'–'}</td>
+    <td>${ICONS[a.tipo]||'🩺'} ${a.tipo||'–'}</td>
+    <td>${a.durata?a.durata+' min':'–'}</td>
+    <td>${STATI[a.stato]||''}</td>
+    <td style="font-size:.8rem;color:var(--label4);max-width:180px">${a.note||'–'}</td>
+  </tr>`).join('');
+}
+
+// Carica appuntamenti quando si naviga alla sezione
+const _gsOrigNaviga=window.naviga;
+function naviga(id){
+  if(_gsOrigNaviga)_gsOrigNaviga(id);
+  if(id==='appuntamenti')loadFBAppuntamenti();
+}
 
 // ═══════════════════════════════════════════════════
 //  FIREBASE INTEGRATION
