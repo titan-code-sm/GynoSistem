@@ -216,8 +216,24 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:0.8rem;font-weight:500;color:var(--label2);transition:0.15s;position:relative;}
 .cal-day:hover{background:var(--primary-dim);color:var(--primary);}
 .cal-day.today{background:var(--primary);color:#fff;font-weight:700;}
-.cal-day.has-events::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--green);}
-.cal-day.today.has-events::after{background:#fff;}
+.cal-day.has-events::after{display:none;} /* rimosso il vecchio dot, usiamo i nuovi */
+.cal-dot-fb,.cal-dot-agenda,.cal-dot-prom,.cal-dot-nota{
+  display:inline-block;width:5px;height:5px;border-radius:50%;
+}
+.cal-dot-fb    {background:var(--green);}
+.cal-dot-agenda{background:var(--primary);}
+.cal-dot-prom  {background:var(--orange);}
+.cal-dot-nota  {background:var(--label4);}
+.cal-dots-row  {display:flex;gap:2px;justify-content:center;margin-top:1px;}
+.cal-fb-badge  {
+  display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;background:var(--green);color:#fff;
+  border-radius:50%;font-size:.55rem;font-weight:800;
+  margin-left:2px;vertical-align:middle;
+}
+.cal-day.today .cal-dot-fb,.cal-day.today .cal-dot-agenda,
+.cal-day.today .cal-dot-prom,.cal-day.today .cal-dot-nota{background:rgba(255,255,255,.7);}
+.cal-day.today .cal-fb-badge{background:rgba(255,255,255,.9);color:var(--primary);}
 .cal-day.sunday{color:var(--red);}
 .cal-day.holiday{color:var(--red);background:var(--red-dim);}
 .cal-day.other-month{color:var(--label4);opacity:0.4;}
@@ -1642,6 +1658,29 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 </div>
 
+<!-- POPUP APPUNTAMENTI DEL GIORNO -->
+<div id="popup-appts" class="overlay" style="align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px;padding:0;width:480px;max-width:95vw;max-height:85vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.18);display:flex;flex-direction:column;">
+    <!-- Header colorato -->
+    <div style="background:linear-gradient(135deg,var(--green),var(--primary));padding:22px 24px 20px;color:#fff;flex-shrink:0">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-family:var(--font-serif);font-size:1.4rem;font-weight:700" id="popup-appts-title">📅 Appuntamenti di Oggi</div>
+          <div style="font-size:.8rem;opacity:.8;margin-top:3px" id="popup-appts-date"></div>
+        </div>
+        <button onclick="closeModal('popup-appts')" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+    </div>
+    <!-- Lista -->
+    <div id="popup-appts-list" style="overflow-y:auto;padding:16px 20px 20px;flex:1"></div>
+    <!-- Footer -->
+    <div style="padding:12px 20px 18px;border-top:1px solid var(--separator);display:flex;gap:8px;flex-shrink:0">
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="naviga('appuntamenti');closeModal('popup-appts')">Vai agli Appuntamenti</button>
+      <button class="btn btn-ghost" onclick="closeModal('popup-appts')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast container Firebase -->
 <div id="gs-toast-container"></div>
 
@@ -2161,19 +2200,42 @@ function renderAlertsHome(){
   const c=document.getElementById('dashboard-alerts');
   if(!c) return;
   c.innerHTML='';
+  const oggi=new Date().toISOString().split('T')[0];
+  // ── Appuntamenti Firebase prossimi (da oggi in poi) ──
+  const fbProssimi=GS_APPTS
+    .filter(a=>a.data>=oggi && a.stato!=='cancellato')
+    .slice(0,8);
+  if(fbProssimi.length){
+    const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+    fbProssimi.forEach(a=>{
+      const isOggi=a.data===oggi;
+      const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+      c.innerHTML+=`<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}cursor:default">
+        <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
+        <span class="alert-text">
+          <strong>${a.pazienteNome||'–'}</strong>
+          <span style="color:var(--label4);font-size:.75rem"> ${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.ora?'· '+a.ora:''}</span>
+          ${a.createdBy?`<span style="color:var(--label4);font-size:.72rem"> · 👤${a.createdBy}</span>`:''}
+        </span>
+      </div>`;
+    });
+    // Separatore
+    if(fbProssimi.length) c.innerHTML+=`<div style="height:1px;background:var(--separator);margin:8px 0"></div>`;
+  }
+  // ── Promemoria locali pazienti ──
   let l=[];
   DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>l.push({p,a})));
   l.sort((a,b)=>new Date(a.a.data)-new Date(b.a.data));
-  if(!l.length){
+  if(!l.length && !fbProssimi.length){
     c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun promemoria attivo</p></div>';
     return;
   }
-  l.slice(0,10).forEach(i=>{
+  l.slice(0,6).forEach(i=>{
     const past=new Date(i.a.data)<new Date();
     c.innerHTML+=`<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}">
       <span class="alert-date">${i.a.data}</span>
       <span class="alert-text"><strong>${i.p.cognome}</strong>: ${i.a.testo}</span>
-      <span onclick="openPaziente(${i.p.id})" style="color:var(--primary);cursor:pointer;font-size:0.75rem;font-weight:600;">Apri →</span>
+      <span onclick="openPaziente(${i.p.id})" style="color:var(--primary);cursor:pointer;font-size:.75rem;font-weight:600;">Apri →</span>
     </div>`;
   });
 }
@@ -2238,38 +2300,25 @@ function renderCalendar(){
     const dow=new Date(y,m,d).getDay();
     const isSun=dow===0, mmdd=String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const isHol=HOLIDAYS.includes(mmdd);
-    let hasEv=!!(DB.agenda.find(x=>x.data===str));
-    if(!hasEv) DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{if(a.data===str)hasEv=true;}));
-    const cls=`cal-day${str===oggi?' today':''}${(isSun||isHol)&&str!==oggi?' sunday':''}${hasEv?' has-events':''}`;
-    b.innerHTML+=`<div class="${cls}" onclick="openDay('${str}')">${d}</div>`;
-  }
-}
-
-function renderCalendar(){
-  const y=calDate.getFullYear(), m=calDate.getMonth();
-  document.getElementById('cal-title').textContent=calDate.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
-  const first=new Date(y,m,1).getDay(), start=first===0?6:first-1, dim=new Date(y,m+1,0).getDate();
-  const b=document.getElementById('calendar-body'); b.innerHTML='';
-  const oggi=new Date().toISOString().split('T')[0];
-  for(let i=0;i<start;i++) b.innerHTML+='<div></div>';
-  for(let d=1;d<=dim;d++){
-    const str=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dow=new Date(y,m,d).getDay();
-    const isSun=dow===0, mmdd=String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    const isHol=HOLIDAYS.includes(mmdd);
-    // Raccoglie tutti gli eventi del giorno
     const dayEvs=DB.agenda.filter(x=>x.data===str);
-    // Compatibilità backward: entries vecchie con solo {data,text}
-    let hasEv=dayEvs.length>0;
-    if(!hasEv) DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{if(a.data===str)hasEv=true;}));
-    const cls=`cal-day${str===oggi?' today':''}${(isSun||isHol)&&str!==oggi?' sunday':''}${hasEv?' has-events':''}`;
-    // Indicatori colorati per tipo evento
+    let hasLocalEv=dayEvs.length>0;
+    if(!hasLocalEv) DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{if(a.data===str)hasLocalEv=true;}));
+    // Appuntamenti Firebase (GynoBook)
+    const fbAppts=GS_APPTS.filter(a=>a.data===str);
+    const hasFbAppt=fbAppts.length>0;
+    const cls=`cal-day${str===oggi?' today':''}${(isSun||isHol)&&str!==oggi?' sunday':''}${(hasLocalEv||hasFbAppt)?' has-events':''}`;
+    // Pallini: verde=appuntamento Firebase, blu=nota/agenda, arancione=promemoria
     let dots='';
-    if(dayEvs.some(e=>e.tipo==='appuntamento'||(!e.tipo&&e.text))) dots+=`<span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;"></span>`;
-    if(dayEvs.some(e=>e.tipo==='promemoria')) dots+=`<span style="width:5px;height:5px;border-radius:50%;background:var(--orange);display:inline-block;"></span>`;
-    if(dayEvs.some(e=>e.tipo==='nota'||(!e.tipo&&e.text))) dots+=`<span style="width:5px;height:5px;border-radius:50%;background:var(--primary);display:inline-block;"></span>`;
-    const dotsHtml=dots?`<div style="display:flex;gap:2px;justify-content:center;margin-top:2px;">${dots}</div>`:'';
-    b.innerHTML+=`<div class="${cls}" onclick="openDay('${str}')" style="flex-direction:column;gap:2px;">${d}${dotsHtml}</div>`;
+    if(hasFbAppt)      dots+=`<span class="cal-dot-fb"></span>`;
+    if(dayEvs.some(e=>e.tipo==='appuntamento'||(!e.tipo&&e.text))) dots+=`<span class="cal-dot-agenda"></span>`;
+    if(dayEvs.some(e=>e.tipo==='promemoria'))  dots+=`<span class="cal-dot-prom"></span>`;
+    if(dayEvs.some(e=>e.tipo==='nota'))        dots+=`<span class="cal-dot-nota"></span>`;
+    const dotsHtml=dots?`<div class="cal-dots-row">${dots}</div>`:'';
+    // Numero appuntamento Firebase visibile nel giorno
+    const fbBadge=hasFbAppt&&str!==oggi?`<span class="cal-fb-badge">${fbAppts.length}</span>`:'';
+    b.innerHTML+=`<div class="${cls}" onclick="openDay('${str}')" style="flex-direction:column;gap:1px;">
+      <span>${d}${fbBadge}</span>${dotsHtml}
+    </div>`;
   }
 }
 
@@ -3147,23 +3196,65 @@ let GS_APPTS = [];
 async function loadFBAppuntamenti(){
   if(!gsFirebaseReady){gsToast('Firebase non disponibile','gs-error');return;}
   try{
-    // Nessun orderBy composito → evita errore indice Firestore
     const snap=await gsDb.collection('appuntamenti').get();
     GS_APPTS=snap.docs.map(d=>({id:d.id,...d.data()}));
-    // Ordina client-side per data poi ora
     GS_APPTS.sort((a,b)=>{
       if(a.data!==b.data) return (a.data||'').localeCompare(b.data||'');
       return (a.ora||'').localeCompare(b.ora||'');
     });
     renderFBAppts();
-    renderDashboardAppts(); // aggiorna anche la dashboard
+    renderDashboardAppts();
+    renderAlertsHome();
+    renderCalendar(); // aggiorna calendario con pallini Firebase
     // Badge sidebar
     const oggi=new Date().toISOString().split('T')[0];
-    const todayCt=GS_APPTS.filter(a=>a.data===oggi).length;
+    const apptOggi=GS_APPTS.filter(a=>a.data===oggi && a.stato!=='cancellato');
     const nb=document.getElementById('appt-sidebar-badge');
-    if(nb) nb.textContent=todayCt;
+    if(nb) nb.textContent=apptOggi.length||'';
+    // Popup appuntamenti del giorno (solo se ce ne sono)
+    if(apptOggi.length) showApptPopup(apptOggi, oggi);
     gsToast(`${GS_APPTS.length} appuntamenti caricati`,'gs-success');
   }catch(e){gsToast('Errore appuntamenti: '+e.message,'gs-error');}
+}
+
+function showApptPopup(appts, oggi){
+  const dStr=new Date(oggi+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  const el=document.getElementById('popup-appts-date');
+  if(el) el.textContent=dStr;
+  const tit=document.getElementById('popup-appts-title');
+  if(tit) tit.textContent=`📅 ${appts.length} Appuntament${appts.length>1?'i':'o'} Oggi`;
+  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const STATI={confermato:'<span style="color:var(--green);font-size:.72rem;font-weight:700">✅ Confermato</span>',
+               in_attesa:'<span style="color:var(--orange);font-size:.72rem;font-weight:700">⏳ In attesa</span>',
+               completato:'<span style="color:var(--label4);font-size:.72rem;font-weight:700">✔️ Completato</span>',
+               cancellato:'<span style="color:var(--red);font-size:.72rem;font-weight:700">❌ Cancellato</span>'};
+  const list=document.getElementById('popup-appts-list');
+  if(!list) return;
+  list.innerHTML=appts.map((a,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 0;
+      ${i<appts.length-1?'border-bottom:1px solid var(--separator)':''}">
+      <!-- Ora -->
+      <div style="min-width:48px;text-align:center;flex-shrink:0;
+        background:var(--green-dim);border-radius:10px;padding:6px 4px">
+        <div style="font-family:var(--font-serif);font-size:1.2rem;color:var(--green);line-height:1">
+          ${a.ora?.split(':')[0]||'--'}</div>
+        <div style="font-size:.62rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
+      </div>
+      <!-- Info -->
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.95rem;color:var(--label);margin-bottom:3px">
+          ${a.pazienteNome||'Paziente'}</div>
+        <div style="font-size:.8rem;color:var(--label3);margin-bottom:4px">
+          ${ICONS[a.tipo]||'🩺'} ${a.tipo||'–'} ${a.durata?'· '+a.durata+' min':''}
+        </div>
+        ${a.note?`<div style="font-size:.75rem;color:var(--label4);background:var(--surface2);border-radius:6px;padding:4px 8px;margin-bottom:4px">${a.note}</div>`:''}
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${STATI[a.stato]||''}
+          ${a.createdBy?`<span style="font-size:.7rem;color:var(--label4)">👤 ${a.createdBy}</span>`:''}
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('popup-appts').classList.add('show');
 }
 
 function renderFBAppts(){
