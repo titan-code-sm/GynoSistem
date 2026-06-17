@@ -17,10 +17,9 @@
 <title>GynoSystem v15 · Dr.ssa Cristina Guidi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<!-- Firebase SDK -->
+<!-- Firebase SDK (solo Firestore, no Storage) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 <style>
 :root{
   --bg:#f2f2f7;
@@ -3169,24 +3168,22 @@ const GS_FIREBASE_CONFIG = {
   apiKey: "AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",
   authDomain: "gynosistem.firebaseapp.com",
   projectId: "gynosistem",
-  storageBucket: "gynosistem.firebasestorage.app",
   messagingSenderId: "355036111162",
   appId: "1:355036111162:web:dfe1e1aa73a1086d4ab003"
 };
 
-let gsDb = null, gsStorage = null, gsFirebaseReady = false;
+let gsDb = null, gsFirebaseReady = false;
 
 function initFirebase() {
   try {
     if (!firebase.apps.length) firebase.initializeApp(GS_FIREBASE_CONFIG);
-    gsDb      = firebase.firestore();
-    gsStorage = firebase.storage();
+    gsDb = firebase.firestore();
     gsFirebaseReady = true;
     setFbStatus('connected', 'Firebase connesso');
     loadAdminConfig();
   } catch(e) {
-    setFbStatus('error', 'Firebase non disponibile');
-    console.warn('Firebase init error:', e);
+    setFbStatus('error', 'Errore Firebase');
+    console.warn('Firebase init error:', e.message);
   }
 }
 
