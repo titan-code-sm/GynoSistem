@@ -2153,17 +2153,50 @@ function renderDashboard(){
   let visitOggi=0;
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{if(v.data===oggi)visitOggi++;}));
   document.getElementById('stat-oggi').textContent=visitOggi;
+  renderAlertsHome();
+  renderDashboardAppts();
+}
 
-  // Alerts
-  const c=document.getElementById('dashboard-alerts'); c.innerHTML='';
-  let l=[];
-  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>l.push({p,a})));
-  l.sort((a,b)=>new Date(a.a.data)-new Date(b.a.data));
-  if(!l.length){c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun promemoria attivo</p></div>'; return;}
-  l.slice(0,10).forEach(i=>{
-    const past=new Date(i.a.data)<new Date();
-    c.innerHTML+=`<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}"><span class="alert-date">${i.a.data}</span><span class="alert-text"><strong>${i.p.cognome}</strong>: ${i.a.testo}</span><span onclick="openPaziente(${i.p.id})" style="color:var(--primary);cursor:pointer;font-size:0.75rem;font-weight:600;">Apri →</span></div>`;
-  });
+function renderDashboardAppts(){
+  // Mostra appuntamenti Firebase di oggi nella dashboard
+  let el=document.getElementById('dash-appts-box');
+  if(!el){
+    // Crea il box se non esiste ancora
+    const parent=document.querySelector('#sec-home .g2');
+    if(!parent) return;
+    const div=document.createElement('div');
+    div.className='card';
+    div.id='dash-appts-box';
+    div.style.marginTop='16px';
+    div.innerHTML=`<div class="card-header"><div><div class="card-title">📅 Appuntamenti Oggi <span id="dash-appts-badge" class="badge badge-green">0</span></div><div class="card-subtitle">Da GynoBook · Firebase</div></div><button class="btn btn-ghost" style="font-size:.8rem" onclick="loadFBAppuntamenti()">🔄</button></div><div id="dash-appts-list"></div>`;
+    // Inserisci dopo il grid
+    parent.parentNode.insertBefore(div,parent.nextSibling);
+    el=div;
+  }
+  const oggi=new Date().toISOString().split('T')[0];
+  const apptOggi=GS_APPTS.filter(a=>a.data===oggi).sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
+  const badge=document.getElementById('dash-appts-badge');
+  if(badge) badge.textContent=apptOggi.length;
+  const list=document.getElementById('dash-appts-list');
+  if(!list) return;
+  if(!apptOggi.length){
+    list.innerHTML='<div style="text-align:center;padding:16px;color:var(--label4);font-size:.85rem">Nessun appuntamento per oggi da GynoBook</div>';
+    return;
+  }
+  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  list.innerHTML=apptOggi.map(a=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--separator)">
+      <div style="min-width:42px;text-align:center;flex-shrink:0">
+        <div style="font-family:var(--font-serif);font-size:1.1rem;color:var(--primary);line-height:1">${a.ora?.split(':')[0]||'--'}</div>
+        <div style="font-size:.65rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.875rem">${a.pazienteNome||'–'}</div>
+        <div style="font-size:.75rem;color:var(--label3)">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.durata?'· '+a.durata+' min':''}</div>
+        ${a.createdBy?`<div style="font-size:.7rem;color:var(--label4)">👤 ${a.createdBy}</div>`:''}
+      </div>
+      <span class="badge ${a.stato==='confermato'?'badge-green':a.stato==='cancellato'?'badge-red':'badge-orange'}" style="font-size:.65rem">${a.stato||'–'}</span>
+    </div>`).join('');
 }
 
 // ═══════════════════════════════════════════════════
@@ -3026,7 +3059,7 @@ function closeSidebar(){
       name:"GynoSystem",
       short_name:"GynoSystem",
       description:"Gestione studio ginecologico · Dr.ssa Cristina Guidi",
-      start_url:"./GynoSystem_v15.html",
+      start_url:"./index.html",
       display:"standalone",
       orientation:"any",
       background_color:"#1c1c1e",
@@ -3093,16 +3126,23 @@ let GS_APPTS = [];
 async function loadFBAppuntamenti(){
   if(!gsFirebaseReady){gsToast('Firebase non disponibile','gs-error');return;}
   try{
-    const snap=await gsDb.collection('appuntamenti').orderBy('data').orderBy('ora').get();
+    // Nessun orderBy composito → evita errore indice Firestore
+    const snap=await gsDb.collection('appuntamenti').get();
     GS_APPTS=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // Ordina client-side per data poi ora
+    GS_APPTS.sort((a,b)=>{
+      if(a.data!==b.data) return (a.data||'').localeCompare(b.data||'');
+      return (a.ora||'').localeCompare(b.ora||'');
+    });
     renderFBAppts();
-    // Aggiorna badge sidebar
+    renderDashboardAppts(); // aggiorna anche la dashboard
+    // Badge sidebar
     const oggi=new Date().toISOString().split('T')[0];
     const todayCt=GS_APPTS.filter(a=>a.data===oggi).length;
     const nb=document.getElementById('appt-sidebar-badge');
-    if(nb)nb.textContent=todayCt;
+    if(nb) nb.textContent=todayCt;
     gsToast(`${GS_APPTS.length} appuntamenti caricati`,'gs-success');
-  }catch(e){gsToast('Errore caricamento appuntamenti','gs-error');}
+  }catch(e){gsToast('Errore appuntamenti: '+e.message,'gs-error');}
 }
 
 function renderFBAppts(){
@@ -3179,6 +3219,7 @@ function initFirebase() {
     gsFirebaseReady = true;
     setFbStatus('connected', 'Firebase connesso');
     loadAdminConfig();
+    loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
   } catch(e) {
     setFbStatus('error', 'Errore Firebase');
     console.warn('Firebase init error:', e.message);
