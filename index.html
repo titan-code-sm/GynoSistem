@@ -2117,17 +2117,25 @@ async function resetGSPass(){
 //  NAVIGATION
 // ═══════════════════════════════════════════════════
 function naviga(id){
+  // Chiude sidebar mobile
+  const aside=document.querySelector('aside');
+  const backdrop=document.getElementById('sid-backdrop');
+  if(aside) aside.classList.remove('open');
+  if(backdrop) backdrop.classList.remove('show');
+  // Attiva sezione
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('sec-'+id);
   if(s) s.classList.add('active');
   document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   const b=document.getElementById('nav-'+id);
   if(b) b.classList.add('active');
+  // Render sezione
   if(id==='home'){renderCalendar();renderDashboard();}
   if(id==='archivio') renderPazienti();
   if(id==='storico-date') renderStorico();
   if(id==='farmacia') renderFarmaci();
   if(id==='backup') renderBackupStats();
+  if(id==='appuntamenti') loadFBAppuntamenti();
 }
 
 function salvaDB(){localStorage.setItem('gynoDB_v15',JSON.stringify(DB));}
@@ -2981,12 +2989,7 @@ function closeSidebar(){
   document.querySelector('aside').classList.remove('open');
   document.getElementById('sid-backdrop').classList.remove('show');
 }
-// Chiudi sidebar su navigazione (mobile)
-const _origNaviga = window.naviga;
-function naviga(id){
-  closeSidebar();
-  if(_origNaviga) _origNaviga(id);
-}
+// Sidebar mobile gestita direttamente in naviga()
 
 // ═══════════════════════════════════════════════════
 //  PWA — ICONA CON SFONDO COLORATO (fix sfondo bianco)
@@ -3154,12 +3157,7 @@ function renderFBAppts(){
   </tr>`).join('');
 }
 
-// Carica appuntamenti quando si naviga alla sezione
-const _gsOrigNaviga=window.naviga;
-function naviga(id){
-  if(_gsOrigNaviga)_gsOrigNaviga(id);
-  if(id==='appuntamenti')loadFBAppuntamenti();
-}
+// Caricamento appuntamenti Firebase gestito direttamente in naviga()
 
 // ═══════════════════════════════════════════════════
 //  FIREBASE INTEGRATION
