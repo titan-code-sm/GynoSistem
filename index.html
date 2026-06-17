@@ -2157,6 +2157,27 @@ function renderDashboard(){
   renderDashboardAppts();
 }
 
+function renderAlertsHome(){
+  const c=document.getElementById('dashboard-alerts');
+  if(!c) return;
+  c.innerHTML='';
+  let l=[];
+  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>l.push({p,a})));
+  l.sort((a,b)=>new Date(a.a.data)-new Date(b.a.data));
+  if(!l.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun promemoria attivo</p></div>';
+    return;
+  }
+  l.slice(0,10).forEach(i=>{
+    const past=new Date(i.a.data)<new Date();
+    c.innerHTML+=`<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}">
+      <span class="alert-date">${i.a.data}</span>
+      <span class="alert-text"><strong>${i.p.cognome}</strong>: ${i.a.testo}</span>
+      <span onclick="openPaziente(${i.p.id})" style="color:var(--primary);cursor:pointer;font-size:0.75rem;font-weight:600;">Apri →</span>
+    </div>`;
+  });
+}
+
 function renderDashboardAppts(){
   // Mostra appuntamenti Firebase di oggi nella dashboard
   let el=document.getElementById('dash-appts-box');
