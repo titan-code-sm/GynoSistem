@@ -61,33 +61,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--label);display:fle
 ::selection{background:var(--primary-dim);color:var(--primary)}
 
 /* ─── LOGIN REDESIGN ─── */
-#login-overlay{position:fixed;inset:0;background:linear-gradient(160deg,#0f0f14 0%,#1c1c2e 50%,#0f1a2e 100%);z-index:9999;display:flex;align-items:center;justify-content:center;}
-#login-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,rgba(0,122,255,0.12) 0%,transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(175,82,222,0.10) 0%,transparent 60%);pointer-events:none;}
-.login-card{position:relative;background:rgba(255,255,255,0.055);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.10);padding:44px 42px 36px;border-radius:32px;text-align:center;width:400px;box-shadow:0 32px 80px rgba(0,0,0,0.45);}
+#login-overlay{position:fixed;inset:0;background:linear-gradient(160deg,#fdf0f5 0%,#fce4ec 45%,#f8d7e3 100%);z-index:9999;display:flex;align-items:center;justify-content:center;}
+#login-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 30%,rgba(244,143,177,0.25) 0%,transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(206,147,216,0.18) 0%,transparent 55%);pointer-events:none;}
+.login-card{position:relative;background:rgba(255,255,255,0.78);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.9);padding:44px 42px 36px;border-radius:32px;text-align:center;width:400px;box-shadow:0 24px 70px rgba(216,112,147,0.28);}
 .login-avatar-wrap{margin-bottom:22px;}
-.login-avatar{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,var(--primary),var(--purple));display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.6rem;color:#fff;box-shadow:0 8px 32px rgba(0,122,255,0.35);}
-.login-card h1{font-family:var(--font-serif);font-size:1.75rem;color:#fff;margin-bottom:4px;letter-spacing:-0.3px;}
-.login-card .login-version{font-size:0.72rem;color:rgba(255,255,255,0.3);margin-bottom:6px;letter-spacing:0.5px;}
-.login-profile-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.10);border-radius:14px;padding:10px 14px;margin:18px 0 22px;text-align:left;}
-.lpc-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--purple));display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
-.lpc-name{color:#fff;font-weight:600;font-size:0.88rem;line-height:1.2;}
-.lpc-role{color:rgba(255,255,255,0.38);font-size:0.7rem;margin-top:2px;}
+.login-avatar{width:74px;height:74px;border-radius:22px;background:linear-gradient(135deg,#ec407a,#ba68c8);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.6rem;color:#fff;box-shadow:0 10px 30px rgba(236,64,122,0.40);}
+.login-card h1{font-family:var(--font-serif);font-size:1.8rem;color:#7a2d4f;margin-bottom:4px;letter-spacing:-0.3px;}
+.login-card .login-version{font-size:0.72rem;color:#b06a86;margin-bottom:6px;letter-spacing:0.5px;}
+.login-profile-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.6);border:1px solid rgba(236,64,122,0.15);border-radius:14px;padding:10px 14px;margin:18px 0 22px;text-align:left;}
+.lpc-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#ec407a,#ba68c8);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
+.lpc-name{color:#7a2d4f;font-weight:600;font-size:0.88rem;line-height:1.2;}
+.lpc-role{color:#b06a86;font-size:0.7rem;margin-top:2px;}
 .pass-wrap{position:relative;margin-bottom:10px;}
 .pass-wrap .login-input{padding-right:50px;text-align:left;letter-spacing:0;}
 .pass-wrap .login-input[type=password]{letter-spacing:4px;}
 .pass-wrap .login-input[type=password]::placeholder{letter-spacing:0;}
-.eye-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);padding:4px;display:flex;align-items:center;transition:color 0.15s;}
-.eye-toggle:hover{color:rgba(255,255,255,0.8);}
-.login-input{width:100%;padding:14px 18px;background:rgba(255,255,255,0.09);border:1.5px solid rgba(255,255,255,0.12);border-radius:14px;font-size:0.95rem;color:#fff;font-family:var(--font);transition:0.2s;}
-.login-input:focus{outline:none;border-color:var(--primary);background:rgba(0,122,255,0.14);box-shadow:0 0 0 4px rgba(0,122,255,0.12);}
-.login-input::placeholder{color:rgba(255,255,255,0.28);letter-spacing:0;}
-.login-btn{width:100%;margin-top:6px;padding:14px;background:var(--primary);border:none;border-radius:14px;font-family:var(--font);font-size:0.95rem;font-weight:700;color:#fff;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
-.login-btn:hover{background:#0066d6;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,122,255,0.35);}
+.eye-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#c77b97;padding:4px;display:flex;align-items:center;transition:color 0.15s;}
+.eye-toggle:hover{color:#ec407a;}
+.login-input{width:100%;padding:14px 18px;background:rgba(255,255,255,0.75);border:1.5px solid rgba(236,64,122,0.20);border-radius:14px;font-size:0.95rem;color:#5a2440;font-family:var(--font);transition:0.2s;}
+.login-input:focus{outline:none;border-color:#ec407a;background:#fff;box-shadow:0 0 0 4px rgba(236,64,122,0.12);}
+.login-input::placeholder{color:#c99bb0;letter-spacing:0;}
+.login-remember{display:flex;align-items:center;gap:9px;margin-top:14px;padding:0 2px;cursor:pointer;user-select:none;}
+.login-remember input{width:18px;height:18px;accent-color:#ec407a;cursor:pointer;flex-shrink:0;}
+.login-remember label{font-size:0.82rem;color:#8a5470;cursor:pointer;}
+.login-btn{width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#ec407a,#d81b60);border:none;border-radius:14px;font-family:var(--font);font-size:0.95rem;font-weight:700;color:#fff;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
+.login-btn:hover{background:linear-gradient(135deg,#e91e63,#c2185b);transform:translateY(-1px);box-shadow:0 8px 24px rgba(236,64,122,0.40);}
 .login-btn:active{transform:scale(0.98);}
-.login-err{color:#ff6b6b;font-size:0.82rem;margin-top:10px;display:none;animation:errShake 0.3s ease;}
+.login-err{color:#d81b60;font-size:0.82rem;margin-top:10px;display:none;animation:errShake 0.3s ease;}
 @keyframes errShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.forgot-link{background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.8rem;cursor:pointer;font-family:var(--font);margin-top:16px;display:block;width:100%;text-align:center;transition:color 0.15s;text-decoration:none;}
-.forgot-link:hover{color:rgba(255,255,255,0.7);}
+.forgot-link{background:none;border:none;color:#b06a86;font-size:0.8rem;cursor:pointer;font-family:var(--font);margin-top:16px;display:block;width:100%;text-align:center;transition:color 0.15s;text-decoration:none;}
+.forgot-link:hover{color:#ec407a;}
 
 /* ─── FORGOT PASSWORD MODAL ─── */
 #forgot-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
@@ -724,6 +727,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <svg id="eye-gs-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         <svg id="eye-gs-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
       </button>
+    </div>
+    <div class="login-remember">
+      <input type="checkbox" id="login-remember-chk">
+      <label for="login-remember-chk">Ricorda la password su questo dispositivo</label>
     </div>
     <button class="login-btn" onclick="checkLogin()">Accedi</button>
     <div id="login-err" class="login-err">Password non corretta. Riprova.</div>
@@ -1538,6 +1545,40 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 </div>
 
+<!-- MODAL VISUALIZZA VISITA -->
+<div id="view-visita" class="overlay" style="align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px;padding:0;width:640px;max-width:95vw;max-height:88vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.18);display:flex;flex-direction:column;">
+    <div style="background:linear-gradient(135deg,var(--primary),var(--purple));padding:22px 26px;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:var(--font-serif);font-size:1.4rem;font-weight:700" id="vv-title">Visita</div>
+        <div style="font-size:.82rem;opacity:.85;margin-top:2px" id="vv-subtitle"></div>
+      </div>
+      <button onclick="closeModal('view-visita')" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1rem;cursor:pointer;flex-shrink:0">✕</button>
+    </div>
+    <div id="vv-body" style="overflow-y:auto;padding:24px 28px;flex:1;font-size:.9rem;line-height:1.7;color:var(--label2)"></div>
+    <div style="padding:14px 24px 18px;border-top:1px solid var(--separator);display:flex;gap:8px;flex-shrink:0">
+      <button class="btn btn-primary" id="vv-print-btn" style="flex:1;justify-content:center">🖨️ Stampa</button>
+      <button class="btn btn-ghost" id="vv-edit-btn">✏️ Modifica</button>
+      <button class="btn btn-ghost" onclick="closeModal('view-visita')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP NUOVA PRENOTAZIONE (realtime da GynoBook) -->
+<div id="nuova-pren-popup" class="overlay" style="align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:24px;padding:0;width:460px;max-width:95vw;max-height:85vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2);display:flex;flex-direction:column;">
+    <div style="background:linear-gradient(135deg,var(--orange),var(--primary));padding:20px 24px;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+      <div style="font-family:var(--font-serif);font-size:1.3rem;font-weight:700" id="nuova-pren-title">🔔 Nuova Prenotazione</div>
+      <button onclick="closeModal('nuova-pren-popup')" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1rem;cursor:pointer;flex-shrink:0">✕</button>
+    </div>
+    <div id="nuova-pren-list" style="overflow-y:auto;padding:18px 20px;flex:1"></div>
+    <div style="padding:12px 20px 18px;border-top:1px solid var(--separator);display:flex;gap:8px;flex-shrink:0">
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="naviga('appuntamenti');closeModal('nuova-pren-popup')">Vedi tutti</button>
+      <button class="btn btn-ghost" onclick="closeModal('nuova-pren-popup')">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- POPUP APPUNTAMENTI DEL GIORNO -->
 <div id="popup-appts" class="overlay" style="align-items:center;justify-content:center">
   <div style="background:var(--surface);border-radius:24px;padding:0;width:480px;max-width:95vw;max-height:85vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.18);display:flex;flex-direction:column;">
@@ -2206,6 +2247,13 @@ function checkLogin(){
   const p = document.getElementById('login-pass').value;
   const allPass = [...new Set([...GS_PASSWORDS, ...(window._gsPasswords||[])])];
   if(allPass.includes(p)){
+    // Ricorda password se richiesto
+    const remember=document.getElementById('login-remember-chk')?.checked;
+    if(remember){
+      try{ localStorage.setItem('gs_remember_pass', btoa(p)); }catch(e){}
+    } else {
+      try{ localStorage.removeItem('gs_remember_pass'); }catch(e){}
+    }
     document.getElementById('login-overlay').style.display='none';
   } else {
     const err = document.getElementById('login-err');
@@ -2215,9 +2263,25 @@ function checkLogin(){
     setTimeout(()=>err.style.display='none',3500);
   }
 }
+// Auto-login se password ricordata
 document.addEventListener('DOMContentLoaded',()=>{
   const inp=document.getElementById('login-pass');
   if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkLogin();});
+  try{
+    const saved=localStorage.getItem('gs_remember_pass');
+    if(saved){
+      const pass=atob(saved);
+      const allPass=[...new Set([...GS_PASSWORDS, ...(window._gsPasswords||[])])];
+      if(allPass.includes(pass)){
+        const chk=document.getElementById('login-remember-chk');
+        if(chk) chk.checked=true;
+        if(inp) inp.value=pass;
+        // Auto-accesso
+        const ov=document.getElementById('login-overlay');
+        if(ov) ov.style.display='none';
+      }
+    }
+  }catch(e){}
 });
 
 // ── Mostra/Nascondi password ──
@@ -2339,10 +2403,12 @@ function renderAlertsHome(){
     fbProssimi.forEach(a=>{
       const isOggi=a.data===oggi;
       const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
-      c.innerHTML+=`<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}cursor:default">
+      const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
+      const nameClick=paz?`onclick="openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)"`:'';
+      c.innerHTML+=`<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
         <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
         <span class="alert-text">
-          <strong>${a.pazienteNome||'–'}</strong>
+          <strong ${nameClick}>${a.pazienteNome||'–'}${paz?' ↗':''}</strong>
           <span style="color:var(--label4);font-size:.75rem"> ${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.ora?'· '+a.ora:''}</span>
           ${a.createdBy?`<span style="color:var(--label4);font-size:.72rem"> · 👤${a.createdBy}</span>`:''}
         </span>
@@ -2487,15 +2553,32 @@ function openDay(d){
 function renderCalModalEvents(d){
   const c=document.getElementById('cal-modal-events'); c.innerHTML='';
   const evs=DB.agenda.filter(x=>x.data===d);
+  const fbAppts=(typeof GS_APPTS!=='undefined'?GS_APPTS:[]).filter(a=>a.data===d);
   // Anche i promemoria paziente di quel giorno
   let alerts=[];
   DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
     if(a.data===d) alerts.push({...a, _pNome:`${p.cognome} ${p.nome}`, _pId:p.id});
   }));
-  if(!evs.length&&!alerts.length){
+  if(!evs.length&&!alerts.length&&!fbAppts.length){
     c.innerHTML='<div style="text-align:center;padding:16px 0;color:var(--label4);font-size:0.85rem;">Nessun evento per questa giornata</div>';
     return;
   }
+  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  // Appuntamenti Firebase da GynoBook
+  fbAppts.forEach(a=>{
+    const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
+    const pazClick=paz?`onclick="closeModal('cal-day-modal');openPaziente(${paz.id})" style="cursor:pointer"`:'';
+    c.innerHTML+=`<div class="cal-event-item" ${pazClick}>
+      <div class="cal-event-dot dot-appuntamento"></div>
+      <div class="cal-event-body">
+        <div class="cal-event-text">${a.pazienteNome||'Paziente'} ${paz?'<span style="color:var(--primary);font-size:.7rem">↗ cartella</span>':''}</div>
+        <div class="cal-event-meta">
+          <span class="badge badge-green" style="font-size:0.65rem;padding:2px 8px">📅 GynoBook</span>
+          ${a.ora?'🕐 '+a.ora:''} ${ICONS[a.tipo]||''} ${a.tipo||''}
+        </div>
+      </div>
+    </div>`;
+  });
   const dotClass={nota:'dot-nota',appuntamento:'dot-appuntamento',promemoria:'dot-promemoria'};
   evs.forEach(ev=>{
     const tipo=ev.tipo||'nota';
@@ -2957,6 +3040,7 @@ function renderVisiteList(p){
         <div class="visit-diag">${conclShort}</div>
       </div>
       <div class="visit-actions">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="visualizzaVisita(${v.id})" title="Visualizza">👁️</button>
         <button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('gyno',${v.id})" title="Modifica">✏️</button>
         <button class="btn btn-ghost btn-sm btn-icon" onclick="stampa(${v.id})" title="Stampa">🖨️</button>
       </div>
@@ -2967,13 +3051,7 @@ function renderVisiteList(p){
 // ═══════════════════════════════════════════════════
 //  STAMPA
 // ═══════════════════════════════════════════════════
-function stampa(vid){
-  const p=DB.pazienti.find(x=>x.id===curPaz);
-  const v=p.visite.find(x=>x.id===vid);
-  document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
-  document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
-  document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'–';
-  document.getElementById('p-cf-print').textContent=p.cf||'–';
+function buildRefertoBody(v){
   const g=v.gynoData||{};
   const nl=s=>(s||'').replace(/\n/g,'<br>');
   let body=`<h2 style="margin-bottom:16px;font-family:Georgia,serif;">Referto 🌸 Visita Ginecologica</h2>`;
@@ -3030,10 +3108,35 @@ function stampa(vid){
   if(g['esami-richiesti']) body+=`<p style="margin-top:12px;"><strong>ESAMI RICHIESTI:</strong><br>${nl(g['esami-richiesti'])}</p>`;
   if(g.terapia) body+=`<p><strong>TERAPIA:</strong><br>${nl(g.terapia)}</p>`;
   if(g.prossimi) body+=`<p><strong>PROSSIMI CONTROLLI:</strong> ${nl(g.prossimi)}</p>`;
+  return body;
+}
 
-  document.getElementById('p-body-print').innerHTML=body;
+function stampa(vid){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const v=p.visite.find(x=>x.id===vid);
+  // Applica intestazione configurata (logo B/N, dati medico)
+  if(window._printCfg) applyPrintConfig(window._printCfg);
+  document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
+  document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
+  document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'\u2013';
+  document.getElementById('p-cf-print').textContent=p.cf||'\u2013';
+  document.getElementById('p-body-print').innerHTML=buildRefertoBody(v);
   window.print();
 }
+
+function visualizzaVisita(vid){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const v=p.visite.find(x=>x.id===vid);
+  if(!v)return;
+  const g=v.gynoData||{};
+  document.getElementById('vv-title').textContent=`Visita del ${new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}`;
+  document.getElementById('vv-subtitle').textContent=`${p.cognome} ${p.nome}`;
+  document.getElementById('vv-body').innerHTML=buildRefertoBody(v);
+  document.getElementById('vv-print-btn').onclick=()=>{closeModal('view-visita');stampa(vid);};
+  document.getElementById('vv-edit-btn').onclick=()=>{closeModal('view-visita');startEditor('gyno',vid);};
+  document.getElementById('view-visita').classList.add('show');
+}
+
 
 // ═══════════════════════════════════════════════════
 //  BACKUP / EXPORT
@@ -3262,12 +3365,19 @@ function closeSidebar(){
 //  APPUNTAMENTI FIREBASE (sola lettura)
 // ═══════════════════════════════════════════════════
 let GS_APPTS = [];
+let _gsApptListener = null;
+let _gsApptFirstLoad = true;
+let _gsKnownApptIds = new Set();
 
 async function loadFBAppuntamenti(){
   if(!gsFirebaseReady){gsToast('Firebase non disponibile','gs-error');return;}
-  try{
-    const snap=await gsDb.collection('appuntamenti').get();
-    GS_APPTS=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Se il listener è già attivo, non serve rifare nulla (è realtime)
+  if(_gsApptListener){ renderFBAppts(); renderDashboardAppts(); renderAlertsHome(); renderCalendar(); return; }
+
+  // Avvia listener realtime: rileva automaticamente nuove prenotazioni da GynoBook
+  _gsApptListener = gsDb.collection('appuntamenti').onSnapshot(snap=>{
+    const prev = new Set(GS_APPTS.map(a=>a.id));
+    GS_APPTS = snap.docs.map(d=>({id:d.id,...d.data()}));
     GS_APPTS.sort((a,b)=>{
       if(a.data!==b.data) return (a.data||'').localeCompare(b.data||'');
       return (a.ora||'').localeCompare(b.ora||'');
@@ -3275,16 +3385,47 @@ async function loadFBAppuntamenti(){
     renderFBAppts();
     renderDashboardAppts();
     renderAlertsHome();
-    renderCalendar(); // aggiorna calendario con pallini Firebase
-    // Badge sidebar
+    renderCalendar();
     const oggi=new Date().toISOString().split('T')[0];
     const apptOggi=GS_APPTS.filter(a=>a.data===oggi && a.stato!=='cancellato');
     const nb=document.getElementById('appt-sidebar-badge');
     if(nb) nb.textContent=apptOggi.length||'';
-    // Popup appuntamenti del giorno (solo se ce ne sono)
-    if(apptOggi.length) showApptPopup(apptOggi, oggi);
-    gsToast(`${GS_APPTS.length} appuntamenti caricati`,'gs-success');
-  }catch(e){gsToast('Errore appuntamenti: '+e.message,'gs-error');}
+
+    if(_gsApptFirstLoad){
+      // Primo caricamento: popup riepilogo di oggi
+      _gsApptFirstLoad=false;
+      GS_APPTS.forEach(a=>_gsKnownApptIds.add(a.id));
+      if(apptOggi.length) showApptPopup(apptOggi, oggi);
+    } else {
+      // Nuove prenotazioni arrivate dopo: popup dedicato
+      const nuovi=GS_APPTS.filter(a=>!prev.has(a.id) && !_gsKnownApptIds.has(a.id));
+      nuovi.forEach(a=>_gsKnownApptIds.add(a.id));
+      if(nuovi.length) showNuovaPrenotazionePopup(nuovi);
+    }
+  }, err=>{
+    gsToast('Errore appuntamenti: '+err.message,'gs-error');
+  });
+}
+
+// Popup quando arriva una NUOVA prenotazione da GynoBook (realtime)
+function showNuovaPrenotazionePopup(nuovi){
+  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const list=document.getElementById('nuova-pren-list');
+  if(!list) return;
+  const tit=document.getElementById('nuova-pren-title');
+  if(tit) tit.textContent=nuovi.length>1?`🔔 ${nuovi.length} Nuove Prenotazioni`:'🔔 Nuova Prenotazione';
+  list.innerHTML=nuovi.map(a=>{
+    const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
+    const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+    const nameClick=paz?`onclick="closeModal('nuova-pren-popup');openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)"`:'';
+    return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px">
+      <div style="font-weight:700;font-size:1rem;margin-bottom:4px" ${nameClick}>${a.pazienteNome||'Paziente'}${paz?' ↗':''}</div>
+      <div style="font-size:.82rem;color:var(--label3);margin-bottom:6px">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} · 📅 ${dStr} · 🕐 ${a.ora||'--'} ${a.durata?'('+a.durata+' min)':''}</div>
+      ${a.note?`<div style="font-size:.78rem;color:var(--label4);font-style:italic;margin-bottom:6px">"${a.note}"</div>`:''}
+      ${a.createdBy?`<div style="font-size:.72rem;color:var(--label4)">👤 Prenotato da: ${a.createdBy}${a.createdByOrg?' · '+a.createdByOrg:''}</div>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('nuova-pren-popup').classList.add('show');
 }
 
 function showApptPopup(appts, oggi){
@@ -3313,7 +3454,8 @@ function showApptPopup(appts, oggi){
       <!-- Info -->
       <div style="flex:1">
         <div style="font-weight:700;font-size:.95rem;color:var(--label);margin-bottom:3px">
-          ${a.pazienteNome||'Paziente'}</div>
+          ${(()=>{const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
+            return paz?`<span onclick="closeModal('popup-appts');openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)">${a.pazienteNome||'Paziente'} ↗</span>`:(a.pazienteNome||'Paziente');})()}</div>
         <div style="font-size:.8rem;color:var(--label3);margin-bottom:4px">
           ${ICONS[a.tipo]||'🩺'} ${a.tipo||'–'} ${a.durata?'· '+a.durata+' min':''}
         </div>
@@ -3545,21 +3687,6 @@ function injectPDFSection(pdfs) {
 
 // Override checkLogin per leggere password anche da Firebase
 const _origCheckLogin = window.checkLogin;
-function checkLogin() {
-  const p = document.getElementById('login-pass').value;
-  // Password da Firebase (se caricate)
-  const fbPasses = window._gsPasswords || [];
-  const defaultPasses = ["CristinaSamu","Samuele2025","Admin2025"];
-  const allPasses = [...new Set([...defaultPasses, ...fbPasses])];
-  if (allPasses.includes(p)) {
-    document.getElementById('login-overlay').style.display='none';
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('login-pass').value='';
-    setTimeout(()=>document.getElementById('login-err').style.display='none',3000);
-  }
-}
-
 // Apri pannello Admin (stesso repository GitHub)
 function openAdmin() {
   // Tenta la navigazione relativa — funziona quando entrambi i file
@@ -3573,38 +3700,22 @@ function openAdmin() {
 }
 
 // Override stampa per applicare config print da Firebase
-const _origStampa = window.stampa;
-function stampa(vid) {
-  const cfg = window._printCfg;
-  if (cfg) applyPrintConfig(cfg);
-  if (_origStampa) _origStampa(vid);
-  else _origStampa_fallback(vid);
-}
-
+// Configurazione stampa applicata direttamente in stampa()
 function applyPrintConfig(cfg) {
+  if(!cfg) return;
   const h = cfg.header || {};
-  // Applica dati medico nell'area di stampa
   const setTxt = (id, val) => { const el=document.getElementById(id); if(el&&val) el.textContent=val; };
   setTxt('ph-name', h.name);
   setTxt('ph-spec', h.spec);
   setTxt('ph-addr', h.addr);
-  setTxt('ph-tel-email', `Tel: ${h.tel||''} · ${h.email||''}`);
-  // Logo
-  if (h.logoUrl && h.showLogo) {
+  if(h.tel||h.email) setTxt('ph-tel-email', `Tel: ${h.tel||''} · ${h.email||''}`);
+  if (h.logoUrl && h.showLogo!==false) {
     const logoEl = document.getElementById('ph-logo');
-    if (logoEl) logoEl.innerHTML = `<img src="${h.logoUrl}" style="width:65px;height:65px;border-radius:10px;object-fit:contain">`;
-  }
-  // Margini pagina via @page
-  const lay = cfg.layout || {};
-  if (lay.mt || lay.mb || lay.ml || lay.mr) {
-    const style = document.getElementById('gs-print-style') || document.createElement('style');
-    style.id = 'gs-print-style';
-    style.textContent = `@media print{@page{margin:${lay.mt||15}mm ${lay.mr||15}mm ${lay.mb||15}mm ${lay.ml||15}mm;}}`;
-    document.head.appendChild(style);
+    if (logoEl) logoEl.innerHTML = `<img src="${h.logoUrl}" style="width:65px;height:65px;border-radius:10px;object-fit:contain;filter:grayscale(100%)">`;
   }
 }
 
-// Toast interno (separato dal sistema di GynoAdmin)
+// Toast interno
 function gsToast(msg, cls='gs-info') {
   const tc = document.getElementById('gs-toast-container'); if(!tc) return;
   const t = document.createElement('div');
