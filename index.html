@@ -367,10 +367,21 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   @page{margin:15mm;size:A4;}
   body *{visibility:hidden;}
   #print-area,#print-area *{visibility:visible;}
-  #print-area{position:absolute;left:0;top:0;width:100%;font-family:'Times New Roman',serif;color:black;background:white;}
+  #print-area{display:block!important;position:absolute;left:0;top:0;width:100%;font-family:'Times New Roman',serif;color:black;background:white;padding:0;}
   .no-print{display:none!important;}
+  aside,main,.mob-bar,.overlay,.sid-backdrop,#login-overlay,.editor-min-bar{display:none!important;}
 }
 #print-area{display:none;padding:25px;}
+/* Barra editor minimizzato */
+.editor-min-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--surface);border-top:2px solid var(--primary);box-shadow:0 -4px 20px rgba(0,0,0,0.12);z-index:4000;align-items:center;gap:12px;padding:0 18px;cursor:pointer;transition:background 0.15s;}
+.editor-min-bar:hover{background:var(--surface2);}
+.editor-min-bar.show{display:flex;}
+.emb-icon{width:36px;height:36px;border-radius:10px;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.emb-text{flex:1;}
+.emb-title{font-weight:700;font-size:0.88rem;color:var(--label);}
+.emb-sub{font-size:0.74rem;color:var(--label4);}
+.emb-close{width:32px;height:32px;border-radius:8px;background:var(--surface2);border:none;cursor:pointer;color:var(--label4);font-size:0.9rem;flex-shrink:0;transition:0.15s;}
+.emb-close:hover{background:var(--red-dim);color:var(--red);}
 .ph{display:flex;align-items:center;gap:20px;border-bottom:3px double #1c1c1e;padding-bottom:20px;margin-bottom:28px;}
 .ph-logo{width:65px;height:65px;background:#1c1c1e;color:#fff;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:1.6rem;border-radius:10px;}
 .ph-info h1{font-family:Georgia,serif;font-size:1.5rem;margin-bottom:4px;}
@@ -1331,6 +1342,16 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 </div>
 
 <!-- EDITOR REFERTO -->
+<!-- BARRA EDITOR MINIMIZZATO -->
+<div id="editor-min-bar" class="editor-min-bar" onclick="restoreEditor()">
+  <div class="emb-icon">🌸</div>
+  <div class="emb-text">
+    <div class="emb-title">Visita in corso</div>
+    <div class="emb-sub" id="emb-paz">Clicca per riaprire</div>
+  </div>
+  <button class="emb-close" onclick="event.stopPropagation();confermaAnnullaVisita()" title="Chiudi">✕</button>
+</div>
+
 <div id="editor-overlay" class="overlay">
   <div class="editor-wrap">
     <div class="editor-topbar">
@@ -1339,7 +1360,8 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <h3 id="editor-title">Compilazione Referto</h3>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost" onclick="closeModal('editor-overlay')">Annulla</button>
+        <button class="btn btn-ghost" onclick="minimizeEditor()" title="Riduci a icona">➖ Riduci</button>
+        <button class="btn btn-ghost" onclick="confermaAnnullaVisita()">Annulla</button>
         <button class="btn btn-green" onclick="salvaVisita()">💾 Salva Referto</button>
       </div>
     </div>
@@ -1357,17 +1379,20 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <div id="ep-1" class="edit-panel active">
           <div class="section-card">
             <h4 data-icon="📋">Dati Generali</h4>
-            <div class="field-row r4">
+            <div class="field-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1.2fr;gap:10px;">
               <div class="form-group"><label class="form-label">Età</label><input type="number" id="gd-eta" placeholder="anni"></div>
               <div class="form-group"><label class="form-label">Altezza (cm)</label><input type="number" id="gd-altezza" placeholder="165" oninput="calcGynoBMI()"></div>
               <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="gd-peso" placeholder="60" oninput="calcGynoBMI()"></div>
+              <div class="form-group">
+                <label class="form-label">BMI (auto)</label>
+                <div id="gd-bmi-inline" style="height:34px;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--surface2);border-radius:8px;padding:0 8px;font-weight:700;color:var(--label4);font-size:0.85rem;">
+                  <span id="gd-bmi-val">–</span>
+                  <span id="gd-bmi-cat" style="font-size:0.68rem;font-weight:600;padding:1px 7px;border-radius:12px;"></span>
+                </div>
+              </div>
               <div class="form-group"><label class="form-label">PARA</label><input id="gd-para" placeholder="es. 2002" style="text-transform:uppercase"></div>
             </div>
-            <div id="gd-bmi-box" style="display:none;margin-top:8px;padding:8px 14px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;gap:12px;">
-              <span style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;">BMI</span>
-              <span id="gd-bmi-val" style="font-size:1.1rem;font-weight:700;color:var(--primary);"></span>
-              <span id="gd-bmi-cat" style="font-size:0.78rem;font-weight:600;padding:2px 10px;border-radius:20px;"></span>
-            </div>
+            <div id="gd-bmi-box" style="display:none"></div>
             <div class="field-row r3" style="margin-top:12px;">
               <div class="form-group"><label class="form-label">Menarca (età)</label><input id="gd-menarca" placeholder="es. 12 anni"></div>
               <div class="form-group"><label class="form-label">UM (Ultima Mestr.)</label><input type="date" id="gd-um"></div>
@@ -1769,18 +1794,19 @@ function applyGDTemplate(category, selId, targetId){
 function calcGynoBMI(){
   const w=parseFloat(document.getElementById('gd-peso').value);
   const h=parseFloat(document.getElementById('gd-altezza').value)/100;
-  const box=document.getElementById('gd-bmi-box');
-  if(!w||!h||h<=0){if(box)box.style.display='none';return;}
+  const valEl=document.getElementById('gd-bmi-val');
+  const catEl=document.getElementById('gd-bmi-cat');
+  if(!valEl)return;
+  if(!w||!h||h<=0){valEl.textContent='–';catEl.textContent='';catEl.style.background='';return;}
   const bmi=(w/(h*h)).toFixed(1);
   let cat,col,bg;
-  if(bmi<18.5){cat='Sottopeso';col='#b35900';bg='rgba(255,149,0,.12)';}
-  else if(bmi<25){cat='Normopeso';col='#1a7a32';bg='rgba(52,199,89,.12)';}
-  else if(bmi<30){cat='Sovrappeso';col='#b35900';bg='rgba(255,149,0,.12)';}
-  else{cat='Obesità';col='#c0392b';bg='rgba(255,59,48,.12)';}
-  document.getElementById('gd-bmi-val').textContent=bmi+' kg/m²';
-  const ce=document.getElementById('gd-bmi-cat');
-  ce.textContent=cat; ce.style.color=col; ce.style.background=bg;
-  box.style.display='flex';
+  if(bmi<18.5){cat='Sottopeso';col='#b35900';bg='rgba(255,149,0,.15)';}
+  else if(bmi<25){cat='Normo';col='#1a7a32';bg='rgba(52,199,89,.15)';}
+  else if(bmi<30){cat='Sovrapp.';col='#b35900';bg='rgba(255,149,0,.15)';}
+  else{cat='Obesità';col='#c0392b';bg='rgba(255,59,48,.15)';}
+  valEl.textContent=bmi;
+  valEl.style.color=col;
+  catEl.textContent=cat; catEl.style.color=col; catEl.style.background=bg;
 }
 
 function toggleFamil(btn, value){
@@ -2878,19 +2904,44 @@ function renderFarmaci(){
   const q=(document.getElementById('search-pharma')?.value||'').toLowerCase();
   const c=document.getElementById('pharma-grid-container'); if(!c)return;
   c.innerHTML='';
+  c.style.display='block'; // override grid per usare sezioni
   const catColor={integ:'badge-green',anti:'badge-red',ormo:'badge-blue',altro:'badge-gray'};
-  const catLabel={integ:'Integratore',anti:'Antibiotico',ormo:'Ormonale',altro:'Altro'};
-  FARMACI.filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q)).forEach(f=>{
-    c.innerHTML+=`<div class="pharma-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div class="pharma-name">${f.n}</div>
-        <span class="badge ${catColor[f.cat]||'badge-gray'}">${catLabel[f.cat]||f.cat}</span>
+  const catInfo={
+    integ:{label:'Integratori',icon:'🌿',desc:'Acido folico, vitamine, supplementi'},
+    ormo:{label:'Ormonali',icon:'💊',desc:'Estroprogestinici, progestinici, terapie ormonali'},
+    anti:{label:'Antibiotici & Antinfiammatori',icon:'🦠',desc:'Antibiotici, FANS, antimicotici'},
+    altro:{label:'Altri Farmaci',icon:'📦',desc:'Antiemorragici, vari'}
+  };
+  const order=['integ','ormo','anti','altro'];
+  const filtered=FARMACI.filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q));
+  if(!filtered.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
+    return;
+  }
+  order.forEach(cat=>{
+    const items=filtered.filter(f=>f.cat===cat);
+    if(!items.length)return;
+    const info=catInfo[cat]||{label:cat,icon:'💊',desc:''};
+    c.innerHTML+=`<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:12px 16px;background:var(--surface2);border-radius:12px;">
+        <span style="font-size:1.5rem">${info.icon}</span>
+        <div>
+          <div style="font-weight:700;font-size:1rem;color:var(--label)">${info.label} <span style="color:var(--label4);font-weight:500;font-size:0.85rem">(${items.length})</span></div>
+          <div style="font-size:0.78rem;color:var(--label4)">${info.desc}</div>
+        </div>
       </div>
-      <div class="pharma-active">${f.p}</div>
-      <div class="pharma-dose">💊 ${f.dose}</div>
+      <div class="pharma-grid">
+        ${items.map(f=>`<div class="pharma-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div class="pharma-name">${f.n}</div>
+            <span class="badge ${catColor[f.cat]||'badge-gray'}">${info.label.split(' ')[0]}</span>
+          </div>
+          <div class="pharma-active">${f.p}</div>
+          <div class="pharma-dose">💊 ${f.dose}</div>
+        </div>`).join('')}
+      </div>
     </div>`;
   });
-  if(!c.children.length) c.innerHTML='<div class="empty-state" style="grid-column:1/-1;"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
 }
 
 // ═══════════════════════════════════════════════════
@@ -2973,6 +3024,26 @@ function delAlert(id){const p=DB.pazienti.find(x=>x.id===curPaz);p.alerts=p.aler
 function openTypeModal(){startEditor('gyno');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
+// Minimizza la finestra visita nella barra inferiore
+function minimizeEditor(){
+  document.getElementById('editor-overlay').classList.remove('show');
+  const bar=document.getElementById('editor-min-bar');
+  const paz=DB.pazienti.find(x=>x.id===curPaz);
+  document.getElementById('emb-paz').textContent=paz?`${paz.cognome} ${paz.nome} · clicca per riaprire`:'Clicca per riaprire';
+  bar.classList.add('show');
+}
+function restoreEditor(){
+  document.getElementById('editor-min-bar').classList.remove('show');
+  document.getElementById('editor-overlay').classList.add('show');
+}
+// Conferma prima di annullare la visita
+function confermaAnnullaVisita(){
+  if(confirm('⚠️ Vuoi annullare la visita?\n\nLe modifiche non salvate andranno perse.')){
+    document.getElementById('editor-overlay').classList.remove('show');
+    document.getElementById('editor-min-bar').classList.remove('show');
+  }
+}
+
 function startEditor(tipo, vid=null){
   closeModal('modal-type');
   document.getElementById('editor-overlay').classList.add('show');
@@ -3013,7 +3084,26 @@ function salvaVisita(){
   };
   if(curVisita) p.visite[p.visite.findIndex(x=>x.id===curVisita)]=v;
   else p.visite.push(v);
-  salvaDB();closeModal('editor-overlay');renderVisiteList(p);
+  salvaDB();
+  closeModal('editor-overlay');
+  document.getElementById('editor-min-bar').classList.remove('show');
+  renderVisiteList(p);
+  scaricaVisitaJSON(p, v); // download automatico JSON
+}
+
+function scaricaVisitaJSON(p, v){
+  const exportData={
+    paziente:{id:p.id,nome:p.nome,cognome:p.cognome,nascita:p.nascita,cf:p.cf,tel:p.tel,email:p.email},
+    visita:v,
+    esportato:new Date().toISOString()
+  };
+  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  const dateStr=v.data;
+  a.href=URL.createObjectURL(blob);
+  a.download=`Visita_${p.cognome}_${p.nome}_${dateStr}.json`.replace(/\s+/g,'');
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 function loadVisita(vid){
@@ -3124,14 +3214,62 @@ function stampa(vid){
   window.print();
 }
 
+function buildRefertoView(v){
+  const g=v.gynoData||{};
+  const sec=(icon,title,rows)=>{
+    const valid=rows.filter(r=>r[1]&&r[1].trim());
+    if(!valid.length)return '';
+    return `<div style="margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--primary-dim)">
+        <span style="font-size:1.1rem">${icon}</span>
+        <span style="font-weight:700;font-size:0.92rem;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px">${title}</span>
+      </div>
+      ${valid.map(r=>`<div style="display:flex;gap:10px;margin-bottom:6px;font-size:0.86rem;line-height:1.55">
+        <span style="font-weight:600;color:var(--label3);min-width:130px;flex-shrink:0">${r[0]}</span>
+        <span style="color:var(--label);white-space:pre-wrap">${r[1]}</span>
+      </div>`).join('')}
+    </div>`;
+  };
+  let html='';
+  // BMI calcolato
+  let bmi='';
+  if(g.altezza&&g.peso){bmi=(parseFloat(g.peso)/Math.pow(parseFloat(g.altezza)/100,2)).toFixed(1)+' kg/m²';}
+  html+=sec('📋','Dati Generali',[
+    ['Età',g.eta],['Altezza',g.altezza?g.altezza+' cm':''],['Peso',g.peso?g.peso+' kg':''],
+    ['BMI',bmi],['PARA',g.para],['Menarca',g.menarca],
+    ['UM',g.um?new Date(g.um).toLocaleDateString('it-IT'):''],['PA',g.pa?g.pa+' mmHg':''],['Menopausa',g.menopausa]
+  ]);
+  html+=sec('🩸','Ciclo & Sintomi',[
+    ['Ciclo ritmo',g['ciclo-ritmo']],['Ciclo durata',g['ciclo-durata']],['Ciclo quantità',g['ciclo-quantita']],
+    ['Terapia ormonale',g['terapia-orm']],['Dispareunia',g.dispareunia],['Dismenorrea',g.dismenorrea],
+    ['Cefalea',g.cefalea],['Emicrania',g.emicrania],['Fumo',g.fumo]
+  ]);
+  html+=sec('🔬','Screening & Anamnesi',[
+    ['Screening cervicale',g['screening-cervicale']],['Screening mammo',g['screening-mammo']],
+    ['Allergie',g.allergie],['Terapie in atto',g['terapie-atto']],['Interventi',g.chirurgia],
+    ['Patologie',g.patologie],['Familiarità',g.familiarita]
+  ]);
+  html+=sec('🎯','Motivo Visita',[['',g.motivo]]);
+  html+=sec('🔍','Esame Obiettivo',[
+    ['Generale',g['esame-generale']],['Speculum',g.speculum],['Prelievi',g.prelievi],['Bimanuale',g.bimanuale]
+  ]);
+  let ecoStrum=[g.ecografo,g.sonda].filter(Boolean).join(' · ');
+  html+=sec('🖥️','Ecografia'+(ecoStrum?' ('+ecoStrum+')':''),[['',g.ecografia]]);
+  html+=sec('✅','Conclusioni',[
+    ['Conclusioni',g.conclusioni],['Esami richiesti',g['esami-richiesti']],
+    ['Terapia',g.terapia],['Prossimi controlli',g.prossimi]
+  ]);
+  if(!html) html='<div style="text-align:center;padding:30px;color:var(--label4)">Nessun dato registrato per questa visita</div>';
+  return html;
+}
+
 function visualizzaVisita(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p.visite.find(x=>x.id===vid);
   if(!v)return;
-  const g=v.gynoData||{};
   document.getElementById('vv-title').textContent=`Visita del ${new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}`;
   document.getElementById('vv-subtitle').textContent=`${p.cognome} ${p.nome}`;
-  document.getElementById('vv-body').innerHTML=buildRefertoBody(v);
+  document.getElementById('vv-body').innerHTML=buildRefertoView(v);
   document.getElementById('vv-print-btn').onclick=()=>{closeModal('view-visita');stampa(vid);};
   document.getElementById('vv-edit-btn').onclick=()=>{closeModal('view-visita');startEditor('gyno',vid);};
   document.getElementById('view-visita').classList.add('show');
