@@ -1339,293 +1339,173 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     <div class="editor-body">
       <div class="editor-nav">
         <button class="editor-nav-btn active" onclick="setEditorTab(this,'ep-1')"><span class="step-num">1</span>Anamnesi</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-2')"><span class="step-num">2</span>Obiettivo</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-3')"><span class="step-num">3</span>Ecografia</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-4')"><span class="step-num">4</span>Diagnosi</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-5')"><span class="step-num">5</span>Terapia</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-2')"><span class="step-num">2</span>Motivo</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-3')"><span class="step-num">3</span>Esame Obiettivo</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-4')"><span class="step-num">4</span>Ecografia</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-5')"><span class="step-num">5</span>Conclusioni</button>
       </div>
       <div class="editor-content">
 
-        <!-- PANEL 1: ANAMNESI -->
+        <!-- ════════ PANEL 1: ANAMNESI ════════ -->
         <div id="ep-1" class="edit-panel active">
           <div class="section-card">
             <h4 data-icon="📋">Dati Generali</h4>
-
-            <!-- Riga 1: UM · Peso · Altezza · PA -->
             <div class="field-row r4">
-              <div class="form-group" id="row-um">
-                <label class="form-label">UM (Ultima Mestruazione)</label>
-                <input type="date" id="v-lmp" onchange="calcWeeks()">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Peso (kg)</label>
-                <input type="number" id="v-peso" placeholder="60" oninput="calcolaEditorBMI()">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Altezza (cm)</label>
-                <input type="number" id="v-altezza" placeholder="165" oninput="calcolaEditorBMI()">
-              </div>
-              <div class="form-group">
-                <label class="form-label">PA (mmHg)</label>
-                <input id="v-pa" placeholder="120/80">
-              </div>
+              <div class="form-group"><label class="form-label">Età</label><input type="number" id="gd-eta" placeholder="anni"></div>
+              <div class="form-group"><label class="form-label">Altezza (cm)</label><input type="number" id="gd-altezza" placeholder="165" oninput="calcGynoBMI()"></div>
+              <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="gd-peso" placeholder="60" oninput="calcGynoBMI()"></div>
+              <div class="form-group"><label class="form-label">PARA</label><input id="gd-para" placeholder="es. 2002" style="text-transform:uppercase"></div>
             </div>
-
-            <!-- BMI inline result -->
-            <div id="editor-bmi-result" style="display:none;margin-top:8px;padding:8px 14px;background:var(--surface2);border-radius:8px;border:1px solid var(--separator);display:flex;align-items:center;gap:12px;">
-              <span style="font-size:0.75rem;font-weight:700;color:var(--label4);text-transform:uppercase;">BMI Calcolato</span>
-              <span id="editor-bmi-val" style="font-size:1.1rem;font-weight:700;color:var(--primary);"></span>
-              <span id="editor-bmi-cat" style="font-size:0.8rem;font-weight:600;padding:2px 10px;border-radius:20px;"></span>
+            <div id="gd-bmi-box" style="display:none;margin-top:8px;padding:8px 14px;background:var(--surface2);border-radius:8px;display:flex;align-items:center;gap:12px;">
+              <span style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;">BMI</span>
+              <span id="gd-bmi-val" style="font-size:1.1rem;font-weight:700;color:var(--primary);"></span>
+              <span id="gd-bmi-cat" style="font-size:0.78rem;font-weight:600;padding:2px 10px;border-radius:20px;"></span>
             </div>
+            <div class="field-row r3" style="margin-top:12px;">
+              <div class="form-group"><label class="form-label">Menarca (età)</label><input id="gd-menarca" placeholder="es. 12 anni"></div>
+              <div class="form-group"><label class="form-label">UM (Ultima Mestr.)</label><input type="date" id="gd-um"></div>
+              <div class="form-group"><label class="form-label">PA (mmHg)</label><input id="gd-pa" placeholder="120/80"></div>
+            </div>
+          </div>
 
-            <!-- Riga 2: PARA · Menopausa · Contraccezione · Fumo -->
+          <div class="section-card">
+            <h4 data-icon="🩸">Menopausa & Ciclo</h4>
+            <div class="field-row r4">
+              <div class="form-group"><label class="form-label">Menopausa</label><select id="gd-menopausa"></select></div>
+              <div class="form-group"><label class="form-label">Ciclo · Ritmo</label><select id="gd-ciclo-ritmo"></select></div>
+              <div class="form-group"><label class="form-label">Ciclo · Durata</label><select id="gd-ciclo-durata"></select></div>
+              <div class="form-group"><label class="form-label">Ciclo · Quantità</label><select id="gd-ciclo-quantita"></select></div>
+            </div>
             <div class="field-row r4" style="margin-top:12px;">
-              <div class="form-group">
-                <label class="form-label">PARA</label>
-                <input id="v-parità" placeholder="es. P2" style="text-transform:uppercase;">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Menopausa</label>
-                <select id="v-menopausa">
-                  <option value="">-- Premenopausa --</option>
-                  <option>Perimenopausa</option>
-                  <option>Menopausa fisiologica</option>
-                  <option>Menopausa chirurgica (isterectomia)</option>
-                  <option>Menopausa indotta (chemo/radio)</option>
-                  <option>Insufficienza ovarica precoce (POI)</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Contraccezione</label>
-                <select id="v-contraccezione"><option value="">-- Nessuno --</option><option>Pillola estroprogestinica</option><option>Minipillola (POP)</option><option>Anello vaginale</option><option>Cerotto transdermico</option><option>IUD al rame</option><option>IUD al levonorgestrel (Mirena)</option><option>Impianto sottocutaneo</option><option>Preservativo</option><option>Metodo naturale</option><option>Sterilizzazione</option></select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Fumo</label>
-                <select id="v-fumo"><option>No</option><option>Sì - &lt;10 sig/die</option><option>Sì - &gt;10 sig/die</option><option>Ex fumatrice</option></select>
-              </div>
+              <div class="form-group"><label class="form-label">Terapia ormonale</label><input id="gd-terapia-orm" placeholder="es. nessuna"></div>
+              <div class="form-group"><label class="form-label">Dispareunia</label><input id="gd-dispareunia" placeholder="assente/presente"></div>
+              <div class="form-group"><label class="form-label">Dismenorrea</label><input id="gd-dismenorrea" placeholder="assente/presente"></div>
+              <div class="form-group"><label class="form-label">Fumo</label><select id="gd-fumo"></select></div>
             </div>
+          </div>
 
-            <!-- Settimane: solo per visita ostetrica -->
-            <div id="row-weeks" style="display:none;margin-top:12px;">
-              <div class="form-group" style="max-width:200px;">
-                <label class="form-label">Settimane gestazionali</label>
-                <input id="v-weeks" readonly placeholder="Auto">
-              </div>
+          <div class="section-card">
+            <h4 data-icon="🔬">Screening</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Screening cervicale</label><select id="gd-screening-cervicale"></select></div>
+              <div class="form-group"><label class="form-label">Screening mammografico</label><input id="gd-screening-mammo" placeholder="es. ultimo nel ..."></div>
             </div>
           </div>
+
           <div class="section-card">
-            <h4 data-icon="📝">Anamnesi</h4>
-            <div class="form-group"><label class="form-label">Motivo della visita / Anamnesi</label><textarea id="v-anamnesi" rows="5" placeholder="Descrivere il motivo della visita, sintomi principali, storia clinica rilevante..."></textarea></div>
-            <div class="macro-wrap" id="mac-anamnesi"></div>
-            <div class="field-row r2" style="margin-top:14px;">
-              <div class="form-group"><label class="form-label">Anamnesi Familiare</label><textarea id="v-anamnesi-fam" rows="3" placeholder="Familiarità per patologie oncologiche, cardiovascolari, autoimmuni..."></textarea></div>
-              <div class="form-group"><label class="form-label">Allergie / Farmaci Assunti</label><textarea id="v-allergie" rows="3" placeholder="Nessuna allergia nota. Farmaci in uso..."></textarea></div>
+            <h4 data-icon="📝">Anamnesi Patologica</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Allergie</label><textarea id="gd-allergie" rows="2" placeholder="Nessuna nota..."></textarea></div>
+              <div class="form-group"><label class="form-label">Terapie in atto</label><textarea id="gd-terapie-atto" rows="2"></textarea></div>
+            </div>
+            <div class="field-row r2" style="margin-top:10px;">
+              <div class="form-group"><label class="form-label">Pregressi interventi chirurgici</label><textarea id="gd-chirurgia" rows="2"></textarea></div>
+              <div class="form-group"><label class="form-label">Patologie croniche</label><textarea id="gd-patologie" rows="2"></textarea></div>
+            </div>
+            <div class="field-row r2" style="margin-top:10px;">
+              <div class="form-group"><label class="form-label">Cefalea</label><input id="gd-cefalea" placeholder="assente/presente"></div>
+              <div class="form-group"><label class="form-label">Emicrania</label><input id="gd-emicrania" placeholder="assente/presente"></div>
             </div>
           </div>
+
           <div class="section-card">
-            <h4 data-icon="🌡️">Sintomi Specifici</h4>
-            <div class="field-row r3">
-              <div class="form-group"><label class="form-label">Ciclo Mestruale</label>
-                <select id="v-ciclo"><option value="">-- Seleziona --</option><option>Regolare (28±3gg)</option><option>Oligomenorrea</option><option>Polimenorrea</option><option>Amenorrea primaria</option><option>Amenorrea secondaria</option><option>Menorragia</option><option>Metrorragia</option><option>Spotting intermestruale</option><option>Post-menopausa</option></select>
-              </div>
-              <div class="form-group"><label class="form-label">Dispareunia</label>
-                <select id="v-dispareunia"><option value="">-- Seleziona --</option><option>Assente</option><option>Superficiale</option><option>Profonda</option><option>Mista</option></select>
-              </div>
-              <div class="form-group"><label class="form-label">Perdite Vaginali</label>
-                <select id="v-perdite"><option value="">-- Seleziona --</option><option>Assenti/fisiologiche</option><option>Aumentate di quantità</option><option>Leucorrea giallo-verdastra</option><option>Leucorrea bianco-caseosa</option><option>Perdite maleodoranti</option><option>Perdite ematiche</option></select>
-              </div>
-            </div>
+            <h4 data-icon="👪">Familiarità patologie croniche</h4>
+            <div class="macro-wrap" id="gd-famil-btns"></div>
+            <textarea id="gd-familiarita" rows="2" style="margin-top:8px" placeholder="Seleziona dai pulsanti sopra o scrivi liberamente..."></textarea>
           </div>
         </div>
 
-        <!-- PANEL 2: OBIETTIVO -->
+        <!-- ════════ PANEL 2: MOTIVO VISITA ════════ -->
         <div id="ep-2" class="edit-panel">
-          <div id="obj-gyno-fields">
-            <div class="section-card">
-              <h4 data-icon="🔍">Esame Obiettivo Generale</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Addome</label><textarea id="v-addome" rows="2" placeholder="Trattabile, non dolente, organi nella norma..."></textarea></div>
-                <div class="form-group"><label class="form-label">Seno / Mammelle</label><textarea id="v-seno" rows="2" placeholder="Non palpa noduli. Capezzoli normoconformati..."></textarea></div>
-                <div class="form-group"><label class="form-label">Linfonodi</label><textarea id="v-linfonodi" rows="2" placeholder="Non linfoadenopatia palpabile..."></textarea></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🌸">Speculoscopia</h4>
-              <div class="form-group"><textarea id="v-speculo" rows="4" placeholder="Descrivere i reperti alla speculoscopia..."></textarea></div>
-              <div class="macro-wrap" id="mac-speculo"></div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="✋">Esplorazione Bimanuale</h4>
-              <div class="form-group"><textarea id="v-bimanuale" rows="4" placeholder="Descrivere i reperti alla palpazione bimanuale..."></textarea></div>
-              <div class="macro-wrap" id="mac-bimanuale"></div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🧫">Prelievi Eseguiti</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Pap Test / ThinPrep</label><select id="v-pap"><option value="">-- Non eseguito --</option><option>Eseguito - Adeguato</option><option>Eseguito - Inviato a citologia</option><option>Non indicato (gravida)</option><option>Non accettato dalla paziente</option></select></div>
-                <div class="form-group"><label class="form-label">Tampone vaginale</label><select id="v-tampone"><option value="">-- Non eseguito --</option><option>Eseguito</option><option>Cultura + Antibiogramma</option><option>PCR MST (Chlamydia/Gonorrea)</option></select></div>
-                <div class="form-group"><label class="form-label">HPV Test</label><select id="v-hpv"><option value="">-- Non eseguito --</option><option>Eseguito</option><option>Positivo genotipizzato</option><option>Negativo</option></select></div>
-              </div>
-            </div>
-          </div>
-          <div id="obj-ob-fields" style="display:none;">
-            <div class="section-card">
-              <h4 data-icon="🤰">Controllo Ostetrico</h4>
-              <div class="field-row r4">
-                <div class="form-group"><label class="form-label">BCF (bpm)</label><input id="v-bcf" placeholder="140-160"></div>
-                <div class="form-group"><label class="form-label">MAF</label><select id="v-maf"><option>Presenti</option><option>Ridotti</option><option>Assenti</option><option>Non percepiti (precoce)</option></select></div>
-                <div class="form-group"><label class="form-label">Altezza Uterina (cm)</label><input id="v-au" placeholder="25 cm"></div>
-                <div class="form-group"><label class="form-label">Presentazione</label><select id="v-pres"><option>Cefalica</option><option>Podalica</option><option>Trasversa</option><option>Obliqua</option><option>Non determinabile</option></select></div>
-              </div>
-              <div class="field-row r3" style="margin-top:12px;">
-                <div class="form-group"><label class="form-label">Edemi</label><select id="v-edemi"><option>Assenti</option><option>Caviglie (fisiologici)</option><option>Pretibiali</option><option>Generalizzati</option></select></div>
-                <div class="form-group"><label class="form-label">Proteinuria (dipstick)</label><select id="v-proteinuria"><option>Negativa</option><option>Tracce</option><option>1+ (0.3g/L)</option><option>2+ (1g/L)</option><option>3+ (3g/L)</option></select></div>
-                <div class="form-group"><label class="form-label">Glicosuria</label><select id="v-glicosuria"><option>Negativa</option><option>Positiva</option></select></div>
-              </div>
-              <div class="form-group" style="margin-top:12px;"><label class="form-label">Esame Collo Uterino</label>
-                <select id="v-collo"><option value="">-- Non esplorato --</option><option>Collo posteriore, lungo, chiuso</option><option>Collo ammorbidito, asse centrale, chiuso</option><option>Collo centrato, accorciato, chiuso</option><option>Collo dilatato 1-2 cm</option><option>Collo dilatato 3-4 cm</option><option>Collo dilatato 5+ cm</option></select>
-              </div>
-            </div>
+          <div class="section-card">
+            <h4 data-icon="🎯">Motivo della Visita</h4>
+            <div class="form-group"><textarea id="gd-motivo" rows="5" placeholder="Descrivere il motivo della visita..."></textarea></div>
+            <div class="macro-wrap" id="gd-motivo-btns"></div>
           </div>
         </div>
 
-        <!-- PANEL 3: ECOGRAFIA -->
+        <!-- ════════ PANEL 3: ESAME OBIETTIVO ════════ -->
         <div id="ep-3" class="edit-panel">
           <div class="section-card">
-            <h4 data-icon="🖥️">Parametri Tecnici</h4>
-            <div class="field-row r3">
-              <div class="form-group"><label class="form-label">Sonda</label><select id="v-sonda"><option>Transvaginale (TV)</option><option>Transaddominale (TA)</option><option>TV + TA</option></select></div>
-              <div class="form-group"><label class="form-label">Refertatore</label><input id="v-refertatore" value="Dr.ssa Cristina Guidi"></div>
-              <div class="form-group"><label class="form-label">Indicazione</label><select id="v-indicazione-eco"><option>Controllo routinario</option><option>Primo trimestre</option><option>Translucenza nucale (TN)</option><option>Morfologica II trim</option><option>Morfologica III trim</option><option>Doppler utero-placentare</option><option>Eco pelvica ginecologica</option><option>Valutazione endometrio</option><option>Follow-up cisti annessiale</option></select></div>
-            </div>
-          </div>
-
-          <!-- ECO OSTETRICA -->
-          <div id="eco-ob-section">
-            <div class="section-card">
-              <h4 data-icon="📏">Biometria Fetale</h4>
-              <div class="field-row r4">
-                <div class="form-group"><label class="form-label">CRL (mm)</label><input id="v-crl" placeholder="I trim."></div>
-                <div class="form-group"><label class="form-label">BPD (mm)</label><input id="v-bpd"></div>
-                <div class="form-group"><label class="form-label">HC (mm)</label><input id="v-hc"></div>
-                <div class="form-group"><label class="form-label">AC (mm)</label><input id="v-ac"></div>
-              </div>
-              <div class="field-row r4" style="margin-top:12px;">
-                <div class="form-group"><label class="form-label">FL (mm)</label><input id="v-fl"></div>
-                <div class="form-group"><label class="form-label">EFW (g) – Hadlock</label><input id="v-efw" placeholder="Auto se inserisci misure"></div>
-                <div class="form-group"><label class="form-label">Percentile EFW</label><input id="v-efw-perc" placeholder="es. 50°"></div>
-                <div class="form-group"><label class="form-label">FHR (bpm)</label><input id="v-fhr" placeholder="140-160"></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🩺">Anatomia Fetale (Morfologica)</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Cranio / SNC</label><select id="v-cranio"><option value="">--</option><option>Nella norma</option><option>Ventricoli laterali &lt;10mm</option><option>Cerebelletto regolare</option><option>Cisterna magna normale</option><option>Anomalia rilevata (vedi note)</option></select></div>
-                <div class="form-group"><label class="form-label">Cuore / 4 camere</label><select id="v-cuore"><option value="">--</option><option>4 camere visibili, nella norma</option><option>Asse cardiaco normale</option><option>Situs solitus</option><option>Anomalia rilevata (vedi note)</option></select></div>
-                <div class="form-group"><label class="form-label">Addome fetale</label><select id="v-addome-fetale"><option value="">--</option><option>Stomaco visibile</option><option>Parete addominale integra</option><option>Reni presenti e simmetrici</option><option>Anomalia rilevata (vedi note)</option></select></div>
-                <div class="form-group"><label class="form-label">Colonna vertebrale</label><select id="v-colonna"><option value="">--</option><option>Regolare in tutta la lunghezza</option><option>Non completamente esplorabile</option><option>Anomalia rilevata (vedi note)</option></select></div>
-                <div class="form-group"><label class="form-label">Arti</label><select id="v-arti"><option value="">--</option><option>4 arti visualizzati</option><option>Femore bilat. nella norma</option><option>Mani e piedi visualizzati</option><option>Non completamente esplorabile</option></select></div>
-                <div class="form-group"><label class="form-label">Genitali Esterni</label><select id="v-genitali-ext"><option value="">-- Non valutati --</option><option>Fenotipo femminile</option><option>Fenotipo maschile</option><option>Non determinabili</option></select></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🏥">Annessi Placentari</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Placenta</label><select id="v-placenta"><option>Anteriore</option><option>Posteriore</option><option>Fundica</option><option>Laterale destra</option><option>Laterale sinistra</option><option>Bassa inserzione (&lt;20 mm OUI)</option><option>Previa parziale</option><option>Previa completa</option></select></div>
-                <div class="form-group"><label class="form-label">Maturità placentare (Grannum)</label><select id="v-grannum"><option>Grado 0</option><option>Grado I</option><option>Grado II</option><option>Grado III</option></select></div>
-                <div class="form-group"><label class="form-label">Liquido Amniotico</label><select id="v-la"><option>Normale (AFI 5-25 cm)</option><option>AFI borderline (5-8 cm)</option><option>Oligoamnios (AFI &lt;5 cm)</option><option>Polidramnios (AFI &gt;25 cm)</option></select></div>
-              </div>
-              <div class="field-row r3" style="margin-top:12px;">
-                <div class="form-group"><label class="form-label">Cordone ombelicale</label><select id="v-cordone"><option>3 vasi (2 aa. + 1 v.)</option><option>Arteria ombelicale singola</option></select></div>
-                <div class="form-group"><label class="form-label">Lunghezza cervicale (mm)</label><input id="v-cerv-len" placeholder="TV: es. 35mm"></div>
-                <div class="form-group"><label class="form-label">Funneling</label><select id="v-funneling"><option>Assente</option><option>Presente</option></select></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ECO GINECOLOGICA -->
-          <div id="eco-gyno-section">
-            <div class="section-card">
-              <h4 data-icon="🌸">Utero</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Morfologia</label><select id="v-utero-morfologia"><option>Regolare</option><option>Lievemente ingrandito</option><option>Aumentato di volume</option><option>Miomato</option><option>Retroverso-retroflesso</option><option>Anteflesso regolare</option></select></div>
-                <div class="form-group"><label class="form-label">Dimensioni (mm)</label><input id="v-utero-dim" placeholder="70x45x40 mm"></div>
-                <div class="form-group"><label class="form-label">Ecostruttura miometriale</label><select id="v-mio"><option>Omogenea</option><option>Disomogenea (adenomiosi?)</option><option>Fibroma interstiziale</option><option>Fibroma sottomucoso</option><option>Fibroma subsieroso</option></select></div>
-              </div>
-              <div class="field-row r2" style="margin-top:12px;">
-                <div class="form-group"><label class="form-label">Endometrio (mm)</label><input id="v-endo" placeholder="es. 8 mm bifacciale"></div>
-                <div class="form-group"><label class="form-label">Aspetto endometrio</label><select id="v-endo-asp"><option>Trilamellare (fase follicolare)</option><option>Iperecogeno omogeneo (fase luteale)</option><option>Sottile e iperecogeno (post-menopausa)</option><option>Spessore aumentato (misurare)</option><option>Polipo endometriale (misurare)</option><option>SonoBiopsy indicata</option></select></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="⭕">Ovaie</h4>
-              <div class="field-row r2">
-                <div>
-                  <p style="font-size:0.75rem;font-weight:700;color:var(--label4);text-transform:uppercase;margin-bottom:10px;">Ovaio DESTRO</p>
-                  <div class="form-group"><label class="form-label">Dimensioni</label><input id="v-ov-dx" placeholder="30x25x20 mm"></div>
-                  <div class="form-group" style="margin-top:8px;"><label class="form-label">Reperti</label><select id="v-ov-dx-rep"><option>Nella norma</option><option>Non visualizzato</option><option>Follicoli multipli (&lt;10mm)</option><option>Cisti funzionale follicolare</option><option>Cisti luteinica</option><option>Endometrioma (cioccolato)</option><option>Cisti dermoidea (teratoma)</option><option>Massa solida (valutare IOTA)</option><option>PCOS (criteri Rotterdam)</option></select></div>
-                  <div class="form-group" style="margin-top:8px;"><label class="form-label">Dimensione cisti (mm)</label><input id="v-cisti-dx" placeholder="se presente"></div>
-                </div>
-                <div>
-                  <p style="font-size:0.75rem;font-weight:700;color:var(--label4);text-transform:uppercase;margin-bottom:10px;">Ovaio SINISTRO</p>
-                  <div class="form-group"><label class="form-label">Dimensioni</label><input id="v-ov-sx" placeholder="30x25x20 mm"></div>
-                  <div class="form-group" style="margin-top:8px;"><label class="form-label">Reperti</label><select id="v-ov-sx-rep"><option>Nella norma</option><option>Non visualizzato</option><option>Follicoli multipli (&lt;10mm)</option><option>Cisti funzionale follicolare</option><option>Cisti luteinica</option><option>Endometrioma (cioccolato)</option><option>Cisti dermoidea (teratoma)</option><option>Massa solida (valutare IOTA)</option><option>PCOS (criteri Rotterdam)</option></select></div>
-                  <div class="form-group" style="margin-top:8px;"><label class="form-label">Dimensione cisti (mm)</label><input id="v-cisti-sx" placeholder="se presente"></div>
-                </div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🩺">Douglas / Parametri</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Cavo di Douglas</label><select id="v-douglas"><option>Libero</option><option>Minima falda liquida</option><option>Liquido libero abbondante</option></select></div>
-                <div class="form-group"><label class="form-label">Parametri</label><select id="v-parametri"><option>Liberi</option><option>Ispessiti bilateralmente</option><option>Ispessiti a destra</option><option>Ispessiti a sinistra</option></select></div>
-                <div class="form-group"><label class="form-label">Vascolarizzazione (Power Doppler)</label><select id="v-doppler-gyno"><option>Non eseguito</option><option>Nella norma</option><option>Aumentata - IOTA B4</option><option>Assente</option></select></div>
-              </div>
-            </div>
+            <h4 data-icon="🔍">Esame Obiettivo Generale</h4>
+            <div class="form-group"><textarea id="gd-esame-generale" rows="2"></textarea></div>
+            <div class="macro-wrap" id="gd-esame-generale-btns"></div>
           </div>
 
           <div class="section-card">
-            <h4 data-icon="✏️">Descrizione Libera / Note Ecografiche</h4>
-            <div class="form-group"><textarea id="v-eco-desc" rows="4" placeholder="Aggiungere qualsiasi reperto o nota non coperta dai campi precedenti..."></textarea></div>
-            <div class="macro-wrap" id="mac-eco"></div>
+            <h4 data-icon="🔬">Esame con Speculum</h4>
+            <div class="form-group" style="margin-bottom:8px">
+              <label class="form-label">Seleziona template</label>
+              <select id="gd-speculum-sel" onchange="applyGDTemplate('speculum','gd-speculum-sel','gd-speculum')"></select>
+            </div>
+            <div class="form-group"><textarea id="gd-speculum" rows="4"></textarea></div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🧪">Prelievi Eseguiti</h4>
+            <div class="form-group"><textarea id="gd-prelievi" rows="2"></textarea></div>
+            <div class="macro-wrap" id="gd-prelievi-btns"></div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="✋">Esame Bimanuale</h4>
+            <div class="form-group" style="margin-bottom:8px">
+              <label class="form-label">Seleziona template</label>
+              <select id="gd-bimanuale-sel" onchange="applyGDTemplate('bimanuale','gd-bimanuale-sel','gd-bimanuale')"></select>
+            </div>
+            <div class="form-group"><textarea id="gd-bimanuale" rows="4"></textarea></div>
           </div>
         </div>
 
-        <!-- PANEL 4: DIAGNOSI -->
+        <!-- ════════ PANEL 4: ECOGRAFIA ════════ -->
         <div id="ep-4" class="edit-panel">
           <div class="section-card">
-            <h4 data-icon="🩺">Diagnosi</h4>
-            <div class="form-group"><label class="form-label">Diagnosi Principale</label><textarea id="v-diagnosi" rows="3" placeholder="Diagnosi definitiva o provvisoria..."></textarea></div>
-            <div class="macro-wrap" id="mac-diagnosi"></div>
-            <div class="form-group" style="margin-top:14px;"><label class="form-label">Diagnosi Secondarie / Comorbilità</label><textarea id="v-diagnosi2" rows="2" placeholder="Diagnosi aggiuntive, es. ipotiroidismo compensato..."></textarea></div>
-            <div class="form-group" style="margin-top:14px;"><label class="form-label">Codice ICD-10 (opzionale)</label><input id="v-icd10" placeholder="es. Z34.1 – Gravidanza fisiologica I trim."></div>
+            <h4 data-icon="🖥️">Strumentazione</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Ecografo</label><select id="gd-ecografo"></select></div>
+              <div class="form-group"><label class="form-label">Sonda</label><select id="gd-sonda"></select></div>
+            </div>
+            <div class="form-group" style="margin-top:10px">
+              <label class="form-label" style="display:flex;align-items:center;gap:8px">
+                <input type="checkbox" id="gd-informativa-chk" checked style="width:auto" onchange="toggleInformativa()">
+                Includere informativa al referto
+              </label>
+            </div>
           </div>
+
           <div class="section-card">
-            <h4 data-icon="🔬">Esami Richiesti</h4>
-            <div class="form-group"><textarea id="v-esami" rows="3" placeholder="Es. Emocromo, TSH, glicemia, urinocoltura, tampone vaginale, morfologica 20+0..."></textarea></div>
-            <div class="macro-wrap" id="mac-esami"></div>
+            <h4 data-icon="📄">Referto Ecografico</h4>
+            <div class="form-group" style="margin-bottom:8px">
+              <label class="form-label">Seleziona template ecografia</label>
+              <select id="gd-eco-sel" onchange="applyGDTemplate('ecografia','gd-eco-sel','gd-ecografia')"></select>
+            </div>
+            <div class="form-group"><textarea id="gd-ecografia" rows="10"></textarea></div>
           </div>
         </div>
 
-        <!-- PANEL 5: TERAPIA -->
+        <!-- ════════ PANEL 5: CONCLUSIONI ════════ -->
         <div id="ep-5" class="edit-panel">
           <div class="section-card">
-            <h4 data-icon="💊">Terapia Consigliata</h4>
-            <div class="form-group"><textarea id="v-terapia" rows="5" placeholder="Farmaci, dosaggi, durata trattamento, modalità di assunzione..."></textarea></div>
-            <div class="macro-wrap" id="mac-terapia"></div>
+            <h4 data-icon="✅">Conclusioni</h4>
+            <div class="form-group"><textarea id="gd-conclusioni" rows="3"></textarea></div>
+            <div class="macro-wrap" id="gd-conclusioni-btns"></div>
           </div>
+
           <div class="section-card">
-            <h4 data-icon="📌">Consigli Comportamentali</h4>
-            <div class="form-group"><textarea id="v-consigli" rows="3" placeholder="Dieta, attività fisica, integratori, astensione sessuale, riposo..."></textarea></div>
-            <div class="macro-wrap" id="mac-consigli"></div>
+            <h4 data-icon="🧾">Esami Richiesti</h4>
+            <div class="form-group"><textarea id="gd-esami-richiesti" rows="4"></textarea></div>
+            <div class="macro-wrap" id="gd-esami-richiesti-btns"></div>
           </div>
+
           <div class="section-card">
-            <h4 data-icon="🔄">Follow-up</h4>
-            <div class="field-row r3">
-              <div class="form-group"><label class="form-label">Prossimo Controllo</label><input id="v-prossimo" placeholder="es. Controllo tra 6 mesi"></div>
-              <div class="form-group"><label class="form-label">Data Appuntamento</label><input type="date" id="v-next-date"></div>
-              <div class="form-group"><label class="form-label">Urgenza</label><select id="v-urgenza"><option>Routinaria</option><option>Da programmare a breve (1 mese)</option><option>Urgente (settimana)</option><option>Accesso PS se peggioramento</option></select></div>
-            </div>
+            <h4 data-icon="💊">Terapia</h4>
+            <div class="form-group"><textarea id="gd-terapia" rows="4"></textarea></div>
+            <div class="macro-wrap" id="gd-terapia-btns"></div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🔄">Prossimi Controlli</h4>
+            <div class="form-group"><textarea id="gd-prossimi" rows="2" placeholder="Indicazioni per il follow-up..."></textarea></div>
           </div>
         </div>
 
@@ -1689,6 +1569,255 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 //  DATABASE & STATE
 // ═══════════════════════════════════════════════════
 let DB = { pazienti:[], agenda:[] };
+
+// ═══════════════════════════════════════════════════
+//  GD — TEMPLATE FRASI PRECOMPILATE VISITA GINECOLOGICA
+// ═══════════════════════════════════════════════════
+const GD = {
+  // Opzioni select brevi
+  menopausa: ["", "Fisiologica", "Indotta (radio/chemio)", "Chirurgica", "Nega AUB"],
+  cicloRitmo: ["", "Regolare con cicli ogni 24-38 gg", "Amenorrea (>90 giorni)", "Irregolare: polimenorrea (<24 gg)", "Irregolare: oligomenorrea (>38 gg)"],
+  cicloDurata: ["", "Durata normale (≤ 8 gg)", "Durata prolungata (≥ 8 gg)"],
+  cicloQuantita: ["", "Flusso normale", "Abbondante", "Flusso scarso", "Metrorragia", "Menometrorragia"],
+  screeningCervicale: ["", "HPV test", "Pap test", "HPV vaccinata"],
+  fumo: ["", "Nega", "Si > 15 sig/die", "Si < 15 sig/die", "Ex fumatrice"],
+  familiarita: ["Nega", "Diabete", "Tiroide", "Ipertensione/cardiopatie", "Patologie coagulazione", "Ca ovaio/utero/mammella", "Patologie ereditarie o genetiche"],
+
+  // MOTIVO VISITA (macro)
+  motivo: {
+    "Asintomatica": "Asintomatica. Visita di controllo routinario.",
+    "Fibromatosi FU": "Fibromatosi uterina in regolare FU.",
+    "Leucorrea giallo-verde": "Riferisce perdite vaginali con leucorrea giallo-verdastra.",
+    "Leucorrea bianco-caseosa": "Riferisce perdite vaginali con leucorrea bianco-caseosa.",
+    "Perdite maleodoranti": "Riferisce perdite vaginali maleodoranti."
+  },
+
+  // ESAME OBIETTIVO GENERALE
+  esameGenerale: {
+    "Addome trattabile": "Addome trattabile, non dolente alla palpazione superficiale e profonda su tutto l'ambito."
+  },
+
+  // SPECULUM (tendina → testo completo)
+  speculum: {
+    "": "",
+    "NEGATIVA": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio liscia, epitelizzata. Secrezione fisiologica.",
+    "PE": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio rosea normoepitelizzata e regolare, lieve leucorrea asintomatica. Lievi perdite ematiche simil-mestruali/scarse tracce ematiche rosso scuro/vivo in vagina.",
+    "ECTOPRION": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio ectropica lievemente sanguinante. Leucorrea biancastra, non maleodorante. PAP test/HPV test eseguito.",
+    "POLIPO": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio con presenza di piccola formazione polipoide che sporge dall'OUE di circa …. mm, non sanguinante, no leucorrea patologica.",
+    "LEUCORREA": "Genitali esterni nella norma per età. Vagina con mucosa arrossata e presenza di perdite maleodoranti sintomatiche. Portio rosea normoepitelizzata e regolare. No perdite ematiche.",
+    "ATROFIA": "Genitali esterni nella norma per età. Mucosa vaginale atrofica, pallida, non sanguinante. Portio piccola. Secrezione scarsa. Non perdite ematiche.",
+    "CUPOLA": "Cupola vaginale regolare, non segni di infiltrazione. Non perdite ematiche.",
+    "BARTOLINO": "A livello del grande labbro si apprezza formazione rotondeggiante molle/dura/teso elastica di dimensioni di circa ???? cm, mobile rispetto ai piani sottostanti, dolente alla palpazione. Presente edema ed iperemia del tessuto sovrastante. Vagina trofica con pliche presenti. Portio liscia, epitelizzata. Secrezione fisiologica.",
+    "IUD": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio rosea normoepitelizzata e regolare, si visualizzano fili di IUD da OUE, lieve leucorrea asintomatica. Non perdite ematiche.",
+    "RIMOZIONE IUD": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio rosea normoepitelizzata e regolare, si visualizzano fili di IUD sporgere dall'OUE. Non perdite ematiche né leucorrea patologica. Previa disinfezione si procede a rimozione con pinze ad anelli di IUD integra."
+  },
+
+  // PRELIEVI (macro)
+  prelievi: {
+    "PAP-Test": "Eseguito PAP-Test con invio a citologia.",
+    "HPV-test": "Eseguito HPV-test.",
+    "Tampone vaginale": "Eseguito tampone vaginale completo con antibiogramma."
+  },
+
+  // ESAME BIMANUALE (tendina → testo completo)
+  bimanuale: {
+    "": "",
+    "AVF": "Utero AVF, di dimensioni e consistenza regolari, mobile e non dolente alla palpazione e alla mobilizzazione. Sedi annessiali bilateralmente apparentemente regolari, libere e non dolenti alla palpazione. Fornici vaginali non dolenti alla palpazione. Douglas non dolente.",
+    "RVF": "Utero RVF, di dimensioni e consistenza regolari, mobile e non dolente alla palpazione e alla mobilizzazione. Sedi annessiali bilateralmente apparentemente regolari, libere e non dolenti alla palpazione. Fornici vaginali non dolenti alla palpazione. Douglas non dolente.",
+    "FIBROMI": "Utero aumentato di volume, regolare in superficie. Sedi annessiali bilateralmente apparentemente regolari, libere e non dolenti alla palpazione. Fornici vaginali non dolenti alla palpazione. Douglas non dolente.",
+    "OBESA": "Utero ed annessi mal valutabili per habitus della paziente, non dolenti alla palpazione e mobilizzazione. Douglas non dolente.",
+    "POSIZIONAMENTO IUD": "Portio: cilindrica, OUE puntiforme. Minime perdite ematiche in atto come da mestruazione in corso. Si esegue disinfezione con soluzione di Betadine. Si esegue isterometria: ???? mm. Si procede ad applicazione di IUD-LNG ??? mg."
+  },
+
+  // ECOGRAFO / SONDA
+  ecografo: ["", "Voluson S10", "Samsung"],
+  sonda: ["", "TV", "TA", "TV+TA", "TR"],
+  informativa: "La Persona Assistita ha avuto modo di ricevere una adeguata informazione su scopi e limiti dell'esame attraverso il colloquio con il proprio Ginecologo (ai quali ha avuto la possibilità di porre i quesiti ritenuti opportuni) e attraverso la lettura di un foglio informativo che si allega al referto. La persona assistita acconsente all'effettuazione dell'indagine nelle modalità proposte.",
+
+  // ECOGRAFIA (tendina → testo completo)
+  ecografia: {
+    "": "",
+    "REGOLARE": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa;\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "FIBROMI": "UTERO: AVF / RVF / in asse; Dimensioni: lievemente aumentate DL ___ mm DAP ___ mm DT ___ mm; Morfologia: irregolare per fibromatosi uterina; Ecostruttura: disomogenea come da fibromatosi uterina; In particolare si segnala la presenza di una formazione miometriale ipoecogena a sviluppo IM/SS dalla parete ____ dell'utero, dotata di minima vascolarizzazione periferica al PD (CS 2?), che misura complessivamente ____ mm. Tale formazione si presenta di forma rotondeggiante, ad ecogenicità uniforme e con coni d'ombra interni. Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa;\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "POLIPO": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: irregolare e disomogenea, misura ___ mm di spessore massimo. Nel contesto della rima endometriale si visualizza una lesione ovalare ipoecogena dotata di orletto iperecogeno (bright edge), minimamente vascolarizzata al PD (CS 2) e dotata di un feeding vessel a partenza dalla parete anteriore che misura complessivamente ___x___x___ mm sospetta per polipo endometriale. La giunzione endometrio miometriale appare regolare.\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm, con segni funzionali/ad aspetto atrofico.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm, con segni funzionali/ad aspetto atrofico.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "DERMOIDE 1": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO: in sede di forma irregolare e di dimensioni aumentate di ___ mm per presenza al suo interno di una cisti uniloculare ad ecogenicità mista, dotata di cono d'ombra posteriore e non vascolarizzata al PD (CS 1) che misura ___ mm.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "DERMOIDE 2": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO: in sede di forma irregolare e di dimensioni aumentate di ___ mm per la presenza al suo interno di una cisti uniloculare ad ecogenicità mista e contenuto finemente trabecolato (punti e linee), non vascolarizzata al PD (CS 1) che misura ___ mm.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "DERMOIDE 3": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO: in sede di forma irregolare e di dimensioni aumentate di ___ mm per la presenza al suo interno di una cisti uniloculare ad ecogenicità mista, prevalentemente anecogena/low level ma con un nucleo iperecogeno dotato di cono d'ombra posteriore (nucleo di Rokitansky), non vascolarizzata al PD (CS 1) che misura ___ mm.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "CISTI UNILOCULARE SOLIDA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti uniloculare a contenuto ___, mobile sui piani circostanti, con pareti interne regolari/irregolari e dotata di minima vascolarizzazione periferica al PD (CS 2) che misura complessivamente ___ mm. Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "CISTI UNILOCULARE SOLIDA CON PAPILLA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti uniloculare-solida a contenuto ___, mobile sui piani circostanti, con pareti interne irregolari e dotata di minima vascolarizzazione periferica al PD (CS 2) che misura complessivamente ___ mm. All'interno della cisti si segnala la presenza di una papilla che misura ___ mm di base e ___ mm di altezza, dotata di minima vascolarizzazione periferica al PD (CS 2). Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "CISTI UNILOCULARE CON COMP. SOLIDA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti uniloculare-solida a contenuto ___, mobile sui piani circostanti, con pareti interne irregolari e dotata di minima vascolarizzazione periferica al PD (CS 2) che misura complessivamente ___ mm. All'interno della cisti si segnala la presenza di una componente solida che misura complessivamente ___ mm ed è dotata di minima vascolarizzazione periferica al PD (CS 2). Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "CISTI MULTILOCULARE": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti multiloculare a contenuto ___ suddivisa in almeno X concamerazioni da setti sottili/spessi (spessore massimo ___ mm) e non vascolarizzati. Tale cisti appare mobile sui piani circostanti, con pareti interne regolari/irregolari, dotata di minima vascolarizzazione periferica al PD (CS 2) e misura complessivamente ___ mm. Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "CISTI MULTILOCULARE SOLIDA CON PAPILLA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti multiloculare-solida a contenuto ___ suddivisa in almeno X concamerazioni da setti sottili/spessi (spessore massimo ___ mm) e non vascolarizzati e che misura complessivamente ___ mm e che risulta mobile/ipomobile/fissa sui piani circostanti. All'interno di una delle concamerazioni si segnala la presenza di una papilla che misura ___ mm di base e ___ mm di altezza, dotata di minima vascolarizzazione al PD (CS 2). Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "CISTI MULTILOCULARE SOLIDA CON COMP. SOLIDA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti multiloculare-solida a contenuto ___ suddivisa in almeno X concamerazioni da setti sottili/spessi (spessore massimo ___ mm) e non vascolarizzati e che misura complessivamente ___ mm e che risulta mobile/ipomobile/fissa sui piani circostanti. All'interno di tale cisti si segnala la presenza di un gettone solido discretamente vascolarizzato al PD (CS 3) che misura complessivamente ___ mm. Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "FORMAZIONE SOLIDA OMOGENEA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nIn sede annessiale ____ si segnala la presenza di una neoformazione solida omogenea (specificare se ipo/iso/iperecogena rispetto al contesto) con profili esterni regolari/irregolari, mobile/ipomobile/fissa sui piani circostanti e dotata di discreta vascolarizzazione al PD (CS 3). Ovaio destro non visualizzato.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "FORMAZIONE SOLIDA DISOMOGENEA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nIn sede annessiale ____ si segnala la presenza di una neoformazione solida disomogenea per la presenza al suo interno di piccole cisti a contenuto ___, con profili esterni regolari/irregolari, mobile/ipomobile/fissa sui piani circostanti e dotata di discreta vascolarizzazione al PD (CS 3). Ovaio destro non visualizzato.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "IUD-CONTROLLO": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare. Ecostruttura: omogenea. Rima Endometriale: regolare. Endometrio: regolare; Spessore: ___ mm; sottile. Si visualizza IUD in sede.\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm con segni funzionali;\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm, con segni funzionali.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+    "GEU (BLOB SIGN)": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: secretivo sincrono con la fase del ciclo; Ovaio ___ in sede, di forma e volume regolare (___x___x___ mm), mobile e non dolente alla pressione mirata della sonda vaginale, con segni funzionali (specificare se presente corpo luteo). Adiacente ad esso e chiaramente/non chiaramente dissociabile si segnala la presenza di una tumefazione rotondeggiante ad ecogenicità mista dotata di orletto iperecogeno e vascolarizzazione circolare (CS 3) (Blob sign) che misura ___ mm.",
+    "GEU (BAGEL SIGN)": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: secretivo sincrono con la fase del ciclo; Ovaio ___ in sede, di forma e volume regolare (___x___x___ mm), mobile e non dolente alla pressione mirata della sonda vaginale, con segni funzionali (specificare se presente corpo luteo). Adiacente ad esso e chiaramente/non chiaramente dissociabile si segnala la presenza di una cisti uniloculare anecogena dotata di orletto iperecogeno e vascolarizzazione circolare (CS 3) (Bagel sign) che misura ___ mm.",
+    "GEU (BLOB SIGN + EMATOSALPINGE)": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: secretivo sincrono con la fase del ciclo; Ovaio ___ in sede, di forma e volume regolare (___ mm), mobile e non dolente alla pressione mirata della sonda vaginale, con segni funzionali (specificare se presente corpo luteo). Adiacente ad esso e chiaramente/non chiaramente dissociabile si segnala la presenza di una tumefazione rotondeggiante ad ecogenicità mista dotata di orletto iperecogeno e vascolarizzazione circolare (CS 3) (Blob sign) che misura ___ mm. Direttamente in continuità con la lesione descritta si visualizza una tumefazione ipoecogena allungata dotata di scarsa vascolarizzazione di parete (CS 2) che misura ___ mm riferibile ad ematosalpinge."
+  },
+
+  // CONCLUSIONI (macro)
+  conclusioni: {
+    "Esame normale": "Esame ginecologico nella norma.",
+    "Ispessimento endom.": "Ispessimento endometriale con AUB/no AUB in paziente in menopausa.",
+    "Sospetto polipo": "Sospetto polipo endometriale."
+  },
+
+  // ESAMI RICHIESTI (macro → testo lungo)
+  esamiRichiesti: {
+    "Esami ormonali": "ESAMI ORMONALI: esami ematici: LH, FSH, PRL, ESTRADIOLO, PROGESTERONE, ANDROSTENEDIONE E 17 OH PROGESTERONE + TSH, FT3 E FT4 (in un solo prelievo o il 1° o il 2° prelievo). [Ciclo 25-30 gg = in 5°-7° gg e in 18°-22° gg del ciclo; Ciclo > 35 gg = in 5°-7° gg e in 24°-27° gg del ciclo; Ciclo < 24 gg = in 5°-7° gg e in 14°-17° gg del ciclo; Amenorrea = prelievi distanziati di 8-12 giorni]",
+    "Amenorrea": "AMENORREA: esami ematici: emocromo, glicemia, creatinina, GOT, GPT, sodio, potassio, calcio, vitamina D, colesterolo totale, LDL e HDL, ferro, ferritina e transferrina, amilasi, insulinemia basale, cortisolo, LH, FSH, PRL, estradiolo, progesterone, androstenedione, 17 OH progesterone, testosterone, DHEAS, TSH, FT3 E FT4",
+    "Screening trombofilico": "SCREENING TROMBOFILICO: esami ematici: Fibrinogeno, proteina C, Proteina S, APCR resistence, mutazione FV di Leiden, mutazione FII, Antitrombina III, omocisteina, LAC, Ab anticardiolipina, Ab anti beta2glicoproteina",
+    "Infertilità": "INFERTILITÀ: esami ematici da eseguire entro il 3° gg del ciclo mestruale (FSH, LH, ESTRADIOLO, TSHR, PROLATTINA), PROGESTERONE (in 16-18 giornata del ciclo), AMH, PAP test (se non eseguito), Isterosalpingografia. Esami da eseguire per il compagno: SPERMIOGRAMMA (astinenza 3-5 giorni; consegna entro 30-60 minuti senza sbalzi di temperatura; sospendere Antibiotici e FANS); SPERMIOCOLTURA; esami ematici: FSH, TESTOSTERONE, PROLATTINA; VISITA ANDROLOGICA ed ECOCOLORDOPPLER TESTICOLARE",
+    "GEU (betaHCG)": "GEU: dosaggio ematico betaHCG (2 prelievi a distanza di 48h l'uno dall'altro)",
+    "AUB (isteroscopia)": "AUB: Isteroscopia diagnostica con biopsia endometriale. Contattare telefonicamente la Segreteria dell'Ambulatorio Ginecologico II livello (Ospedale di Rimini Scala C piano 1) al numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per isteroscopia (con impegnativa del medico curante: isteroscopia per AUB in menopausa)",
+    "Polipo (isteroscopia)": "POLIPO: Isteroscopia per sospetto polipo endometriale. Contattare telefonicamente la Segreteria dell'Ambulatorio Ginecologico II livello (Ospedale di Rimini Scala C piano 1) al numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per isteroscopia (con impegnativa del medico curante: isteroscopia per sospetto polipo endometriale)",
+    "Eco II livello": "ECO2LIV: Valutazione ecografica II livello c/o Amb. Ginecologico Ospedale Rimini. Contattare telefonicamente la Segreteria dell'Ambulatorio Ginecologico II livello (Ospedale di Rimini Scala C piano 1) al numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per Ecografia Ginecologica II livello (con impegnativa del medico curante: ecografia ginecologica e visita ginecologica)"
+  },
+
+  // TERAPIA (macro → testo lungo)
+  terapia: {
+    "Bartolino": "BARTOLINO: Amoxicillina + acido clavulanico 1 gr compresse: 1 compressa ogni 12 ore per 6 giorni; Brufen 600 mg cp: 1 cp ogni 12 ore per 5 giorni (a stomaco pieno e/o con gastroprotettore es. Pantorc); Fermenti lattici; Ginexid schiuma: come detergente intimo; Gentalyn 0,1% crema: 2 applicazioni al giorno OPPURE Ittiolo Ung.10%: 2 applicazioni al giorno; Indossare intimo in cotone bianco. Recarsi c/o PS Ostetrico-Ginecologico (DEA V piano) in caso di peggioramento della sintomatologia clinica.",
+    "Amenorrea/Perimenopausa": "AMENORREA/IRREGOLARITÀ PERIMENOPAUSA: Progeffik 200 mg 1 volta/die per 10 giorni",
+    "Irregolarità perimenopausa": "IRREGOLARITÀ PERIMENOPAUSA: Progepril cp: 2 cp per 14 gg dal 14° giorno del ciclo per 6-8 mesi; poi passare a Novafase cp: 1 cp al giorno.",
+    "Irregolarità/Obesa": "IRREGOLARITÀ PERIMENOPAUSA/OBESA: Chirofert cp: 1 cp a metà mattina + 1 cp metà pomeriggio per 3 mesi poi 1 cp a metà mattina per altri 3 mesi",
+    "Menometrorragia": "MENOMETRORRAGIA: Tranex 500 mg cp: 2 cp x 3 vv/die per 2 gg poi scalare a 2 cp x 2vv/die per 2 gg poi 2 cp x 1 vv/die (stop dopo 6 gg) + eventuale prescrizione (solo in emergenza perché gonfia): Primolut Nor: 1 cp al giorno per 10 giorni."
+  }
+};
+
+
+// ═══════════════════════════════════════════════════
+//  GD — FUNZIONI EDITOR GINECOLOGICO
+// ═══════════════════════════════════════════════════
+function fillGDSelect(id, options){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML='';
+  options.forEach(o=>{
+    const opt=document.createElement('option');
+    opt.value=o; opt.textContent=o||'-- Seleziona --';
+    el.appendChild(opt);
+  });
+}
+
+function fillGDMacro(containerId, obj, targetId){
+  const c=document.getElementById(containerId); if(!c)return;
+  c.innerHTML='';
+  Object.keys(obj).forEach(label=>{
+    const btn=document.createElement('button');
+    btn.className='macro-btn';
+    btn.textContent=label;
+    btn.onclick=()=>appendGDText(targetId, obj[label]);
+    c.appendChild(btn);
+  });
+}
+
+function appendGDText(id, text){
+  const el=document.getElementById(id); if(!el)return;
+  el.value += (el.value && !el.value.endsWith('\n') ? '\n' : '') + text;
+}
+
+function applyGDTemplate(category, selId, targetId){
+  const sel=document.getElementById(selId);
+  const target=document.getElementById(targetId);
+  if(!sel||!target)return;
+  const txt=GD[category][sel.value];
+  if(txt) target.value=txt;
+}
+
+function calcGynoBMI(){
+  const w=parseFloat(document.getElementById('gd-peso').value);
+  const h=parseFloat(document.getElementById('gd-altezza').value)/100;
+  const box=document.getElementById('gd-bmi-box');
+  if(!w||!h||h<=0){if(box)box.style.display='none';return;}
+  const bmi=(w/(h*h)).toFixed(1);
+  let cat,col,bg;
+  if(bmi<18.5){cat='Sottopeso';col='#b35900';bg='rgba(255,149,0,.12)';}
+  else if(bmi<25){cat='Normopeso';col='#1a7a32';bg='rgba(52,199,89,.12)';}
+  else if(bmi<30){cat='Sovrappeso';col='#b35900';bg='rgba(255,149,0,.12)';}
+  else{cat='Obesità';col='#c0392b';bg='rgba(255,59,48,.12)';}
+  document.getElementById('gd-bmi-val').textContent=bmi+' kg/m²';
+  const ce=document.getElementById('gd-bmi-cat');
+  ce.textContent=cat; ce.style.color=col; ce.style.background=bg;
+  box.style.display='flex';
+}
+
+function toggleFamil(btn, value){
+  const ta=document.getElementById('gd-familiarita');
+  btn.classList.toggle('active');
+  if(btn.classList.contains('active')){
+    ta.value += (ta.value?', ':'')+value;
+  } else {
+    ta.value = ta.value.split(',').map(s=>s.trim()).filter(s=>s!==value).join(', ');
+  }
+}
+
+function toggleInformativa(){
+  // L'informativa viene gestita in fase di stampa
+}
+
+function initGynoSelects(){
+  fillGDSelect('gd-menopausa', GD.menopausa);
+  fillGDSelect('gd-ciclo-ritmo', GD.cicloRitmo);
+  fillGDSelect('gd-ciclo-durata', GD.cicloDurata);
+  fillGDSelect('gd-ciclo-quantita', GD.cicloQuantita);
+  fillGDSelect('gd-screening-cervicale', GD.screeningCervicale);
+  fillGDSelect('gd-fumo', GD.fumo);
+  fillGDSelect('gd-speculum-sel', Object.keys(GD.speculum));
+  fillGDSelect('gd-bimanuale-sel', Object.keys(GD.bimanuale));
+  fillGDSelect('gd-ecografo', GD.ecografo);
+  fillGDSelect('gd-sonda', GD.sonda);
+  fillGDSelect('gd-eco-sel', Object.keys(GD.ecografia));
+  // Macro buttons
+  fillGDMacro('gd-motivo-btns', GD.motivo, 'gd-motivo');
+  fillGDMacro('gd-esame-generale-btns', GD.esameGenerale, 'gd-esame-generale');
+  fillGDMacro('gd-prelievi-btns', GD.prelievi, 'gd-prelievi');
+  fillGDMacro('gd-conclusioni-btns', GD.conclusioni, 'gd-conclusioni');
+  fillGDMacro('gd-esami-richiesti-btns', GD.esamiRichiesti, 'gd-esami-richiesti');
+  fillGDMacro('gd-terapia-btns', GD.terapia, 'gd-terapia');
+  // Familiarità toggle buttons
+  const fc=document.getElementById('gd-famil-btns');
+  if(fc){
+    fc.innerHTML='';
+    GD.familiarita.forEach(v=>{
+      const b=document.createElement('button');
+      b.className='macro-btn';
+      b.textContent=v;
+      b.onclick=()=>toggleFamil(b,v);
+      fc.appendChild(b);
+    });
+  }
+}
+
+// Mappa campi GD → oggetto dati
+const GD_FIELDS=['eta','altezza','peso','para','menarca','um','pa','menopausa',
+  'ciclo-ritmo','ciclo-durata','ciclo-quantita','terapia-orm','dispareunia','dismenorrea','fumo',
+  'screening-cervicale','screening-mammo','allergie','terapie-atto','chirurgia','patologie',
+  'cefalea','emicrania','familiarita','motivo','esame-generale','speculum','prelievi','bimanuale',
+  'ecografo','sonda','ecografia','conclusioni','esami-richiesti','terapia','prossimi'];
+
+function getGynoData(){
+  const d={};
+  GD_FIELDS.forEach(f=>{
+    const el=document.getElementById('gd-'+f);
+    if(el) d[f]=el.value;
+  });
+  d.informativa=document.getElementById('gd-informativa-chk')?.checked;
+  return d;
+}
+
+function setGynoData(data){
+  if(!data)return;
+  GD_FIELDS.forEach(f=>{
+    const el=document.getElementById('gd-'+f);
+    if(el && data[f]!==undefined) el.value=data[f];
+  });
+  const chk=document.getElementById('gd-informativa-chk');
+  if(chk && data.informativa!==undefined) chk.checked=data.informativa;
+  calcGynoBMI();
+}
+
+
 let curPaz = null, curVisita = null, curMode = 'gyno', calDate = new Date();
 
 // ═══════════════════════════════════════════════════
@@ -2758,63 +2887,30 @@ function delAlert(id){const p=DB.pazienti.find(x=>x.id===curPaz);p.alerts=p.aler
 // ═══════════════════════════════════════════════════
 //  EDITOR REFERTO
 // ═══════════════════════════════════════════════════
-function openTypeModal(){document.getElementById('modal-type').classList.add('show');}
+function openTypeModal(){startEditor('gyno');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
 function startEditor(tipo, vid=null){
   closeModal('modal-type');
   document.getElementById('editor-overlay').classList.add('show');
-  curMode=tipo; curVisita=vid;
-  // Reset fields
+  curMode='gyno'; curVisita=vid; // ora sempre gyno con template completi
+  // Reset campi
   document.querySelectorAll('#editor-overlay input:not([readonly]), #editor-overlay textarea, #editor-overlay select').forEach(el=>{
     if(el.tagName==='SELECT')el.selectedIndex=0;
+    else if(el.type==='checkbox')el.checked=true;
     else el.value='';
   });
-  const badges={'gyno':'🌸 GINECOLOGICA','ob':'🤰 OSTETRICA','eco':'🖥️ ECOGRAFIA'};
-  document.getElementById('editor-type-badge').textContent=badges[tipo]||tipo;
-  document.getElementById('editor-title').textContent=`Referto ${tipo.toUpperCase()} – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
-  // Show/hide sections
-  document.getElementById('obj-gyno-fields').style.display=tipo==='ob'?'none':'block';
-  document.getElementById('obj-ob-fields').style.display=tipo==='ob'?'block':'none';
-  document.getElementById('eco-ob-section').style.display=tipo!=='gyno'?'block':'none';
-  document.getElementById('eco-gyno-section').style.display=tipo==='eco'||tipo==='gyno'?'block':'none';
-  if(tipo==='ob') document.getElementById('eco-gyno-section').style.display='none';
-  // Weeks row: solo per ob/eco; UM sempre visibile ma label varia
-  const weeksRow=document.getElementById('row-weeks');
-  if(weeksRow) weeksRow.style.display=(tipo==='ob'||tipo==='eco')?'block':'none';
-  const umRow=document.getElementById('row-um');
-  if(umRow){
-    const lbl=umRow.querySelector('.form-label');
-    if(lbl) lbl.textContent=tipo==='gyno'?'UM (Ultima Mestruazione)':'LMP / UM';
-  }
-  // Reset BMI display
-  const bmiRes=document.getElementById('editor-bmi-result');
-  if(bmiRes) bmiRes.style.display='none';
-  // Fill macros
-  const m=MAC[tipo]||MAC.gyno;
-  fillMacro('mac-anamnesi',m.anamnesi,'v-anamnesi');
-  fillMacro('mac-speculo',m.speculo||[],'v-speculo');
-  fillMacro('mac-bimanuale',m.bimanuale||[],'v-bimanuale');
-  fillMacro('mac-eco',(MAC.eco[tipo==='eco'?(curMode==='eco'?'ob':'gyno'):tipo]||MAC.eco.gyno),'v-eco-desc');
-  fillMacro('mac-diagnosi',(m.diagnosi||MAC.diagnosi),'v-diagnosi');
-  fillMacro('mac-esami',(m.esami||MAC.esami),'v-esami');
-  fillMacro('mac-terapia',(m.terapia||MAC.terapia),'v-terapia');
-  fillMacro('mac-consigli',MAC.consigli,'v-consigli');
-  // Go to tab 1
+  document.getElementById('editor-type-badge').textContent='🌸 GINECOLOGICA';
+  document.getElementById('editor-title').textContent=`Visita Ginecologica – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
+  // Popola select e macro
+  initGynoSelects();
+  // Reset BMI
+  const bmiBox=document.getElementById('gd-bmi-box');
+  if(bmiBox) bmiBox.style.display='none';
+  // Tab 1
   const firstBtn=document.querySelector('.editor-nav-btn');
   setEditorTab(firstBtn,'ep-1');
   if(vid) loadVisita(vid);
-}
-
-function fillMacro(cid,list,tid){
-  const c=document.getElementById(cid); if(!c)return;
-  c.innerHTML='';
-  (list||[]).forEach(x=>c.innerHTML+=`<button class="macro-btn" onclick="appendText('${tid}','${x.replace(/'/g,"\'")}')">${x.length>40?x.slice(0,40)+'…':x}</button>`);
-}
-
-function appendText(id,t){
-  const el=document.getElementById(id); if(!el)return;
-  el.value+=(el.value&&!el.value.endsWith('\n')?'\n':'')+t;
 }
 
 function setEditorTab(btn,id){
@@ -2824,72 +2920,13 @@ function setEditorTab(btn,id){
   btn.classList.add('active');
 }
 
-function calcWeeks(){
-  const l=document.getElementById('v-lmp').value; if(!l)return;
-  const d=Math.floor((new Date()-new Date(l))/86400000);
-  const wEl=document.getElementById('v-weeks'); if(wEl) wEl.value=`${Math.floor(d/7)}+${d%7}`;
-}
-
-function calcolaEditorBMI(){
-  const w=parseFloat(document.getElementById('v-peso').value);
-  const hEl=document.getElementById('v-altezza'); if(!hEl)return;
-  const h=parseFloat(hEl.value)/100;
-  const res=document.getElementById('editor-bmi-result');
-  if(!w||!h||h<=0){if(res)res.style.display='none';return;}
-  const bmi=(w/(h*h)).toFixed(1);
-  let cat,col,bg;
-  if(bmi<18.5){cat='Sottopeso';col='#b35900';bg='rgba(255,149,0,0.12)';}
-  else if(bmi<25){cat='Normopeso';col='#1a7a32';bg='rgba(52,199,89,0.12)';}
-  else if(bmi<30){cat='Sovrappeso';col='#b35900';bg='rgba(255,149,0,0.12)';}
-  else{cat='Obesità';col='#c0392b';bg='rgba(255,59,48,0.12)';}
-  document.getElementById('editor-bmi-val').textContent=bmi;
-  const catEl=document.getElementById('editor-bmi-cat');
-  catEl.textContent=cat; catEl.style.color=col; catEl.style.background=bg;
-  if(res) res.style.display='flex';
-}
-
 function salvaVisita(){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v={
     id:curVisita||Date.now(),
     data:curVisita?p.visite.find(x=>x.id===curVisita).data:new Date().toISOString().split('T')[0],
-    tipo:curMode,
-    lmp:document.getElementById('v-lmp').value,
-    settimane:document.getElementById('v-weeks').value,
-    peso:document.getElementById('v-peso').value,
-    altezza:document.getElementById('v-altezza').value,
-    pa:document.getElementById('v-pa').value,
-    parità:document.getElementById('v-parità').value,
-    menopausa:document.getElementById('v-menopausa').value,
-    anamnesi:document.getElementById('v-anamnesi').value,
-    anamnesiFam:document.getElementById('v-anamnesi-fam').value,
-    allergie:document.getElementById('v-allergie').value,
-    addome:document.getElementById('v-addome').value,
-    speculo:document.getElementById('v-speculo').value,
-    bimanuale:document.getElementById('v-bimanuale').value,
-    pap:document.getElementById('v-pap').value,
-    bcf:document.getElementById('v-bcf').value,
-    maf:document.getElementById('v-maf').value,
-    au:document.getElementById('v-au').value,
-    eco:{
-      sonda:document.getElementById('v-sonda').value,
-      crl:document.getElementById('v-crl').value,
-      bpd:document.getElementById('v-bpd').value,
-      hc:document.getElementById('v-hc').value,
-      ac:document.getElementById('v-ac').value,
-      fl:document.getElementById('v-fl').value,
-      efw:document.getElementById('v-efw').value,
-      desc:document.getElementById('v-eco-desc').value,
-      utero:document.getElementById('v-utero-dim').value,
-      endo:document.getElementById('v-endo').value,
-      ovDx:document.getElementById('v-ov-dx').value,
-      ovSx:document.getElementById('v-ov-sx').value,
-    },
-    diagnosi:document.getElementById('v-diagnosi').value,
-    esami:document.getElementById('v-esami').value,
-    terapia:document.getElementById('v-terapia').value,
-    consigli:document.getElementById('v-consigli').value,
-    prossimo:document.getElementById('v-prossimo').value,
+    tipo:'gyno',
+    gynoData:getGynoData()
   };
   if(curVisita) p.visite[p.visite.findIndex(x=>x.id===curVisita)]=v;
   else p.visite.push(v);
@@ -2900,30 +2937,27 @@ function loadVisita(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p.visite.find(x=>x.id===vid);
   if(!v)return;
-  const set=(id,val)=>{const el=document.getElementById(id);if(el&&val)el.value=val;};
-  set('v-lmp',v.lmp);set('v-anamnesi',v.anamnesi);set('v-speculo',v.speculo);
-  set('v-bimanuale',v.bimanuale);set('v-diagnosi',v.diagnosi);set('v-terapia',v.terapia);
-  set('v-eco-desc',v.eco?.desc);set('v-peso',v.peso);set('v-altezza',v.altezza);
-  set('v-pa',v.pa);set('v-parità',v.parità);set('v-menopausa',v.menopausa);
-  if(v.peso||v.altezza) calcolaEditorBMI();
+  initGynoSelects();
+  if(v.gynoData) setGynoData(v.gynoData);
 }
 
 function renderVisiteList(p){
   const c=document.getElementById('visite-list'); c.innerHTML='';
   document.getElementById('visite-count-badge').textContent=`${p.visite?.length||0} visite`;
   if(!p.visite?.length){c.innerHTML='<div class="empty-state"><div class="es-icon">🩺</div><p>Nessuna visita registrata</p></div>';return;}
-  const icons={'gyno':'🌸','ob':'🤰','eco':'🖥️'};
-  const colors={'gyno':'var(--primary-dim)','ob':'var(--green-dim)','eco':'rgba(90,200,250,0.15)'};
   p.visite.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v=>{
+    const gd=v.gynoData||{};
+    const concl=gd.conclusioni||gd.motivo||'–';
+    const conclShort=concl.length>80?concl.slice(0,80)+'…':concl;
     c.innerHTML+=`<div class="visit-item">
-      <div class="visit-icon" style="background:${colors[v.tipo]||'#eee'}">${icons[v.tipo]||'🩺'}</div>
+      <div class="visit-icon" style="background:var(--primary-dim)">🌸</div>
       <div class="visit-info">
         <div class="visit-date">${new Date(v.data).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}</div>
-        <div class="visit-type">${v.tipo?.toUpperCase()} ${v.settimane?'· '+v.settimane+' sett.':''}</div>
-        <div class="visit-diag">${v.diagnosi||'–'}</div>
+        <div class="visit-type">VISITA GINECOLOGICA</div>
+        <div class="visit-diag">${conclShort}</div>
       </div>
       <div class="visit-actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('${v.tipo}',${v.id})" title="Modifica">✏️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('gyno',${v.id})" title="Modifica">✏️</button>
         <button class="btn btn-ghost btn-sm btn-icon" onclick="stampa(${v.id})" title="Stampa">🖨️</button>
       </div>
     </div>`;
@@ -2940,27 +2974,63 @@ function stampa(vid){
   document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
   document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'–';
   document.getElementById('p-cf-print').textContent=p.cf||'–';
-  const icons={'gyno':'🌸','ob':'🤰','eco':'🖥️'};
-  let body=`<h2 style="margin-bottom:16px;font-family:Georgia,serif;">Referto ${icons[v.tipo]||''} ${v.tipo?.toUpperCase()}</h2>`;
-  // Dati vitali
-  let vitali=[];
-  if(v.peso) vitali.push(`Peso: ${v.peso} kg`);
-  if(v.altezza) vitali.push(`Altezza: ${v.altezza} cm`);
-  if(v.peso&&v.altezza){const bmi=(parseFloat(v.peso)/Math.pow(parseFloat(v.altezza)/100,2)).toFixed(1);vitali.push(`BMI: ${bmi}`);}
-  if(v.pa) vitali.push(`PA: ${v.pa} mmHg`);
-  if(vitali.length) body+=`<p><strong>Parametri:</strong> ${vitali.join(' · ')}</p>`;
-  if(v.menopausa) body+=`<p><strong>Stato menopausale:</strong> ${v.menopausa}</p>`;
-  if(v.parità) body+=`<p><strong>PARA:</strong> ${v.parità}</p>`;
-  if(v.anamnesi) body+=`<p><strong>Anamnesi:</strong> ${v.anamnesi}</p>`;
-  if(v.speculo) body+=`<p><strong>Speculoscopia:</strong> ${v.speculo}</p>`;
-  if(v.bimanuale) body+=`<p><strong>Esame Bimanuale:</strong> ${v.bimanuale}</p>`;
-  if(v.eco?.desc) body+=`<p><strong>Ecografia:</strong> ${v.eco.desc}</p>`;
-  if(v.eco?.crl||v.eco?.bpd) body+=`<p><strong>Biometria:</strong> CRL:${v.eco.crl||'–'} BPD:${v.eco.bpd||'–'} AC:${v.eco.ac||'–'} FL:${v.eco.fl||'–'} EFW:${v.eco.efw||'–'}</p>`;
-  if(v.diagnosi) body+=`<div style="background:#f5f5f5;padding:12px;border-radius:6px;margin-top:16px;"><strong>DIAGNOSI:</strong><br>${v.diagnosi}</div>`;
-  if(v.esami) body+=`<p style="margin-top:12px;"><strong>Esami Richiesti:</strong><br>${v.esami}</p>`;
-  if(v.terapia) body+=`<p><strong>Terapia Consigliata:</strong><br>${v.terapia}</p>`;
-  if(v.consigli) body+=`<p><strong>Consigli:</strong><br>${v.consigli}</p>`;
-  if(v.prossimo) body+=`<p><strong>Prossimo Controllo:</strong> ${v.prossimo}</p>`;
+  const g=v.gynoData||{};
+  const nl=s=>(s||'').replace(/\n/g,'<br>');
+  let body=`<h2 style="margin-bottom:16px;font-family:Georgia,serif;">Referto 🌸 Visita Ginecologica</h2>`;
+
+  // ── ANAMNESI ──
+  let anamn=[];
+  if(g.eta) anamn.push(`Età: ${g.eta}`);
+  if(g.altezza&&g.peso){const bmi=(parseFloat(g.peso)/Math.pow(parseFloat(g.altezza)/100,2)).toFixed(1);anamn.push(`Altezza: ${g.altezza} cm · Peso: ${g.peso} kg · BMI: ${bmi}`);}
+  if(g.para) anamn.push(`PARA: ${g.para}`);
+  if(g.menarca) anamn.push(`Menarca: ${g.menarca}`);
+  if(g.um) anamn.push(`UM: ${new Date(g.um).toLocaleDateString('it-IT')}`);
+  if(g.pa) anamn.push(`PA: ${g.pa} mmHg`);
+  if(g.menopausa) anamn.push(`Menopausa: ${g.menopausa}`);
+  if(anamn.length) body+=`<p><strong>ANAMNESI:</strong> ${anamn.join(' · ')}</p>`;
+  let ciclo=[g['ciclo-ritmo'],g['ciclo-durata'],g['ciclo-quantita']].filter(Boolean);
+  if(ciclo.length) body+=`<p><strong>Ciclo:</strong> ${ciclo.join(', ')}</p>`;
+  if(g['terapia-orm']) body+=`<p><strong>Terapia ormonale:</strong> ${g['terapia-orm']}</p>`;
+  let sint=[];
+  if(g.dispareunia)sint.push(`Dispareunia: ${g.dispareunia}`);
+  if(g.dismenorrea)sint.push(`Dismenorrea: ${g.dismenorrea}`);
+  if(g.cefalea)sint.push(`Cefalea: ${g.cefalea}`);
+  if(g.emicrania)sint.push(`Emicrania: ${g.emicrania}`);
+  if(sint.length) body+=`<p>${sint.join(' · ')}</p>`;
+  if(g['screening-cervicale']) body+=`<p><strong>Screening cervicale:</strong> ${g['screening-cervicale']}</p>`;
+  if(g['screening-mammo']) body+=`<p><strong>Screening mammografico:</strong> ${g['screening-mammo']}</p>`;
+  if(g.fumo) body+=`<p><strong>Fumo:</strong> ${g.fumo}</p>`;
+  if(g.allergie) body+=`<p><strong>Allergie:</strong> ${g.allergie}</p>`;
+  if(g['terapie-atto']) body+=`<p><strong>Terapie in atto:</strong> ${g['terapie-atto']}</p>`;
+  if(g.chirurgia) body+=`<p><strong>Interventi chirurgici:</strong> ${g.chirurgia}</p>`;
+  if(g.patologie) body+=`<p><strong>Patologie croniche:</strong> ${g.patologie}</p>`;
+  if(g.familiarita) body+=`<p><strong>Familiarità:</strong> ${g.familiarita}</p>`;
+
+  // ── MOTIVO ──
+  if(g.motivo) body+=`<div style="margin-top:14px"><strong>MOTIVO DELLA VISITA:</strong><br>${nl(g.motivo)}</div>`;
+
+  // ── ESAME OBIETTIVO ──
+  if(g['esame-generale']||g.speculum||g.prelievi||g.bimanuale){
+    body+=`<div style="margin-top:14px"><strong>ESAME OBIETTIVO:</strong></div>`;
+    if(g['esame-generale']) body+=`<p>${nl(g['esame-generale'])}</p>`;
+    if(g.speculum) body+=`<p><strong>Speculum:</strong> ${nl(g.speculum)}</p>`;
+    if(g.prelievi) body+=`<p><strong>Prelievi:</strong> ${nl(g.prelievi)}</p>`;
+    if(g.bimanuale) body+=`<p><strong>Esame bimanuale:</strong> ${nl(g.bimanuale)}</p>`;
+  }
+
+  // ── ECOGRAFIA ──
+  if(g.ecografia){
+    let strum=[g.ecografo,g.sonda].filter(Boolean).join(' · ');
+    body+=`<div style="margin-top:14px"><strong>ECOGRAFIA${strum?' ('+strum+')':''}:</strong><br>${nl(g.ecografia)}</div>`;
+    if(g.informativa) body+=`<p style="font-size:0.8rem;color:#666;font-style:italic;margin-top:6px">${GD.informativa}</p>`;
+  }
+
+  // ── CONCLUSIONI ──
+  if(g.conclusioni) body+=`<div style="background:#f5f5f5;padding:12px;border-radius:6px;margin-top:16px;"><strong>CONCLUSIONI:</strong><br>${nl(g.conclusioni)}</div>`;
+  if(g['esami-richiesti']) body+=`<p style="margin-top:12px;"><strong>ESAMI RICHIESTI:</strong><br>${nl(g['esami-richiesti'])}</p>`;
+  if(g.terapia) body+=`<p><strong>TERAPIA:</strong><br>${nl(g.terapia)}</p>`;
+  if(g.prossimi) body+=`<p><strong>PROSSIMI CONTROLLI:</strong> ${nl(g.prossimi)}</p>`;
+
   document.getElementById('p-body-print').innerHTML=body;
   window.print();
 }
