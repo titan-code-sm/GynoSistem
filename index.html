@@ -2742,6 +2742,58 @@ function syncPazienteFirebase(p){
     .catch(e=>console.warn('Firebase sync:',e));
 }
 
+// ═══════════════════════════════════════════════════
+//  IMPORT AUTOMATICO PAZIENTI DA GYNOBOOK
+// ═══════════════════════════════════════════════════
+// Quando una paziente viene creata su GynoBook, il documento su
+// Firestore nasce con importedToGynoSystem=false. Qui leggiamo
+// quei documenti, creiamo la cartella anagrafica locale (vuota,
+// pronta per visite/alerts) e segniamo il documento come importato
+// così non viene mai più riprocessato. Nessun dato clinico transita
+// mai su Firestore: solo nome, cognome, nascita, tel, email, cf, note.
+async function importaPazientiDaGynobook(){
+  if(!gsFirebaseReady||!gsDb)return;
+  try{
+    const snap=await gsDb.collection('pazienti').where('importedToGynoSystem','==',false).get();
+    if(snap.empty)return;
+    let importate=0;
+    for(const docSnap of snap.docs){
+      const d=docSnap.data();
+      const giaPresente=DB.pazienti.some(p=>p.fbId===docSnap.id);
+      if(!giaPresente){
+        const p={
+          id:Date.now()+importate,
+          fbId:docSnap.id,
+          nome:d.nome||'',
+          cognome:d.cognome||'',
+          nascita:d.nascita||'',
+          tel:d.tel||'',
+          email:d.email||'',
+          cf:(d.cf||'').toUpperCase(),
+          note:d.note||'',
+          visite:[],
+          alerts:[],
+          importataDaGynobook:true,
+          dataImport:new Date().toISOString()
+        };
+        DB.pazienti.push(p);
+        importate++;
+      }
+      // Segna come importata su Firestore (a prescindere) per non riprocessarla mai più.
+      // Non richiamiamo syncPazienteFirebase: il documento originale resta quello creato da GynoBook.
+      await gsDb.collection('pazienti').doc(docSnap.id).update({importedToGynoSystem:true}).catch(e=>console.warn('Flag import:',e));
+    }
+    if(importate>0){
+      salvaDB();
+      if(typeof renderPazienti==='function')renderPazienti();
+      if(typeof renderDashboard==='function')renderDashboard();
+      gsToast(`📥 ${importate} nuova/e cartella/e creata/e da GynoBook`,'gs-success');
+    }
+  }catch(e){
+    console.warn('Errore import pazienti da GynoBook:',e);
+  }
+}
+
 function renderPazienti(){
   const q=document.getElementById('search-bar').value.toLowerCase();
   const tb=document.getElementById('pazienti-tbody'); tb.innerHTML='';
@@ -3682,6 +3734,7 @@ function initFirebase() {
     setFbStatus('connected', 'Firebase connesso');
     loadAdminConfig();
     loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
+    importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
   } catch(e) {
     setFbStatus('error', 'Errore Firebase');
     console.warn('Firebase init error:', e.message);
