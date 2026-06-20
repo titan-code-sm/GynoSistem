@@ -1718,6 +1718,14 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 // ═══════════════════════════════════════════════════
 let DB = { pazienti:[], agenda:[] };
 
+// Hash SHA-256 (Web Crypto API nativa, nessuna libreria esterna).
+// Usata per le password studio e per la password di eliminazione paziente:
+// non vengono mai salvate o confrontate in chiaro.
+async function sha256Hex(text){
+  const buf=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
 // ═══════════════════════════════════════════════════
 //  GD — TEMPLATE FRASI PRECOMPILATE VISITA GINECOLOGICA
 // ═══════════════════════════════════════════════════
@@ -2328,6 +2336,7 @@ window.onload = () => {
   if(d) DB = JSON.parse(d);
   if(!DB.studi) DB.studi=[];
   if(typeof DB.orariLimitati!=='boolean') DB.orariLimitati=false; // default: apertura completa (comportamento attuale)
+  migraPasswordStudiInChiaro(); // una tantum: hasha eventuali password salvate prima di questa versione
   startClock();
   naviga('home');
   renderFarmaci();
@@ -2336,6 +2345,24 @@ window.onload = () => {
   // Carica configurazione da Firebase Admin
   initFirebase();
 };
+
+// Le password studio create con versioni precedenti erano salvate in chiaro.
+// Un hash SHA-256 è sempre una stringa di 64 caratteri hex: se troviamo un valore
+// più corto o non-hex, lo trattiamo come password in chiaro e lo convertiamo.
+async function migraPasswordStudiInChiaro(){
+  const isHash = v => typeof v==='string' && /^[0-9a-f]{64}$/.test(v);
+  let cambiato=false;
+  for(const s of DB.studi){
+    if(s.password && !isHash(s.password)){
+      s.password = await sha256Hex(s.password);
+      cambiato=true;
+    }
+  }
+  if(cambiato){
+    salvaDB();
+    console.log('Password studio migrate automaticamente a hash SHA-256.');
+  }
+}
 
 function startClock(){
   setInterval(()=>{
@@ -2944,13 +2971,21 @@ function salvaNote(){
   if(curPaz){DB.pazienti.find(x=>x.id===curPaz).note=document.getElementById('p-note').value;salvaDB();}
 }
 
+// Nota di sicurezza onesta: questa password è comunque presente nel codice sorgente
+// del file (chiunque apra l'HTML con "Visualizza sorgente" la può leggere). L'hash
+// qui sotto impedisce solo che compaia in chiaro a un'occhiata superficiale o in un
+// eventuale dump del database; non protegge da chi legge il codice della pagina.
+// Per una protezione reale servirebbe un controllo lato server (Firebase Auth + Cloud Functions).
+const DELETE_PAZ_PASS_HASH = "a50f1be1267a0efb40492d2ac7b85cda532885434385fc7a2dde9acddf978d36";
+
 async function eliminaPaziente(){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   if(!p)return;
   if(!confirm(`Eliminare definitivamente ${p.cognome} ${p.nome}?\n\nQuesta operazione cancellerà anche tutte le visite e i promemoria associati. È irreversibile.`))return;
   const pwd=prompt('Per confermare l\'eliminazione, digita la password:');
   if(pwd===null)return;
-  if(pwd!=='Samuele2025'){
+  const pwdHash=await sha256Hex(pwd);
+  if(pwdHash!==DELETE_PAZ_PASS_HASH){
     if(typeof gsToast==='function')gsToast('Password errata, eliminazione annullata','gs-error');
     else alert('Password errata, eliminazione annullata');
     return;
@@ -3920,6 +3955,7 @@ function apriNuovoStudio(){
   document.getElementById('ms-nome').value='';
   document.getElementById('ms-luogo').value='';
   document.getElementById('ms-password').value='';
+  document.getElementById('ms-password').placeholder='es. Novelune2025';
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
 }
@@ -3931,7 +3967,10 @@ function apriModificaStudio(id){
   document.getElementById('ms-title').textContent='Modifica Studio';
   document.getElementById('ms-nome').value=s.nome;
   document.getElementById('ms-luogo').value=s.luogo||'';
-  document.getElementById('ms-password').value=s.password||'';
+  // La password salvata è un hash: non si mostra mai in chiaro.
+  // Campo vuoto = "lascia inalterata"; scrivendo qualcosa la si sovrascrive.
+  document.getElementById('ms-password').value='';
+  document.getElementById('ms-password').placeholder=s.password?'•••••• (lascia vuoto per non modificarla)':'es. Novelune2025';
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
 }
@@ -3939,7 +3978,10 @@ function apriModificaStudio(id){
 function generaPasswordStudio(){
   const nome=document.getElementById('ms-nome').value.trim().replace(/[^a-zA-Z0-9]/g,'')||'Studio';
   const num=Math.floor(1000+Math.random()*9000);
-  document.getElementById('ms-password').value=nome+num;
+  const pwd=nome+num;
+  document.getElementById('ms-password').value=pwd;
+  document.getElementById('ms-password').dataset.plain=pwd; // per mostrarla una volta sola alla dottoressa
+  if(typeof gsToast==='function')gsToast(`Password generata: ${pwd} — copiala ora, non sarà più visibile dopo il salvataggio`,'gs-success');
 }
 
 function aggiungiFasciaForm(){
@@ -3977,13 +4019,15 @@ function renderFasceForm(){
 async function salvaStudio(){
   const nome=document.getElementById('ms-nome').value.trim();
   const luogo=document.getElementById('ms-luogo').value.trim();
-  const password=document.getElementById('ms-password').value.trim();
+  const passwordPlain=document.getElementById('ms-password').value.trim();
   if(!nome){ if(typeof gsToast==='function')gsToast('Il nome dello studio è obbligatorio','gs-error'); return; }
+  const passwordHash = passwordPlain ? await sha256Hex(passwordPlain) : null;
   if(editStudioId){
     const s=DB.studi.find(x=>x.id===editStudioId);
-    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp; s.password=password;
+    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp;
+    if(passwordHash!==null) s.password=passwordHash; // campo vuoto → mantiene l'hash esistente
   }else{
-    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp,password});
+    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp,password:passwordHash||''});
   }
   salvaDB();
   closeModal('m-studio');
