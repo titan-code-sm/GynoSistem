@@ -197,6 +197,20 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .badge-purple{background:rgba(175,82,222,0.12);color:var(--purple);}
 .badge-gray{background:rgba(142,142,147,0.15);color:var(--label4);}
 
+/* ─── DISPONIBILITÀ STUDI ─── */
+.dispo-switch{position:relative;display:inline-block;width:52px;height:30px;flex-shrink:0}
+.dispo-switch input{opacity:0;width:0;height:0}
+.dispo-slider{position:absolute;cursor:pointer;inset:0;background:rgba(142,142,147,0.35);border-radius:30px;transition:.2s}
+.dispo-slider::before{content:'';position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.dispo-switch input:checked + .dispo-slider{background:var(--green)}
+.dispo-switch input:checked + .dispo-slider::before{transform:translateX(22px)}
+.studio-card{border:1px solid var(--separator);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px}
+.studio-card-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.studio-fascia-pill{display:inline-flex;align-items:center;gap:6px;background:var(--primary-dim);color:var(--primary);font-size:.76rem;font-weight:600;padding:4px 10px;border-radius:14px;margin:0 6px 6px 0}
+.fascia-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.fascia-row select,.fascia-row input[type="time"]{width:auto;padding:7px 10px;font-size:.82rem}
+.fascia-row .fr-del{background:var(--red-dim);color:var(--red);border:none;width:28px;height:28px;border-radius:8px;cursor:pointer;flex-shrink:0}
+
 /* ─── TABLE ─── */
 .table-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
@@ -848,6 +862,9 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <button class="opts-item" onclick="naviga('appuntamenti');closeOpts()">
         <span class="oi">🗓️</span>Vedi Appuntamenti
       </button>
+      <button class="opts-item" onclick="naviga('disponibilita');closeOpts()">
+        <span class="oi">🏥</span>Disponibilità Studi
+      </button>
       <div class="opts-divider"></div>
       <button class="opts-item" onclick="backupData();closeOpts()">
         <span class="oi">💾</span>Esporta Backup
@@ -889,33 +906,6 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
   </div>
 
-  <div class="g4" style="margin-bottom:24px;">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--primary-dim);">👩‍⚕️</div>
-      <div class="stat-value" id="stat-paz">0</div>
-      <div class="stat-label">Pazienti Totali</div>
-      <div class="stat-trend trend-neutral">📊 Archivio Attivo</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--green-dim);">🏥</div>
-      <div class="stat-value" id="stat-visite">0</div>
-      <div class="stat-label">Visite Totali</div>
-      <div class="stat-trend trend-up">↑ Tutte le visite</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--orange-dim);">⚠️</div>
-      <div class="stat-value" id="stat-alert">0</div>
-      <div class="stat-label">Promemoria Attivi</div>
-      <div class="stat-trend trend-neutral">📌 Da verificare</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:rgba(175,82,222,0.12);">📆</div>
-      <div class="stat-value" id="stat-oggi">0</div>
-      <div class="stat-label">Visite Oggi</div>
-      <div class="stat-trend trend-up">✅ Giornata</div>
-    </div>
-  </div>
-
   <div class="g2">
     <div class="card">
       <div class="card-header">
@@ -942,6 +932,33 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <div><div class="card-title">Scadenze & Promemoria</div><div class="card-subtitle">Ordinate per data</div></div>
       </div>
       <div id="dashboard-alerts" style="max-height:400px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <div class="g4" style="margin-top:24px;">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--primary-dim);">👩‍⚕️</div>
+      <div class="stat-value" id="stat-paz">0</div>
+      <div class="stat-label">Pazienti Totali</div>
+      <div class="stat-trend trend-neutral">📊 Archivio Attivo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--green-dim);">🏥</div>
+      <div class="stat-value" id="stat-visite">0</div>
+      <div class="stat-label">Visite Totali</div>
+      <div class="stat-trend trend-up">↑ Tutte le visite</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--orange-dim);">⚠️</div>
+      <div class="stat-value" id="stat-alert">0</div>
+      <div class="stat-label">Promemoria Attivi</div>
+      <div class="stat-trend trend-neutral">📌 Da verificare</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(175,82,222,0.12);">📆</div>
+      <div class="stat-value" id="stat-oggi">0</div>
+      <div class="stat-label">Visite Oggi</div>
+      <div class="stat-trend trend-up">✅ Giornata</div>
     </div>
   </div>
 </div>
@@ -1111,25 +1128,20 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 
   <!-- Lista oggi -->
-  <div class="g2">
-    <div>
-      <div class="card">
-        <div class="card-header">
-          <div><div class="card-title">Oggi</div></div>
-          <span class="badge badge-green" id="appt-oggi-badge">0</span>
-        </div>
-        <div id="appt-oggi-list"></div>
-      </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div><div class="card-title">📅 Oggi</div></div>
+      <span class="badge badge-green" id="appt-oggi-badge">0</span>
     </div>
-    <div>
-      <div class="card">
-        <div class="card-header">
-          <div><div class="card-title">Prossimi 7 giorni</div></div>
-          <span class="badge badge-blue" id="appt-next-badge">0</span>
-        </div>
-        <div id="appt-next-list"></div>
-      </div>
+    <div id="appt-oggi-list"></div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div><div class="card-title">🗓️ Prossime Sedute</div></div>
+      <span class="badge badge-blue" id="appt-next-badge">0</span>
     </div>
+    <div id="appt-next-list"></div>
   </div>
 
   <!-- Tutti -->
@@ -1146,6 +1158,65 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
   </div>
 </div>
+
+<!-- DISPONIBILITÀ STUDI -->
+<div id="sec-disponibilita" class="section">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Disponibilità Studi</div>
+      <div class="page-subtitle">Giorni e orari di ricevimento, letti automaticamente da GynoBook</div>
+    </div>
+  </div>
+
+  <!-- Switch modalità prenotazioni -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div><div class="card-title">Modalità Prenotazioni su GynoBook</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 0">
+      <label class="dispo-switch">
+        <input type="checkbox" id="dispo-toggle" onchange="toggleOrariLimitati()">
+        <span class="dispo-slider"></span>
+      </label>
+      <div>
+        <div style="font-weight:700;font-size:.92rem" id="dispo-toggle-label">Apertura Completa</div>
+        <div style="font-size:.78rem;color:var(--label4)" id="dispo-toggle-sub">GynoBook accetta prenotazioni in qualsiasi giorno e orario</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista studi -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header">
+      <div><div class="card-title">I Tuoi Studi</div><div class="card-subtitle">Aggiungi gli studi dove ricevi e i relativi giorni/orari ricorrenti</div></div>
+      <button class="btn btn-primary btn-sm" onclick="apriNuovoStudio()">+ Nuovo Studio</button>
+    </div>
+    <div id="studi-list"></div>
+  </div>
+</div>
+
+<!-- Modal Studio (crea/modifica) -->
+<div id="m-studio" class="overlay">
+  <div class="modal-sm" style="width:560px">
+    <h3 id="ms-title">Nuovo Studio</h3>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Nome Studio *</label>
+      <input type="text" id="ms-nome" placeholder="es. Novelune, Studio Dr.ssa Guidi...">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Indirizzo / Luogo</label>
+      <input type="text" id="ms-luogo" placeholder="es. Via Roma 12, San Marino">
+    </div>
+    <div style="font-weight:700;font-size:.85rem;margin-bottom:10px">Giorni e Fasce Orarie (si ripetono ogni settimana)</div>
+    <div id="ms-fasce-list" style="margin-bottom:10px"></div>
+    <button class="btn btn-ghost btn-sm" onclick="aggiungiFasciaForm()" style="margin-bottom:18px">+ Aggiungi Fascia Oraria</button>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('m-studio')">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaStudio()">💾 Salva Studio</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- NUOVA PAZIENTE -->
 <div id="sec-nuova" class="section">
@@ -2247,6 +2318,8 @@ const GUIDE_DATA = {
 window.onload = () => {
   const d = localStorage.getItem('gynoDB_v15');
   if(d) DB = JSON.parse(d);
+  if(!DB.studi) DB.studi=[];
+  if(typeof DB.orariLimitati!=='boolean') DB.orariLimitati=false; // default: apertura completa (comportamento attuale)
   startClock();
   naviga('home');
   renderFarmaci();
@@ -2397,6 +2470,7 @@ function naviga(id){
   if(id==='farmacia') renderFarmaci();
   if(id==='backup') renderBackupStats();
   if(id==='appuntamenti') loadFBAppuntamenti();
+  if(id==='disponibilita') renderDisponibilita();
 }
 
 function salvaDB(){localStorage.setItem('gynoDB_v15',JSON.stringify(DB));}
@@ -3725,7 +3799,7 @@ function renderFBAppts(){
   const STATI={confermato:'<span class="badge badge-green">✅</span>',in_attesa:'<span class="badge badge-orange">⏳</span>',cancellato:'<span class="badge badge-red">❌</span>',completato:'<span class="badge badge-gray">✔️</span>'};
 
   const apptOggi=GS_APPTS.filter(a=>a.data===oggi);
-  const apptNext=GS_APPTS.filter(a=>a.data>oggi).slice(0,8);
+  const apptNext=GS_APPTS.filter(a=>a.data>oggi).slice(0,15);
   document.getElementById('appt-oggi-badge').textContent=apptOggi.length;
   document.getElementById('appt-next-badge').textContent=apptNext.length;
 
@@ -3772,6 +3846,161 @@ function renderFBAppts(){
 // Caricamento appuntamenti Firebase gestito direttamente in naviga()
 
 // ═══════════════════════════════════════════════════
+//  DISPONIBILITÀ STUDI
+// ═══════════════════════════════════════════════════
+// Struttura dati:
+// DB.studi = [{ id, nome, luogo, fasce:[{giorno:0-6, inizio:'09:00', fine:'13:00'}] }]
+// DB.orariLimitati = true|false  (true = GynoBook rispetta le fasce, false = apertura completa)
+// giorno: 0=Lunedì ... 6=Domenica (coerente con il calendario di GynoBook)
+const GIORNI_SETT=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+let editStudioId=null;
+let fasceTemp=[]; // fasce in editing nel modal, salvate solo al click su "Salva Studio"
+
+function renderDisponibilita(){
+  // Switch
+  const toggle=document.getElementById('dispo-toggle');
+  toggle.checked=!!DB.orariLimitati;
+  aggiornaLabelToggle();
+
+  // Lista studi
+  const c=document.getElementById('studi-list');
+  if(!DB.studi.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">🏥</div><p>Nessuno studio configurato. Aggiungine uno per definire i tuoi orari di ricevimento.</p></div>';
+    return;
+  }
+  c.innerHTML=DB.studi.map(s=>{
+    const fasceHtml=(s.fasce||[]).length
+      ? (s.fasce||[]).sort((a,b)=>a.giorno-b.giorno||a.inizio.localeCompare(b.inizio))
+          .map(f=>`<span class="studio-fascia-pill">📅 ${GIORNI_SETT[f.giorno]} · ${f.inizio}–${f.fine}</span>`).join('')
+      : '<span style="color:var(--label4);font-size:.8rem">Nessuna fascia oraria impostata</span>';
+    return `<div class="studio-card">
+      <div class="studio-card-hdr">
+        <div>
+          <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome}</div>
+          ${s.luogo?`<div style="font-size:.78rem;color:var(--label4)">📍 ${s.luogo}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="apriModificaStudio('${s.id}')" title="Modifica">✏️</button>
+          <button class="btn btn-sm btn-icon" style="background:var(--red-dim);color:var(--red)" onclick="eliminaStudio('${s.id}')" title="Elimina">🗑️</button>
+        </div>
+      </div>
+      <div>${fasceHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function aggiornaLabelToggle(){
+  const lim=DB.orariLimitati;
+  document.getElementById('dispo-toggle-label').textContent=lim?'Orari Limitati':'Apertura Completa';
+  document.getElementById('dispo-toggle-sub').textContent=lim
+    ?'GynoBook mostra solo i giorni/orari configurati per lo studio selezionato'
+    :'GynoBook accetta prenotazioni in qualsiasi giorno e orario';
+}
+
+async function toggleOrariLimitati(){
+  DB.orariLimitati=document.getElementById('dispo-toggle').checked;
+  salvaDB();
+  aggiornaLabelToggle();
+  await syncDisponibilitaFirebase();
+  if(typeof gsToast==='function')gsToast(DB.orariLimitati?'🔒 Orari Limitati attivati':'🔓 Apertura Completa attivata','gs-success');
+}
+
+function apriNuovoStudio(){
+  editStudioId=null;
+  fasceTemp=[];
+  document.getElementById('ms-title').textContent='Nuovo Studio';
+  document.getElementById('ms-nome').value='';
+  document.getElementById('ms-luogo').value='';
+  renderFasceForm();
+  document.getElementById('m-studio').classList.add('show');
+}
+
+function apriModificaStudio(id){
+  const s=DB.studi.find(x=>x.id===id);if(!s)return;
+  editStudioId=id;
+  fasceTemp=JSON.parse(JSON.stringify(s.fasce||[]));
+  document.getElementById('ms-title').textContent='Modifica Studio';
+  document.getElementById('ms-nome').value=s.nome;
+  document.getElementById('ms-luogo').value=s.luogo||'';
+  renderFasceForm();
+  document.getElementById('m-studio').classList.add('show');
+}
+
+function aggiungiFasciaForm(){
+  fasceTemp.push({giorno:0,inizio:'09:00',fine:'13:00'});
+  renderFasceForm();
+}
+
+function rimuoviFasciaForm(idx){
+  fasceTemp.splice(idx,1);
+  renderFasceForm();
+}
+
+function aggiornaFasciaForm(idx,campo,val){
+  fasceTemp[idx][campo]=campo==='giorno'?Number(val):val;
+}
+
+function renderFasceForm(){
+  const c=document.getElementById('ms-fasce-list');
+  if(!fasceTemp.length){
+    c.innerHTML='<div style="color:var(--label4);font-size:.82rem;margin-bottom:8px">Nessuna fascia ancora. Aggiungine una.</div>';
+    return;
+  }
+  c.innerHTML=fasceTemp.map((f,idx)=>`
+    <div class="fascia-row">
+      <select onchange="aggiornaFasciaForm(${idx},'giorno',this.value)">
+        ${GIORNI_SETT.map((g,i)=>`<option value="${i}" ${f.giorno===i?'selected':''}>${g}</option>`).join('')}
+      </select>
+      <input type="time" value="${f.inizio}" onchange="aggiornaFasciaForm(${idx},'inizio',this.value)">
+      <span style="color:var(--label4)">–</span>
+      <input type="time" value="${f.fine}" onchange="aggiornaFasciaForm(${idx},'fine',this.value)">
+      <button class="fr-del" onclick="rimuoviFasciaForm(${idx})">✕</button>
+    </div>`).join('');
+}
+
+async function salvaStudio(){
+  const nome=document.getElementById('ms-nome').value.trim();
+  const luogo=document.getElementById('ms-luogo').value.trim();
+  if(!nome){ if(typeof gsToast==='function')gsToast('Il nome dello studio è obbligatorio','gs-error'); return; }
+  if(editStudioId){
+    const s=DB.studi.find(x=>x.id===editStudioId);
+    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp;
+  }else{
+    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp});
+  }
+  salvaDB();
+  closeModal('m-studio');
+  renderDisponibilita();
+  await syncDisponibilitaFirebase();
+  if(typeof gsToast==='function')gsToast('✅ Studio salvato','gs-success');
+}
+
+async function eliminaStudio(id){
+  const s=DB.studi.find(x=>x.id===id);if(!s)return;
+  if(!confirm(`Eliminare lo studio "${s.nome}"? I suoi orari non saranno più disponibili su GynoBook.`))return;
+  DB.studi=DB.studi.filter(x=>x.id!==id);
+  salvaDB();
+  renderDisponibilita();
+  await syncDisponibilitaFirebase();
+  if(typeof gsToast==='function')gsToast('🗑️ Studio eliminato','gs-success');
+}
+
+// Pubblica la configurazione su Firestore così GynoBook la legge in tempo reale.
+// Nessun dato clinico coinvolto: solo nomi studi, luoghi e fasce orarie.
+async function syncDisponibilitaFirebase(){
+  if(!gsFirebaseReady||!gsDb)return;
+  try{
+    await gsDb.collection('config').doc('disponibilita').set({
+      studi: DB.studi,
+      orariLimitati: DB.orariLimitati,
+      updatedAt: new Date().toISOString()
+    });
+  }catch(e){
+    console.warn('Errore sync disponibilità:',e);
+  }
+}
+
+// ═══════════════════════════════════════════════════
 //  FIREBASE INTEGRATION
 // ═══════════════════════════════════════════════════
 const GS_FIREBASE_CONFIG = {
@@ -3793,6 +4022,7 @@ function initFirebase() {
     loadAdminConfig();
     loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
     importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
+    syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
   } catch(e) {
     setFbStatus('error', 'Errore Firebase');
     console.warn('Firebase init error:', e.message);
