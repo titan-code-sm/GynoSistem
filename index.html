@@ -1198,9 +1198,12 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <div class="form-group"><label class="form-label">Email</label><input id="e-email"></div>
       <div class="form-group"><label class="form-label">CF</label><input id="e-cf"></div>
     </div>
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <button class="btn btn-primary" onclick="updateAnagrafica()">Salva Modifiche</button>
-      <button class="btn btn-ghost" onclick="toggleEdit()">Annulla</button>
+    <div style="display:flex;gap:10px;margin-top:16px;justify-content:space-between;">
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" onclick="updateAnagrafica()">Salva Modifiche</button>
+        <button class="btn btn-ghost" onclick="toggleEdit()">Annulla</button>
+      </div>
+      <button class="btn" style="background:var(--red-dim);color:var(--red);border:1px solid var(--red-dim);" onclick="eliminaPaziente()">🗑️ Elimina Paziente</button>
     </div>
   </div>
 
@@ -2859,6 +2862,34 @@ function salvaNote(){
   if(curPaz){DB.pazienti.find(x=>x.id===curPaz).note=document.getElementById('p-note').value;salvaDB();}
 }
 
+async function eliminaPaziente(){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p)return;
+  if(!confirm(`Eliminare definitivamente ${p.cognome} ${p.nome}?\n\nQuesta operazione cancellerà anche tutte le visite e i promemoria associati. È irreversibile.`))return;
+  const pwd=prompt('Per confermare l\'eliminazione, digita la password:');
+  if(pwd===null)return;
+  if(pwd!=='Samuele2025'){
+    if(typeof gsToast==='function')gsToast('Password errata, eliminazione annullata','gs-error');
+    else alert('Password errata, eliminazione annullata');
+    return;
+  }
+  // Rimuove la paziente dal DB locale (dati clinici)
+  DB.pazienti=DB.pazienti.filter(x=>x.id!==curPaz);
+  salvaDB();
+  // Rimuove anche l'anagrafica corrispondente su Firestore, se presente
+  if(gsFirebaseReady&&gsDb){
+    try{ await gsDb.collection('pazienti').doc(String(curPaz)).delete(); }catch(e){ console.warn('Eliminazione Firebase:',e); }
+    if(p.fbId){
+      try{ await gsDb.collection('pazienti').doc(p.fbId).delete(); }catch(e){ console.warn('Eliminazione Firebase (fbId):',e); }
+    }
+  }
+  curPaz=null;
+  naviga('archivio');
+  if(typeof renderPazienti==='function')renderPazienti();
+  if(typeof renderDashboard==='function')renderDashboard();
+  if(typeof gsToast==='function')gsToast('🗑️ Paziente eliminata definitivamente','gs-success');
+}
+
 // ═══════════════════════════════════════════════════
 //  STORICO
 // ═══════════════════════════════════════════════════
@@ -3141,6 +3172,33 @@ function salvaVisita(){
   document.getElementById('editor-min-bar').classList.remove('show');
   renderVisiteList(p);
   scaricaVisitaJSON(p, v); // download automatico JSON
+  completaAppuntamentoFirebase(p, v.data); // segna come completato l'eventuale prenotazione GynoBook collegata
+}
+
+// Quando una visita viene registrata su GynoSystem, l'appuntamento corrispondente
+// prenotato da GynoBook (stessa paziente, stessa data) passa automaticamente a "completato".
+// Nessun dato clinico viene scritto su Firestore: solo il campo "stato" dell'appuntamento.
+async function completaAppuntamentoFirebase(p, dataVisita){
+  if(!gsFirebaseReady||!gsDb||!p)return;
+  try{
+    const possibiliId=[String(p.id)];
+    if(p.fbId) possibiliId.push(p.fbId);
+    const snap=await gsDb.collection('appuntamenti').where('data','==',dataVisita).get();
+    if(snap.empty)return;
+    const batchUpdates=[];
+    snap.forEach(doc=>{
+      const a=doc.data();
+      if(possibiliId.includes(a.pazienteId) && a.stato!=='completato'){
+        batchUpdates.push(gsDb.collection('appuntamenti').doc(doc.id).update({stato:'completato'}));
+      }
+    });
+    if(batchUpdates.length){
+      await Promise.all(batchUpdates);
+      if(typeof gsToast==='function')gsToast('📅 Prenotazione GynoBook segnata come completata','gs-success');
+    }
+  }catch(e){
+    console.warn('Errore aggiornamento stato appuntamento:',e);
+  }
 }
 
 function scaricaVisitaJSON(p, v){
