@@ -1207,6 +1207,14 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <label class="form-label">Indirizzo / Luogo</label>
       <input type="text" id="ms-luogo" placeholder="es. Via Roma 12, San Marino">
     </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Password Accesso</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="ms-password" placeholder="es. Novelune2025" style="flex:1">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="generaPasswordStudio()" title="Genera password">🎲</button>
+      </div>
+      <div style="font-size:.75rem;color:var(--label4);margin-top:6px">Lo studio la inserirà al primo accesso su GynoBook. Lascia vuoto per nessuna protezione.</div>
+    </div>
     <div style="font-weight:700;font-size:.85rem;margin-bottom:10px">Giorni e Fasce Orarie (si ripetono ogni settimana)</div>
     <div id="ms-fasce-list" style="margin-bottom:10px"></div>
     <button class="btn btn-ghost btn-sm" onclick="aggiungiFasciaForm()" style="margin-bottom:18px">+ Aggiungi Fascia Oraria</button>
@@ -3876,7 +3884,7 @@ function renderDisponibilita(){
     return `<div class="studio-card">
       <div class="studio-card-hdr">
         <div>
-          <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome}</div>
+          <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome} ${s.password?'<span class="badge badge-green" style="margin-left:6px">🔒 Protetto</span>':'<span class="badge badge-gray" style="margin-left:6px">🔓 Senza password</span>'}</div>
           ${s.luogo?`<div style="font-size:.78rem;color:var(--label4)">📍 ${s.luogo}</div>`:''}
         </div>
         <div style="display:flex;gap:6px">
@@ -3911,6 +3919,7 @@ function apriNuovoStudio(){
   document.getElementById('ms-title').textContent='Nuovo Studio';
   document.getElementById('ms-nome').value='';
   document.getElementById('ms-luogo').value='';
+  document.getElementById('ms-password').value='';
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
 }
@@ -3922,8 +3931,15 @@ function apriModificaStudio(id){
   document.getElementById('ms-title').textContent='Modifica Studio';
   document.getElementById('ms-nome').value=s.nome;
   document.getElementById('ms-luogo').value=s.luogo||'';
+  document.getElementById('ms-password').value=s.password||'';
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
+}
+
+function generaPasswordStudio(){
+  const nome=document.getElementById('ms-nome').value.trim().replace(/[^a-zA-Z0-9]/g,'')||'Studio';
+  const num=Math.floor(1000+Math.random()*9000);
+  document.getElementById('ms-password').value=nome+num;
 }
 
 function aggiungiFasciaForm(){
@@ -3961,12 +3977,13 @@ function renderFasceForm(){
 async function salvaStudio(){
   const nome=document.getElementById('ms-nome').value.trim();
   const luogo=document.getElementById('ms-luogo').value.trim();
+  const password=document.getElementById('ms-password').value.trim();
   if(!nome){ if(typeof gsToast==='function')gsToast('Il nome dello studio è obbligatorio','gs-error'); return; }
   if(editStudioId){
     const s=DB.studi.find(x=>x.id===editStudioId);
-    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp;
+    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp; s.password=password;
   }else{
-    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp});
+    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp,password});
   }
   salvaDB();
   closeModal('m-studio');
