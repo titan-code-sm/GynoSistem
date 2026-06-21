@@ -1168,23 +1168,6 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
   </div>
 
-  <!-- Switch modalità prenotazioni -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header">
-      <div><div class="card-title">Modalità Prenotazioni su GynoBook</div></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 0">
-      <label class="dispo-switch">
-        <input type="checkbox" id="dispo-toggle" onchange="toggleOrariLimitati()">
-        <span class="dispo-slider"></span>
-      </label>
-      <div>
-        <div style="font-weight:700;font-size:.92rem" id="dispo-toggle-label">Apertura Completa</div>
-        <div style="font-size:.78rem;color:var(--label4)" id="dispo-toggle-sub">GynoBook accetta prenotazioni in qualsiasi giorno e orario</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Lista studi -->
   <div class="card" style="margin-bottom:16px">
     <div class="card-header">
@@ -1214,6 +1197,27 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <button type="button" class="btn btn-ghost btn-sm" onclick="generaPasswordStudio()" title="Genera password">🎲</button>
       </div>
       <div style="font-size:.75rem;color:var(--label4);margin-top:6px">Lo studio la inserirà al primo accesso su GynoBook. Lascia vuoto per nessuna protezione.</div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Durata Slot Visita</label>
+      <select id="ms-durata-slot">
+        <option value="15">15 minuti</option>
+        <option value="20">20 minuti</option>
+        <option value="30" selected>30 minuti</option>
+        <option value="45">45 minuti</option>
+        <option value="60">60 minuti</option>
+        <option value="90">90 minuti</option>
+      </select>
+      <div style="font-size:.75rem;color:var(--label4);margin-top:6px">Su GynoBook gli orari prenotabili per questo studio saranno spezzettati con questo intervallo.</div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;background:var(--surface-2);border-radius:var(--radius);padding:14px">
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer">
+        <span class="dispo-switch"><input type="checkbox" id="ms-orari-limitati"><span class="dispo-slider"></span></span>
+        <span>
+          <div style="font-weight:700;font-size:.88rem">Limita ai giorni/orari indicati</div>
+          <div style="font-size:.75rem;color:var(--label4)">Se disattivato, questo studio può prenotare in qualsiasi giorno e orario</div>
+        </span>
+      </label>
     </div>
     <div style="font-weight:700;font-size:.85rem;margin-bottom:10px">Giorni e Fasce Orarie (si ripetono ogni settimana)</div>
     <div id="ms-fasce-list" style="margin-bottom:10px"></div>
@@ -2335,7 +2339,6 @@ window.onload = () => {
   const d = localStorage.getItem('gynoDB_v15');
   if(d) DB = JSON.parse(d);
   if(!DB.studi) DB.studi=[];
-  if(typeof DB.orariLimitati!=='boolean') DB.orariLimitati=false; // default: apertura completa (comportamento attuale)
   migraPasswordStudiInChiaro(); // una tantum: hasha eventuali password salvate prima di questa versione
   startClock();
   naviga('home');
@@ -2349,6 +2352,7 @@ window.onload = () => {
 // Le password studio create con versioni precedenti erano salvate in chiaro.
 // Un hash SHA-256 è sempre una stringa di 64 caratteri hex: se troviamo un valore
 // più corto o non-hex, lo trattiamo come password in chiaro e lo convertiamo.
+// Inizializza anche durataSlot/orariLimitati sugli studi creati prima di questi campi.
 async function migraPasswordStudiInChiaro(){
   const isHash = v => typeof v==='string' && /^[0-9a-f]{64}$/.test(v);
   let cambiato=false;
@@ -2357,10 +2361,12 @@ async function migraPasswordStudiInChiaro(){
       s.password = await sha256Hex(s.password);
       cambiato=true;
     }
+    if(typeof s.durataSlot!=='number'){ s.durataSlot=30; cambiato=true; }
+    if(typeof s.orariLimitati!=='boolean'){ s.orariLimitati=false; cambiato=true; }
   }
   if(cambiato){
     salvaDB();
-    console.log('Password studio migrate automaticamente a hash SHA-256.');
+    console.log('Studi migrati: password→hash, durataSlot/orariLimitati inizializzati.');
   }
 }
 
@@ -3848,6 +3854,9 @@ function renderFBAppts(){
 
   function apptRow(a,showDate=false){
     const dStr=showDate?new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' ':'';
+    const localId=trovaPazienteLocaleId(a.pazienteId);
+    const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
+    const centroHtml=a.createdByOrg?`<span class="badge badge-blue" style="margin-left:6px">🏥 ${a.createdByOrg}</span>`:'<span class="badge badge-purple" style="margin-left:6px">👩‍⚕️ Dr.ssa Guidi</span>';
     return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid var(--separator)">
       <div style="min-width:44px;text-align:center;flex-shrink:0">
         ${showDate?`<div style="font-size:.65rem;color:var(--label4);font-weight:700">${dStr}</div>`:''}
@@ -3855,7 +3864,7 @@ function renderFBAppts(){
         <div style="font-size:.7rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
       </div>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:.875rem;color:var(--label)">${a.pazienteNome||'–'}</div>
+        <div style="font-weight:700;font-size:.875rem;color:var(--label)" ${nomeClick}>${a.pazienteNome||'–'} ${centroHtml}</div>
         <div style="font-size:.78rem;color:var(--label3)">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.durata?'· '+a.durata+' min':''}</div>
         ${a.note?`<div style="font-size:.75rem;color:var(--label4);margin-top:3px;font-style:italic">${a.note}</div>`:''}
       </div>
@@ -3876,14 +3885,35 @@ function renderFBAppts(){
   document.getElementById('appt-all-badge').textContent=filtered.length;
   const tb=document.getElementById('appt-all-tbody');
   if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--label4);padding:24px">Nessun appuntamento con questi filtri</td></tr>';return;}
-  tb.innerHTML=filtered.map(a=>`<tr>
+  tb.innerHTML=filtered.map(a=>{
+    const localId=trovaPazienteLocaleId(a.pazienteId);
+    const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
+    const centroHtml=a.createdByOrg?`<div style="font-size:.7rem;color:var(--primary);font-weight:600">🏥 ${a.createdByOrg}</div>`:`<div style="font-size:.7rem;color:var(--purple);font-weight:600">👩‍⚕️ Dr.ssa Guidi</div>`;
+    return `<tr>
     <td><strong>${new Date(a.data+'T12:00:00').toLocaleDateString('it-IT')}</strong><br><span style="color:var(--label4);font-size:.8rem">${a.ora||'–'}</span></td>
-    <td class="td-name">${a.pazienteNome||'–'}</td>
+    <td class="td-name"><span ${nomeClick}>${a.pazienteNome||'–'}</span>${centroHtml}</td>
     <td>${ICONS[a.tipo]||'🩺'} ${a.tipo||'–'}</td>
     <td>${a.durata?a.durata+' min':'–'}</td>
     <td>${STATI[a.stato]||''}</td>
     <td style="font-size:.8rem;color:var(--label4);max-width:180px">${a.note||'–'}</td>
-  </tr>`).join('');
+  </tr>`;
+  }).join('');
+}
+
+// Trova l'id locale (DB.pazienti) corrispondente a un pazienteId Firestore.
+// I documenti creati da GynoSystem usano come id Firestore lo stesso id locale (String(p.id));
+// quelli importati da GynoBook hanno l'id locale salvato in p.fbId.
+function trovaPazienteLocaleId(firestorePazienteId){
+  if(!firestorePazienteId)return null;
+  const p=DB.pazienti.find(x=>String(x.id)===firestorePazienteId || x.fbId===firestorePazienteId);
+  return p?p.id:null;
+}
+
+// Click sul nome paziente in un appuntamento → apre direttamente la sua cartella,
+// pronta per registrare una nuova visita. openPaziente() naviga già internamente.
+// L'id arriva come stringa dall'attributo onclick: va convertito a numero per il confronto in DB.pazienti.
+function apriCartellaDaAppuntamento(localPazienteId){
+  openPaziente(Number(localPazienteId));
 }
 
 // Caricamento appuntamenti Firebase gestito direttamente in naviga()
@@ -3892,20 +3922,17 @@ function renderFBAppts(){
 //  DISPONIBILITÀ STUDI
 // ═══════════════════════════════════════════════════
 // Struttura dati:
-// DB.studi = [{ id, nome, luogo, fasce:[{giorno:0-6, inizio:'09:00', fine:'13:00'}] }]
-// DB.orariLimitati = true|false  (true = GynoBook rispetta le fasce, false = apertura completa)
+// DB.studi = [{ id, nome, luogo, password, durataSlot:30,
+//               orariLimitati:false, fasce:[{giorno:0-6, inizio:'09:00', fine:'13:00'}] }]
+// orariLimitati è una proprietà di OGNI studio (non più globale):
+//   true  = GynoBook mostra solo i giorni/orari configurati per questo studio, in rosso gli altri
+//   false = questo studio può prenotare in qualsiasi giorno e orario
 // giorno: 0=Lunedì ... 6=Domenica (coerente con il calendario di GynoBook)
 const GIORNI_SETT=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 let editStudioId=null;
 let fasceTemp=[]; // fasce in editing nel modal, salvate solo al click su "Salva Studio"
 
 function renderDisponibilita(){
-  // Switch
-  const toggle=document.getElementById('dispo-toggle');
-  toggle.checked=!!DB.orariLimitati;
-  aggiornaLabelToggle();
-
-  // Lista studi
   const c=document.getElementById('studi-list');
   if(!DB.studi.length){
     c.innerHTML='<div class="empty-state"><div class="es-icon">🏥</div><p>Nessuno studio configurato. Aggiungine uno per definire i tuoi orari di ricevimento.</p></div>';
@@ -3921,31 +3948,29 @@ function renderDisponibilita(){
         <div>
           <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome} ${s.password?'<span class="badge badge-green" style="margin-left:6px">🔒 Protetto</span>':'<span class="badge badge-gray" style="margin-left:6px">🔓 Senza password</span>'}</div>
           ${s.luogo?`<div style="font-size:.78rem;color:var(--label4)">📍 ${s.luogo}</div>`:''}
+          <div style="font-size:.78rem;color:var(--label4)">⏱️ Slot da ${s.durataSlot||30} min</div>
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn btn-ghost btn-sm btn-icon" onclick="apriModificaStudio('${s.id}')" title="Modifica">✏️</button>
           <button class="btn btn-sm btn-icon" style="background:var(--red-dim);color:var(--red)" onclick="eliminaStudio('${s.id}')" title="Elimina">🗑️</button>
         </div>
       </div>
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;background:var(--surface-2);border-radius:10px">
+        <span class="dispo-switch"><input type="checkbox" ${s.orariLimitati?'checked':''} onchange="toggleOrariLimitatiStudio('${s.id}',this.checked)"><span class="dispo-slider"></span></span>
+        <span style="font-size:.82rem;font-weight:600">${s.orariLimitati?'🔒 Limitato ai giorni/orari indicati':'🔓 Apertura Completa (nessun limite)'}</span>
+      </div>
       <div>${fasceHtml}</div>
     </div>`;
   }).join('');
 }
 
-function aggiornaLabelToggle(){
-  const lim=DB.orariLimitati;
-  document.getElementById('dispo-toggle-label').textContent=lim?'Orari Limitati':'Apertura Completa';
-  document.getElementById('dispo-toggle-sub').textContent=lim
-    ?'GynoBook mostra solo i giorni/orari configurati per lo studio selezionato'
-    :'GynoBook accetta prenotazioni in qualsiasi giorno e orario';
-}
-
-async function toggleOrariLimitati(){
-  DB.orariLimitati=document.getElementById('dispo-toggle').checked;
+async function toggleOrariLimitatiStudio(studioId,checked){
+  const s=DB.studi.find(x=>x.id===studioId);if(!s)return;
+  s.orariLimitati=checked;
   salvaDB();
-  aggiornaLabelToggle();
+  renderDisponibilita();
   await syncDisponibilitaFirebase();
-  if(typeof gsToast==='function')gsToast(DB.orariLimitati?'🔒 Orari Limitati attivati':'🔓 Apertura Completa attivata','gs-success');
+  if(typeof gsToast==='function')gsToast(checked?`🔒 ${s.nome}: orari limitati attivati`:`🔓 ${s.nome}: apertura completa`,'gs-success');
 }
 
 function apriNuovoStudio(){
@@ -3956,6 +3981,8 @@ function apriNuovoStudio(){
   document.getElementById('ms-luogo').value='';
   document.getElementById('ms-password').value='';
   document.getElementById('ms-password').placeholder='es. Novelune2025';
+  document.getElementById('ms-durata-slot').value='30';
+  document.getElementById('ms-orari-limitati').checked=false;
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
 }
@@ -3971,6 +3998,8 @@ function apriModificaStudio(id){
   // Campo vuoto = "lascia inalterata"; scrivendo qualcosa la si sovrascrive.
   document.getElementById('ms-password').value='';
   document.getElementById('ms-password').placeholder=s.password?'•••••• (lascia vuoto per non modificarla)':'es. Novelune2025';
+  document.getElementById('ms-durata-slot').value=String(s.durataSlot||30);
+  document.getElementById('ms-orari-limitati').checked=!!s.orariLimitati;
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
 }
@@ -3980,7 +4009,6 @@ function generaPasswordStudio(){
   const num=Math.floor(1000+Math.random()*9000);
   const pwd=nome+num;
   document.getElementById('ms-password').value=pwd;
-  document.getElementById('ms-password').dataset.plain=pwd; // per mostrarla una volta sola alla dottoressa
   if(typeof gsToast==='function')gsToast(`Password generata: ${pwd} — copiala ora, non sarà più visibile dopo il salvataggio`,'gs-success');
 }
 
@@ -4020,14 +4048,16 @@ async function salvaStudio(){
   const nome=document.getElementById('ms-nome').value.trim();
   const luogo=document.getElementById('ms-luogo').value.trim();
   const passwordPlain=document.getElementById('ms-password').value.trim();
+  const durataSlot=Number(document.getElementById('ms-durata-slot').value)||30;
+  const orariLimitati=document.getElementById('ms-orari-limitati').checked;
   if(!nome){ if(typeof gsToast==='function')gsToast('Il nome dello studio è obbligatorio','gs-error'); return; }
   const passwordHash = passwordPlain ? await sha256Hex(passwordPlain) : null;
   if(editStudioId){
     const s=DB.studi.find(x=>x.id===editStudioId);
-    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp;
+    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp; s.durataSlot=durataSlot; s.orariLimitati=orariLimitati;
     if(passwordHash!==null) s.password=passwordHash; // campo vuoto → mantiene l'hash esistente
   }else{
-    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp,password:passwordHash||''});
+    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp,password:passwordHash||'',durataSlot,orariLimitati});
   }
   salvaDB();
   closeModal('m-studio');
@@ -4047,13 +4077,13 @@ async function eliminaStudio(id){
 }
 
 // Pubblica la configurazione su Firestore così GynoBook la legge in tempo reale.
-// Nessun dato clinico coinvolto: solo nomi studi, luoghi e fasce orarie.
+// Nessun dato clinico coinvolto: solo nomi studi, luoghi, fasce orarie, durata slot.
+// orariLimitati e durataSlot sono proprietà di OGNI studio (dentro l'array studi).
 async function syncDisponibilitaFirebase(){
   if(!gsFirebaseReady||!gsDb)return;
   try{
     await gsDb.collection('config').doc('disponibilita').set({
       studi: DB.studi,
-      orariLimitati: DB.orariLimitati,
       updatedAt: new Date().toISOString()
     });
   }catch(e){
