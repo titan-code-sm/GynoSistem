@@ -2731,7 +2731,7 @@ function renderAlertsHome(){
   const righe=[
     ...fbProssimi.map(a=>({tipo:'appuntamento',data:a.data,a})),
     ...promemoria.map(i=>({tipo:'promemoria',data:i.a.data,p:i.p,a:i.a}))
-  ].sort((x,y)=>x.data.localeCompare(y.data));
+  ].sort((x,y)=>(x.data||'').localeCompare(y.data||''));
 
   if(!righe.length){
     c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun appuntamento o promemoria attivo</p></div>';
@@ -3082,7 +3082,7 @@ async function importaPazientiDaGynobook(){
 function renderPazienti(){
   const q=document.getElementById('search-bar').value.toLowerCase();
   const tb=document.getElementById('pazienti-tbody'); tb.innerHTML='';
-  const filtered=DB.pazienti.filter(p=>(p.nome+' '+p.cognome).toLowerCase().includes(q)).sort((a,b)=>a.cognome.localeCompare(b.cognome));
+  const filtered=DB.pazienti.filter(p=>(p.nome+' '+p.cognome).toLowerCase().includes(q)).sort((a,b)=>(a.cognome||'').localeCompare(b.cognome||''));
   document.getElementById('pazienti-count').textContent=`${filtered.length} pazienti`;
   if(!filtered.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--label4);padding:40px;">Nessun paziente trovato</td></tr>';return;}
   filtered.forEach(p=>{
@@ -3394,7 +3394,9 @@ function delAlert(id){const p=DB.pazienti.find(x=>x.id===curPaz);p.alerts=p.aler
 // ═══════════════════════════════════════════════════
 //  EDITOR REFERTO
 // ═══════════════════════════════════════════════════
-function openTypeModal(){startEditor('gyno');}
+function openTypeModal(){
+  document.getElementById('modal-type').classList.add('show');
+}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
 // Minimizza la finestra visita nella barra inferiore
@@ -3418,6 +3420,7 @@ function confermaAnnullaVisita(){
 }
 
 function startEditor(tipo, vid=null){
+  try{
   // Barriera di sicurezza: una visita salvata in un giorno precedente non è più modificabile.
   if(vid){
     const p=DB.pazienti.find(x=>x.id===curPaz);
@@ -3466,6 +3469,10 @@ function startEditor(tipo, vid=null){
   setEditorTab(firstBtn,meta.firstTab);
 
   if(vid) loadVisita(vid);
+  }catch(e){
+    console.error('[DEBUG startEditor] Errore con tipo=',tipo,'vid=',vid,':',e);
+    alert('Errore apertura editor ('+tipo+'): '+e.message);
+  }
 }
 
 function setEditorTab(btn,id){
@@ -4399,7 +4406,7 @@ function renderFBAppts(){
   let filtered=[...GS_APPTS];
   if(filtDate)filtered=filtered.filter(a=>a.data===filtDate);
   if(filtTipo)filtered=filtered.filter(a=>a.tipo===filtTipo);
-  filtered.sort((a,b)=>a.data===b.data?a.ora.localeCompare(b.ora):b.data.localeCompare(a.data));
+  filtered.sort((a,b)=>(a.data||'')===(b.data||'')?(a.ora||'').localeCompare(b.ora||''):(b.data||'').localeCompare(a.data||''));
   document.getElementById('appt-all-badge').textContent=filtered.length;
   const tb=document.getElementById('appt-all-tbody');
   if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--label4);padding:24px">Nessun appuntamento con questi filtri</td></tr>';return;}
