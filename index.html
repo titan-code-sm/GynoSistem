@@ -2748,7 +2748,7 @@ function renderAlertsHome(){
       return `<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
         <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
         <span class="alert-text">
-          <strong ${nameClick}>${a.pazienteNome||'–'}${paz?' ↗':''}</strong>
+          <strong ${nameClick}>${a.pazienteNome||'–'}${localId?' ↗':''}</strong>
           <span style="color:var(--label4);font-size:.75rem"> ${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.ora?'· '+a.ora:''}</span>
           ${a.createdBy?`<span style="color:var(--label4);font-size:.72rem"> · 👤${a.createdBy}</span>`:''}
         </span>
