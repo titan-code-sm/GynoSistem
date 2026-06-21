@@ -1050,6 +1050,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost" onclick="loadFBAppuntamenti()">🔄 Sincronizza</button>
+      <button class="btn btn-primary" onclick="apriNuovaPrenotazioneGS()">+ Nuovo Appuntamento</button>
       <button class="btn btn-primary" onclick="window.open('GynoBook.html','_blank')">↗ Apri GynoBook</button>
     </div>
   </div>
@@ -1179,6 +1180,59 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 </div>
 
+<!-- Modal Nuova Prenotazione da GynoSystem -->
+<div id="m-nuova-prenotazione" class="overlay">
+  <div class="modal-sm" style="width:520px">
+    <h3>📅 Nuova Prenotazione</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:16px">Apparirà anche su GynoBook, con l'indicazione che è stata creata da te.</p>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Paziente *</label>
+      <div class="paz-search-wrap">
+        <input type="text" id="np-paz-search" placeholder="🔍 Cerca per nome o cognome..." oninput="searchNpPaz(this.value)" autocomplete="off">
+        <div id="np-paz-dropdown" class="paz-dropdown"></div>
+      </div>
+      <div id="np-paz-chip" style="display:none;margin-top:6px"></div>
+    </div>
+
+    <div class="field-row r2" style="margin-bottom:14px">
+      <div class="form-group"><label class="form-label">Data *</label><input type="date" id="np-data"></div>
+      <div class="form-group"><label class="form-label">Ora *</label><input type="time" id="np-ora"></div>
+    </div>
+
+    <div class="field-row r2" style="margin-bottom:14px">
+      <div class="form-group">
+        <label class="form-label">Tipo Visita *</label>
+        <select id="np-tipo">
+          <option value="">-- Seleziona --</option>
+          <option value="ginecologica">🌸 Visita Ginecologica</option>
+          <option value="ostetrica">🤰 Visita Ostetrica</option>
+          <option value="ecografia">🖥️ Ecografia</option>
+          <option value="primo_accesso">🔬 Primo Accesso</option>
+          <option value="controllo">💊 Controllo Farmacologico</option>
+          <option value="ritiro_referto">📋 Ritiro Referto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Durata (min)</label>
+        <select id="np-durata">
+          <option value="20">20 min</option><option value="30" selected>30 min</option>
+          <option value="45">45 min</option><option value="60">60 min</option><option value="90">90 min</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:18px">
+      <label class="form-label">Note (opzionale)</label>
+      <textarea id="np-note" rows="2"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('m-nuova-prenotazione')">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaPrenotazioneGS()">💾 Salva Prenotazione</button>
+    </div>
+  </div>
+</div>
 
 <!-- NUOVA PAZIENTE -->
 <div id="sec-nuova" class="section">
@@ -1203,12 +1257,52 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 <div id="sec-ricettario" class="section">
   <div class="page-header">
     <div><div class="page-title">Ricettario</div><div class="page-subtitle">Tutte le terapie prescritte, per paziente e data</div></div>
+    <button class="btn btn-primary" onclick="apriRicettaVergine()">🆕 Ricetta Vergine</button>
   </div>
   <div class="card" style="margin-bottom:16px">
     <input type="text" id="ricettario-search" oninput="renderRicettario()" placeholder="🔍 Cerca per nome paziente o farmaco..." style="margin-bottom:0">
   </div>
   <div class="card">
     <div id="ricettario-list"></div>
+  </div>
+</div>
+
+<!-- Modal Ricetta Vergine: layout classico, stampabile, con intestazione personalizzabile -->
+<div id="m-ricetta-vergine" class="overlay">
+  <div class="modal-sm" style="width:640px;max-height:90vh;overflow-y:auto">
+    <h3>🆕 Nuova Ricetta</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:16px">Compila i campi e stampa. L'intestazione si può personalizzare una sola volta qui sotto.</p>
+
+    <div class="field-row r2" style="margin-bottom:14px">
+      <div class="form-group"><label class="form-label">Paziente</label><input type="text" id="rxv-paziente" placeholder="Nome e cognome (opzionale)"></div>
+      <div class="form-group"><label class="form-label">Data</label><input type="date" id="rxv-data"></div>
+    </div>
+
+    <div class="form-group" style="margin-bottom:18px">
+      <label class="form-label">Prescrizione</label>
+      <textarea id="rxv-testo" rows="8" placeholder="es. Acido folico 400mcg — 1 compressa al giorno per 3 mesi&#10;Progesterone 200mg — 1 ovulo vaginale alla sera"></textarea>
+    </div>
+
+    <details style="margin-bottom:18px">
+      <summary style="cursor:pointer;font-size:.82rem;font-weight:700;color:var(--label3)">⚙️ Personalizza intestazione (una sola volta)</summary>
+      <div style="margin-top:12px">
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Nome Medico</label><input type="text" id="rxv-cfg-nome" placeholder="Dr.ssa Cristina Guidi"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Specializzazione</label><input type="text" id="rxv-cfg-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Indirizzo Studio</label><input type="text" id="rxv-cfg-indirizzo" placeholder="Via Roma 12, San Marino"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Telefono / Email</label><input type="text" id="rxv-cfg-contatti" placeholder="Tel. 0549 000000 · info@studioguidi.sm"></div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Logo (immagine)</label>
+          <input type="file" id="rxv-cfg-logo" accept="image/*" onchange="caricaLogoRicetta(this)">
+          <div id="rxv-logo-preview" style="margin-top:8px"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="salvaIntestazioneRicetta()">💾 Salva Intestazione</button>
+      </div>
+    </details>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('m-ricetta-vergine')">Chiudi</button>
+      <button class="btn btn-primary" onclick="stampaRicettaVergine()">🖨️ Stampa Ricetta</button>
+    </div>
   </div>
 </div>
 
@@ -2522,8 +2616,8 @@ async function checkLogin(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-pass').value;
   if(!email||!pass){ showLoginError('Inserisci email e password.'); return; }
+  if(!gsAuth){ showLoginError('Connessione a Firebase non ancora pronta, riprova in un istante.'); return; }
   try{
-    if(!gsAuth) gsAuth=firebase.auth();
     await gsAuth.signInWithEmailAndPassword(email,pass);
     // Il listener onAuthStateChanged (più sotto) gestisce l'accesso effettivo
   }catch(e){
@@ -2546,8 +2640,8 @@ function showLoginError(msg){
 async function resetPasswordEmail(){
   const email=document.getElementById('login-email').value.trim();
   if(!email){ showLoginError('Scrivi prima la tua email, poi premi questo link.'); return; }
+  if(!gsAuth){ showLoginError('Connessione a Firebase non ancora pronta, riprova in un istante.'); return; }
   try{
-    if(!gsAuth) gsAuth=firebase.auth();
     await gsAuth.sendPasswordResetEmail(email);
     if(typeof gsToast==='function') gsToast(`📧 Email di reset inviata a ${email}`,'gs-success');
     else alert(`Email di reset inviata a ${email}`);
@@ -3406,6 +3500,88 @@ async function completaAppuntamentoFirebase(p, dataVisita){
   }
 }
 
+// ═══════════════════════════════════════════════════
+//  NUOVA PRENOTAZIONE DIRETTA DA GYNOSYSTEM
+// ═══════════════════════════════════════════════════
+// Salvata nella stessa collection 'appuntamenti' di Firestore usata da GynoBook,
+// con lo stesso formato: appare identica nel calendario di GynoBook, con un
+// badge che indica che è stata creata dalla dottoressa.
+let _npSelectedPazId=null;
+
+function apriNuovaPrenotazioneGS(){
+  _npSelectedPazId=null;
+  document.getElementById('np-paz-search').value='';
+  document.getElementById('np-paz-chip').style.display='none';
+  document.getElementById('np-paz-chip').innerHTML='';
+  document.getElementById('np-paz-dropdown').classList.remove('show');
+  document.getElementById('np-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('np-ora').value='';
+  document.getElementById('np-tipo').value='';
+  document.getElementById('np-durata').value='30';
+  document.getElementById('np-note').value='';
+  document.getElementById('m-nuova-prenotazione').classList.add('show');
+}
+
+function searchNpPaz(q){
+  const dd=document.getElementById('np-paz-dropdown');
+  if(!q||q.length<2){dd.classList.remove('show');return;}
+  const res=DB.pazienti.filter(p=>(p.nome+' '+p.cognome).toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  if(!res.length){dd.classList.remove('show');return;}
+  dd.innerHTML=res.map(p=>`
+    <div class="paz-dd-item" onclick="selectNpPaz(${p.id},'${p.cognome} ${p.nome}')">
+      <span>👩‍⚕️</span>
+      <div><div style="font-weight:600">${p.cognome} ${p.nome}</div><div style="font-size:0.72rem;color:var(--label4)">${p.nascita?new Date(p.nascita).getFullYear():''}</div></div>
+    </div>`).join('');
+  dd.classList.add('show');
+}
+
+function selectNpPaz(id,nome){
+  _npSelectedPazId=id;
+  document.getElementById('np-paz-search').value='';
+  document.getElementById('np-paz-dropdown').classList.remove('show');
+  const chip=document.getElementById('np-paz-chip');
+  chip.innerHTML=`<span class="paz-selected-chip">👩‍⚕️ ${nome}<span class="paz-chip-del" onclick="clearNpPaz()">✕</span></span>`;
+  chip.style.display='block';
+}
+
+function clearNpPaz(){
+  _npSelectedPazId=null;
+  document.getElementById('np-paz-chip').style.display='none';
+  document.getElementById('np-paz-search').value='';
+}
+
+async function salvaPrenotazioneGS(){
+  const data=document.getElementById('np-data').value;
+  const ora=document.getElementById('np-ora').value;
+  const tipo=document.getElementById('np-tipo').value;
+  if(!_npSelectedPazId){ if(typeof gsToast==='function')gsToast('Seleziona una paziente','gs-error'); return; }
+  if(!data||!ora||!tipo){ if(typeof gsToast==='function')gsToast('Data, ora e tipo visita sono obbligatori','gs-error'); return; }
+  if(!gsFirebaseReady||!gsDb){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
+
+  const p=DB.pazienti.find(x=>x.id===_npSelectedPazId);
+  const appt={
+    pazienteId:String(_npSelectedPazId), // stesso id usato da syncPazienteFirebase: coerente con GynoBook
+    pazienteNome:`${p.cognome} ${p.nome}`,
+    data, ora,
+    durata:Number(document.getElementById('np-durata').value)||30,
+    tipo,
+    stato:'confermato', // prenotata direttamente dalla dottoressa: già confermata
+    note:document.getElementById('np-note').value.trim(),
+    createdBy:'Dr.ssa Cristina Guidi',
+    createdByOrg:'', // vuoto = creata dalla dottoressa, non da un centro esterno (coerente con GynoBook)
+    createdAt:new Date().toISOString(),
+    source:'gynosystem'
+  };
+  try{
+    await gsDb.collection('appuntamenti').add(appt);
+    closeModal('m-nuova-prenotazione');
+    loadFBAppuntamenti();
+    if(typeof gsToast==='function')gsToast('✅ Prenotazione creata, visibile anche su GynoBook','gs-success');
+  }catch(e){
+    if(typeof gsToast==='function')gsToast('Errore: '+e.message,'gs-error');
+  }
+}
+
 function scaricaVisitaJSON(p, v){
   const exportData={
     paziente:{id:p.id,nome:p.nome,cognome:p.cognome,nascita:p.nascita,cf:p.cf,tel:p.tel,email:p.email},
@@ -3476,6 +3652,103 @@ function terapiaDiVisita(v){
   if(v.tipo==='ob') return (v.obData||{}).terapia||'';
   if(v.tipo==='eco') return (v.ecoData||{}).terapia||'';
   return (v.gynoData||{}).terapia||'';
+}
+
+// ═══════════════════════════════════════════════════
+//  RICETTA VERGINE (layout classico, personalizzabile, stampabile)
+// ═══════════════════════════════════════════════════
+// L'intestazione (nome, specializzazione, indirizzo, contatti, logo) si
+// configura una sola volta e resta salvata in locale (localStorage), così
+// non va riscritta ad ogni ricetta.
+function getIntestazioneRicetta(){
+  try{
+    const saved=localStorage.getItem('gs_ricetta_intestazione');
+    if(saved) return JSON.parse(saved);
+  }catch(e){}
+  return {nome:'Dr.ssa Cristina Guidi',spec:'Specialista in Ginecologia e Ostetricia',indirizzo:'',contatti:'',logo:''};
+}
+
+function apriRicettaVergine(){
+  const cfg=getIntestazioneRicetta();
+  document.getElementById('rxv-paziente').value='';
+  document.getElementById('rxv-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('rxv-testo').value='';
+  document.getElementById('rxv-cfg-nome').value=cfg.nome||'';
+  document.getElementById('rxv-cfg-spec').value=cfg.spec||'';
+  document.getElementById('rxv-cfg-indirizzo').value=cfg.indirizzo||'';
+  document.getElementById('rxv-cfg-contatti').value=cfg.contatti||'';
+  document.getElementById('rxv-logo-preview').innerHTML=cfg.logo?`<img src="${cfg.logo}" style="max-height:50px;border-radius:6px">`:'';
+  document.getElementById('m-ricetta-vergine').classList.add('show');
+}
+
+function caricaLogoRicetta(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('rxv-logo-preview').innerHTML=`<img src="${e.target.result}" style="max-height:50px;border-radius:6px">`;
+    // Salva temporaneamente il base64 sul bottone per recuperarlo al salvataggio
+    document.getElementById('rxv-cfg-logo').dataset.base64=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function salvaIntestazioneRicetta(){
+  const cfg={
+    nome:document.getElementById('rxv-cfg-nome').value.trim(),
+    spec:document.getElementById('rxv-cfg-spec').value.trim(),
+    indirizzo:document.getElementById('rxv-cfg-indirizzo').value.trim(),
+    contatti:document.getElementById('rxv-cfg-contatti').value.trim(),
+    logo:document.getElementById('rxv-cfg-logo').dataset.base64 || getIntestazioneRicetta().logo || ''
+  };
+  try{
+    localStorage.setItem('gs_ricetta_intestazione', JSON.stringify(cfg));
+    if(typeof gsToast==='function')gsToast('✅ Intestazione salvata','gs-success');
+  }catch(e){
+    if(typeof gsToast==='function')gsToast('Errore nel salvare l\'intestazione','gs-error');
+  }
+}
+
+function stampaRicettaVergine(){
+  const cfg=getIntestazioneRicetta();
+  const paziente=document.getElementById('rxv-paziente').value.trim();
+  const data=document.getElementById('rxv-data').value;
+  const testo=document.getElementById('rxv-testo').value.trim();
+  if(!testo){ if(typeof gsToast==='function')gsToast('Scrivi la prescrizione prima di stampare','gs-error'); return; }
+  const dataStr=data?new Date(data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ricetta</title>
+  <style>
+    body{font-family:Georgia,serif;color:#1a1a1a;max-width:680px;margin:40px auto;padding:0 20px;line-height:1.6}
+    .rx-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid #c2185b;padding-bottom:18px;margin-bottom:30px}
+    .rx-header img{max-height:64px}
+    .rx-header h1{font-size:1.3rem;margin:0;color:#c2185b}
+    .rx-header .spec{font-size:.85rem;color:#555;margin-top:2px}
+    .rx-header .contatti{font-size:.78rem;color:#777;margin-top:4px}
+    .rx-meta{display:flex;justify-content:space-between;margin-bottom:30px;font-size:.92rem}
+    .rx-body{white-space:pre-wrap;font-size:1.05rem;min-height:300px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:24px 0}
+    .rx-footer{margin-top:40px;text-align:right}
+    .rx-footer .firma-line{display:inline-block;border-top:1px solid #1a1a1a;width:220px;margin-top:50px;padding-top:6px;font-size:.82rem;color:#555}
+    @media print{body{margin:0;padding:30px}}
+  </style></head><body>
+    <div class="rx-header">
+      ${cfg.logo?`<img src="${cfg.logo}">`:''}
+      <div>
+        <h1>${cfg.nome||'Dr.ssa Cristina Guidi'}</h1>
+        <div class="spec">${cfg.spec||''}</div>
+        <div class="contatti">${[cfg.indirizzo,cfg.contatti].filter(Boolean).join(' · ')}</div>
+      </div>
+    </div>
+    <div class="rx-meta">
+      <div><strong>Paziente:</strong> ${paziente||'________________________'}</div>
+      <div><strong>Data:</strong> ${dataStr||'__________________'}</div>
+    </div>
+    <div class="rx-body">${testo.replace(/</g,'&lt;')}</div>
+    <div class="rx-footer"><div class="firma-line">Firma del medico</div></div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),300);
 }
 
 // Mostra la terapia di UNA visita specifica (icona 💊📋 nella lista visite della cartella).
@@ -4295,9 +4568,13 @@ let gsDb = null, gsFirebaseReady = false;
 
 function initFirebase() {
   try {
-    if (!firebase.apps.length) firebase.initializeApp(GS_FIREBASE_CONFIG);
-    gsDb = firebase.firestore();
-    gsAuth = firebase.auth();
+    // Nome app dedicato + persistenza limitata a questa scheda/finestra: impedisce
+    // che il login qui influenzi (o sia influenzato da) GynoBook, anche se aperti
+    // nello stesso browser e sullo stesso progetto Firebase.
+    const app = firebase.apps.find(a=>a.name==='gynosystem-app') || firebase.initializeApp(GS_FIREBASE_CONFIG,'gynosystem-app');
+    gsDb = app.firestore();
+    gsAuth = app.auth();
+    gsAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); // persiste tra le visite, ma solo per questo file
     gsFirebaseReady = true;
     setFbStatus('connected', 'Firebase connesso');
 
