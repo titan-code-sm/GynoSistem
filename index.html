@@ -1312,7 +1312,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     <h3 id="rv-title">Ricettario Visita</h3>
     <p id="rv-subtitle" style="color:var(--label4);font-size:.85rem;margin-bottom:16px"></p>
     <div id="rv-body" style="background:var(--surface-2);border-radius:var(--radius);padding:16px;font-size:.88rem;line-height:1.7;white-space:pre-wrap;margin-bottom:18px"></div>
-    <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="closeModal('m-ricettario-visita')">Chiudi</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeModal('m-ricettario-visita')">Chiudi</button>
+      <button class="btn btn-primary" id="rv-print-btn" style="flex:1;justify-content:center">🖨️ Stampa</button>
+    </div>
   </div>
 </div>
 
@@ -2740,8 +2743,8 @@ function renderAlertsHome(){
       const a=r.a;
       const isOggi=a.data===oggi;
       const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
-      const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
-      const nameClick=paz?`onclick="openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)"`:'';
+      const localId=trovaPazienteLocaleId(a.pazienteId);
+      const nameClick=localId?`onclick="openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
       return `<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
         <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
         <span class="alert-text">
@@ -2853,12 +2856,12 @@ function renderCalModalEvents(d){
   const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   // Appuntamenti Firebase da GynoBook
   fbAppts.forEach(a=>{
-    const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
-    const pazClick=paz?`onclick="closeModal('cal-day-modal');openPaziente(${paz.id})" style="cursor:pointer"`:'';
+    const localId=trovaPazienteLocaleId(a.pazienteId);
+    const pazClick=localId?`onclick="closeModal('cal-day-modal');openPaziente(${localId})" style="cursor:pointer"`:'';
     c.innerHTML+=`<div class="cal-event-item" ${pazClick}>
       <div class="cal-event-dot dot-appuntamento"></div>
       <div class="cal-event-body">
-        <div class="cal-event-text">${a.pazienteNome||'Paziente'} ${paz?'<span style="color:var(--primary);font-size:.7rem">↗ cartella</span>':''}</div>
+        <div class="cal-event-text">${a.pazienteNome||'Paziente'} ${localId?'<span style="color:var(--primary);font-size:.7rem">↗ cartella</span>':''}</div>
         <div class="cal-event-meta">
           <span class="badge badge-green" style="font-size:0.65rem;padding:2px 8px">📅 GynoBook</span>
           ${a.ora?'🕐 '+a.ora:''} ${ICONS[a.tipo]||''} ${a.tipo||''}
@@ -3027,11 +3030,17 @@ function syncPazienteFirebase(p){
 async function importaPazientiDaGynobook(){
   if(!gsFirebaseReady||!gsDb)return;
   try{
-    const snap=await gsDb.collection('pazienti').where('importedToGynoSystem','==',false).get();
+    // Leggiamo TUTTE le pazienti su Firestore (non solo quelle con importedToGynoSystem===false):
+    // un filtro lato server fallirebbe per documenti più vecchi privi di quel campo.
+    // Il confronto "è già stata importata?" lo facciamo qui, lato client, sull'id locale.
+    const snap=await gsDb.collection('pazienti').get();
     if(snap.empty)return;
     let importate=0;
+    const daSegnare=[];
     for(const docSnap of snap.docs){
       const d=docSnap.data();
+      // Solo pazienti create da GynoBook (non quelle sincronizzate da GynoSystem stesso)
+      if(d.source!=='gynobook')continue;
       const giaPresente=DB.pazienti.some(p=>p.fbId===docSnap.id);
       if(!giaPresente){
         const p={
@@ -3052,9 +3061,12 @@ async function importaPazientiDaGynobook(){
         DB.pazienti.push(p);
         importate++;
       }
-      // Segna come importata su Firestore (a prescindere) per non riprocessarla mai più.
-      // Non richiamiamo syncPazienteFirebase: il documento originale resta quello creato da GynoBook.
-      await gsDb.collection('pazienti').doc(docSnap.id).update({importedToGynoSystem:true}).catch(e=>console.warn('Flag import:',e));
+      if(d.importedToGynoSystem!==true) daSegnare.push(docSnap.id);
+    }
+    // Segna come importate su Firestore (a prescindere) per non riprocessarle mai più.
+    // Non richiamiamo syncPazienteFirebase: il documento originale resta quello creato da GynoBook.
+    for(const docId of daSegnare){
+      await gsDb.collection('pazienti').doc(docId).update({importedToGynoSystem:true}).catch(e=>console.warn('Flag import:',e));
     }
     if(importate>0){
       salvaDB();
@@ -3063,7 +3075,7 @@ async function importaPazientiDaGynobook(){
       gsToast(`📥 ${importate} nuova/e cartella/e creata/e da GynoBook`,'gs-success');
     }
   }catch(e){
-    console.warn('Errore import pazienti da GynoBook:',e);
+    console.error('Errore import pazienti da GynoBook:',e);
   }
 }
 
@@ -3406,6 +3418,16 @@ function confermaAnnullaVisita(){
 }
 
 function startEditor(tipo, vid=null){
+  // Barriera di sicurezza: una visita salvata in un giorno precedente non è più modificabile.
+  if(vid){
+    const p=DB.pazienti.find(x=>x.id===curPaz);
+    const v=p?.visite.find(x=>x.id===vid);
+    const oggi=new Date().toISOString().split('T')[0];
+    if(v && v.data!==oggi){
+      if(typeof gsToast==='function')gsToast('🔒 Le visite di giorni precedenti non sono più modificabili','gs-error');
+      return;
+    }
+  }
   closeModal('modal-type');
   document.getElementById('editor-overlay').classList.add('show');
   curMode=tipo; curVisita=vid;
@@ -3626,6 +3648,11 @@ function renderVisiteList(p){
     else { const d=v.gynoData||{}; conclShort=d.conclusioni||d.motivo||'–'; terapia=d.terapia||''; }
     if(conclShort.length>80) conclShort=conclShort.slice(0,80)+'…';
     const haTerapia=terapia&&terapia.trim().length>0;
+    const oggi=new Date().toISOString().split('T')[0];
+    const modificabile=v.data===oggi;
+    const editBtn=modificabile
+      ?`<button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('${tipo}',${v.id})" title="Modifica">✏️</button>`
+      :`<button class="btn btn-ghost btn-sm btn-icon" disabled style="opacity:.3;cursor:not-allowed" title="Le visite di giorni precedenti non sono più modificabili">🔒</button>`;
 
     c.innerHTML+=`<div class="visit-item">
       <div class="visit-icon" style="background:var(--primary-dim)">${meta.icon}</div>
@@ -3636,7 +3663,7 @@ function renderVisiteList(p){
       </div>
       <div class="visit-actions">
         <button class="btn btn-ghost btn-sm btn-icon" onclick="visualizzaVisita(${v.id})" title="Visualizza">👁️</button>
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('${tipo}',${v.id})" title="Modifica">✏️</button>
+        ${editBtn}
         <button class="btn btn-ghost btn-sm btn-icon" onclick="stampa(${v.id})" title="Stampa">🖨️</button>
         ${haTerapia?`<button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisita(${v.id})" title="Ricettario di questa visita">💊📋</button>`:''}
       </div>
@@ -3710,13 +3737,18 @@ function salvaIntestazioneRicetta(){
 }
 
 function stampaRicettaVergine(){
-  const cfg=getIntestazioneRicetta();
   const paziente=document.getElementById('rxv-paziente').value.trim();
   const data=document.getElementById('rxv-data').value;
   const testo=document.getElementById('rxv-testo').value.trim();
   if(!testo){ if(typeof gsToast==='function')gsToast('Scrivi la prescrizione prima di stampare','gs-error'); return; }
   const dataStr=data?new Date(data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+  stampaRicettaConTesto(paziente,dataStr,testo);
+}
 
+// Funzione condivisa: genera e stampa il layout classico della ricetta,
+// usato sia dalla Ricetta Vergine sia dal ricettario di una visita registrata.
+function stampaRicettaConTesto(paziente,dataStr,testo){
+  const cfg=getIntestazioneRicetta();
   const w=window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ricetta</title>
   <style>
@@ -3744,7 +3776,7 @@ function stampaRicettaVergine(){
       <div><strong>Paziente:</strong> ${paziente||'________________________'}</div>
       <div><strong>Data:</strong> ${dataStr||'__________________'}</div>
     </div>
-    <div class="rx-body">${testo.replace(/</g,'&lt;')}</div>
+    <div class="rx-body">${(testo||'').replace(/</g,'&lt;')}</div>
     <div class="rx-footer"><div class="firma-line">Firma del medico</div></div>
   </body></html>`);
   w.document.close();
@@ -3757,9 +3789,11 @@ function apriRicettarioVisita(vid){
   const v=p?.visite.find(x=>x.id===vid);
   if(!v)return;
   const terapia=terapiaDiVisita(v);
+  const dataStr=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('rv-title').textContent=`💊 Ricettario · ${p.cognome} ${p.nome}`;
-  document.getElementById('rv-subtitle').textContent=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('rv-subtitle').textContent=dataStr;
   document.getElementById('rv-body').textContent=terapia||'Nessuna terapia registrata per questa visita.';
+  document.getElementById('rv-print-btn').onclick=()=>stampaRicettaConTesto(`${p.cognome} ${p.nome}`,dataStr,terapia);
   document.getElementById('m-ricettario-visita').classList.add('show');
 }
 
@@ -3795,7 +3829,8 @@ function renderRicettario(){
         <div class="visit-diag">${r.terapia.length>120?r.terapia.slice(0,120)+'…':r.terapia}</div>
       </div>
       <div class="visit-actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisitaGlobale(${r.p.id},${r.v.id})" title="Vedi ricettario completo">💊📋</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisitaGlobale(${r.p.id},${r.v.id})" title="Vedi e stampa">💊📋</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="stampaRicettaConTesto('${r.p.cognome} ${r.p.nome}','${new Date(r.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}',\`${r.terapia.replace(/`/g,"'")}\`)" title="Stampa direttamente">🖨️</button>
       </div>
     </div>`).join('');
 }
@@ -3806,9 +3841,11 @@ function apriRicettarioVisitaGlobale(pazId,vid){
   const v=p?.visite.find(x=>x.id===vid);
   if(!v)return;
   const terapia=terapiaDiVisita(v);
+  const dataStr=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('rv-title').textContent=`💊 Ricettario · ${p.cognome} ${p.nome}`;
-  document.getElementById('rv-subtitle').textContent=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('rv-subtitle').textContent=dataStr;
   document.getElementById('rv-body').textContent=terapia||'Nessuna terapia registrata per questa visita.';
+  document.getElementById('rv-print-btn').onclick=()=>stampaRicettaConTesto(`${p.cognome} ${p.nome}`,dataStr,terapia);
   document.getElementById('m-ricettario-visita').classList.add('show');
 }
 
@@ -3977,7 +4014,16 @@ function visualizzaVisita(vid){
   document.getElementById('vv-subtitle').textContent=`${p.cognome} ${p.nome}`;
   document.getElementById('vv-body').innerHTML=buildRefertoView(v);
   document.getElementById('vv-print-btn').onclick=()=>{closeModal('view-visita');stampa(vid);};
-  document.getElementById('vv-edit-btn').onclick=()=>{closeModal('view-visita');startEditor(v.tipo||'gyno',vid);};
+  const oggi=new Date().toISOString().split('T')[0];
+  const editBtn=document.getElementById('vv-edit-btn');
+  if(v.data===oggi){
+    editBtn.style.display='inline-flex';
+    editBtn.disabled=false;
+    editBtn.title='';
+    editBtn.onclick=()=>{closeModal('view-visita');startEditor(v.tipo||'gyno',vid);};
+  }else{
+    editBtn.style.display='none'; // visite di giorni precedenti: non più modificabili
+  }
   document.getElementById('view-visita').classList.add('show');
 }
 
@@ -4258,11 +4304,11 @@ function showNuovaPrenotazionePopup(nuovi){
   const tit=document.getElementById('nuova-pren-title');
   if(tit) tit.textContent=nuovi.length>1?`🔔 ${nuovi.length} Nuove Prenotazioni`:'🔔 Nuova Prenotazione';
   list.innerHTML=nuovi.map(a=>{
-    const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
+    const localId=trovaPazienteLocaleId(a.pazienteId);
     const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
-    const nameClick=paz?`onclick="closeModal('nuova-pren-popup');openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)"`:'';
+    const nameClick=localId?`onclick="closeModal('nuova-pren-popup');openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
     return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px">
-      <div style="font-weight:700;font-size:1rem;margin-bottom:4px" ${nameClick}>${a.pazienteNome||'Paziente'}${paz?' ↗':''}</div>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:4px" ${nameClick}>${a.pazienteNome||'Paziente'}${localId?' ↗':''}</div>
       <div style="font-size:.82rem;color:var(--label3);margin-bottom:6px">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} · 📅 ${dStr} · 🕐 ${a.ora||'--'} ${a.durata?'('+a.durata+' min)':''}</div>
       ${a.note?`<div style="font-size:.78rem;color:var(--label4);font-style:italic;margin-bottom:6px">"${a.note}"</div>`:''}
       ${a.createdBy?`<div style="font-size:.72rem;color:var(--label4)">👤 Prenotato da: ${a.createdBy}${a.createdByOrg?' · '+a.createdByOrg:''}</div>`:''}
@@ -4297,8 +4343,8 @@ function showApptPopup(appts, oggi){
       <!-- Info -->
       <div style="flex:1">
         <div style="font-weight:700;font-size:.95rem;color:var(--label);margin-bottom:3px">
-          ${(()=>{const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
-            return paz?`<span onclick="closeModal('popup-appts');openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)">${a.pazienteNome||'Paziente'} ↗</span>`:(a.pazienteNome||'Paziente');})()}</div>
+          ${(()=>{const localId=trovaPazienteLocaleId(a.pazienteId);
+            return localId?`<span onclick="closeModal('popup-appts');openPaziente(${localId})" style="cursor:pointer;color:var(--primary)">${a.pazienteNome||'Paziente'} ↗</span>`:(a.pazienteNome||'Paziente');})()}</div>
         <div style="font-size:.8rem;color:var(--label3);margin-bottom:4px">
           ${ICONS[a.tipo]||'🩺'} ${a.tipo||'–'} ${a.durata?'· '+a.durata+' min':''}
         </div>
@@ -4327,7 +4373,7 @@ function renderFBAppts(){
   function apptRow(a,showDate=false){
     const dStr=showDate?new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' ':'';
     const localId=trovaPazienteLocaleId(a.pazienteId);
-    const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
+    const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}','${a.tipo||''}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
     const centroHtml=a.createdByOrg?`<span class="badge badge-blue" style="margin-left:6px">🏥 ${a.createdByOrg}</span>`:'<span class="badge badge-purple" style="margin-left:6px">👩‍⚕️ Dr.ssa Guidi</span>';
     return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid var(--separator)">
       <div style="min-width:44px;text-align:center;flex-shrink:0">
@@ -4359,7 +4405,7 @@ function renderFBAppts(){
   if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--label4);padding:24px">Nessun appuntamento con questi filtri</td></tr>';return;}
   tb.innerHTML=filtered.map(a=>{
     const localId=trovaPazienteLocaleId(a.pazienteId);
-    const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
+    const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}','${a.tipo||''}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
     const centroHtml=a.createdByOrg?`<div style="font-size:.7rem;color:var(--primary);font-weight:600">🏥 ${a.createdByOrg}</div>`:`<div style="font-size:.7rem;color:var(--purple);font-weight:600">👩‍⚕️ Dr.ssa Guidi</div>`;
     return `<tr>
     <td><strong>${new Date(a.data+'T12:00:00').toLocaleDateString('it-IT')}</strong><br><span style="color:var(--label4);font-size:.8rem">${a.ora||'–'}</span></td>
@@ -4381,11 +4427,20 @@ function trovaPazienteLocaleId(firestorePazienteId){
   return p?p.id:null;
 }
 
-// Click sul nome paziente in un appuntamento → apre direttamente la sua cartella,
-// pronta per registrare una nuova visita. openPaziente() naviga già internamente.
-// L'id arriva come stringa dall'attributo onclick: va convertito a numero per il confronto in DB.pazienti.
-function apriCartellaDaAppuntamento(localPazienteId){
+// Click sul nome paziente in un appuntamento → apre la sua cartella E offre
+// subito di avviare la visita corrispondente al tipo prenotato, senza dover
+// più cercare la paziente a mano nell'archivio.
+function apriCartellaDaAppuntamento(localPazienteId, tipoAppuntamento){
+  const TIPO_MAP={ginecologica:'gyno',ostetrica:'ob',ecografia:'eco',primo_accesso:'gyno',controllo:'gyno',ritiro_referto:'gyno'};
   openPaziente(Number(localPazienteId));
+  if(tipoAppuntamento){
+    const modulo=TIPO_MAP[tipoAppuntamento]||'gyno';
+    setTimeout(()=>{
+      if(confirm(`Avviare ora la visita per questa prenotazione (${tipoAppuntamento})?`)){
+        startEditor(modulo);
+      }
+    },300);
+  }
 }
 
 // Caricamento appuntamenti Firebase gestito direttamente in naviga()
