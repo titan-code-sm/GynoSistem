@@ -1565,8 +1565,6 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-3')"><span class="step-num">3</span>Esame Obiettivo</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-4')"><span class="step-num">4</span>Ecografia</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-colpo')">🔬 Colposcopia/HPV</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-tv')">🖥️ Eco Transvaginale</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-meno')">🌙 Menopausa</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-5')"><span class="step-num">5</span>Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-ob" style="display:none">
@@ -1601,7 +1599,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
                   <span id="gd-bmi-cat" style="font-size:0.68rem;font-weight:600;padding:1px 7px;border-radius:12px;"></span>
                 </div>
               </div>
-              <div class="form-group"><label class="form-label">PARA</label><input id="gd-para" placeholder="es. 2002" style="text-transform:uppercase"></div>
+              <div class="form-group"><label class="form-label">PARA</label><input id="gd-para" placeholder="es. 2002 o 2002"></div>
             </div>
             <div id="gd-bmi-box" style="display:none"></div>
             <div class="field-row r3" style="margin-top:12px;">
@@ -1614,23 +1612,75 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           <div class="section-card">
             <h4 data-icon="🩸">Menopausa & Ciclo</h4>
             <div class="field-row r4">
-              <div class="form-group"><label class="form-label">Menopausa</label><select id="gd-menopausa"></select></div>
-              <div class="form-group"><label class="form-label">Ciclo · Ritmo</label><select id="gd-ciclo-ritmo"></select></div>
-              <div class="form-group"><label class="form-label">Ciclo · Durata</label><select id="gd-ciclo-durata"></select></div>
-              <div class="form-group"><label class="form-label">Ciclo · Quantità</label><select id="gd-ciclo-quantita"></select></div>
+              <div class="form-group">
+                <label class="form-label">Menopausa</label>
+                <select id="gd-menopausa-sel" onchange="appendGDText('gd-menopausa',this.value)"></select>
+                <input id="gd-menopausa" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ciclo · Ritmo</label>
+                <select id="gd-ciclo-ritmo-sel" onchange="appendGDText('gd-ciclo-ritmo',this.value)"></select>
+                <input id="gd-ciclo-ritmo" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ciclo · Durata</label>
+                <select id="gd-ciclo-durata-sel" onchange="appendGDText('gd-ciclo-durata',this.value)"></select>
+                <input id="gd-ciclo-durata" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ciclo · Quantità</label>
+                <select id="gd-ciclo-quantita-sel" onchange="appendGDText('gd-ciclo-quantita',this.value)"></select>
+                <input id="gd-ciclo-quantita" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
             </div>
             <div class="field-row r4" style="margin-top:12px;">
               <div class="form-group"><label class="form-label">Terapia ormonale</label><input id="gd-terapia-orm" placeholder="es. nessuna"></div>
               <div class="form-group"><label class="form-label">Dispareunia</label><input id="gd-dispareunia" placeholder="assente/presente"></div>
               <div class="form-group"><label class="form-label">Dismenorrea</label><input id="gd-dismenorrea" placeholder="assente/presente"></div>
-              <div class="form-group"><label class="form-label">Fumo</label><select id="gd-fumo"></select></div>
+              <div class="form-group">
+                <label class="form-label">Fumo</label>
+                <select id="gd-fumo-sel" onchange="appendGDText('gd-fumo',this.value)"></select>
+                <input id="gd-fumo" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🌙">Climaterio</h4>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group">
+                <label class="form-label">Sintomi Vasomotori</label>
+                <select onchange="appendGDText('gd-meno-vampate',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Vampate lievi (1-3/die)</option><option>Vampate moderate (4-8/die)</option><option>Vampate severe (>8/die)</option><option>Sudorazioni notturne lievi</option><option>Sudorazioni notturne moderate</option><option>Sudorazioni notturne severe</option>
+                </select>
+                <input id="gd-meno-vampate" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sintomi Urogenitali</label>
+                <select onchange="appendGDText('gd-meno-secchezza',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Secchezza vaginale lieve</option><option>Secchezza vaginale moderata</option><option>Secchezza vaginale severa</option><option>Urgenza urinaria</option><option>Incontinenza da stress</option>
+                </select>
+                <input id="gd-meno-secchezza" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+            </div>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">MOC (Densitometria) - Data</label><input type="date" id="gd-meno-moc-data"></div>
+              <div class="form-group"><label class="form-label">MOC - T-score</label><input id="gd-meno-moc-tscore" placeholder="es. -1.8 (femore)"></div>
+            </div>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">TOS - Tipo/Dosaggio</label><input id="gd-meno-tos-tipo" placeholder="es. estrogeni transdermici 50mcg/die"></div>
+              <div class="form-group"><label class="form-label">TOS - In Terapia da</label><input type="date" id="gd-meno-tos-da"></div>
             </div>
           </div>
 
           <div class="section-card">
             <h4 data-icon="🔬">Screening</h4>
             <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Screening cervicale</label><select id="gd-screening-cervicale"></select></div>
+              <div class="form-group">
+                <label class="form-label">Screening cervicale</label>
+                <select id="gd-screening-cervicale-sel" onchange="appendGDText('gd-screening-cervicale',this.value)"></select>
+                <input id="gd-screening-cervicale" placeholder="dettagli aggiuntivi (es. data, esito)..." style="margin-top:6px">
+              </div>
               <div class="form-group"><label class="form-label">Screening mammografico</label><input id="gd-screening-mammo" placeholder="es. ultimo nel ..."></div>
             </div>
           </div>
@@ -1669,43 +1719,40 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           <div class="section-card">
             <h4 data-icon="🩺">Sintomi Riferiti</h4>
             <div class="field-row r2" style="margin-bottom:10px">
-              <div class="form-group"><label class="form-label">Dolore Pelvico</label><select id="gd-sint-dolore">
-                <option value="">-- Nessuno --</option><option value="lieve">Lieve</option><option value="moderato">Moderato</option><option value="severo">Severo</option><option value="ciclico">Ciclico (correlato al ciclo)</option>
-              </select></div>
-              <div class="form-group"><label class="form-label">Sanguinamenti Anomali</label><select id="gd-sint-sangu">
-                <option value="">-- Nessuno --</option><option value="intermestruale">Intermestruale</option><option value="postmenopausale">Post-menopausale</option><option value="postcoitale">Post-coitale</option><option value="menorragia">Menorragia</option>
-              </select></div>
+              <div class="form-group">
+                <label class="form-label">Dolore Pelvico</label>
+                <select onchange="appendGDText('gd-sint-dolore',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Lieve</option><option>Moderato</option><option>Severo</option><option>Ciclico (correlato al ciclo)</option>
+                </select>
+                <input id="gd-sint-dolore" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Sanguinamenti Anomali</label>
+                <select onchange="appendGDText('gd-sint-sangu',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Intermestruale</option><option>Post-menopausale</option><option>Post-coitale</option><option>Menorragia</option>
+                </select>
+                <input id="gd-sint-sangu" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
             </div>
             <div class="field-row r2" style="margin-bottom:10px">
               <div class="form-group"><label class="form-label">Perdite Vaginali</label><input id="gd-sint-perdite" placeholder="es. bianche, dense, senza odore"></div>
-              <div class="form-group"><label class="form-label">Prurito / Bruciore</label><select id="gd-sint-prurito">
-                <option value="">-- Assente --</option><option value="lieve">Lieve</option><option value="moderato">Moderato</option><option value="severo">Severo</option>
-              </select></div>
+              <div class="form-group">
+                <label class="form-label">Prurito / Bruciore</label>
+                <select onchange="appendGDText('gd-sint-prurito',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Lieve</option><option>Moderato</option><option>Severo</option>
+                </select>
+                <input id="gd-sint-prurito" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+              </div>
             </div>
-            <div class="form-group"><label class="form-label">Dispareunia</label><select id="gd-sint-dispareunia">
-              <option value="">-- Assente --</option><option value="superficiale">Superficiale</option><option value="profonda">Profonda</option><option value="entrambe">Entrambe</option>
-            </select></div>
+            <div class="form-group">
+              <label class="form-label">Dispareunia</label>
+              <select onchange="appendGDText('gd-sint-dispareunia',this.options[this.selectedIndex].text)">
+                <option value="">-- Seleziona --</option><option>Superficiale</option><option>Profonda</option><option>Entrambe</option>
+              </select>
+              <input id="gd-sint-dispareunia" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+            </div>
           </div>
 
-          <div class="section-card">
-            <h4 data-icon="💊">Contraccezione Attuale</h4>
-            <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Metodo</label><select id="gd-contr-metodo">
-                <option value="">-- Nessuno --</option>
-                <option value="nessuno">Nessun metodo</option>
-                <option value="preservativo">Preservativo</option>
-                <option value="pillola">Pillola estro-progestinica</option>
-                <option value="solo_progestinico">Solo progestinico</option>
-                <option value="iud_cu">IUD al rame</option>
-                <option value="iud_lng">IUD medicato (LNG)</option>
-                <option value="impianto">Impianto sottocutaneo</option>
-                <option value="anello">Anello vaginale</option>
-                <option value="cerotto">Cerotto transdermico</option>
-                <option value="naturale">Metodi naturali</option>
-                <option value="sterilizzazione">Sterilizzazione chirurgica</option>
-              </select></div>
-              <div class="form-group"><label class="form-label">Da quando</label><input type="date" id="gd-contr-da"></div>
-            </div>
           </div>
         </div>
 
@@ -1838,109 +1885,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           </div>
         </div>
 
-        <!-- ════════ PANEL: ECOGRAFIA TRANSVAGINALE ════════ -->
-        <div id="ep-tv" class="edit-panel">
-          <div class="section-card">
-            <h4 data-icon="🔺">Utero</h4>
-            <div class="field-row r2" style="margin-bottom:10px">
-              <div class="form-group"><label class="form-label">Posizione</label><select id="gd-tv-posizione">
-                <option value="">-- Seleziona --</option><option value="antiversoflessa">Antiverso-flessa</option><option value="retroversoflessa">Retroverso-flessa</option><option value="asse_intermedio">In asse intermedio</option>
-              </select></div>
-              <div class="form-group"><label class="form-label">Dimensioni (3 assi, mm)</label><input id="gd-tv-dimensioni" placeholder="es. 75x45x40"></div>
-            </div>
-            <div class="form-group" style="margin-bottom:10px">
-              <label class="form-label">Miometrio (fibromi: numero, sede, dimensioni)</label>
-              <textarea id="gd-tv-miometrio" rows="3" placeholder="es. fibroma intramurale fondo uterino, 22mm..."></textarea>
-            </div>
-            <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Endometrio - Spessore (mm)</label><input id="gd-tv-endo-spess" placeholder="es. 8"></div>
-              <div class="form-group"><label class="form-label">Endometrio - Aspetto</label><input id="gd-tv-endo-aspetto" placeholder="es. omogeneo, trilaminare"></div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="🟣">Annessi</h4>
-            <div class="form-group" style="margin-bottom:10px">
-              <label class="form-label">Ovaio Destro</label>
-              <textarea id="gd-tv-ovaio-dx" rows="2" placeholder="dimensioni, aspetto, cisti (tipo, dimensioni)..."></textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Ovaio Sinistro</label>
-              <textarea id="gd-tv-ovaio-sx" rows="2" placeholder="dimensioni, aspetto, cisti (tipo, dimensioni)..."></textarea>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="💧">Douglas</h4>
-            <div class="form-group"><input id="gd-tv-douglas" placeholder="es. assente liquido libero / minima falda liquida"></div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="📝">Note Ecografiche</h4>
-            <div class="form-group"><textarea id="gd-tv-note" rows="3"></textarea></div>
-          </div>
-        </div>
-
-        <!-- ════════ PANEL: MENOPAUSA / CLIMATERIO ════════ -->
-        <div id="ep-meno" class="edit-panel">
-          <div class="section-card">
-            <h4 data-icon="🌙">Stato Menopausale</h4>
-            <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Stato</label><select id="gd-meno-stato">
-                <option value="">-- Seleziona --</option>
-                <option value="premenopausa">Premenopausa</option>
-                <option value="perimenopausa">Perimenopausa</option>
-                <option value="menopausa">Menopausa</option>
-                <option value="postmenopausa">Post-menopausa</option>
-              </select></div>
-              <div class="form-group"><label class="form-label">Data Ultima Mestruazione</label><input type="date" id="gd-meno-um"></div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="🔥">Sintomi Vasomotori</h4>
-            <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Vampate di Calore</label><select id="gd-meno-vampate">
-                <option value="">-- Assenti --</option><option value="lievi">Lievi (1-3/die)</option><option value="moderate">Moderate (4-8/die)</option><option value="severe">Severe (>8/die)</option>
-              </select></div>
-              <div class="form-group"><label class="form-label">Sudorazioni Notturne</label><select id="gd-meno-sudorazioni">
-                <option value="">-- Assenti --</option><option value="lievi">Lievi</option><option value="moderate">Moderate</option><option value="severe">Severe</option>
-              </select></div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="🩷">Sintomi Urogenitali</h4>
-            <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Secchezza Vaginale</label><select id="gd-meno-secchezza">
-                <option value="">-- Assente --</option><option value="lieve">Lieve</option><option value="moderata">Moderata</option><option value="severa">Severa</option>
-              </select></div>
-              <div class="form-group"><label class="form-label">Disturbi Urinari</label><input id="gd-meno-urinari" placeholder="es. urgenza, incontinenza da stress..."></div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="🦴">Densitometria Ossea (MOC)</h4>
-            <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="gd-meno-moc-data"></div>
-              <div class="form-group"><label class="form-label">T-score</label><input id="gd-meno-moc-tscore" placeholder="es. -1.8 (femore)"></div>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="💊">Terapia Ormonale Sostitutiva (TOS)</h4>
-            <div class="field-row r2" style="margin-bottom:10px">
-              <div class="form-group"><label class="form-label">Tipo</label><input id="gd-meno-tos-tipo" placeholder="es. estrogeni transdermici + progestinico"></div>
-              <div class="form-group"><label class="form-label">Dosaggio</label><input id="gd-meno-tos-dose" placeholder="es. 50mcg/die"></div>
-            </div>
-            <div class="form-group"><label class="form-label">In Terapia da</label><input type="date" id="gd-meno-tos-da"></div>
-          </div>
-
-          <div class="section-card">
-            <h4 data-icon="❤️">Fattori di Rischio Cardiovascolare/Osteoporosi</h4>
-            <div class="form-group"><textarea id="gd-meno-rischi" rows="3" placeholder="es. familiarità per osteoporosi, fumo, sedentarietà..."></textarea></div>
-          </div>
-        </div>
+        <!-- ════════ PANEL 5: CONCLUSIONI ════════ -->
         <div id="ep-5" class="edit-panel">
           <div class="section-card">
             <h4 data-icon="✅">Conclusioni</h4>
@@ -2526,7 +2471,7 @@ function fillGDMacro(containerId, obj, targetId){
 }
 
 function appendGDText(id, text){
-  const el=document.getElementById(id); if(!el)return;
+  const el=document.getElementById(id); if(!el || !text)return;
   el.value += (el.value && !el.value.endsWith('\n') ? '\n' : '') + text;
 }
 
@@ -2571,12 +2516,12 @@ function toggleInformativa(){
 }
 
 function initGynoSelects(){
-  fillGDSelect('gd-menopausa', GD.menopausa);
-  fillGDSelect('gd-ciclo-ritmo', GD.cicloRitmo);
-  fillGDSelect('gd-ciclo-durata', GD.cicloDurata);
-  fillGDSelect('gd-ciclo-quantita', GD.cicloQuantita);
-  fillGDSelect('gd-screening-cervicale', GD.screeningCervicale);
-  fillGDSelect('gd-fumo', GD.fumo);
+  fillGDSelect('gd-menopausa-sel', GD.menopausa);
+  fillGDSelect('gd-ciclo-ritmo-sel', GD.cicloRitmo);
+  fillGDSelect('gd-ciclo-durata-sel', GD.cicloDurata);
+  fillGDSelect('gd-ciclo-quantita-sel', GD.cicloQuantita);
+  fillGDSelect('gd-screening-cervicale-sel', GD.screeningCervicale);
+  fillGDSelect('gd-fumo-sel', GD.fumo);
   fillGDSelect('gd-speculum-sel', Object.keys(GD.speculum));
   fillGDSelect('gd-bimanuale-sel', Object.keys(GD.bimanuale));
   fillGDSelect('gd-ecografo', GD.ecografo);
@@ -2610,16 +2555,12 @@ const GD_FIELDS=['eta','altezza','peso','para','menarca','um','pa','menopausa',
   'cefalea','emicrania','familiarita','motivo','esame-generale','speculum','prelievi','bimanuale',
   'ecografo','sonda','ecografia','conclusioni','esami-richiesti','terapia','prossimi',
   // Sintomi e contraccezione (tab Motivo)
-  'sint-dolore','sint-sangu','sint-perdite','sint-prurito','sint-dispareunia','contr-metodo','contr-da',
+  'sint-dolore','sint-sangu','sint-perdite','sint-prurito','sint-dispareunia',
   // Colposcopia / Citologia / HPV
   'pap-data','pap-esito','hpv-data','hpv-esito','hpv-genotipo',
   'colpo-visione','colpo-gsc','colpo-aree','colpo-test','bio-sede','bio-esito','colpo-followup',
-  // Ecografia Transvaginale
-  'tv-posizione','tv-dimensioni','tv-miometrio','tv-endo-spess','tv-endo-aspetto',
-  'tv-ovaio-dx','tv-ovaio-sx','tv-douglas','tv-note',
   // Menopausa / Climaterio
-  'meno-stato','meno-um','meno-vampate','meno-sudorazioni','meno-secchezza','meno-urinari',
-  'meno-moc-data','meno-moc-tscore','meno-tos-tipo','meno-tos-dose','meno-tos-da','meno-rischi'];
+  'meno-vampate','meno-secchezza','meno-moc-data','meno-moc-tscore','meno-tos-tipo','meno-tos-da'];
 
 function getGynoData(){
   const d={};
@@ -4807,13 +4748,15 @@ function buildRefertoView(v){
     ['Allergie',g.allergie],['Terapie in atto',g['terapie-atto']],['Interventi',g.chirurgia],
     ['Patologie',g.patologie],['Familiarità',g.familiarita]
   ]);
+  html+=sec('🌙','Climaterio',[
+    ['Sintomi vasomotori',g['meno-vampate']],['Sintomi urogenitali',g['meno-secchezza']],
+    ['Densitometria (MOC) - data',g['meno-moc-data']?new Date(g['meno-moc-data']).toLocaleDateString('it-IT'):''],['Densitometria - T-score',g['meno-moc-tscore']],
+    ['TOS - tipo/dosaggio',g['meno-tos-tipo']],['TOS - in terapia da',g['meno-tos-da']?new Date(g['meno-tos-da']).toLocaleDateString('it-IT'):'']
+  ]);
   html+=sec('🎯','Motivo Visita',[['',g.motivo]]);
   html+=sec('🩺','Sintomi Riferiti',[
     ['Dolore pelvico',g['sint-dolore']],['Sanguinamenti anomali',g['sint-sangu']],
     ['Perdite vaginali',g['sint-perdite']],['Prurito/Bruciore',g['sint-prurito']],['Dispareunia',g['sint-dispareunia']]
-  ]);
-  html+=sec('💊','Contraccezione Attuale',[
-    ['Metodo',g['contr-metodo']],['Da quando',g['contr-da']?new Date(g['contr-da']).toLocaleDateString('it-IT'):'']
   ]);
   html+=sec('🔍','Esame Obiettivo',[
     ['Generale',g['esame-generale']],['Speculum',g.speculum],['Prelievi',g.prelievi],['Bimanuale',g.bimanuale]
@@ -4832,21 +4775,6 @@ function buildRefertoView(v){
   ]);
   html+=sec('🩸','Biopsia',[['Sede',g['bio-sede']],['Esito istologico',g['bio-esito']]]);
   html+=sec('🔄','Follow-up Colposcopia',[['',g['colpo-followup']]]);
-  html+=sec('🔺','Ecografia Transvaginale - Utero',[
-    ['Posizione',g['tv-posizione']],['Dimensioni',g['tv-dimensioni']],['Miometrio',g['tv-miometrio']],
-    ['Endometrio - spessore',g['tv-endo-spess']?g['tv-endo-spess']+' mm':''],['Endometrio - aspetto',g['tv-endo-aspetto']]
-  ]);
-  html+=sec('🟣','Ecografia Transvaginale - Annessi',[
-    ['Ovaio destro',g['tv-ovaio-dx']],['Ovaio sinistro',g['tv-ovaio-sx']],['Douglas',g['tv-douglas']],['Note',g['tv-note']]
-  ]);
-  html+=sec('🌙','Menopausa / Climaterio',[
-    ['Stato menopausale',g['meno-stato']],['Data ultima mestruazione',g['meno-um']?new Date(g['meno-um']).toLocaleDateString('it-IT'):''],
-    ['Vampate di calore',g['meno-vampate']],['Sudorazioni notturne',g['meno-sudorazioni']],
-    ['Secchezza vaginale',g['meno-secchezza']],['Disturbi urinari',g['meno-urinari']],
-    ['Densitometria - data',g['meno-moc-data']?new Date(g['meno-moc-data']).toLocaleDateString('it-IT'):''],['Densitometria - T-score',g['meno-moc-tscore']],
-    ['TOS - tipo',g['meno-tos-tipo']],['TOS - dosaggio',g['meno-tos-dose']],['TOS - da quando',g['meno-tos-da']?new Date(g['meno-tos-da']).toLocaleDateString('it-IT'):''],
-    ['Fattori di rischio',g['meno-rischi']]
-  ]);
   html+=sec('✅','Conclusioni',[
     ['Conclusioni',g.conclusioni],['Esami richiesti',g['esami-richiesti']],
     ['Terapia',g.terapia],['Prossimi controlli',g.prossimi]
