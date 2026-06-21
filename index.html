@@ -1319,6 +1319,32 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 </div>
 
+<!-- Modal Nuovo Farmaco Manuale -->
+<div id="m-farmaco-manuale" class="overlay">
+  <div class="modal-sm" style="width:480px">
+    <h3>➕ Aggiungi Farmaco</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:16px">Per farmaci che la paziente assume già (es. prescritti da altri medici, terapie croniche).</p>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label class="form-label">Farmaco *</label>
+      <input id="fm-farmaco" placeholder="es. Levotiroxina">
+    </div>
+    <div class="field-row r2" style="margin-bottom:14px">
+      <div class="form-group"><label class="form-label">Dosaggio</label><input id="fm-dosaggio" placeholder="es. 50mcg/die"></div>
+      <div class="form-group"><label class="form-label">Da quando</label><input type="date" id="fm-da-quando"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:18px">
+      <label class="form-label">Note / Motivo</label>
+      <textarea id="fm-note" rows="3" placeholder="es. prescritto da endocrinologo per ipotiroidismo"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('m-farmaco-manuale')">Annulla</button>
+      <button class="btn btn-primary" onclick="salvaFarmacoManuale()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
 <!-- DETTAGLIO PAZIENTE -->
 <div id="sec-dettaglio" class="section">
   <button onclick="naviga('archivio')" class="btn btn-ghost" style="margin-bottom:20px;">← Torna ai Pazienti</button>
@@ -1373,7 +1399,9 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <textarea id="p-note" rows="8" placeholder="Anamnesi patologica remota, allergie, familiarità, note cliniche..." onblur="salvaNote()"></textarea>
       </div>
       <div class="card" style="margin-bottom:16px;">
-        <div class="card-header"><div><div class="card-title">💊 Farmaci Attuali</div><div class="card-subtitle">Ultima terapia prescritta e storico nel tempo</div></div></div>
+        <div class="card-header"><div><div class="card-title">💊 Farmaci Attuali</div><div class="card-subtitle">Ultima terapia prescritta e storico nel tempo</div></div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="apriNuovoFarmacoManuale()" title="Aggiungi farmaco">➕</button>
+        </div>
         <div id="farmaci-attuali-box"></div>
       </div>
       <div class="card">
@@ -1536,16 +1564,23 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-2')"><span class="step-num">2</span>Motivo</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-3')"><span class="step-num">3</span>Esame Obiettivo</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-4')"><span class="step-num">4</span>Ecografia</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-colpo')">🔬 Colposcopia/HPV</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-tv')">🖥️ Eco Transvaginale</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-meno')">🌙 Menopausa</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-5')"><span class="step-num">5</span>Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-ob" style="display:none">
-        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ob-1')"><span class="step-num">1</span>Parametri</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-2')"><span class="step-num">2</span>Esame Obiettivo</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-3')"><span class="step-num">3</span>Conclusioni</button>
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ob-anamnesi')">📋 Anamnesi Ostetrica</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-1')"><span class="step-num">2</span>Parametri</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-2')"><span class="step-num">3</span>Esame Obiettivo</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-screening')">🧪 Screening & Monitoraggio</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-3')"><span class="step-num">5</span>Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-eco" style="display:none">
         <button class="editor-nav-btn active" onclick="setEditorTab(this,'ec-1')"><span class="step-num">1</span>Biometria Fetale</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-2')"><span class="step-num">2</span>Liquido & Placenta</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-anatomia')">🧠 Anatomia Fetale</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-2')"><span class="step-num">2</span>Annessi & Liquido</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-doppler')">〜 Doppler</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">3</span>Referto</button>
       </div>
       <div class="editor-content">
@@ -1630,6 +1665,48 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             <div class="form-group"><textarea id="gd-motivo" rows="5" placeholder="Descrivere il motivo della visita..."></textarea></div>
             <div class="macro-wrap" id="gd-motivo-btns"></div>
           </div>
+
+          <div class="section-card">
+            <h4 data-icon="🩺">Sintomi Riferiti</h4>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">Dolore Pelvico</label><select id="gd-sint-dolore">
+                <option value="">-- Nessuno --</option><option value="lieve">Lieve</option><option value="moderato">Moderato</option><option value="severo">Severo</option><option value="ciclico">Ciclico (correlato al ciclo)</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Sanguinamenti Anomali</label><select id="gd-sint-sangu">
+                <option value="">-- Nessuno --</option><option value="intermestruale">Intermestruale</option><option value="postmenopausale">Post-menopausale</option><option value="postcoitale">Post-coitale</option><option value="menorragia">Menorragia</option>
+              </select></div>
+            </div>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">Perdite Vaginali</label><input id="gd-sint-perdite" placeholder="es. bianche, dense, senza odore"></div>
+              <div class="form-group"><label class="form-label">Prurito / Bruciore</label><select id="gd-sint-prurito">
+                <option value="">-- Assente --</option><option value="lieve">Lieve</option><option value="moderato">Moderato</option><option value="severo">Severo</option>
+              </select></div>
+            </div>
+            <div class="form-group"><label class="form-label">Dispareunia</label><select id="gd-sint-dispareunia">
+              <option value="">-- Assente --</option><option value="superficiale">Superficiale</option><option value="profonda">Profonda</option><option value="entrambe">Entrambe</option>
+            </select></div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="💊">Contraccezione Attuale</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Metodo</label><select id="gd-contr-metodo">
+                <option value="">-- Nessuno --</option>
+                <option value="nessuno">Nessun metodo</option>
+                <option value="preservativo">Preservativo</option>
+                <option value="pillola">Pillola estro-progestinica</option>
+                <option value="solo_progestinico">Solo progestinico</option>
+                <option value="iud_cu">IUD al rame</option>
+                <option value="iud_lng">IUD medicato (LNG)</option>
+                <option value="impianto">Impianto sottocutaneo</option>
+                <option value="anello">Anello vaginale</option>
+                <option value="cerotto">Cerotto transdermico</option>
+                <option value="naturale">Metodi naturali</option>
+                <option value="sterilizzazione">Sterilizzazione chirurgica</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Da quando</label><input type="date" id="gd-contr-da"></div>
+            </div>
+          </div>
         </div>
 
         <!-- ════════ PANEL 3: ESAME OBIETTIVO ════════ -->
@@ -1691,7 +1768,179 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           </div>
         </div>
 
-        <!-- ════════ PANEL 5: CONCLUSIONI ════════ -->
+        <!-- ════════ PANEL: COLPOSCOPIA / CITOLOGIA / HPV ════════ -->
+        <div id="ep-colpo" class="edit-panel">
+          <div class="section-card">
+            <h4 data-icon="🧫">Pap-Test (Citologia)</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="gd-pap-data"></div>
+              <div class="form-group"><label class="form-label">Risultato (classificazione Bethesda)</label><select id="gd-pap-esito">
+                <option value="">-- Seleziona --</option>
+                <option value="negativo">Negativo per lesioni intraepiteliali (NILM)</option>
+                <option value="ascus">ASC-US</option>
+                <option value="asch">ASC-H</option>
+                <option value="lsil">LSIL</option>
+                <option value="hsil">HSIL</option>
+                <option value="agc">AGC</option>
+                <option value="carcinoma">Carcinoma</option>
+                <option value="inadeguato">Inadeguato/non valutabile</option>
+              </select></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🦠">Test HPV</h4>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="gd-hpv-data"></div>
+              <div class="form-group"><label class="form-label">Esito</label><select id="gd-hpv-esito" onchange="document.getElementById('gd-hpv-geno-box').style.display=this.value==='positivo'?'block':'none'">
+                <option value="">-- Seleziona --</option>
+                <option value="negativo">Negativo</option>
+                <option value="positivo">Positivo</option>
+              </select></div>
+            </div>
+            <div class="form-group" id="gd-hpv-geno-box" style="display:none">
+              <label class="form-label">Genotipizzazione (se positivo)</label>
+              <input id="gd-hpv-genotipo" placeholder="es. HPV 16, altri genotipi ad alto rischio">
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🔬">Colposcopia</h4>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">Visione</label><select id="gd-colpo-visione">
+                <option value="">-- Seleziona --</option><option value="adeguata">Adeguata</option><option value="inadeguata">Inadeguata</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Giunzione Squamo-Colonnare</label><select id="gd-colpo-gsc">
+                <option value="">-- Seleziona --</option><option value="visibile">Completamente visibile</option><option value="parzialmente">Parzialmente visibile</option><option value="non_visibile">Non visibile</option>
+              </select></div>
+            </div>
+            <div class="form-group" style="margin-bottom:10px">
+              <label class="form-label">Aree Atipiche (sede, estensione)</label>
+              <textarea id="gd-colpo-aree" rows="3" placeholder="es. area aceto-bianca a ore 6-8, estensione 1 quadrante..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Test Schiller / Acido Acetico</label>
+              <input id="gd-colpo-test" placeholder="es. positivo a ore 6, Schiller negativo">
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🩸">Biopsia</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Sede</label><input id="gd-bio-sede" placeholder="es. ore 6, esocervice"></div>
+              <div class="form-group"><label class="form-label">Esito Istologico</label><input id="gd-bio-esito" placeholder="es. CIN1, in attesa referto..."></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🔄">Follow-up Indicato</h4>
+            <div class="form-group"><textarea id="gd-colpo-followup" rows="2" placeholder="es. ripetere Pap-test a 6 mesi, invio per conizzazione..."></textarea></div>
+          </div>
+        </div>
+
+        <!-- ════════ PANEL: ECOGRAFIA TRANSVAGINALE ════════ -->
+        <div id="ep-tv" class="edit-panel">
+          <div class="section-card">
+            <h4 data-icon="🔺">Utero</h4>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">Posizione</label><select id="gd-tv-posizione">
+                <option value="">-- Seleziona --</option><option value="antiversoflessa">Antiverso-flessa</option><option value="retroversoflessa">Retroverso-flessa</option><option value="asse_intermedio">In asse intermedio</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Dimensioni (3 assi, mm)</label><input id="gd-tv-dimensioni" placeholder="es. 75x45x40"></div>
+            </div>
+            <div class="form-group" style="margin-bottom:10px">
+              <label class="form-label">Miometrio (fibromi: numero, sede, dimensioni)</label>
+              <textarea id="gd-tv-miometrio" rows="3" placeholder="es. fibroma intramurale fondo uterino, 22mm..."></textarea>
+            </div>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Endometrio - Spessore (mm)</label><input id="gd-tv-endo-spess" placeholder="es. 8"></div>
+              <div class="form-group"><label class="form-label">Endometrio - Aspetto</label><input id="gd-tv-endo-aspetto" placeholder="es. omogeneo, trilaminare"></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🟣">Annessi</h4>
+            <div class="form-group" style="margin-bottom:10px">
+              <label class="form-label">Ovaio Destro</label>
+              <textarea id="gd-tv-ovaio-dx" rows="2" placeholder="dimensioni, aspetto, cisti (tipo, dimensioni)..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ovaio Sinistro</label>
+              <textarea id="gd-tv-ovaio-sx" rows="2" placeholder="dimensioni, aspetto, cisti (tipo, dimensioni)..."></textarea>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="💧">Douglas</h4>
+            <div class="form-group"><input id="gd-tv-douglas" placeholder="es. assente liquido libero / minima falda liquida"></div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="📝">Note Ecografiche</h4>
+            <div class="form-group"><textarea id="gd-tv-note" rows="3"></textarea></div>
+          </div>
+        </div>
+
+        <!-- ════════ PANEL: MENOPAUSA / CLIMATERIO ════════ -->
+        <div id="ep-meno" class="edit-panel">
+          <div class="section-card">
+            <h4 data-icon="🌙">Stato Menopausale</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Stato</label><select id="gd-meno-stato">
+                <option value="">-- Seleziona --</option>
+                <option value="premenopausa">Premenopausa</option>
+                <option value="perimenopausa">Perimenopausa</option>
+                <option value="menopausa">Menopausa</option>
+                <option value="postmenopausa">Post-menopausa</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Data Ultima Mestruazione</label><input type="date" id="gd-meno-um"></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🔥">Sintomi Vasomotori</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Vampate di Calore</label><select id="gd-meno-vampate">
+                <option value="">-- Assenti --</option><option value="lievi">Lievi (1-3/die)</option><option value="moderate">Moderate (4-8/die)</option><option value="severe">Severe (>8/die)</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Sudorazioni Notturne</label><select id="gd-meno-sudorazioni">
+                <option value="">-- Assenti --</option><option value="lievi">Lievi</option><option value="moderate">Moderate</option><option value="severe">Severe</option>
+              </select></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🩷">Sintomi Urogenitali</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Secchezza Vaginale</label><select id="gd-meno-secchezza">
+                <option value="">-- Assente --</option><option value="lieve">Lieve</option><option value="moderata">Moderata</option><option value="severa">Severa</option>
+              </select></div>
+              <div class="form-group"><label class="form-label">Disturbi Urinari</label><input id="gd-meno-urinari" placeholder="es. urgenza, incontinenza da stress..."></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="🦴">Densitometria Ossea (MOC)</h4>
+            <div class="field-row r2">
+              <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="gd-meno-moc-data"></div>
+              <div class="form-group"><label class="form-label">T-score</label><input id="gd-meno-moc-tscore" placeholder="es. -1.8 (femore)"></div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="💊">Terapia Ormonale Sostitutiva (TOS)</h4>
+            <div class="field-row r2" style="margin-bottom:10px">
+              <div class="form-group"><label class="form-label">Tipo</label><input id="gd-meno-tos-tipo" placeholder="es. estrogeni transdermici + progestinico"></div>
+              <div class="form-group"><label class="form-label">Dosaggio</label><input id="gd-meno-tos-dose" placeholder="es. 50mcg/die"></div>
+            </div>
+            <div class="form-group"><label class="form-label">In Terapia da</label><input type="date" id="gd-meno-tos-da"></div>
+          </div>
+
+          <div class="section-card">
+            <h4 data-icon="❤️">Fattori di Rischio Cardiovascolare/Osteoporosi</h4>
+            <div class="form-group"><textarea id="gd-meno-rischi" rows="3" placeholder="es. familiarità per osteoporosi, fumo, sedentarietà..."></textarea></div>
+          </div>
+        </div>
         <div id="ep-5" class="edit-panel">
           <div class="section-card">
             <h4 data-icon="✅">Conclusioni</h4>
@@ -1724,13 +1973,53 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
              ═══════════════════════════════════════════════ -->
         <div id="ob-panels" style="display:none">
 
+          <!-- ════════ OB PANEL: ANAMNESI OSTETRICA ════════ -->
+          <div id="ob-anamnesi" class="edit-panel active">
+            <div class="section-card">
+              <h4 data-icon="🤰">Dati Gravidanza</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Data Presunta Parto (DPP)</label><input type="date" id="ob-dpp"></div>
+                <div class="form-group"><label class="form-label">Gruppo Sanguigno e Rh</label><input id="ob-gruppo" placeholder="es. A Rh positivo"></div>
+              </div>
+              <div class="form-group" id="ob-immunoprofilassi-box" style="display:none">
+                <label class="form-label" style="display:flex;align-items:center;gap:8px">
+                  <input type="checkbox" id="ob-immunoprofilassi-chk" style="width:auto">
+                  Eseguita immunoprofilassi anti-D
+                </label>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="📜">Anamnesi Ostetrica Precedente</h4>
+              <div class="field-row r3" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Gravidanze (G)</label><input type="number" id="ob-anam-g" placeholder="es. 2"></div>
+                <div class="form-group"><label class="form-label">Parti (P)</label><input type="number" id="ob-anam-p" placeholder="es. 1"></div>
+                <div class="form-group"><label class="form-label">Aborti (A)</label><input type="number" id="ob-anam-a" placeholder="es. 0"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Modalità Parti Precedenti</label><textarea id="ob-anam-modalita" rows="2" placeholder="es. parto eutocico 2022, taglio cesareo 2019 per..."></textarea></div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🧬">Screening I Trimestre</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-screen1-data"></div>
+                <div class="form-group"><label class="form-label">Test Combinato - Risultato</label><select id="ob-screen1-esito">
+                  <option value="">-- Non eseguito --</option>
+                  <option value="basso_rischio">Basso rischio</option>
+                  <option value="alto_rischio">Alto rischio</option>
+                </select></div>
+              </div>
+              <div class="form-group"><label class="form-label">NIPT (se eseguito)</label><input id="ob-nipt" placeholder="es. basso rischio per T21/T18/T13"></div>
+            </div>
+          </div>
+
           <!-- ════════ OB PANEL 1: PARAMETRI ════════ -->
-          <div id="ob-1" class="edit-panel active">
+          <div id="ob-1" class="edit-panel">
             <div class="section-card">
               <h4 data-icon="🤰">Parametri Gravidanza</h4>
               <div class="field-row r3">
                 <div class="form-group"><label class="form-label">Settimane di Gestazione</label><input id="ob-settimane" placeholder="es. 24+3"></div>
-                <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="ob-peso" placeholder="68"></div>
+                <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="ob-peso" placeholder="68" onchange="calcIncrementoPonderale()"></div>
                 <div class="form-group"><label class="form-label">Pressione (PA)</label><input id="ob-pressione" placeholder="120/80"></div>
               </div>
               <div class="field-row r2" style="margin-top:12px">
@@ -1743,14 +2032,87 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
                   <option value="non_percepiti">Non ancora percepiti dalla paziente</option>
                 </select></div>
               </div>
+              <div class="form-group" id="ob-incremento-box" style="margin-top:12px;display:none">
+                <label class="form-label">Incremento Ponderale Totale</label>
+                <input id="ob-incremento" readonly style="background:var(--surface-2)">
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🧪">Esami delle Urine e Glicemia</h4>
+              <div class="field-row r3">
+                <div class="form-group"><label class="form-label">Proteinuria (stick)</label><select id="ob-proteinuria">
+                  <option value="">-- Non eseguito --</option><option value="negativa">Negativa</option><option value="tracce">Tracce</option><option value="positiva">Positiva (+)</option><option value="positiva2">Positiva (++ o più)</option>
+                </select></div>
+                <div class="form-group"><label class="form-label">Glicemia (mg/dl)</label><input id="ob-glicemia" placeholder="es. 85"></div>
+                <div class="form-group"><label class="form-label">Edemi</label><select id="ob-edemi">
+                  <option value="">-- Assenti --</option><option value="lievi">Lievi (caviglie)</option><option value="moderati">Moderati</option><option value="severi">Severi/generalizzati</option>
+                </select></div>
+              </div>
             </div>
           </div>
 
           <!-- ════════ OB PANEL 2: ESAME OBIETTIVO ════════ -->
           <div id="ob-2" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="🔍">Esame Obiettivo</h4>
-              <div class="form-group"><textarea id="ob-esame" rows="6" placeholder="Esame obiettivo ostetrico: altezza fondo uterino, presentazione, palpazione..."></textarea></div>
+              <h4 data-icon="🔍">Esame Obiettivo Ostetrico</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Altezza Fondo Uterino (cm)</label><input id="ob-afu" placeholder="es. 28"></div>
+                <div class="form-group"><label class="form-label">Presentazione Fetale</label><select id="ob-presentazione">
+                  <option value="">-- Seleziona --</option>
+                  <option value="cefalica">Cefalica</option>
+                  <option value="podalica">Podalica</option>
+                  <option value="trasversa">Trasversa</option>
+                  <option value="instabile">Instabile</option>
+                </select></div>
+              </div>
+              <div class="form-group" style="margin-bottom:10px"><label class="form-label">Manovre di Leopold</label><textarea id="ob-leopold" rows="3" placeholder="reperti delle 4 manovre di Leopold..."></textarea></div>
+              <div class="form-group"><textarea id="ob-esame" rows="4" placeholder="Altri reperti dell'esame obiettivo ostetrico..."></textarea></div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="〜">Contrazioni & Perdite</h4>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">Contrazioni</label><select id="ob-contrazioni">
+                  <option value="">-- Assenti --</option><option value="sporadiche">Sporadiche/Braxton-Hicks</option><option value="regolari">Regolari, da valutare</option>
+                </select></div>
+                <div class="form-group"><label class="form-label">Perdite (liquido/sangue)</label><input id="ob-perdite" placeholder="es. nessuna / spotting / sospetta rottura membrane"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ OB PANEL: SCREENING & MONITORAGGIO ════════ -->
+          <div id="ob-screening" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🧫">Tampone Vagino-Rettale (GBS)</h4>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-gbs-data"></div>
+                <div class="form-group"><label class="form-label">Esito</label><select id="ob-gbs-esito">
+                  <option value="">-- Non eseguito --</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option>
+                </select></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🍬">Curva Glicemica (OGTT)</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-ogtt-data"></div>
+                <div class="form-group"><label class="form-label">Esito Globale</label><select id="ob-ogtt-esito">
+                  <option value="">-- Non eseguita --</option><option value="normale">Normale</option><option value="alterata">Alterata (diabete gestazionale)</option>
+                </select></div>
+              </div>
+              <div class="form-group"><label class="form-label">Valori (a digiuno / 1h / 2h, mg/dl)</label><input id="ob-ogtt-valori" placeholder="es. 82 / 145 / 120"></div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="📈">Cardiotocografia (CTG)</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-ctg-data"></div>
+                <div class="form-group"><label class="form-label">Tracciato</label><select id="ob-ctg-esito">
+                  <option value="">-- Non eseguito --</option><option value="reattivo">Reattivo/Normale</option><option value="non_reattivo">Non reattivo</option><option value="patologico">Patologico</option>
+                </select></div>
+              </div>
+              <div class="form-group"><label class="form-label">Note CTG</label><textarea id="ob-ctg-note" rows="2"></textarea></div>
             </div>
           </div>
 
@@ -1780,6 +2142,24 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           <!-- ════════ ECO PANEL 1: BIOMETRIA FETALE ════════ -->
           <div id="ec-1" class="edit-panel active">
             <div class="section-card">
+              <h4 data-icon="📋">Tipo di Esame</h4>
+              <div class="field-row r3">
+                <div class="form-group"><label class="form-label">Tipo Ecografia</label><select id="ec-tipo-esame">
+                  <option value="">-- Seleziona --</option>
+                  <option value="i_trimestre">I Trimestre (datazione/translucenza nucale)</option>
+                  <option value="morfologica">Morfologica (II trimestre)</option>
+                  <option value="iii_trimestre">III Trimestre</option>
+                  <option value="crescita">Controllo di crescita</option>
+                </select></div>
+                <div class="form-group"><label class="form-label">Vitalità Fetale</label><select id="ec-vitalita">
+                  <option value="">-- Seleziona --</option><option value="presente">Presente</option><option value="assente">Assente</option>
+                </select></div>
+                <div class="form-group"><label class="form-label">Numero Feti</label><select id="ec-num-feti">
+                  <option value="singola">Gravidanza singola</option><option value="gemellare_bi">Gemellare bicoriale</option><option value="gemellare_mono">Gemellare monocoriale</option>
+                </select></div>
+              </div>
+            </div>
+            <div class="section-card">
               <h4 data-icon="📏">Età Gestazionale</h4>
               <div class="form-group"><input id="ec-settimane" placeholder="es. 20+5 settimane"></div>
             </div>
@@ -1801,7 +2181,46 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             </div>
           </div>
 
-          <!-- ════════ ECO PANEL 2: LIQUIDO & PLACENTA ════════ -->
+          <!-- ════════ ECO PANEL: ANATOMIA FETALE ════════ -->
+          <div id="ec-anatomia" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🧠">Cranio / Encefalo</h4>
+              <div class="field-row r2" style="margin-bottom:8px">
+                <div class="form-group"><select id="ec-anat-cranio-esito"><option value="">-- Esito --</option><option value="normale">Normale</option><option value="anomalo">Anomalo</option></select></div>
+                <div class="form-group"><input id="ec-anat-cranio-note" placeholder="note (ventricoli, cervelletto, cisterna magna...)"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🦴">Colonna Vertebrale</h4>
+              <div class="field-row r2">
+                <div class="form-group"><select id="ec-anat-colonna-esito"><option value="">-- Esito --</option><option value="normale">Normale</option><option value="anomalo">Anomalo</option></select></div>
+                <div class="form-group"><input id="ec-anat-colonna-note" placeholder="note"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="❤️">Cuore (4 Camere)</h4>
+              <div class="field-row r2">
+                <div class="form-group"><select id="ec-anat-cuore-esito"><option value="">-- Esito --</option><option value="normale">Normale, situs e 4 camere regolari</option><option value="anomalo">Anomalo</option></select></div>
+                <div class="form-group"><input id="ec-anat-cuore-note" placeholder="note (assi cardiaci, grossi vasi...)"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🫃">Addome / Reni / Vescica</h4>
+              <div class="field-row r2">
+                <div class="form-group"><select id="ec-anat-addome-esito"><option value="">-- Esito --</option><option value="normale">Normale</option><option value="anomalo">Anomalo</option></select></div>
+                <div class="form-group"><input id="ec-anat-addome-note" placeholder="note (stomaco, reni, vescica, parete addominale...)"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🦵">Arti</h4>
+              <div class="field-row r2">
+                <div class="form-group"><select id="ec-anat-arti-esito"><option value="">-- Esito --</option><option value="normale">4 arti normoconformati</option><option value="anomalo">Anomalo</option></select></div>
+                <div class="form-group"><input id="ec-anat-arti-note" placeholder="note"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ ECO PANEL 2: ANNESSI & LIQUIDO ════════ -->
           <div id="ec-2" class="edit-panel">
             <div class="section-card">
               <h4 data-icon="💧">Liquido Amniotico</h4>
@@ -1809,7 +2228,36 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             </div>
             <div class="section-card">
               <h4 data-icon="🟣">Placenta</h4>
-              <div class="form-group"><textarea id="ec-placenta" rows="3" placeholder="Sede, grado di maturità, distanza dall'OUI..."></textarea></div>
+              <div class="field-row r3" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Sede</label><input id="ec-placenta-sede" placeholder="es. fundica anteriore"></div>
+                <div class="form-group"><label class="form-label">Grado di Maturità</label><select id="ec-placenta-grado">
+                  <option value="">-- Seleziona --</option><option value="0">Grado 0</option><option value="I">Grado I</option><option value="II">Grado II</option><option value="III">Grado III</option>
+                </select></div>
+                <div class="form-group"><label class="form-label">Distanza dall'OUI (mm)</label><input id="ec-placenta-oui" placeholder="es. >20 / 15 (bassa) / previa"></div>
+              </div>
+              <div class="form-group"><textarea id="ec-placenta" rows="2" placeholder="Altre note sulla placenta..."></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔗">Cordone Ombelicale</h4>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">Inserzione</label><input id="ec-cordone-inserzione" placeholder="es. centrale, paracentrale, marginale, velamentosa"></div>
+                <div class="form-group"><label class="form-label">Numero Vasi</label><select id="ec-cordone-vasi">
+                  <option value="">-- Seleziona --</option><option value="3">3 vasi (normale)</option><option value="2">2 vasi (arteria ombelicale unica)</option>
+                </select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ ECO PANEL: DOPPLER ════════ -->
+          <div id="ec-doppler" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="〜">Doppler (se eseguito)</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Arteria Ombelicale (PI/RI)</label><input id="ec-doppler-ombelicale" placeholder="es. PI 0.95, flusso normale"></div>
+                <div class="form-group"><label class="form-label">Arterie Uterine (PI medio)</label><input id="ec-doppler-uterine" placeholder="es. PI 1.2, no notch"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Arteria Cerebrale Media (PI/picco sistolico)</label><input id="ec-doppler-acm" placeholder="es. PI 1.6, normale per epoca"></div>
+              <div class="form-group" style="margin-top:10px"><label class="form-label">Note Doppler</label><textarea id="ec-doppler-note" rows="2"></textarea></div>
             </div>
           </div>
 
@@ -2160,7 +2608,18 @@ const GD_FIELDS=['eta','altezza','peso','para','menarca','um','pa','menopausa',
   'ciclo-ritmo','ciclo-durata','ciclo-quantita','terapia-orm','dispareunia','dismenorrea','fumo',
   'screening-cervicale','screening-mammo','allergie','terapie-atto','chirurgia','patologie',
   'cefalea','emicrania','familiarita','motivo','esame-generale','speculum','prelievi','bimanuale',
-  'ecografo','sonda','ecografia','conclusioni','esami-richiesti','terapia','prossimi'];
+  'ecografo','sonda','ecografia','conclusioni','esami-richiesti','terapia','prossimi',
+  // Sintomi e contraccezione (tab Motivo)
+  'sint-dolore','sint-sangu','sint-perdite','sint-prurito','sint-dispareunia','contr-metodo','contr-da',
+  // Colposcopia / Citologia / HPV
+  'pap-data','pap-esito','hpv-data','hpv-esito','hpv-genotipo',
+  'colpo-visione','colpo-gsc','colpo-aree','colpo-test','bio-sede','bio-esito','colpo-followup',
+  // Ecografia Transvaginale
+  'tv-posizione','tv-dimensioni','tv-miometrio','tv-endo-spess','tv-endo-aspetto',
+  'tv-ovaio-dx','tv-ovaio-sx','tv-douglas','tv-note',
+  // Menopausa / Climaterio
+  'meno-stato','meno-um','meno-vampate','meno-sudorazioni','meno-secchezza','meno-urinari',
+  'meno-moc-data','meno-moc-tscore','meno-tos-tipo','meno-tos-dose','meno-tos-da','meno-rischi'];
 
 function getGynoData(){
   const d={};
@@ -2184,13 +2643,22 @@ function setGynoData(data){
 }
 
 // ── VISITA OSTETRICA ──
-const OB_FIELDS=['settimane','peso','pressione','bcf','movimenti','esame','diagnosi','terapia','prossimo'];
+const OB_FIELDS=['settimane','peso','pressione','bcf','movimenti','esame','diagnosi','terapia','prossimo',
+  // Anamnesi Ostetrica
+  'dpp','gruppo','anam-g','anam-p','anam-a','anam-modalita','screen1-data','screen1-esito','nipt',
+  // Parametri estesi
+  'incremento','proteinuria','glicemia','edemi',
+  // Esame Obiettivo estesi
+  'afu','presentazione','leopold','contrazioni','perdite',
+  // Screening & Monitoraggio
+  'gbs-data','gbs-esito','ogtt-data','ogtt-esito','ogtt-valori','ctg-data','ctg-esito','ctg-note'];
 function getObData(){
   const d={};
   OB_FIELDS.forEach(f=>{
     const el=document.getElementById('ob-'+f);
     if(el) d[f]=el.value;
   });
+  d.immunoprofilassi=document.getElementById('ob-immunoprofilassi-chk')?.checked;
   return d;
 }
 function setObData(data){
@@ -2199,10 +2667,55 @@ function setObData(data){
     const el=document.getElementById('ob-'+f);
     if(el && data[f]!==undefined) el.value=data[f];
   });
+  const chk=document.getElementById('ob-immunoprofilassi-chk');
+  if(chk && data.immunoprofilassi!==undefined) chk.checked=data.immunoprofilassi;
+  // Mostra il box immunoprofilassi solo se il gruppo sanguigno indica Rh negativo
+  const gruppo=(data.gruppo||'').toLowerCase();
+  const box=document.getElementById('ob-immunoprofilassi-box');
+  if(box) box.style.display=gruppo.includes('negativo')||gruppo.includes('rh-')?'block':'none';
+}
+
+// Mostra/nasconde il box immunoprofilassi anti-D mentre si scrive il gruppo sanguigno
+document.addEventListener('input',e=>{
+  if(e.target && e.target.id==='ob-gruppo'){
+    const gruppo=e.target.value.toLowerCase();
+    const box=document.getElementById('ob-immunoprofilassi-box');
+    if(box) box.style.display=gruppo.includes('negativo')||gruppo.includes('rh-')?'block':'none';
+  }
+});
+
+// Calcola l'incremento ponderale totale confrontando il peso attuale con quello
+// della PRIMA visita ostetrica registrata per questa gravidanza (peso pre-gravidico
+// o del primo controllo, usato come riferimento).
+function calcIncrementoPonderale(){
+  const pesoAttuale=parseFloat(document.getElementById('ob-peso').value);
+  const box=document.getElementById('ob-incremento-box');
+  const out=document.getElementById('ob-incremento');
+  if(!pesoAttuale || !curGravidanzaId){ if(box) box.style.display='none'; return; }
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p){ if(box) box.style.display='none'; return; }
+  const visitePrecedenti=(p.visite||[])
+    .filter(v=>v.tipo==='ob' && v.gravidanzaId===curGravidanzaId && (v.obData||{}).peso)
+    .sort((a,b)=>new Date(a.data)-new Date(b.data));
+  if(!visitePrecedenti.length){ if(box) box.style.display='none'; return; }
+  const pesoIniziale=parseFloat(visitePrecedenti[0].obData.peso);
+  if(isNaN(pesoIniziale)){ if(box) box.style.display='none'; return; }
+  const diff=(pesoAttuale-pesoIniziale).toFixed(1);
+  if(out){ out.value=`${diff>=0?'+':''}${diff} kg (da ${pesoIniziale} kg)`; }
+  if(box) box.style.display='block';
 }
 
 // ── ECOGRAFIA OSTETRICA ──
-const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','bcf','liquido','placenta','diagnosi','terapia','prossimo'];
+const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','bcf','liquido','placenta','diagnosi','terapia','prossimo',
+  // Tipo esame
+  'tipo-esame','vitalita','num-feti',
+  // Anatomia fetale
+  'anat-cranio-esito','anat-cranio-note','anat-colonna-esito','anat-colonna-note',
+  'anat-cuore-esito','anat-cuore-note','anat-addome-esito','anat-addome-note','anat-arti-esito','anat-arti-note',
+  // Placenta & cordone
+  'placenta-sede','placenta-grado','placenta-oui','cordone-inserzione','cordone-vasi',
+  // Doppler
+  'doppler-ombelicale','doppler-uterine','doppler-acm','doppler-note'];
 function getEcoData(){
   const d={};
   ECO_FIELDS.forEach(f=>{
@@ -3856,36 +4369,89 @@ function renderFarmaciAttuali(p){
   const box=document.getElementById('farmaci-attuali-box');
   if(!box)return;
   const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️'};
+  if(!p.farmaciManuali) p.farmaciManuali=[];
 
   const conTerapia=(p.visite||[])
     .map(v=>({v,terapia:terapiaDiVisita(v)}))
     .filter(x=>x.terapia && x.terapia.trim())
     .sort((a,b)=>new Date(b.v.data)-new Date(a.v.data));
 
-  if(!conTerapia.length){
-    box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">💊</div><p style="font-size:.82rem">Nessuna terapia registrata</p></div>';
-    return;
+  const farmaciManuali=[...p.farmaciManuali].sort((a,b)=>new Date(b.daQuando||0)-new Date(a.daQuando||0));
+
+  let html='';
+
+  // Farmaci aggiunti manualmente (es. prescritti da altri medici, terapie croniche)
+  if(farmaciManuali.length){
+    html+=farmaciManuali.map(f=>`
+      <div style="background:var(--primary-dim);border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative">
+        <button onclick="eliminaFarmacoManuale('${f.id}')" style="position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--label4);font-size:.85rem" title="Rimuovi">✕</button>
+        <div style="font-size:.7rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🔵 ${f.farmaco}${f.dosaggio?' · '+f.dosaggio:''}</div>
+        ${f.daQuando?`<div style="font-size:.74rem;color:var(--label4);margin-bottom:4px">Da ${new Date(f.daQuando).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>`:''}
+        ${f.note?`<div style="font-size:.8rem;color:var(--label3);white-space:pre-wrap">${f.note}</div>`:''}
+      </div>`).join('');
   }
 
-  const ultima=conTerapia[0];
-  const storico=conTerapia.slice(1);
+  if(conTerapia.length){
+    const ultima=conTerapia[0];
+    const storico=conTerapia.slice(1);
+    html+=`<div style="background:var(--green-dim);border-radius:10px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🟢 Terapia in corso · dal ${new Date(ultima.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div style="font-size:.85rem;white-space:pre-wrap;line-height:1.5">${ultima.terapia}</div>
+    </div>`;
+    if(storico.length){
+      html+=`<details><summary style="cursor:pointer;font-size:.78rem;font-weight:600;color:var(--label3);margin-bottom:8px">📜 Storico precedente (${storico.length})</summary>`;
+      html+=storico.map(x=>`
+        <div style="padding:8px 0;border-bottom:1px solid var(--separator);font-size:.8rem">
+          <div style="color:var(--label4);font-size:.72rem;margin-bottom:2px">${TIPO_ICON[x.v.tipo]||'🌸'} ${new Date(x.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>
+          <div style="white-space:pre-wrap;line-height:1.4">${x.terapia.length>150?x.terapia.slice(0,150)+'…':x.terapia}</div>
+        </div>`).join('');
+      html+=`</details>`;
+    }
+  }
 
-  let html=`<div style="background:var(--green-dim);border-radius:10px;padding:12px 14px;margin-bottom:12px">
-    <div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🟢 Terapia in corso · dal ${new Date(ultima.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>
-    <div style="font-size:.85rem;white-space:pre-wrap;line-height:1.5">${ultima.terapia}</div>
-  </div>`;
-
-  if(storico.length){
-    html+=`<details><summary style="cursor:pointer;font-size:.78rem;font-weight:600;color:var(--label3);margin-bottom:8px">📜 Storico precedente (${storico.length})</summary>`;
-    html+=storico.map(x=>`
-      <div style="padding:8px 0;border-bottom:1px solid var(--separator);font-size:.8rem">
-        <div style="color:var(--label4);font-size:.72rem;margin-bottom:2px">${TIPO_ICON[x.v.tipo]||'🌸'} ${new Date(x.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>
-        <div style="white-space:pre-wrap;line-height:1.4">${x.terapia.length>150?x.terapia.slice(0,150)+'…':x.terapia}</div>
-      </div>`).join('');
-    html+=`</details>`;
+  if(!html){
+    html='<div class="empty-state" style="padding:16px 0"><div class="es-icon">💊</div><p style="font-size:.82rem">Nessuna terapia registrata</p></div>';
   }
 
   box.innerHTML=html;
+}
+
+// ── Farmaci manuali: inseriti direttamente dal box "Farmaci Attuali",
+// indipendentemente da una visita (es. terapie croniche, prescritte da altri medici)
+function apriNuovoFarmacoManuale(){
+  document.getElementById('fm-farmaco').value='';
+  document.getElementById('fm-dosaggio').value='';
+  document.getElementById('fm-da-quando').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fm-note').value='';
+  document.getElementById('m-farmaco-manuale').classList.add('show');
+}
+
+function salvaFarmacoManuale(){
+  const farmaco=document.getElementById('fm-farmaco').value.trim();
+  if(!farmaco){ if(typeof gsToast==='function')gsToast('Il nome del farmaco è obbligatorio','gs-error'); return; }
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p)return;
+  if(!p.farmaciManuali) p.farmaciManuali=[];
+  p.farmaciManuali.push({
+    id:'fm_'+Date.now(),
+    farmaco,
+    dosaggio:document.getElementById('fm-dosaggio').value.trim(),
+    daQuando:document.getElementById('fm-da-quando').value,
+    note:document.getElementById('fm-note').value.trim()
+  });
+  salvaDB();
+  closeModal('m-farmaco-manuale');
+  renderFarmaciAttuali(p);
+  if(typeof gsToast==='function')gsToast('✅ Farmaco aggiunto','gs-success');
+}
+
+function eliminaFarmacoManuale(id){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p || !p.farmaciManuali)return;
+  if(!confirm('Rimuovere questo farmaco dalla lista?'))return;
+  p.farmaciManuali=p.farmaciManuali.filter(f=>f.id!==id);
+  salvaDB();
+  renderFarmaciAttuali(p);
 }
 
 // ═══════════════════════════════════════════════════
@@ -4151,11 +4717,33 @@ function buildRefertoView(v){
   if(v.tipo==='ob'){
     const o=v.obData||{};
     let html='';
-    html+=sec('🤰','Parametri Gravidanza',[
-      ['Settimane',o.settimane],['Peso',o.peso?o.peso+' kg':''],['Pressione',o.pressione],
-      ['BCF',o.bcf],['Movimenti fetali',o.movimenti]
+    html+=sec('📋','Anamnesi Ostetrica',[
+      ['Data presunta parto',o.dpp?new Date(o.dpp).toLocaleDateString('it-IT'):''],['Gruppo sanguigno',o.gruppo],
+      ['Immunoprofilassi anti-D',o.immunoprofilassi?'Eseguita':''],
+      ['Gravidanze/Parti/Aborti',[o['anam-g'],o['anam-p'],o['anam-a']].some(Boolean)?`G${o['anam-g']||0} P${o['anam-p']||0} A${o['anam-a']||0}`:''],
+      ['Modalità parti precedenti',o['anam-modalita']],
+      ['Screening I trimestre',o['screen1-data']?new Date(o['screen1-data']).toLocaleDateString('it-IT')+(o['screen1-esito']?' · '+o['screen1-esito']:''):''],
+      ['NIPT',o.nipt]
     ]);
-    html+=sec('🔍','Esame Obiettivo',[['',o.esame]]);
+    html+=sec('🤰','Parametri Gravidanza',[
+      ['Settimane',o.settimane],['Peso',o.peso?o.peso+' kg':''],['Incremento ponderale',o.incremento],['Pressione',o.pressione],
+      ['BCF',o.bcf],['Movimenti fetali',o.movimenti],
+      ['Proteinuria',o.proteinuria],['Glicemia',o.glicemia?o.glicemia+' mg/dl':''],['Edemi',o.edemi]
+    ]);
+    html+=sec('🔍','Esame Obiettivo',[
+      ['Altezza fondo uterino',o.afu?o.afu+' cm':''],['Presentazione fetale',o.presentazione],
+      ['Manovre di Leopold',o.leopold],['Altri reperti',o.esame],
+      ['Contrazioni',o.contrazioni],['Perdite',o.perdite]
+    ]);
+    html+=sec('🧫','Tampone Vagino-Rettale (GBS)',[
+      ['Data',o['gbs-data']?new Date(o['gbs-data']).toLocaleDateString('it-IT'):''],['Esito',o['gbs-esito']]
+    ]);
+    html+=sec('🍬','Curva Glicemica (OGTT)',[
+      ['Data',o['ogtt-data']?new Date(o['ogtt-data']).toLocaleDateString('it-IT'):''],['Esito',o['ogtt-esito']],['Valori',o['ogtt-valori']]
+    ]);
+    html+=sec('📈','Cardiotocografia (CTG)',[
+      ['Data',o['ctg-data']?new Date(o['ctg-data']).toLocaleDateString('it-IT'):''],['Tracciato',o['ctg-esito']],['Note',o['ctg-note']]
+    ]);
     html+=sec('✅','Diagnosi',[['',o.diagnosi]]);
     html+=sec('💊','Terapia',[['',o.terapia]]);
     html+=sec('🔄','Prossimo Controllo',[['',o.prossimo]]);
@@ -4166,11 +4754,31 @@ function buildRefertoView(v){
   if(v.tipo==='eco'){
     const e=v.ecoData||{};
     let html='';
+    const TIPO_ESAME_LABEL={i_trimestre:'I Trimestre',morfologica:'Morfologica (II trimestre)',iii_trimestre:'III Trimestre',crescita:'Controllo di crescita'};
+    const NUM_FETI_LABEL={singola:'Gravidanza singola',gemellare_bi:'Gemellare bicoriale',gemellare_mono:'Gemellare monocoriale'};
+    html+=sec('📋','Tipo di Esame',[
+      ['Tipo ecografia',TIPO_ESAME_LABEL[e['tipo-esame']]||''],['Vitalità fetale',e.vitalita],['Numero feti',NUM_FETI_LABEL[e['num-feti']]||'']
+    ]);
     html+=sec('📏','Età Gestazionale',[['Settimane',e.settimane]]);
     html+=sec('👶','Biometria Fetale',[
       ['CRL',e.crl?e.crl+' mm':''],['BPD',e.bpd?e.bpd+' mm':''],['CC (HC)',e.hc?e.hc+' mm':''],['FL',e.fl?e.fl+' mm':''],['AC',e.ac?e.ac+' mm':''],['BCF',e.bcf]
     ]);
-    html+=sec('💧','Liquido & Placenta',[['Liquido amniotico',e.liquido],['Placenta',e.placenta]]);
+    html+=sec('🧠','Anatomia Fetale',[
+      ['Cranio/Encefalo',[e['anat-cranio-esito'],e['anat-cranio-note']].filter(Boolean).join(' · ')],
+      ['Colonna vertebrale',[e['anat-colonna-esito'],e['anat-colonna-note']].filter(Boolean).join(' · ')],
+      ['Cuore (4 camere)',[e['anat-cuore-esito'],e['anat-cuore-note']].filter(Boolean).join(' · ')],
+      ['Addome/Reni/Vescica',[e['anat-addome-esito'],e['anat-addome-note']].filter(Boolean).join(' · ')],
+      ['Arti',[e['anat-arti-esito'],e['anat-arti-note']].filter(Boolean).join(' · ')]
+    ]);
+    html+=sec('💧','Liquido Amniotico',[['',e.liquido]]);
+    html+=sec('🟣','Placenta',[
+      ['Sede',e['placenta-sede']],['Grado di maturità',e['placenta-grado']],['Distanza dall\'OUI',e['placenta-oui']],['Altre note',e.placenta]
+    ]);
+    html+=sec('🔗','Cordone Ombelicale',[['Inserzione',e['cordone-inserzione']],['Numero vasi',e['cordone-vasi']]]);
+    html+=sec('〜','Doppler',[
+      ['Arteria ombelicale',e['doppler-ombelicale']],['Arterie uterine',e['doppler-uterine']],
+      ['Arteria cerebrale media',e['doppler-acm']],['Note',e['doppler-note']]
+    ]);
     html+=sec('📄','Diagnosi / Referto',[['',e.diagnosi]]);
     html+=sec('💊','Terapia',[['',e.terapia]]);
     html+=sec('🔄','Prossimo Controllo',[['',e.prossimo]]);
@@ -4200,11 +4808,45 @@ function buildRefertoView(v){
     ['Patologie',g.patologie],['Familiarità',g.familiarita]
   ]);
   html+=sec('🎯','Motivo Visita',[['',g.motivo]]);
+  html+=sec('🩺','Sintomi Riferiti',[
+    ['Dolore pelvico',g['sint-dolore']],['Sanguinamenti anomali',g['sint-sangu']],
+    ['Perdite vaginali',g['sint-perdite']],['Prurito/Bruciore',g['sint-prurito']],['Dispareunia',g['sint-dispareunia']]
+  ]);
+  html+=sec('💊','Contraccezione Attuale',[
+    ['Metodo',g['contr-metodo']],['Da quando',g['contr-da']?new Date(g['contr-da']).toLocaleDateString('it-IT'):'']
+  ]);
   html+=sec('🔍','Esame Obiettivo',[
     ['Generale',g['esame-generale']],['Speculum',g.speculum],['Prelievi',g.prelievi],['Bimanuale',g.bimanuale]
   ]);
   let ecoStrum=[g.ecografo,g.sonda].filter(Boolean).join(' · ');
   html+=sec('🖥️','Ecografia'+(ecoStrum?' ('+ecoStrum+')':''),[['',g.ecografia]]);
+  html+=sec('🧫','Citologia (Pap-Test)',[
+    ['Data',g['pap-data']?new Date(g['pap-data']).toLocaleDateString('it-IT'):''],['Risultato',g['pap-esito']]
+  ]);
+  html+=sec('🦠','Test HPV',[
+    ['Data',g['hpv-data']?new Date(g['hpv-data']).toLocaleDateString('it-IT'):''],['Esito',g['hpv-esito']],['Genotipizzazione',g['hpv-genotipo']]
+  ]);
+  html+=sec('🔬','Colposcopia',[
+    ['Visione',g['colpo-visione']],['Giunzione squamo-colonnare',g['colpo-gsc']],
+    ['Aree atipiche',g['colpo-aree']],['Test Schiller/Acido Acetico',g['colpo-test']]
+  ]);
+  html+=sec('🩸','Biopsia',[['Sede',g['bio-sede']],['Esito istologico',g['bio-esito']]]);
+  html+=sec('🔄','Follow-up Colposcopia',[['',g['colpo-followup']]]);
+  html+=sec('🔺','Ecografia Transvaginale - Utero',[
+    ['Posizione',g['tv-posizione']],['Dimensioni',g['tv-dimensioni']],['Miometrio',g['tv-miometrio']],
+    ['Endometrio - spessore',g['tv-endo-spess']?g['tv-endo-spess']+' mm':''],['Endometrio - aspetto',g['tv-endo-aspetto']]
+  ]);
+  html+=sec('🟣','Ecografia Transvaginale - Annessi',[
+    ['Ovaio destro',g['tv-ovaio-dx']],['Ovaio sinistro',g['tv-ovaio-sx']],['Douglas',g['tv-douglas']],['Note',g['tv-note']]
+  ]);
+  html+=sec('🌙','Menopausa / Climaterio',[
+    ['Stato menopausale',g['meno-stato']],['Data ultima mestruazione',g['meno-um']?new Date(g['meno-um']).toLocaleDateString('it-IT'):''],
+    ['Vampate di calore',g['meno-vampate']],['Sudorazioni notturne',g['meno-sudorazioni']],
+    ['Secchezza vaginale',g['meno-secchezza']],['Disturbi urinari',g['meno-urinari']],
+    ['Densitometria - data',g['meno-moc-data']?new Date(g['meno-moc-data']).toLocaleDateString('it-IT'):''],['Densitometria - T-score',g['meno-moc-tscore']],
+    ['TOS - tipo',g['meno-tos-tipo']],['TOS - dosaggio',g['meno-tos-dose']],['TOS - da quando',g['meno-tos-da']?new Date(g['meno-tos-da']).toLocaleDateString('it-IT'):''],
+    ['Fattori di rischio',g['meno-rischi']]
+  ]);
   html+=sec('✅','Conclusioni',[
     ['Conclusioni',g.conclusioni],['Esami richiesti',g['esami-richiesti']],
     ['Terapia',g.terapia],['Prossimi controlli',g.prossimi]
