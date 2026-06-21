@@ -841,6 +841,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <button onclick="naviga('storico-date')" id="nav-storico-date"><span class="nav-icon">📅</span>Storico Visite</button>
       <button onclick="naviga('appuntamenti')" id="nav-appuntamenti"><span class="nav-icon">📅</span>Appuntamenti</button>
       <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
+      <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">📋</span>Ricettario</button>
     </div>
     <div class="nav-group">
       <div class="nav-group-label">Strumenti</div>
@@ -929,9 +930,9 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
     <div class="card">
       <div class="card-header">
-        <div><div class="card-title">Scadenze & Promemoria</div><div class="card-subtitle">Ordinate per data</div></div>
+        <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Prenotazioni GynoBook e promemoria, in ordine di data</div></div>
       </div>
-      <div id="dashboard-alerts" style="max-height:400px;overflow-y:auto;"></div>
+      <div id="dashboard-alerts" style="max-height:480px;overflow-y:auto;"></div>
     </div>
   </div>
 
@@ -1249,6 +1250,29 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 </div>
 
+<!-- RICETTARIO -->
+<div id="sec-ricettario" class="section">
+  <div class="page-header">
+    <div><div class="page-title">Ricettario</div><div class="page-subtitle">Tutte le terapie prescritte, per paziente e data</div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <input type="text" id="ricettario-search" oninput="renderRicettario()" placeholder="🔍 Cerca per nome paziente o farmaco..." style="margin-bottom:0">
+  </div>
+  <div class="card">
+    <div id="ricettario-list"></div>
+  </div>
+</div>
+
+<!-- Modal Ricettario di una singola visita -->
+<div id="m-ricettario-visita" class="overlay">
+  <div class="modal-sm" style="width:520px">
+    <h3 id="rv-title">Ricettario Visita</h3>
+    <p id="rv-subtitle" style="color:var(--label4);font-size:.85rem;margin-bottom:16px"></p>
+    <div id="rv-body" style="background:var(--surface-2);border-radius:var(--radius);padding:16px;font-size:.88rem;line-height:1.7;white-space:pre-wrap;margin-bottom:18px"></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="closeModal('m-ricettario-visita')">Chiudi</button>
+  </div>
+</div>
+
 <!-- DETTAGLIO PAZIENTE -->
 <div id="sec-dettaglio" class="section">
   <button onclick="naviga('archivio')" class="btn btn-ghost" style="margin-bottom:20px;">← Torna ai Pazienti</button>
@@ -1360,10 +1384,15 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
 
     <!-- Lista eventi del giorno -->
-    <div id="cal-modal-events" style="margin-bottom:18px;"></div>
+    <div id="cal-modal-events" style="margin-bottom:14px;"></div>
 
-    <!-- Form nuovo evento -->
-    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--separator);">
+    <!-- Toggle nuovo evento -->
+    <button id="cal-new-toggle" class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:14px" onclick="toggleCalNewForm()">
+      <span id="cal-new-toggle-icon">➕</span> <span id="cal-new-toggle-label">Nuovo Evento</span>
+    </button>
+
+    <!-- Form nuovo evento (nascosto finché non si clicca il toggle sopra) -->
+    <div id="cal-new-form" style="display:none;background:var(--surface2);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--separator);">
       <div style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Nuovo Evento</div>
 
       <div class="form-group" style="margin-bottom:10px;">
@@ -1452,14 +1481,25 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       </div>
     </div>
     <div class="editor-body">
-      <div class="editor-nav">
+      <div class="editor-nav" id="editor-nav-gyno">
         <button class="editor-nav-btn active" onclick="setEditorTab(this,'ep-1')"><span class="step-num">1</span>Anamnesi</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-2')"><span class="step-num">2</span>Motivo</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-3')"><span class="step-num">3</span>Esame Obiettivo</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-4')"><span class="step-num">4</span>Ecografia</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-5')"><span class="step-num">5</span>Conclusioni</button>
       </div>
+      <div class="editor-nav" id="editor-nav-ob" style="display:none">
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ob-1')"><span class="step-num">1</span>Parametri</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-2')"><span class="step-num">2</span>Esame Obiettivo</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-3')"><span class="step-num">3</span>Conclusioni</button>
+      </div>
+      <div class="editor-nav" id="editor-nav-eco" style="display:none">
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ec-1')"><span class="step-num">1</span>Biometria Fetale</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-2')"><span class="step-num">2</span>Liquido & Placenta</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">3</span>Referto</button>
+      </div>
       <div class="editor-content">
+        <div id="gyno-panels">
 
         <!-- ════════ PANEL 1: ANAMNESI ════════ -->
         <div id="ep-1" class="edit-panel active">
@@ -1626,6 +1666,117 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             <div class="form-group"><textarea id="gd-prossimi" rows="2" placeholder="Indicazioni per il follow-up..."></textarea></div>
           </div>
         </div>
+
+        </div><!-- /gyno-panels -->
+
+        <!-- ═══════════════════════════════════════════════
+             VISITA OSTETRICA
+             ═══════════════════════════════════════════════ -->
+        <div id="ob-panels" style="display:none">
+
+          <!-- ════════ OB PANEL 1: PARAMETRI ════════ -->
+          <div id="ob-1" class="edit-panel active">
+            <div class="section-card">
+              <h4 data-icon="🤰">Parametri Gravidanza</h4>
+              <div class="field-row r3">
+                <div class="form-group"><label class="form-label">Settimane di Gestazione</label><input id="ob-settimane" placeholder="es. 24+3"></div>
+                <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="ob-peso" placeholder="68"></div>
+                <div class="form-group"><label class="form-label">Pressione (PA)</label><input id="ob-pressione" placeholder="120/80"></div>
+              </div>
+              <div class="field-row r2" style="margin-top:12px">
+                <div class="form-group"><label class="form-label">Battito Fetale (BCF)</label><input id="ob-bcf" placeholder="es. 145 bpm"></div>
+                <div class="form-group"><label class="form-label">Movimenti Fetali</label><select id="ob-movimenti">
+                  <option value="">-- Seleziona --</option>
+                  <option value="presenti">Presenti e validi</option>
+                  <option value="ridotti">Ridotti</option>
+                  <option value="assenti">Assenti</option>
+                  <option value="non_percepiti">Non ancora percepiti dalla paziente</option>
+                </select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ OB PANEL 2: ESAME OBIETTIVO ════════ -->
+          <div id="ob-2" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🔍">Esame Obiettivo</h4>
+              <div class="form-group"><textarea id="ob-esame" rows="6" placeholder="Esame obiettivo ostetrico: altezza fondo uterino, presentazione, palpazione..."></textarea></div>
+            </div>
+          </div>
+
+          <!-- ════════ OB PANEL 3: CONCLUSIONI ════════ -->
+          <div id="ob-3" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="✅">Diagnosi</h4>
+              <div class="form-group"><textarea id="ob-diagnosi" rows="4"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="💊">Terapia</h4>
+              <div class="form-group"><textarea id="ob-terapia" rows="4" placeholder="es. Acido folico 400mcg 1 cpr/die..."></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔄">Prossimo Controllo</h4>
+              <div class="form-group"><textarea id="ob-prossimo" rows="2" placeholder="Indicazioni per il follow-up..."></textarea></div>
+            </div>
+          </div>
+
+        </div><!-- /ob-panels -->
+
+        <!-- ═══════════════════════════════════════════════
+             ECOGRAFIA OSTETRICA
+             ═══════════════════════════════════════════════ -->
+        <div id="eco-panels" style="display:none">
+
+          <!-- ════════ ECO PANEL 1: BIOMETRIA FETALE ════════ -->
+          <div id="ec-1" class="edit-panel active">
+            <div class="section-card">
+              <h4 data-icon="📏">Età Gestazionale</h4>
+              <div class="form-group"><input id="ec-settimane" placeholder="es. 20+5 settimane"></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="👶">Biometria Fetale</h4>
+              <div class="field-row r4">
+                <div class="form-group"><label class="form-label">CRL (mm)</label><input id="ec-crl" placeholder="es. 65"></div>
+                <div class="form-group"><label class="form-label">BPD (mm)</label><input id="ec-bpd" placeholder="es. 48"></div>
+                <div class="form-group"><label class="form-label">FL (mm)</label><input id="ec-fl" placeholder="es. 32"></div>
+                <div class="form-group"><label class="form-label">AC (mm)</label><input id="ec-ac" placeholder="es. 160"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="❤️">Battito Cardiaco Fetale</h4>
+              <div class="form-group"><input id="ec-bcf" placeholder="es. 150 bpm, ritmo regolare"></div>
+            </div>
+          </div>
+
+          <!-- ════════ ECO PANEL 2: LIQUIDO & PLACENTA ════════ -->
+          <div id="ec-2" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="💧">Liquido Amniotico</h4>
+              <div class="form-group"><textarea id="ec-liquido" rows="3" placeholder="es. Quantità normale, falda massima..."></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🟣">Placenta</h4>
+              <div class="form-group"><textarea id="ec-placenta" rows="3" placeholder="Sede, grado di maturità, distanza dall'OUI..."></textarea></div>
+            </div>
+          </div>
+
+          <!-- ════════ ECO PANEL 3: REFERTO ════════ -->
+          <div id="ec-3" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="📄">Diagnosi / Referto</h4>
+              <div class="form-group"><textarea id="ec-diagnosi" rows="6" placeholder="Referto conclusivo dell'esame ecografico..."></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="💊">Terapia</h4>
+              <div class="form-group"><textarea id="ec-terapia" rows="4"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔄">Prossimo Controllo</h4>
+              <div class="form-group"><textarea id="ec-prossimo" rows="2"></textarea></div>
+            </div>
+          </div>
+
+        </div><!-- /eco-panels -->
 
       </div>
     </div>
@@ -1976,6 +2127,42 @@ function setGynoData(data){
   const chk=document.getElementById('gd-informativa-chk');
   if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   calcGynoBMI();
+}
+
+// ── VISITA OSTETRICA ──
+const OB_FIELDS=['settimane','peso','pressione','bcf','movimenti','esame','diagnosi','terapia','prossimo'];
+function getObData(){
+  const d={};
+  OB_FIELDS.forEach(f=>{
+    const el=document.getElementById('ob-'+f);
+    if(el) d[f]=el.value;
+  });
+  return d;
+}
+function setObData(data){
+  if(!data)return;
+  OB_FIELDS.forEach(f=>{
+    const el=document.getElementById('ob-'+f);
+    if(el && data[f]!==undefined) el.value=data[f];
+  });
+}
+
+// ── ECOGRAFIA OSTETRICA ──
+const ECO_FIELDS=['settimane','crl','bpd','fl','ac','bcf','liquido','placenta','diagnosi','terapia','prossimo'];
+function getEcoData(){
+  const d={};
+  ECO_FIELDS.forEach(f=>{
+    const el=document.getElementById('ec-'+f);
+    if(el) d[f]=el.value;
+  });
+  return d;
+}
+function setEcoData(data){
+  if(!data)return;
+  ECO_FIELDS.forEach(f=>{
+    const el=document.getElementById('ec-'+f);
+    if(el && data[f]!==undefined) el.value=data[f];
+  });
 }
 
 
@@ -2512,6 +2699,7 @@ function naviga(id){
   if(id==='backup') renderBackupStats();
   if(id==='appuntamenti') loadFBAppuntamenti();
   if(id==='disponibilita') renderDisponibilita();
+  if(id==='ricettario') renderRicettario();
 }
 
 function salvaDB(){localStorage.setItem('gynoDB_v15',JSON.stringify(DB));}
@@ -2530,7 +2718,6 @@ function renderDashboard(){
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{if(v.data===oggi)visitOggi++;}));
   document.getElementById('stat-oggi').textContent=visitOggi;
   renderAlertsHome();
-  renderDashboardAppts();
 }
 
 function renderAlertsHome(){
@@ -2538,18 +2725,34 @@ function renderAlertsHome(){
   if(!c) return;
   c.innerHTML='';
   const oggi=new Date().toISOString().split('T')[0];
-  // ── Appuntamenti Firebase prossimi (da oggi in poi) ──
-  const fbProssimi=GS_APPTS
-    .filter(a=>a.data>=oggi && a.stato!=='cancellato')
-    .slice(0,8);
-  if(fbProssimi.length){
-    const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
-    fbProssimi.forEach(a=>{
+  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+
+  // Tutti gli appuntamenti GynoBook da oggi in poi (nessun limite di quantità)
+  const fbProssimi=GS_APPTS.filter(a=>a.data>=oggi && a.stato!=='cancellato');
+
+  // Tutti i promemoria di tutte le pazienti
+  let promemoria=[];
+  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>promemoria.push({p,a})));
+
+  // Unifica in una sola lista ordinata per data
+  const righe=[
+    ...fbProssimi.map(a=>({tipo:'appuntamento',data:a.data,a})),
+    ...promemoria.map(i=>({tipo:'promemoria',data:i.a.data,p:i.p,a:i.a}))
+  ].sort((x,y)=>x.data.localeCompare(y.data));
+
+  if(!righe.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun appuntamento o promemoria attivo</p></div>';
+    return;
+  }
+
+  c.innerHTML=righe.map(r=>{
+    if(r.tipo==='appuntamento'){
+      const a=r.a;
       const isOggi=a.data===oggi;
       const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
       const paz=a.pazienteId?DB.pazienti.find(x=>String(x.id)===String(a.pazienteId)):null;
       const nameClick=paz?`onclick="openPaziente(${paz.id})" style="cursor:pointer;color:var(--primary)"`:'';
-      c.innerHTML+=`<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
+      return `<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
         <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
         <span class="alert-text">
           <strong ${nameClick}>${a.pazienteNome||'–'}${paz?' ↗':''}</strong>
@@ -2557,68 +2760,15 @@ function renderAlertsHome(){
           ${a.createdBy?`<span style="color:var(--label4);font-size:.72rem"> · 👤${a.createdBy}</span>`:''}
         </span>
       </div>`;
-    });
-    // Separatore
-    if(fbProssimi.length) c.innerHTML+=`<div style="height:1px;background:var(--separator);margin:8px 0"></div>`;
-  }
-  // ── Promemoria locali pazienti ──
-  let l=[];
-  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>l.push({p,a})));
-  l.sort((a,b)=>new Date(a.a.data)-new Date(b.a.data));
-  if(!l.length && !fbProssimi.length){
-    c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun promemoria attivo</p></div>';
-    return;
-  }
-  l.slice(0,6).forEach(i=>{
-    const past=new Date(i.a.data)<new Date();
-    c.innerHTML+=`<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}">
-      <span class="alert-date">${i.a.data}</span>
-      <span class="alert-text"><strong>${i.p.cognome}</strong>: ${i.a.testo}</span>
-      <span onclick="openPaziente(${i.p.id})" style="color:var(--primary);cursor:pointer;font-size:.75rem;font-weight:600;">Apri →</span>
+    }
+    // Promemoria
+    const past=new Date(r.a.data)<new Date();
+    return `<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}">
+      <span class="alert-date">${new Date(r.a.data).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</span>
+      <span class="alert-text"><strong onclick="openPaziente(${r.p.id})" style="cursor:pointer;color:var(--primary)">${r.p.cognome}</strong>: ${r.a.testo}</span>
+      <span onclick="openPaziente(${r.p.id})" style="color:var(--primary);cursor:pointer;font-size:.75rem;font-weight:600;">Apri →</span>
     </div>`;
-  });
-}
-
-function renderDashboardAppts(){
-  // Mostra appuntamenti Firebase di oggi nella dashboard
-  let el=document.getElementById('dash-appts-box');
-  if(!el){
-    // Crea il box se non esiste ancora
-    const parent=document.querySelector('#sec-home .g2');
-    if(!parent) return;
-    const div=document.createElement('div');
-    div.className='card';
-    div.id='dash-appts-box';
-    div.style.marginTop='16px';
-    div.innerHTML=`<div class="card-header"><div><div class="card-title">📅 Appuntamenti Oggi <span id="dash-appts-badge" class="badge badge-green">0</span></div><div class="card-subtitle">Da GynoBook · Firebase</div></div><button class="btn btn-ghost" style="font-size:.8rem" onclick="loadFBAppuntamenti()">🔄</button></div><div id="dash-appts-list"></div>`;
-    // Inserisci dopo il grid
-    parent.parentNode.insertBefore(div,parent.nextSibling);
-    el=div;
-  }
-  const oggi=new Date().toISOString().split('T')[0];
-  const apptOggi=GS_APPTS.filter(a=>a.data===oggi).sort((a,b)=>(a.ora||'').localeCompare(b.ora||''));
-  const badge=document.getElementById('dash-appts-badge');
-  if(badge) badge.textContent=apptOggi.length;
-  const list=document.getElementById('dash-appts-list');
-  if(!list) return;
-  if(!apptOggi.length){
-    list.innerHTML='<div style="text-align:center;padding:16px;color:var(--label4);font-size:.85rem">Nessun appuntamento per oggi da GynoBook</div>';
-    return;
-  }
-  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
-  list.innerHTML=apptOggi.map(a=>`
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--separator)">
-      <div style="min-width:42px;text-align:center;flex-shrink:0">
-        <div style="font-family:var(--font-serif);font-size:1.1rem;color:var(--primary);line-height:1">${a.ora?.split(':')[0]||'--'}</div>
-        <div style="font-size:.65rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
-      </div>
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:.875rem">${a.pazienteNome||'–'}</div>
-        <div style="font-size:.75rem;color:var(--label3)">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.durata?'· '+a.durata+' min':''}</div>
-        ${a.createdBy?`<div style="font-size:.7rem;color:var(--label4)">👤 ${a.createdBy}</div>`:''}
-      </div>
-      <span class="badge ${a.stato==='confermato'?'badge-green':a.stato==='cancellato'?'badge-red':'badge-orange'}" style="font-size:.65rem">${a.stato||'–'}</span>
-    </div>`).join('');
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════
@@ -2689,9 +2839,12 @@ function openDay(d){
   // Reset tipo pills
   document.querySelectorAll('.tipo-pill').forEach(p=>p.classList.remove('active'));
   document.querySelector('.tipo-pill[data-tipo="nota"]').classList.add('active');
+  // Il form nuovo evento parte sempre chiuso: prima si vedono le prenotazioni/promemoria del giorno
+  document.getElementById('cal-new-form').style.display='none';
+  document.getElementById('cal-new-toggle-icon').textContent='➕';
+  document.getElementById('cal-new-toggle-label').textContent='Nuovo Evento';
   renderCalModalEvents(d);
   document.getElementById('cal-day-modal').classList.add('show');
-  setTimeout(()=>document.getElementById('cal-ev-text').focus(),120);
 }
 
 function renderCalModalEvents(d){
@@ -2754,6 +2907,18 @@ function renderCalModalEvents(d){
       </div>
     </div>`;
   });
+}
+
+// Mostra/nasconde il form "Nuovo Evento": parte sempre chiuso, si apre solo al click sull'icona +.
+function toggleCalNewForm(){
+  const form=document.getElementById('cal-new-form');
+  const icon=document.getElementById('cal-new-toggle-icon');
+  const label=document.getElementById('cal-new-toggle-label');
+  const isOpen=form.style.display==='block';
+  form.style.display=isOpen?'none':'block';
+  icon.textContent=isOpen?'➕':'➖';
+  label.textContent=isOpen?'Nuovo Evento':'Chiudi';
+  if(!isOpen) setTimeout(()=>document.getElementById('cal-ev-text').focus(),120);
 }
 
 function setCalTipo(btn){
@@ -3253,23 +3418,41 @@ function confermaAnnullaVisita(){
 function startEditor(tipo, vid=null){
   closeModal('modal-type');
   document.getElementById('editor-overlay').classList.add('show');
-  curMode='gyno'; curVisita=vid; // ora sempre gyno con template completi
-  // Reset campi
+  curMode=tipo; curVisita=vid;
+
+  // Reset campi di TUTTI i moduli (anche quelli non visibili, per sicurezza)
   document.querySelectorAll('#editor-overlay input:not([readonly]), #editor-overlay textarea, #editor-overlay select').forEach(el=>{
     if(el.tagName==='SELECT')el.selectedIndex=0;
     else if(el.type==='checkbox')el.checked=true;
     else el.value='';
   });
-  document.getElementById('editor-type-badge').textContent='🌸 GINECOLOGICA';
-  document.getElementById('editor-title').textContent=`Visita Ginecologica – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
-  // Popola select e macro
-  initGynoSelects();
-  // Reset BMI
-  const bmiBox=document.getElementById('gd-bmi-box');
-  if(bmiBox) bmiBox.style.display='none';
-  // Tab 1
-  const firstBtn=document.querySelector('.editor-nav-btn');
-  setEditorTab(firstBtn,'ep-1');
+
+  // Mostra/nasconde nav e pannelli in base al tipo
+  const navs={gyno:'editor-nav-gyno',ob:'editor-nav-ob',eco:'editor-nav-eco'};
+  const panels={gyno:'gyno-panels',ob:'ob-panels',eco:'eco-panels'};
+  Object.values(navs).forEach(id=>document.getElementById(id).style.display='none');
+  Object.values(panels).forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById(navs[tipo]).style.display='flex';
+  document.getElementById(panels[tipo]).style.display='block';
+
+  const meta={
+    gyno:{badge:'🌸 GINECOLOGICA',label:'Visita Ginecologica',firstTab:'ep-1'},
+    ob:{badge:'🤰 OSTETRICA',label:'Visita Ostetrica',firstTab:'ob-1'},
+    eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-1'}
+  }[tipo];
+  document.getElementById('editor-type-badge').textContent=meta.badge;
+  document.getElementById('editor-title').textContent=`${meta.label} – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
+
+  if(tipo==='gyno'){
+    initGynoSelects();
+    const bmiBox=document.getElementById('gd-bmi-box');
+    if(bmiBox) bmiBox.style.display='none';
+  }
+
+  // Attiva il primo tab del modulo corrente
+  const firstBtn=document.querySelector('#'+navs[tipo]+' .editor-nav-btn');
+  setEditorTab(firstBtn,meta.firstTab);
+
   if(vid) loadVisita(vid);
 }
 
@@ -3285,9 +3468,12 @@ function salvaVisita(){
   const v={
     id:curVisita||Date.now(),
     data:curVisita?p.visite.find(x=>x.id===curVisita).data:new Date().toISOString().split('T')[0],
-    tipo:'gyno',
-    gynoData:getGynoData()
+    tipo:curMode
   };
+  if(curMode==='ob') v.obData=getObData();
+  else if(curMode==='eco') v.ecoData=getEcoData();
+  else v.gynoData=getGynoData();
+
   if(curVisita) p.visite[p.visite.findIndex(x=>x.id===curVisita)]=v;
   else p.visite.push(v);
   salvaDB();
@@ -3343,32 +3529,118 @@ function loadVisita(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p.visite.find(x=>x.id===vid);
   if(!v)return;
-  initGynoSelects();
-  if(v.gynoData) setGynoData(v.gynoData);
+  if(v.tipo==='ob') setObData(v.obData);
+  else if(v.tipo==='eco') setEcoData(v.ecoData);
+  else { initGynoSelects(); if(v.gynoData) setGynoData(v.gynoData); }
 }
 
 function renderVisiteList(p){
   const c=document.getElementById('visite-list'); c.innerHTML='';
   document.getElementById('visite-count-badge').textContent=`${p.visite?.length||0} visite`;
   if(!p.visite?.length){c.innerHTML='<div class="empty-state"><div class="es-icon">🩺</div><p>Nessuna visita registrata</p></div>';return;}
+
+  const TIPO_META={
+    gyno:{icon:'🌸',label:'VISITA GINECOLOGICA'},
+    ob:{icon:'🤰',label:'VISITA OSTETRICA'},
+    eco:{icon:'🖥️',label:'ECOGRAFIA OSTETRICA'}
+  };
+
   p.visite.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v=>{
-    const gd=v.gynoData||{};
-    const concl=gd.conclusioni||gd.motivo||'–';
-    const conclShort=concl.length>80?concl.slice(0,80)+'…':concl;
+    const tipo=v.tipo||'gyno';
+    const meta=TIPO_META[tipo]||TIPO_META.gyno;
+    let conclShort='–', terapia='';
+    if(tipo==='ob'){ const d=v.obData||{}; conclShort=d.diagnosi||d.esame||'–'; terapia=d.terapia||''; }
+    else if(tipo==='eco'){ const d=v.ecoData||{}; conclShort=d.diagnosi||'–'; terapia=d.terapia||''; }
+    else { const d=v.gynoData||{}; conclShort=d.conclusioni||d.motivo||'–'; terapia=d.terapia||''; }
+    if(conclShort.length>80) conclShort=conclShort.slice(0,80)+'…';
+    const haTerapia=terapia&&terapia.trim().length>0;
+
     c.innerHTML+=`<div class="visit-item">
-      <div class="visit-icon" style="background:var(--primary-dim)">🌸</div>
+      <div class="visit-icon" style="background:var(--primary-dim)">${meta.icon}</div>
       <div class="visit-info">
         <div class="visit-date">${new Date(v.data).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}</div>
-        <div class="visit-type">VISITA GINECOLOGICA</div>
+        <div class="visit-type">${meta.label}</div>
         <div class="visit-diag">${conclShort}</div>
       </div>
       <div class="visit-actions">
         <button class="btn btn-ghost btn-sm btn-icon" onclick="visualizzaVisita(${v.id})" title="Visualizza">👁️</button>
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('gyno',${v.id})" title="Modifica">✏️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('${tipo}',${v.id})" title="Modifica">✏️</button>
         <button class="btn btn-ghost btn-sm btn-icon" onclick="stampa(${v.id})" title="Stampa">🖨️</button>
+        ${haTerapia?`<button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisita(${v.id})" title="Ricettario di questa visita">💊📋</button>`:''}
       </div>
     </div>`;
   });
+}
+
+// ═══════════════════════════════════════════════════
+//  RICETTARIO
+// ═══════════════════════════════════════════════════
+// Estrae il testo della terapia da una visita, indipendentemente dal tipo.
+function terapiaDiVisita(v){
+  if(v.tipo==='ob') return (v.obData||{}).terapia||'';
+  if(v.tipo==='eco') return (v.ecoData||{}).terapia||'';
+  return (v.gynoData||{}).terapia||'';
+}
+
+// Mostra la terapia di UNA visita specifica (icona 💊📋 nella lista visite della cartella).
+function apriRicettarioVisita(vid){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const v=p?.visite.find(x=>x.id===vid);
+  if(!v)return;
+  const terapia=terapiaDiVisita(v);
+  document.getElementById('rv-title').textContent=`💊 Ricettario · ${p.cognome} ${p.nome}`;
+  document.getElementById('rv-subtitle').textContent=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('rv-body').textContent=terapia||'Nessuna terapia registrata per questa visita.';
+  document.getElementById('m-ricettario-visita').classList.add('show');
+}
+
+// Sezione Ricettario aggregata: tutte le terapie di tutte le pazienti, più recenti prima.
+function renderRicettario(){
+  const search=(document.getElementById('ricettario-search')?.value||'').toLowerCase().trim();
+  const c=document.getElementById('ricettario-list');
+  const righe=[];
+  DB.pazienti.forEach(p=>{
+    (p.visite||[]).forEach(v=>{
+      const terapia=terapiaDiVisita(v);
+      if(terapia && terapia.trim()) righe.push({p,v,terapia});
+    });
+  });
+  righe.sort((a,b)=>new Date(b.v.data)-new Date(a.v.data));
+
+  const filtrate=search
+    ? righe.filter(r=>(`${r.p.nome} ${r.p.cognome}`.toLowerCase().includes(search)) || r.terapia.toLowerCase().includes(search))
+    : righe;
+
+  if(!filtrate.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">💊</div><p>Nessuna terapia prescritta trovata.</p></div>';
+    return;
+  }
+
+  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️'};
+  c.innerHTML=filtrate.map(r=>`
+    <div class="visit-item">
+      <div class="visit-icon" style="background:var(--primary-dim)">💊</div>
+      <div class="visit-info">
+        <div class="visit-date" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" onclick="openPaziente(${r.p.id})">${r.p.cognome} ${r.p.nome}</div>
+        <div class="visit-type">${TIPO_ICON[r.v.tipo]||'🌸'} ${new Date(r.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div class="visit-diag">${r.terapia.length>120?r.terapia.slice(0,120)+'…':r.terapia}</div>
+      </div>
+      <div class="visit-actions">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisitaGlobale(${r.p.id},${r.v.id})" title="Vedi ricettario completo">💊📋</button>
+      </div>
+    </div>`).join('');
+}
+
+// Come apriRicettarioVisita ma richiamabile dalla sezione aggregata (curPaz potrebbe non essere impostato)
+function apriRicettarioVisitaGlobale(pazId,vid){
+  const p=DB.pazienti.find(x=>x.id===pazId);
+  const v=p?.visite.find(x=>x.id===vid);
+  if(!v)return;
+  const terapia=terapiaDiVisita(v);
+  document.getElementById('rv-title').textContent=`💊 Ricettario · ${p.cognome} ${p.nome}`;
+  document.getElementById('rv-subtitle').textContent=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('rv-body').textContent=terapia||'Nessuna terapia registrata per questa visita.';
+  document.getElementById('m-ricettario-visita').classList.add('show');
 }
 
 // ═══════════════════════════════════════════════════
@@ -3448,7 +3720,6 @@ function stampa(vid){
 }
 
 function buildRefertoView(v){
-  const g=v.gynoData||{};
   const sec=(icon,title,rows)=>{
     const valid=rows.filter(r=>r[1]&&r[1].trim());
     if(!valid.length)return '';
@@ -3463,6 +3734,39 @@ function buildRefertoView(v){
       </div>`).join('')}
     </div>`;
   };
+
+  if(v.tipo==='ob'){
+    const o=v.obData||{};
+    let html='';
+    html+=sec('🤰','Parametri Gravidanza',[
+      ['Settimane',o.settimane],['Peso',o.peso?o.peso+' kg':''],['Pressione',o.pressione],
+      ['BCF',o.bcf],['Movimenti fetali',o.movimenti]
+    ]);
+    html+=sec('🔍','Esame Obiettivo',[['',o.esame]]);
+    html+=sec('✅','Diagnosi',[['',o.diagnosi]]);
+    html+=sec('💊','Terapia',[['',o.terapia]]);
+    html+=sec('🔄','Prossimo Controllo',[['',o.prossimo]]);
+    if(!html) html='<div style="text-align:center;padding:30px;color:var(--label4)">Nessun dato registrato per questa visita</div>';
+    return html;
+  }
+
+  if(v.tipo==='eco'){
+    const e=v.ecoData||{};
+    let html='';
+    html+=sec('📏','Età Gestazionale',[['Settimane',e.settimane]]);
+    html+=sec('👶','Biometria Fetale',[
+      ['CRL',e.crl?e.crl+' mm':''],['BPD',e.bpd?e.bpd+' mm':''],['FL',e.fl?e.fl+' mm':''],['AC',e.ac?e.ac+' mm':''],['BCF',e.bcf]
+    ]);
+    html+=sec('💧','Liquido & Placenta',[['Liquido amniotico',e.liquido],['Placenta',e.placenta]]);
+    html+=sec('📄','Diagnosi / Referto',[['',e.diagnosi]]);
+    html+=sec('💊','Terapia',[['',e.terapia]]);
+    html+=sec('🔄','Prossimo Controllo',[['',e.prossimo]]);
+    if(!html) html='<div style="text-align:center;padding:30px;color:var(--label4)">Nessun dato registrato per questa visita</div>';
+    return html;
+  }
+
+  // Default: visita ginecologica
+  const g=v.gynoData||{};
   let html='';
   // BMI calcolato
   let bmi='';
@@ -3504,7 +3808,7 @@ function visualizzaVisita(vid){
   document.getElementById('vv-subtitle').textContent=`${p.cognome} ${p.nome}`;
   document.getElementById('vv-body').innerHTML=buildRefertoView(v);
   document.getElementById('vv-print-btn').onclick=()=>{closeModal('view-visita');stampa(vid);};
-  document.getElementById('vv-edit-btn').onclick=()=>{closeModal('view-visita');startEditor('gyno',vid);};
+  document.getElementById('vv-edit-btn').onclick=()=>{closeModal('view-visita');startEditor(v.tipo||'gyno',vid);};
   document.getElementById('view-visita').classList.add('show');
 }
 
@@ -3743,7 +4047,7 @@ let _gsKnownApptIds = new Set();
 async function loadFBAppuntamenti(){
   if(!gsFirebaseReady){gsToast('Firebase non disponibile','gs-error');return;}
   // Se il listener è già attivo, non serve rifare nulla (è realtime)
-  if(_gsApptListener){ renderFBAppts(); renderDashboardAppts(); renderAlertsHome(); renderCalendar(); return; }
+  if(_gsApptListener){ renderFBAppts(); renderAlertsHome(); renderCalendar(); return; }
 
   // Avvia listener realtime: rileva automaticamente nuove prenotazioni da GynoBook
   _gsApptListener = gsDb.collection('appuntamenti').onSnapshot(snap=>{
@@ -3754,7 +4058,6 @@ async function loadFBAppuntamenti(){
       return (a.ora||'').localeCompare(b.ora||'');
     });
     renderFBAppts();
-    renderDashboardAppts();
     renderAlertsHome();
     renderCalendar();
     const oggi=new Date().toISOString().split('T')[0];
