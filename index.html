@@ -20,6 +20,7 @@
 <!-- Firebase SDK (solo Firestore, no Storage) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <style>
 :root{
   --bg:#f2f2f7;
@@ -746,6 +747,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <div class="lpc-role">Ginecologia · Ostetricia</div>
       </div>
     </div>
+    <input type="email" id="login-email" class="login-input" placeholder="Email" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
     <div class="pass-wrap">
       <input type="password" id="login-pass" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkLogin()">
       <button class="eye-toggle" type="button" onclick="toggleEye('login-pass',this)" tabindex="-1">
@@ -753,67 +755,9 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <svg id="eye-gs-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
       </button>
     </div>
-    <div class="login-remember">
-      <input type="checkbox" id="login-remember-chk">
-      <label for="login-remember-chk">Ricorda la password su questo dispositivo</label>
-    </div>
     <button class="login-btn" onclick="checkLogin()">Accedi</button>
-    <div id="login-err" class="login-err">Password non corretta. Riprova.</div>
-    <button class="forgot-link" onclick="openForgot()">Ho dimenticato la password</button>
-  </div>
-</div>
-
-<!-- FORGOT PASSWORD OVERLAY -->
-<div id="forgot-overlay">
-  <div class="forgot-card">
-
-    <!-- Step 1: inserisci codice di recupero -->
-    <div class="forgot-step active" id="fs-1">
-      <div style="font-size:2rem;margin-bottom:12px">🔑</div>
-      <h3>Recupero Password</h3>
-      <p>Inserisci il <strong style="color:rgba(255,255,255,0.7)">codice di recupero</strong> per visualizzare o reimpostare la password di accesso</p>
-      <div class="pass-wrap">
-        <input type="password" id="recovery-inp" class="login-input" placeholder="Codice di recupero" onkeydown="if(event.key==='Enter')checkRecovery()">
-        <button class="eye-toggle" type="button" onclick="toggleEye('recovery-inp',this)" tabindex="-1">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </div>
-      <div id="recovery-err" style="color:#ff6b6b;font-size:0.8rem;margin:8px 0;display:none;">Codice errato. Riprova.</div>
-      <button class="login-btn" onclick="checkRecovery()" style="margin-top:6px">Verifica Codice</button>
-      <div class="forgot-divider"></div>
-      <p style="font-size:0.75rem;color:rgba(255,255,255,0.25);margin:0">Il codice di recupero predefinito è la password del Pannello Admin</p>
-      <button class="forgot-link" onclick="closeForgot()">← Torna al login</button>
-    </div>
-
-    <!-- Step 2: mostra/reimposta password -->
-    <div class="forgot-step" id="fs-2">
-      <div class="forgot-success-icon">✅</div>
-      <h3>Codice Verificato</h3>
-      <p>Puoi visualizzare la password attuale o impostarne una nuova</p>
-      <div class="forgot-new-pass">
-        <div class="fn-label">Password Attuale</div>
-        <div class="fn-val" id="fs-current-pass">•••••••••</div>
-      </div>
-      <div class="forgot-divider"></div>
-      <p style="color:rgba(255,255,255,0.5);font-size:0.8rem;margin-bottom:12px;text-align:left">Imposta nuova password:</p>
-      <div class="pass-wrap" style="margin-bottom:10px">
-        <input type="password" id="new-pass-inp" class="login-input" placeholder="Nuova password (min. 6 caratteri)">
-        <button class="eye-toggle" type="button" onclick="toggleEye('new-pass-inp',this)" tabindex="-1">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </div>
-      <button class="login-btn" onclick="resetGSPass()" style="background:var(--green)">💾 Salva Nuova Password</button>
-      <button class="forgot-link" onclick="closeForgot()">← Torna al login</button>
-    </div>
-
-    <!-- Step 3: conferma reset -->
-    <div class="forgot-step" id="fs-3">
-      <div class="forgot-success-icon">🎉</div>
-      <h3>Password Aggiornata</h3>
-      <p>La nuova password è stata salvata. Puoi accedere con le nuove credenziali.</p>
-      <button class="login-btn" onclick="closeForgot()">Torna al Login</button>
-    </div>
-
+    <div id="login-err" class="login-err">Email o password non corretti.</div>
+    <button class="forgot-link" onclick="resetPasswordEmail()">Ho dimenticato la password</button>
   </div>
 </div>
 
@@ -879,6 +823,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <div class="opts-divider"></div>
       <button class="opts-item danger" onclick="generaDatiTest();closeOpts()">
         <span class="oi">⚡</span>Genera Dati Demo
+      </button>
+      <div class="opts-divider"></div>
+      <button class="opts-item" onclick="logoutGynoSystem()" style="color:var(--red)">
+        <span class="oi">🚪</span>Esci da GynoSystem
       </button>
     </div>
     <!-- Trigger button -->
@@ -1192,12 +1140,13 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <input type="text" id="ms-luogo" placeholder="es. Via Roma 12, San Marino">
     </div>
     <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Password Accesso</label>
-      <div style="display:flex;gap:8px">
-        <input type="text" id="ms-password" placeholder="es. Novelune2025" style="flex:1">
-        <button type="button" class="btn btn-ghost btn-sm" onclick="generaPasswordStudio()" title="Genera password">🎲</button>
+      <label class="form-label">Email Account di Accesso *</label>
+      <input type="email" id="ms-email" placeholder="es. novelune@gynosistem.it">
+      <div style="font-size:.75rem;color:var(--label4);margin-top:6px">
+        Questa email deve corrispondere a un account creato manualmente in
+        <strong>Firebase Console → Authentication → Users → Add user</strong>.
+        Lo studio accederà a GynoBook con questa email + la password che imposterai lì.
       </div>
-      <div style="font-size:.75rem;color:var(--label4);margin-top:6px">Lo studio la inserirà al primo accesso su GynoBook. Lascia vuoto per nessuna protezione.</div>
     </div>
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Durata Slot Visita</label>
@@ -2526,7 +2475,7 @@ window.onload = () => {
   const d = localStorage.getItem('gynoDB_v15');
   if(d) DB = JSON.parse(d);
   if(!DB.studi) DB.studi=[];
-  migraPasswordStudiInChiaro(); // una tantum: hasha eventuali password salvate prima di questa versione
+  migraStudiVecchiFormato(); // una tantum: aggiorna gli studi creati con versioni precedenti
   startClock();
   naviga('home');
   renderFarmaci();
@@ -2536,24 +2485,20 @@ window.onload = () => {
   initFirebase();
 };
 
-// Le password studio create con versioni precedenti erano salvate in chiaro.
-// Un hash SHA-256 è sempre una stringa di 64 caratteri hex: se troviamo un valore
-// più corto o non-hex, lo trattiamo come password in chiaro e lo convertiamo.
-// Inizializza anche durataSlot/orariLimitati sugli studi creati prima di questi campi.
-async function migraPasswordStudiInChiaro(){
-  const isHash = v => typeof v==='string' && /^[0-9a-f]{64}$/.test(v);
+// Inizializza durataSlot/orariLimitati sugli studi creati prima di questi campi,
+// e segnala (in console) gli studi che non hanno ancora un'email di accesso collegata
+// (necessaria per il login Firebase Auth su GynoBook).
+async function migraStudiVecchiFormato(){
   let cambiato=false;
   for(const s of DB.studi){
-    if(s.password && !isHash(s.password)){
-      s.password = await sha256Hex(s.password);
-      cambiato=true;
-    }
     if(typeof s.durataSlot!=='number'){ s.durataSlot=30; cambiato=true; }
     if(typeof s.orariLimitati!=='boolean'){ s.orariLimitati=false; cambiato=true; }
+    if(s.password){ delete s.password; cambiato=true; } // campo obsoleto, sostituito da email+Firebase Auth
+    if(!s.email) console.warn(`Studio "${s.nome}" non ha un'email di accesso collegata. Aggiungila in Disponibilità Studi.`);
   }
   if(cambiato){
     salvaDB();
-    console.log('Studi migrati: password→hash, durataSlot/orariLimitati inizializzati.');
+    console.log('Studi migrati al nuovo formato (durataSlot/orariLimitati, rimossa password obsoleta).');
   }
 }
 
@@ -2566,53 +2511,50 @@ function startClock(){
 }
 
 // ═══════════════════════════════════════════════════
-//  LOGIN & ACCOUNT
+//  LOGIN & ACCOUNT (Firebase Authentication)
 // ═══════════════════════════════════════════════════
-// Password attive (default + eventuali da Firebase)
-let GS_PASSWORDS = ["CristinaSamu","Samuele2025","Admin2025"];
-// Codice di recupero (stesso della password Admin)
-const RECOVERY_CODE = "Samuele2025";
+// L'autenticazione vera è gestita da Firebase Auth (email+password).
+// Niente più password custom salvate nel codice o su Firestore in chiaro.
+let gsAuth=null;
+let gsCurrentUser=null;
 
-function checkLogin(){
-  const p = document.getElementById('login-pass').value;
-  const allPass = [...new Set([...GS_PASSWORDS, ...(window._gsPasswords||[])])];
-  if(allPass.includes(p)){
-    // Ricorda password se richiesto
-    const remember=document.getElementById('login-remember-chk')?.checked;
-    if(remember){
-      try{ localStorage.setItem('gs_remember_pass', btoa(p)); }catch(e){}
-    } else {
-      try{ localStorage.removeItem('gs_remember_pass'); }catch(e){}
-    }
-    document.getElementById('login-overlay').style.display='none';
-  } else {
-    const err = document.getElementById('login-err');
-    err.style.display='block';
-    document.getElementById('login-pass').value='';
-    document.getElementById('login-pass').focus();
-    setTimeout(()=>err.style.display='none',3500);
+async function checkLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  if(!email||!pass){ showLoginError('Inserisci email e password.'); return; }
+  try{
+    if(!gsAuth) gsAuth=firebase.auth();
+    await gsAuth.signInWithEmailAndPassword(email,pass);
+    // Il listener onAuthStateChanged (più sotto) gestisce l'accesso effettivo
+  }catch(e){
+    let msg='Email o password non corretti.';
+    if(e.code==='auth/too-many-requests') msg='Troppi tentativi falliti. Riprova più tardi.';
+    if(e.code==='auth/user-disabled') msg='Questo account è stato disabilitato.';
+    showLoginError(msg);
   }
 }
-// Auto-login se password ricordata
-document.addEventListener('DOMContentLoaded',()=>{
-  const inp=document.getElementById('login-pass');
-  if(inp) inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkLogin();});
+
+function showLoginError(msg){
+  const err=document.getElementById('login-err');
+  err.textContent=msg;
+  err.style.display='block';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-pass').focus();
+  setTimeout(()=>err.style.display='none',4000);
+}
+
+async function resetPasswordEmail(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){ showLoginError('Scrivi prima la tua email, poi premi questo link.'); return; }
   try{
-    const saved=localStorage.getItem('gs_remember_pass');
-    if(saved){
-      const pass=atob(saved);
-      const allPass=[...new Set([...GS_PASSWORDS, ...(window._gsPasswords||[])])];
-      if(allPass.includes(pass)){
-        const chk=document.getElementById('login-remember-chk');
-        if(chk) chk.checked=true;
-        if(inp) inp.value=pass;
-        // Auto-accesso
-        const ov=document.getElementById('login-overlay');
-        if(ov) ov.style.display='none';
-      }
-    }
-  }catch(e){}
-});
+    if(!gsAuth) gsAuth=firebase.auth();
+    await gsAuth.sendPasswordResetEmail(email);
+    if(typeof gsToast==='function') gsToast(`📧 Email di reset inviata a ${email}`,'gs-success');
+    else alert(`Email di reset inviata a ${email}`);
+  }catch(e){
+    showLoginError('Impossibile inviare l\'email di reset. Verifica che l\'indirizzo sia corretto.');
+  }
+}
 
 // ── Mostra/Nascondi password ──
 function toggleEye(inputId, btn){
@@ -2620,7 +2562,6 @@ function toggleEye(inputId, btn){
   if(!inp) return;
   const isPass = inp.type === 'password';
   inp.type = isPass ? 'text' : 'password';
-  // Switcha icone se presenti nel pulsante
   const svgs = btn.querySelectorAll('svg');
   if(svgs.length === 2){
     svgs[0].style.display = isPass ? 'none' : '';
@@ -2628,51 +2569,6 @@ function toggleEye(inputId, btn){
   }
   btn.style.color = isPass ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.35)';
   inp.focus();
-}
-
-// ── Forgot Password ──
-function openForgot(){
-  document.getElementById('recovery-inp').value='';
-  document.getElementById('new-pass-inp').value='';
-  document.getElementById('recovery-err').style.display='none';
-  showForgotStep(1);
-  document.getElementById('forgot-overlay').classList.add('show');
-  setTimeout(()=>document.getElementById('recovery-inp').focus(),150);
-}
-function closeForgot(){
-  document.getElementById('forgot-overlay').classList.remove('show');
-}
-function showForgotStep(n){
-  document.querySelectorAll('.forgot-step').forEach(s=>s.classList.remove('active'));
-  document.getElementById('fs-'+n).classList.add('active');
-}
-function checkRecovery(){
-  const code = document.getElementById('recovery-inp').value.trim();
-  const allPass = [...new Set([...GS_PASSWORDS, ...(window._gsPasswords||[])])];
-  // Il codice di recupero è la password admin oppure una delle password di accesso
-  if(code === RECOVERY_CODE || code === 'Samuele2025' || allPass.includes(code)){
-    // Mostra password attuale (prima dell'array)
-    document.getElementById('fs-current-pass').textContent = GS_PASSWORDS[0] || '—';
-    showForgotStep(2);
-  } else {
-    const err = document.getElementById('recovery-err');
-    err.style.display = 'block';
-    document.getElementById('recovery-inp').value='';
-    document.getElementById('recovery-inp').focus();
-    setTimeout(()=>err.style.display='none',3000);
-  }
-}
-async function resetGSPass(){
-  const np = document.getElementById('new-pass-inp').value.trim();
-  if(np.length < 6){ gsToast('Inserisci almeno 6 caratteri','gs-error'); return; }
-  GS_PASSWORDS = [np, "Samuele2025"];
-  // Salva su Firebase se disponibile
-  if(gsFirebaseReady){
-    try{
-      await gsDb.collection('config').doc('security').set({gynoPass1:np,gynoPass2:'Samuele2025'},{merge:true});
-    }catch(e){}
-  }
-  showForgotStep(3);
 }
 
 // ═══════════════════════════════════════════════════
@@ -4249,7 +4145,7 @@ function renderDisponibilita(){
     return `<div class="studio-card">
       <div class="studio-card-hdr">
         <div>
-          <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome} ${s.password?'<span class="badge badge-green" style="margin-left:6px">🔒 Protetto</span>':'<span class="badge badge-gray" style="margin-left:6px">🔓 Senza password</span>'}</div>
+          <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome} ${s.email?'<span class="badge badge-green" style="margin-left:6px">🔐 '+s.email+'</span>':'<span class="badge badge-red" style="margin-left:6px">⚠️ Nessuna email collegata</span>'}</div>
           ${s.luogo?`<div style="font-size:.78rem;color:var(--label4)">📍 ${s.luogo}</div>`:''}
           <div style="font-size:.78rem;color:var(--label4)">⏱️ Slot da ${s.durataSlot||30} min</div>
         </div>
@@ -4282,8 +4178,7 @@ function apriNuovoStudio(){
   document.getElementById('ms-title').textContent='Nuovo Studio';
   document.getElementById('ms-nome').value='';
   document.getElementById('ms-luogo').value='';
-  document.getElementById('ms-password').value='';
-  document.getElementById('ms-password').placeholder='es. Novelune2025';
+  document.getElementById('ms-email').value='';
   document.getElementById('ms-durata-slot').value='30';
   document.getElementById('ms-orari-limitati').checked=false;
   renderFasceForm();
@@ -4297,22 +4192,11 @@ function apriModificaStudio(id){
   document.getElementById('ms-title').textContent='Modifica Studio';
   document.getElementById('ms-nome').value=s.nome;
   document.getElementById('ms-luogo').value=s.luogo||'';
-  // La password salvata è un hash: non si mostra mai in chiaro.
-  // Campo vuoto = "lascia inalterata"; scrivendo qualcosa la si sovrascrive.
-  document.getElementById('ms-password').value='';
-  document.getElementById('ms-password').placeholder=s.password?'•••••• (lascia vuoto per non modificarla)':'es. Novelune2025';
+  document.getElementById('ms-email').value=s.email||'';
   document.getElementById('ms-durata-slot').value=String(s.durataSlot||30);
   document.getElementById('ms-orari-limitati').checked=!!s.orariLimitati;
   renderFasceForm();
   document.getElementById('m-studio').classList.add('show');
-}
-
-function generaPasswordStudio(){
-  const nome=document.getElementById('ms-nome').value.trim().replace(/[^a-zA-Z0-9]/g,'')||'Studio';
-  const num=Math.floor(1000+Math.random()*9000);
-  const pwd=nome+num;
-  document.getElementById('ms-password').value=pwd;
-  if(typeof gsToast==='function')gsToast(`Password generata: ${pwd} — copiala ora, non sarà più visibile dopo il salvataggio`,'gs-success');
 }
 
 function aggiungiFasciaForm(){
@@ -4350,23 +4234,25 @@ function renderFasceForm(){
 async function salvaStudio(){
   const nome=document.getElementById('ms-nome').value.trim();
   const luogo=document.getElementById('ms-luogo').value.trim();
-  const passwordPlain=document.getElementById('ms-password').value.trim();
+  const email=document.getElementById('ms-email').value.trim().toLowerCase();
   const durataSlot=Number(document.getElementById('ms-durata-slot').value)||30;
   const orariLimitati=document.getElementById('ms-orari-limitati').checked;
   if(!nome){ if(typeof gsToast==='function')gsToast('Il nome dello studio è obbligatorio','gs-error'); return; }
-  const passwordHash = passwordPlain ? await sha256Hex(passwordPlain) : null;
+  if(!email){ if(typeof gsToast==='function')gsToast('L\'email di accesso è obbligatoria: crea prima l\'account in Firebase Console → Authentication','gs-error'); return; }
+  // Evita di collegare la stessa email a due studi diversi
+  const conflitto=DB.studi.find(x=>x.id!==editStudioId && (x.email||'').toLowerCase()===email);
+  if(conflitto){ if(typeof gsToast==='function')gsToast(`Questa email è già collegata allo studio "${conflitto.nome}"`,'gs-error'); return; }
   if(editStudioId){
     const s=DB.studi.find(x=>x.id===editStudioId);
-    s.nome=nome; s.luogo=luogo; s.fasce=fasceTemp; s.durataSlot=durataSlot; s.orariLimitati=orariLimitati;
-    if(passwordHash!==null) s.password=passwordHash; // campo vuoto → mantiene l'hash esistente
+    s.nome=nome; s.luogo=luogo; s.email=email; s.fasce=fasceTemp; s.durataSlot=durataSlot; s.orariLimitati=orariLimitati;
   }else{
-    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,fasce:fasceTemp,password:passwordHash||'',durataSlot,orariLimitati});
+    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,email,fasce:fasceTemp,durataSlot,orariLimitati});
   }
   salvaDB();
   closeModal('m-studio');
   renderDisponibilita();
   await syncDisponibilitaFirebase();
-  if(typeof gsToast==='function')gsToast('✅ Studio salvato','gs-success');
+  if(typeof gsToast==='function')gsToast('✅ Studio salvato. Ricorda di creare l\'account in Firebase Console se non esiste già.','gs-success');
 }
 
 async function eliminaStudio(id){
@@ -4411,16 +4297,36 @@ function initFirebase() {
   try {
     if (!firebase.apps.length) firebase.initializeApp(GS_FIREBASE_CONFIG);
     gsDb = firebase.firestore();
+    gsAuth = firebase.auth();
     gsFirebaseReady = true;
     setFbStatus('connected', 'Firebase connesso');
-    loadAdminConfig();
-    loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
-    importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
-    syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
+
+    // L'accesso ai dati avviene SOLO dopo che Firebase Auth confirma l'utente.
+    // Questo sostituisce il vecchio controllo password manuale: ora è Firebase
+    // stesso a gestire la sessione (persistente tra le visite, come prima, ma vero).
+    gsAuth.onAuthStateChanged(user=>{
+      if(user){
+        gsCurrentUser=user;
+        document.getElementById('login-overlay').style.display='none';
+        loadAdminConfig();
+        loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
+        importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
+        syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
+      }else{
+        gsCurrentUser=null;
+        document.getElementById('login-overlay').style.display='flex';
+      }
+    });
   } catch(e) {
     setFbStatus('error', 'Errore Firebase');
     console.warn('Firebase init error:', e.message);
   }
+}
+
+async function logoutGynoSystem(){
+  if(!confirm('Vuoi davvero uscire da GynoSystem?'))return;
+  try{ await gsAuth.signOut(); }catch(e){}
+  location.reload();
 }
 
 function setFbStatus(state, msg) {
