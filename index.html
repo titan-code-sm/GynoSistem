@@ -1761,8 +1761,6 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
               <input id="gd-sint-dispareunia" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
             </div>
           </div>
-
-          </div>
         </div>
 
         <!-- ════════ PANEL 3: ESAME OBIETTIVO ════════ -->
@@ -5722,16 +5720,7 @@ function trovaPazienteLocaleId(firestorePazienteId){
 // subito di avviare la visita corrispondente al tipo prenotato, senza dover
 // più cercare la paziente a mano nell'archivio.
 function apriCartellaDaAppuntamento(localPazienteId, tipoAppuntamento){
-  const TIPO_MAP={ginecologica:'gyno',ostetrica:'ob',ecografia:'eco',primo_accesso:'gyno',controllo:'gyno',ritiro_referto:'gyno'};
   openPaziente(Number(localPazienteId));
-  if(tipoAppuntamento){
-    const modulo=TIPO_MAP[tipoAppuntamento]||'gyno';
-    setTimeout(()=>{
-      if(confirm(`Avviare ora la visita per questa prenotazione (${tipoAppuntamento})?`)){
-        startEditor(modulo);
-      }
-    },300);
-  }
 }
 
 // Caricamento appuntamenti Firebase gestito direttamente in naviga()
