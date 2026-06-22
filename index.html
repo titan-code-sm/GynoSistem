@@ -4407,6 +4407,24 @@ function startEditor(tipo, vid=null){
   setEditorTab(firstBtn,meta.firstTab);
 
   if(vid) loadVisita(vid);
+
+  // DIAGNOSTICO TEMPORANEO: misura le dimensioni reali per scovare il bug del layout ostetrico
+  if(tipo==='ob'){
+    setTimeout(()=>{
+      const ec=document.querySelector('.editor-content');
+      const op=document.getElementById('ob-panels');
+      const activePanel=document.querySelector('#ob-panels .edit-panel.active');
+      console.log('[DEBUG LAYOUT OB] editor-content rect:',JSON.stringify(ec?.getBoundingClientRect()));
+      console.log('[DEBUG LAYOUT OB] ob-panels rect:',JSON.stringify(op?.getBoundingClientRect()));
+      console.log('[DEBUG LAYOUT OB] ob-panels computed width:',op?getComputedStyle(op).width:'N/A','display:',op?getComputedStyle(op).display:'N/A');
+      console.log('[DEBUG LAYOUT OB] active panel id:',activePanel?.id,'rect:',JSON.stringify(activePanel?.getBoundingClientRect()));
+      if(activePanel){
+        const firstCard=activePanel.querySelector('.section-card');
+        console.log('[DEBUG LAYOUT OB] primo .section-card rect:',JSON.stringify(firstCard?.getBoundingClientRect()));
+        console.log('[DEBUG LAYOUT OB] primo .section-card computed width/margin:',firstCard?getComputedStyle(firstCard).width:'N/A',firstCard?getComputedStyle(firstCard).marginLeft:'N/A');
+      }
+    },200);
+  }
   }catch(e){
     console.error('[DEBUG startEditor] Errore con tipo=',tipo,'vid=',vid,':',e);
     alert('Errore apertura editor ('+tipo+'): '+e.message);
