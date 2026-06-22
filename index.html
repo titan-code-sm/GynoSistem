@@ -983,6 +983,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 <div id="sec-farmacia" class="section">
   <div class="page-header">
     <div><div class="page-title">Prontuario Farmaceutico</div><div class="page-subtitle">Farmaci di uso ginecologico-ostetrico</div></div>
+    <button class="btn btn-primary" id="pharma-prescrivi-btn" style="display:none" onclick="prescriviFarmaciSelezionati()">📋 Prescrivi Selezionati (<span id="pharma-sel-count">0</span>)</button>
   </div>
   <div class="card" style="margin-bottom:20px;">
     <input type="text" id="search-pharma" onkeyup="renderFarmaci()" placeholder="💊  Cerca per nome commerciale o principio attivo...">
@@ -1371,6 +1372,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         </div>
       </div>
       <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" id="h-grav-conclusa-btn" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna Gravidanza Conclusa</button>
         <button class="btn btn-ghost" onclick="toggleEdit()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;">✏️ Modifica</button>
         <button class="btn" style="background:rgba(255,255,255,0.9);color:var(--label);" onclick="openTypeModal()">+ Nuova Visita</button>
       </div>
@@ -4059,6 +4061,9 @@ function gravidanzaAttiva(p){
   const visiteOb=(p.visite||[]).filter(v=>(v.tipo==='ob'||v.tipo==='eco') && v.gravidanzaId).sort((a,b)=>new Date(b.data)-new Date(a.data));
   if(!visiteOb.length) return null;
   const ultima=visiteOb[0];
+  // Se la gravidanza è stata chiusa manualmente (parto avvenuto/gravidanza interrotta), non è più attiva
+  const gravInfo=(p.gravidanze||[]).find(g=>g.id===ultima.gravidanzaId);
+  if(gravInfo?.conclusa) return null;
   const giorniDaUltima=(new Date()-new Date(ultima.data))/(1000*60*60*24);
   if(giorniDaUltima>SOGLIA_NUOVA_GRAVIDANZA_GIORNI) return null; // troppo tempo fa: gravidanza presumibilmente conclusa
   // Cerca la DPP più recente registrata per questa gravidanza (campo ob-dpp)
@@ -4069,6 +4074,25 @@ function gravidanzaAttiva(p){
     if(d) dpp=d;
   });
   return {gravidanzaId:ultima.gravidanzaId, dpp, ultimaVisita:ultima.data};
+}
+
+// Chiude manualmente la gravidanza attiva di una paziente (parto avvenuto, o gravidanza
+// interrotta): da quel momento non compare più nel filtro "gravidanze attive", anche se
+// l'ultima visita ostetrica/eco risale a meno di 300 giorni fa.
+function chiudiGravidanzaManualmente(pazId){
+  const p=DB.pazienti.find(x=>x.id===pazId);
+  if(!p)return;
+  const grav=gravidanzaAttiva(p);
+  if(!grav){ if(typeof gsToast==='function')gsToast('Nessuna gravidanza attiva da chiudere','gs-error'); return; }
+  if(!confirm('Confermi la conclusione di questa gravidanza?\n\nLa paziente non comparirà più nel filtro "gravidanze attive". Lo storico delle visite resterà comunque consultabile.'))return;
+  if(!p.gravidanze) p.gravidanze=[];
+  let g=p.gravidanze.find(x=>x.id===grav.gravidanzaId);
+  if(!g){ g={id:grav.gravidanzaId}; p.gravidanze.push(g); }
+  g.conclusa=true;
+  g.dataConclusione=new Date().toISOString().split('T')[0];
+  salvaDB();
+  if(typeof gsToast==='function')gsToast('✅ Gravidanza segnata come conclusa','gs-success');
+  if(curPaz===pazId) openPaziente(pazId); // refresh della cartella se è quella aperta
 }
 
 function renderPazienti(){
@@ -4130,6 +4154,8 @@ function openPaziente(id){
   document.getElementById('h-tel').textContent=`📞 ${p.tel||'–'}`;
   document.getElementById('h-email').textContent=`✉️ ${p.email||'–'}`;
   document.getElementById('h-cf').textContent=`🪪 ${p.cf||'–'}`;
+  const gravBtn=document.getElementById('h-grav-conclusa-btn');
+  if(gravBtn) gravBtn.style.display=gravidanzaAttiva(p)?'inline-flex':'none';
   document.getElementById('e-nome').value=p.nome;
   document.getElementById('e-cognome').value=p.cognome;
   document.getElementById('e-nascita').value=p.nascita||'';
@@ -4297,6 +4323,9 @@ function toggleGuideItem(id){
 // ═══════════════════════════════════════════════════
 //  FARMACIA
 // ═══════════════════════════════════════════════════
+// Farmaci selezionati nel Prontuario per la prescrizione multipla (Set di indici nell'array FARMACI)
+let farmaciSelezionati=new Set();
+
 function renderFarmaci(){
   const q=(document.getElementById('search-pharma')?.value||'').toLowerCase();
   const c=document.getElementById('pharma-grid-container'); if(!c)return;
@@ -4310,9 +4339,11 @@ function renderFarmaci(){
     altro:{label:'Altri Farmaci',icon:'📦',desc:'Antiemorragici, vari'}
   };
   const order=['integ','ormo','anti','altro'];
-  const filtered=FARMACI.filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q));
+  // Filtra mantenendo l'indice originale nell'array FARMACI, necessario per la selezione persistente
+  const filtered=FARMACI.map((f,idx)=>({...f,idx})).filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q));
   if(!filtered.length){
     c.innerHTML='<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
+    aggiornaBottonePrescrivi();
     return;
   }
   order.forEach(cat=>{
@@ -4328,9 +4359,12 @@ function renderFarmaci(){
         </div>
       </div>
       <div class="pharma-grid">
-        ${items.map(f=>`<div class="pharma-card">
+        ${items.map(f=>`<div class="pharma-card ${farmaciSelezionati.has(f.idx)?'sel':''}" onclick="toggleFarmacoSelezionato(${f.idx})" style="cursor:pointer;${farmaciSelezionati.has(f.idx)?'border-color:var(--primary);background:var(--primary-dim)':''}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-            <div class="pharma-name">${f.n}</div>
+            <div style="display:flex;align-items:flex-start;gap:8px">
+              <input type="checkbox" ${farmaciSelezionati.has(f.idx)?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionato(${f.idx})" style="margin-top:3px;width:auto">
+              <div class="pharma-name">${f.n}</div>
+            </div>
             <span class="badge ${catColor[f.cat]||'badge-gray'}">${info.label.split(' ')[0]}</span>
           </div>
           <div class="pharma-active">${f.p}</div>
@@ -4339,6 +4373,37 @@ function renderFarmaci(){
       </div>
     </div>`;
   });
+  aggiornaBottonePrescrivi();
+}
+
+// Selezione farmaci nel Prontuario per prescrizione multipla rapida
+function toggleFarmacoSelezionato(idx){
+  if(farmaciSelezionati.has(idx)) farmaciSelezionati.delete(idx);
+  else farmaciSelezionati.add(idx);
+  renderFarmaci();
+}
+
+function aggiornaBottonePrescrivi(){
+  const btn=document.getElementById('pharma-prescrivi-btn');
+  const count=document.getElementById('pharma-sel-count');
+  if(!btn)return;
+  count.textContent=farmaciSelezionati.size;
+  btn.style.display=farmaciSelezionati.size>0?'inline-flex':'none';
+}
+
+// Apre la Ricetta Vergine con i farmaci selezionati già scritti nel testo della prescrizione
+function prescriviFarmaciSelezionati(){
+  if(!farmaciSelezionati.size)return;
+  const testo=[...farmaciSelezionati]
+    .map(idx=>FARMACI[idx])
+    .filter(Boolean)
+    .map(f=>`${f.n} (${f.p}) — ${f.dose}`)
+    .join('\n');
+  apriRicettaVergine();
+  document.getElementById('rxv-testo').value=testo; // apriRicettaVergine è sincrona: possiamo sovrascrivere subito dopo
+  // Reset selezione dopo l'uso, per non ritrovarsela ancora attiva alla prossima visita al Prontuario
+  farmaciSelezionati.clear();
+  renderFarmaci();
 }
 
 // ═══════════════════════════════════════════════════
