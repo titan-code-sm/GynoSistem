@@ -254,6 +254,13 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .cal-day.today .cal-fb-badge{background:rgba(255,255,255,.9);color:var(--primary);}
 .cal-day.sunday{color:var(--red);}
 .cal-day.holiday{color:var(--red);background:var(--red-dim);}
+/* Badge percentile biometria fetale */
+.visit-ora{display:inline-block;margin-left:8px;font-size:.72rem;font-weight:600;color:var(--primary);background:var(--primary-dim);padding:1px 8px;border-radius:8px;vertical-align:middle;}
+.perc-badge{display:inline-block;margin-top:5px;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:10px;min-height:0;}
+.perc-badge:empty{display:none;}
+.perc-badge.perc-ok{background:var(--green-dim);color:var(--green);}
+.perc-badge.perc-attenzione{background:var(--orange-dim);color:var(--orange);}
+.perc-badge.perc-fuori{background:var(--red-dim);color:var(--red);}
 .cal-day.other-month{color:var(--label4);opacity:0.4;}
 
 /* ─── STORICO ─── */
@@ -1568,11 +1575,13 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ep-5')"><span class="step-num">5</span>Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-ob" style="display:none">
-        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ob-anamnesi')">📋 Anamnesi Ostetrica</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-1')"><span class="step-num">2</span>Parametri</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-2')"><span class="step-num">3</span>Esame Obiettivo</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-screening')">🧪 Screening & Monitoraggio</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-3')"><span class="step-num">5</span>Conclusioni</button>
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ob-anamnesi')">📋 Anamnesi</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-visita')">🩺 Visita & Eco</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-biometria')">👶 Biometria Fetale</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-note')">📝 Note Eco</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-counselling')">💬 Counselling</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-prescrizioni')">🧾 Prescrizioni</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-3')">✅ Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-eco" style="display:none">
         <button class="editor-nav-btn active" onclick="setEditorTab(this,'ec-1')"><span class="step-num">1</span>Biometria Fetale</button>
@@ -1918,162 +1927,313 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
              ═══════════════════════════════════════════════ -->
         <div id="ob-panels" style="display:none">
 
-          <!-- ════════ OB PANEL: ANAMNESI OSTETRICA ════════ -->
+          <!-- ════════ OB PANEL: ANAMNESI ════════ -->
           <div id="ob-anamnesi" class="edit-panel active">
             <div class="section-card">
               <h4 data-icon="🤰">Dati Gravidanza</h4>
-              <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Data Presunta Parto (DPP)</label><input type="date" id="ob-dpp"></div>
-                <div class="form-group"><label class="form-label">Gruppo Sanguigno e Rh</label><input id="ob-gruppo" placeholder="es. A Rh positivo"></div>
-              </div>
-              <div class="form-group" id="ob-immunoprofilassi-box" style="display:none">
-                <label class="form-label" style="display:flex;align-items:center;gap:8px">
-                  <input type="checkbox" id="ob-immunoprofilassi-chk" style="width:auto">
-                  Eseguita immunoprofilassi anti-D
-                </label>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <h4 data-icon="📜">Anamnesi Ostetrica Precedente</h4>
               <div class="field-row r3" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Gravidanze (G)</label><input type="number" id="ob-anam-g" placeholder="es. 2"></div>
-                <div class="form-group"><label class="form-label">Parti (P)</label><input type="number" id="ob-anam-p" placeholder="es. 1"></div>
-                <div class="form-group"><label class="form-label">Aborti (A)</label><input type="number" id="ob-anam-a" placeholder="es. 0"></div>
+                <div class="form-group"><label class="form-label">Età</label><input type="number" id="ob-eta" placeholder="anni"></div>
+                <div class="form-group"><label class="form-label">PARA</label><input id="ob-para" placeholder="es. 2002"></div>
+                <div class="form-group"><label class="form-label">Emogruppo</label><input id="ob-gruppo" placeholder="es. A Rh positivo" oninput=" obToggleImmuno()"></div>
               </div>
-              <div class="form-group"><label class="form-label">Modalità Parti Precedenti</label><textarea id="ob-anam-modalita" rows="2" placeholder="es. parto eutocico 2022, taglio cesareo 2019 per..."></textarea></div>
-            </div>
-
-            <div class="section-card">
-              <h4 data-icon="🧬">Screening I Trimestre</h4>
-              <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-screen1-data"></div>
-                <div class="form-group"><label class="form-label">Test Combinato - Risultato</label><select id="ob-screen1-esito">
-                  <option value="">-- Non eseguito --</option>
-                  <option value="basso_rischio">Basso rischio</option>
-                  <option value="alto_rischio">Alto rischio</option>
-                </select></div>
-              </div>
-              <div class="form-group"><label class="form-label">NIPT (se eseguito)</label><input id="ob-nipt" placeholder="es. basso rischio per T21/T18/T13"></div>
-            </div>
-          </div>
-
-          <!-- ════════ OB PANEL 1: PARAMETRI ════════ -->
-          <div id="ob-1" class="edit-panel">
-            <div class="section-card">
-              <h4 data-icon="🤰">Parametri Gravidanza</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Settimane di Gestazione</label><input id="ob-settimane" placeholder="es. 24+3"></div>
-                <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="ob-peso" placeholder="68" onchange="calcIncrementoPonderale()"></div>
-                <div class="form-group"><label class="form-label">Pressione (PA)</label><input id="ob-pressione" placeholder="120/80"></div>
-              </div>
-              <div class="field-row r2" style="margin-top:12px">
-                <div class="form-group"><label class="form-label">Battito Fetale (BCF)</label><input id="ob-bcf" placeholder="es. 145 bpm"></div>
-                <div class="form-group"><label class="form-label">Movimenti Fetali</label><select id="ob-movimenti">
+              <div class="form-group">
+                <label class="form-label">Tipo di Gravidanza</label>
+                <select onchange="appendOBText('ob-tipo-grav',this.options[this.selectedIndex].dataset.full||this.options[this.selectedIndex].text)">
                   <option value="">-- Seleziona --</option>
-                  <option value="presenti">Presenti e validi</option>
-                  <option value="ridotti">Ridotti</option>
-                  <option value="assenti">Assenti</option>
-                  <option value="non_percepiti">Non ancora percepiti dalla paziente</option>
-                </select></div>
-              </div>
-              <div class="form-group" id="ob-incremento-box" style="margin-top:12px;display:none">
-                <label class="form-label">Incremento Ponderale Totale</label>
-                <input id="ob-incremento" readonly style="background:var(--surface-2)">
+                  <option data-full="Gravidanza spontanea.">Spontanea</option>
+                  <option data-full="Gravidanza da PMA con IUI.">PMA con IUI</option>
+                  <option data-full="Gravidanza da PMA con FIVET omologa. Pick-up in data ___ , transfer in data ___ .">PMA FIVET omologa</option>
+                  <option data-full="Gravidanza da PMA con FIVET eterologa (ovodonazione, età donatrice ___ ). Pick-up in data ___ , transfer in data ___ .">PMA FIVET eterologa</option>
+                </select>
+                <textarea id="ob-tipo-grav" rows="2" placeholder="dettagli (date pick-up/transfer, età donatrice...)" style="margin-top:6px"></textarea>
               </div>
             </div>
 
             <div class="section-card">
-              <h4 data-icon="🧪">Esami delle Urine e Glicemia</h4>
+              <h4 data-icon="📅">Datazione</h4>
+              <div class="field-row r3" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">UM (Ultima Mestruazione)</label><input type="date" id="ob-um" onchange="calcEPPAuto()"></div>
+                <div class="form-group"><label class="form-label">Durata ciclo (giorni)</label><input type="number" id="ob-durata-ciclo" placeholder="28" value="28" onchange="calcEPPAuto()"></div>
+                <div class="form-group"><label class="form-label">EPP (auto da regolo)</label><input id="ob-epp" readonly style="background:var(--surface2)"></div>
+              </div>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">UM ecografica</label><input type="date" id="ob-um-eco" onchange="calcEPPEcoAuto()"></div>
+                <div class="form-group"><label class="form-label">EPP ecografica (auto)</label><input id="ob-epp-eco" readonly style="background:var(--surface2)"></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="⚖️">Dati Antropometrici Pregravidici</h4>
               <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Proteinuria (stick)</label><select id="ob-proteinuria">
-                  <option value="">-- Non eseguito --</option><option value="negativa">Negativa</option><option value="tracce">Tracce</option><option value="positiva">Positiva (+)</option><option value="positiva2">Positiva (++ o più)</option>
-                </select></div>
-                <div class="form-group"><label class="form-label">Glicemia (mg/dl)</label><input id="ob-glicemia" placeholder="es. 85"></div>
-                <div class="form-group"><label class="form-label">Edemi</label><select id="ob-edemi">
-                  <option value="">-- Assenti --</option><option value="lievi">Lievi (caviglie)</option><option value="moderati">Moderati</option><option value="severi">Severi/generalizzati</option>
-                </select></div>
+                <div class="form-group"><label class="form-label">Altezza (cm)</label><input type="number" id="ob-altezza" placeholder="165" oninput="calcBMIPregravidico()"></div>
+                <div class="form-group"><label class="form-label">Peso pregravidico (kg)</label><input type="number" id="ob-peso-pregrav" placeholder="60" oninput="calcBMIPregravidico()"></div>
+                <div class="form-group"><label class="form-label">BMI (auto)</label><input id="ob-bmi" readonly style="background:var(--surface2)"></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🔬">Screening & Anamnesi Patologica</h4>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">Screening cervicale</label>
+                <select onchange="appendOBText('ob-screening-cervicale',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>HPV test</option><option>Pap test</option><option>HPV vaccinata</option>
+                </select>
+                <input id="ob-screening-cervicale" placeholder="dettagli (data, esito)..." style="margin-top:6px">
+              </div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Pregressi interventi chirurgici</label><textarea id="ob-chirurgia" rows="2"></textarea></div>
+                <div class="form-group"><label class="form-label">Pregressi episodi Herpes Genitale</label><textarea id="ob-herpes" rows="2"></textarea></div>
+              </div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Patologie</label><textarea id="ob-patologie" rows="2"></textarea></div>
+                <div class="form-group"><label class="form-label">Terapie in atto</label><textarea id="ob-terapie-atto" rows="2"></textarea></div>
+              </div>
+              <div class="form-group"><label class="form-label">Allergie</label><textarea id="ob-allergie" rows="2"></textarea></div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🚬">Stile di Vita & Familiarità</h4>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">Fumo</label>
+                <select onchange="appendOBText('ob-fumo',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Nega</option><option>Sì &gt; 15 sig/die</option><option>Sì &lt; 15 sig/die</option><option>Ex fumatrice</option>
+                </select>
+                <input id="ob-fumo" placeholder="dettagli..." style="margin-top:6px">
+              </div>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">Familiarità per patologie croniche degne di nota</label>
+                <select onchange="appendOBText('ob-familiarita',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Nega</option><option>Diabete</option><option>Tiroide</option><option>Ipertensione/cardiopatie</option><option>Patologie coagulazione</option><option>Ca ovaio/utero/mammella</option><option>Patologie ereditarie o genetiche</option>
+                </select>
+                <textarea id="ob-familiarita" rows="2" placeholder="dettagli..." style="margin-top:6px"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Anamnesi personale del partner</label>
+                <select onchange="appendOBText('ob-partner',this.options[this.selectedIndex].text)">
+                  <option value="">-- Seleziona --</option><option>Negativa</option>
+                </select>
+                <textarea id="ob-partner" rows="2" placeholder="dettagli..." style="margin-top:6px"></textarea>
               </div>
             </div>
           </div>
 
-          <!-- ════════ OB PANEL 2: ESAME OBIETTIVO ════════ -->
-          <div id="ob-2" class="edit-panel">
+          <!-- ════════ OB PANEL: VISITA & ECOGRAFIA ════════ -->
+          <div id="ob-visita" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="🔍">Esame Obiettivo Ostetrico</h4>
-              <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Altezza Fondo Uterino (cm)</label><input id="ob-afu" placeholder="es. 28"></div>
-                <div class="form-group"><label class="form-label">Presentazione Fetale</label><select id="ob-presentazione">
-                  <option value="">-- Seleziona --</option>
-                  <option value="cefalica">Cefalica</option>
-                  <option value="podalica">Podalica</option>
-                  <option value="trasversa">Trasversa</option>
-                  <option value="instabile">Instabile</option>
-                </select></div>
+              <h4 data-icon="📐">Parametri Visita</h4>
+              <div class="field-row r3" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Settimane gravidanza (auto da UM)</label><input id="ob-settimane" placeholder="es. 24+3"></div>
+                <div class="form-group"><label class="form-label">PA (mmHg)</label><input id="ob-pressione" placeholder="120/80"></div>
+                <div class="form-group"><label class="form-label">Score TEV</label><input id="ob-score-tev" placeholder="es. 1"></div>
               </div>
-              <div class="form-group" style="margin-bottom:10px"><label class="form-label">Manovre di Leopold</label><textarea id="ob-leopold" rows="3" placeholder="reperti delle 4 manovre di Leopold..."></textarea></div>
-              <div class="form-group"><textarea id="ob-esame" rows="4" placeholder="Altri reperti dell'esame obiettivo ostetrico..."></textarea></div>
-            </div>
-
-            <div class="section-card">
-              <h4 data-icon="〜">Contrazioni & Perdite</h4>
               <div class="field-row r2">
-                <div class="form-group"><label class="form-label">Contrazioni</label><select id="ob-contrazioni">
-                  <option value="">-- Assenti --</option><option value="sporadiche">Sporadiche/Braxton-Hicks</option><option value="regolari">Regolari, da valutare</option>
-                </select></div>
-                <div class="form-group"><label class="form-label">Perdite (liquido/sangue)</label><input id="ob-perdite" placeholder="es. nessuna / spotting / sospetta rottura membrane"></div>
+                <div class="form-group"><label class="form-label">Peso attuale (kg)</label><input type="number" id="ob-peso" placeholder="68" onchange="calcIncrementoPonderale()"></div>
+                <div class="form-group" id="ob-incremento-box" style="display:none"><label class="form-label">Incremento ponderale (auto)</label><input id="ob-incremento" readonly style="background:var(--surface2)"></div>
               </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="📄">Referto Anamnestico</h4>
+              <select onchange="appendOBText('ob-referto',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Frasi preformate --</option>
+                <option data-full="La paziente riferisce buona salute, nega perdite vaginali.">1ª Visita reg.</option>
+                <option data-full="La paziente riferisce buona salute, nega contrazioni e/o perdite vaginali.">2ª Visita reg.</option>
+                <option data-full="La paziente riferisce regolari MAF, nega contrazioni e/o perdite vaginali.">3ª Visita reg.</option>
+                <option data-full="Gravidanza seguita in consultorio con regolari controlli ed ecografie in gravidanza.">CF (Consultorio)</option>
+              </select>
+              <textarea id="ob-referto" rows="3" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🧾">Esami · Visite/Consulenze</h4>
+              <select onchange="appendOBText('ob-esami-visite',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Frasi preformate --</option>
+                <option data-full="DTP: Eseguita vaccinazione DTP.">DTP</option>
+                <option data-full="RH: Eseguita immunoprofilassi.">RH</option>
+                <option data-full="BMI: Seguita da nutrizionista privata.">BMI/Nutrizionista</option>
+              </select>
+              <textarea id="ob-esami-visite" rows="2" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🖥️">Esami · Ecografie eseguite</h4>
+              <select onchange="appendOBText('ob-esami-eco',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Frasi preformate --</option>
+                <option data-full="La paziente non ha eseguito screening I trimestre per scelta.">NO SCREEN</option>
+                <option data-full="Ecografia I trimestre nella norma, NT = ___ mm.">ECO I TRIM</option>
+                <option data-full="cfDNA / G-test: basso rischio, sesso ___ .">cfDNA</option>
+                <option data-full="Ecografia Morfologica regolare, placenta ___ .">MORFO</option>
+              </select>
+              <textarea id="ob-esami-eco" rows="2" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🔍">Visita Ostetrica (VO)</h4>
+              <select onchange="appendOBText('ob-vo',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Frasi preformate --</option>
+                <option data-full="Utero lievemente aumentato di volume come per epoca di amenorrea. Decontratto. Collo formato chiuso. Speculum: portio cilindrica. Non perdite ematiche in atto dal canale cervicale. Lieve leucorrea asintomatica gravidica.">1ª Visita reg.</option>
+                <option data-full="Speculum: portio cilindrica, scarse tracce ematiche marroni scuro in vagina, non perdite ematiche in atto da OUE.">PE (perdite ematiche)</option>
+              </select>
+              <textarea id="ob-vo" rows="4" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="📡">Strumentazione Ecografica</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Ecografo</label>
+                  <select onchange="appendOBText('ob-ecografo',this.options[this.selectedIndex].text)"><option value="">-- Seleziona --</option><option>Voluson S10</option><option>Samsung</option></select>
+                  <input id="ob-ecografo" placeholder="..." style="margin-top:6px">
+                </div>
+                <div class="form-group"><label class="form-label">Sonda</label>
+                  <select onchange="appendOBText('ob-sonda',this.options[this.selectedIndex].text)"><option value="">-- Seleziona --</option><option>TV</option><option>TA</option><option>TV e TA</option></select>
+                  <input id="ob-sonda" placeholder="..." style="margin-top:6px">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fattori limitanti l'esame (selezione multipla)</label>
+                <select onchange="appendOBText('ob-fattori-limitanti',this.options[this.selectedIndex].text)">
+                  <option value="">-- Aggiungi fattore --</option>
+                  <option>Epoca gestazionale precoce</option><option>Epoca gestazionale avanzata</option>
+                  <option>Scarsa ecogenicità di parete addominale</option><option>Intenso meteorismo intestinale</option>
+                  <option>BMI</option><option>Posizione fetale sfavorevole</option>
+                </select>
+                <textarea id="ob-fattori-limitanti" rows="2" style="margin-top:6px"></textarea>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)</h4>
+              <select onchange="appendOBText('ob-eco1',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi referto --</option>
+                <option data-full="ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">ECO Datazione</option>
+                <option data-full="RIDATAZIONE: Si esegue ridatazione ecografica della gravidanza per CRL corrispondente a ___ settimane ecografiche. Pertanto risulta UM ecografica ___ , EPP ecografica ___ .">Ridatazione</option>
+                <option data-full="ABORTO: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo senza attività cardiaca, CRL di ___ mm corrispondente a ___ settimane gestazionali (oppure privo di echi embrionari). Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">Aborto</option>
+                <option data-full="1° TRIM 11-13 OFFICE: Feto singolo dotato di BCF e MAF, placenta ___ , liquido amniotico regolare.">1°Trim 11-13 Office</option>
+                <option data-full="NT: Feto singolo, dotato di attività cardiaca e motoria, con CRL corrispondente a ___ settimane gestazionali. L'esplorazione dell'anatomia fetale di base, limitata dall'epoca gestazionale, ha permesso di visualizzare: Estremo cefalico: presenza delle ossa del cranio; linea mediana; plessi coroidei all'interno dei ventricoli. Addome: normale inserzione del cordone ombelicale; stomaco evidenziato ed omolaterale al cuore; arti superiori e inferiori; liquido amniotico nella norma; placenta normale. La misurazione della translucenza nucale (NT) è risultata pari a ___ mm.">NT (translucenza)</option>
+              </select>
+              <textarea id="ob-eco1" rows="4" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office</h4>
+              <select onchange="appendOBText('ob-eco23',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi referto --</option>
+                <option data-full="2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento.">2-3 Trim Office</option>
+              </select>
+              <textarea id="ob-eco23" rows="3" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="3️⃣">Ecografia III Trimestre</h4>
+              <select onchange="appendOBText('ob-eco3',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi referto --</option>
+                <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
+              </select>
+              <textarea id="ob-eco3" rows="3" style="margin-top:6px"></textarea>
             </div>
           </div>
 
-          <!-- ════════ OB PANEL: SCREENING & MONITORAGGIO ════════ -->
-          <div id="ob-screening" class="edit-panel">
+          <!-- ════════ OB PANEL: BIOMETRIA FETALE ════════ -->
+          <div id="ob-biometria" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="🧫">Tampone Vagino-Rettale (GBS)</h4>
+              <h4 data-icon="👶">Biometria Fetale (con percentili INTERGROWTH-21st)</h4>
+              <p style="font-size:.8rem;color:var(--label4);margin-bottom:12px">Inserisci epoca e misure: il percentile dei singoli parametri viene calcolato in automatico. Per il peso fetale, inserisci tu il percentile.</p>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Epoca gestazionale (es. 24+3)</label><input id="ob-bio-epoca" placeholder="es. 24+3" oninput="aggiornaPercentili()"></div>
+                <div class="form-group"></div>
+              </div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">DBP (mm)</label><input id="ob-bio-bpd" placeholder="es. 61" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-bpd"></div></div>
+                <div class="form-group"><label class="form-label">CC (mm)</label><input id="ob-bio-hc" placeholder="es. 219" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-hc"></div></div>
+              </div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">CA (mm)</label><input id="ob-bio-ac" placeholder="es. 191" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-ac"></div></div>
+                <div class="form-group"><label class="form-label">LF (mm)</label><input id="ob-bio-fl" placeholder="es. 42" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-fl"></div></div>
+              </div>
               <div class="field-row r2">
-                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-gbs-data"></div>
-                <div class="form-group"><label class="form-label">Esito</label><select id="ob-gbs-esito">
-                  <option value="">-- Non eseguito --</option><option value="negativo">Negativo</option><option value="positivo">Positivo</option>
-                </select></div>
+                <div class="form-group"><label class="form-label">Peso fetale stimato (gr)</label><input id="ob-bio-peso" placeholder="es. 700"></div>
+                <div class="form-group"><label class="form-label">Percentile peso (manuale)</label><input id="ob-bio-peso-perc" placeholder="es. 50°"></div>
               </div>
-            </div>
-
-            <div class="section-card">
-              <h4 data-icon="🍬">Curva Glicemica (OGTT)</h4>
-              <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-ogtt-data"></div>
-                <div class="form-group"><label class="form-label">Esito Globale</label><select id="ob-ogtt-esito">
-                  <option value="">-- Non eseguita --</option><option value="normale">Normale</option><option value="alterata">Alterata (diabete gestazionale)</option>
-                </select></div>
-              </div>
-              <div class="form-group"><label class="form-label">Valori (a digiuno / 1h / 2h, mg/dl)</label><input id="ob-ogtt-valori" placeholder="es. 82 / 145 / 120"></div>
-            </div>
-
-            <div class="section-card">
-              <h4 data-icon="📈">Cardiotocografia (CTG)</h4>
-              <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Data Esecuzione</label><input type="date" id="ob-ctg-data"></div>
-                <div class="form-group"><label class="form-label">Tracciato</label><select id="ob-ctg-esito">
-                  <option value="">-- Non eseguito --</option><option value="reattivo">Reattivo/Normale</option><option value="non_reattivo">Non reattivo</option><option value="patologico">Patologico</option>
-                </select></div>
-              </div>
-              <div class="form-group"><label class="form-label">Note CTG</label><textarea id="ob-ctg-note" rows="2"></textarea></div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="apriCurveCrescitaOb()">📈 Vedi Curve di Crescita (stampabili)</button>
             </div>
           </div>
 
-          <!-- ════════ OB PANEL 3: CONCLUSIONI ════════ -->
-          <div id="ob-3" class="edit-panel">
+          <!-- ════════ OB PANEL: NOTE ECO ════════ -->
+          <div id="ob-note" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="✅">Diagnosi</h4>
-              <div class="form-group"><textarea id="ob-diagnosi" rows="4"></textarea></div>
+              <h4 data-icon="📝">Note Ecografiche (selezione multipla)</h4>
+              <select onchange="appendOBText('ob-note-eco',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi nota --</option>
+                <option data-full="DATAZIONE: Si spiega alla paziente che l'ecografia in data odierna è finalizzata alla datazione della gravidanza e non allo screening delle cromosomopatie.">Datazione</option>
+                <option data-full="ECO 1 TRIM: Si raccomanda esecuzione di ecografia morfologica di screening del II trimestre a 19-21 settimane gestazionali per la valutazione dell'anatomia fetale.">Eco 1 Trim</option>
+                <option data-full="ECO 3 TRIM: Per 'visualizzato' si intende che l'organo o apparato indagato presenta caratteristiche ecografiche regolari per l'età gestazionale. La stima del peso fetale è inficiata da un errore uguale o superiore al +/- 10% e non è raccomandata se non in casi selezionati. Si informa la persona assistita/coppia degli esiti dell'esame ecografico effettuato e dei suoi limiti nella individuazione delle anomalie fetali. Il riconoscimento delle malformazioni non è un obiettivo specifico della ecografia del terzo trimestre nelle gravidanze a basso rischio. – Linee Guida SIEOG.">Eco 3 Trim</option>
+                <option data-full="BT OK: Il rischio delle alterazioni cromosomiche più frequenti, ricalcolato sulla base dello spessore della translucenza retronucale ed al dato biochimico, con il software della FMF, è risultato a rischio BASSO per le trisomie 13, 18 e 21 (cut-off Regionale 1:300 per la T21 e 1:150 per T13 e T18). Si allega referto della FMF con calcolo del rischio ed immagini iconografiche dell'esame.">BT Basso rischio</option>
+                <option data-full="CONSULENZA: Si esegue consulenza post-test, si spiega che l'esame eseguito (test combinato/NIPT) è consigliato (non obbligatorio) e che rappresenta un test di screening per alcune delle alterazioni cromosomiche maggiori (T21, T13, T18). Tale test fornisce risultati probabilistici di rischio (alto o basso), pertanto non è test diagnostico né sostitutivo degli esami di diagnosi prenatale invasiva (villocentesi e/o amniocentesi). Si raccomanda l'esecuzione dell'ecografia morfologica di screening del II trimestre tra 19 e 21 settimane gestazionali.">Consulenza post-test</option>
+                <option data-full="BT ALTO: Si esegue counseling con la coppia spiegando la sensibilità, la specificità ed i limiti di tale test di screening risultato ad ALTO rischio per ___ con NT ___ mm. Si informa della possibilità di poter eseguire una diagnosi prenatale invasiva mediante villocentesi o amniocentesi spiegando il significato e l'esecuzione di tale procedura ed i rischi/complicanze ad essa correlati. La paziente, compreso quanto detto, riferisce di voler ___ .">BT Alto rischio</option>
+                <option data-full="ABORTO: Si propone alla paziente atteggiamento di attesa di 2 settimane, come da Linee Guida NICE, per permettere l'eventuale espulsione spontanea del prodotto del concepimento. Dopo tale periodo la paziente si recherà presso Ambulatorio Ginecologico c/o Ospedale di Cattolica per eventuale terapia medica a base di misoprostolo (secondo protocollo).">Aborto (gestione)</option>
+              </select>
+              <textarea id="ob-note-eco" rows="6" style="margin-top:6px"></textarea>
+            </div>
+          </div>
+
+          <!-- ════════ OB PANEL: COUNSELLING ════════ -->
+          <div id="ob-counselling" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="💬">Note Informative / Counselling (selezione multipla)</h4>
+              <select onchange="appendOBText('ob-counselling-txt',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi counselling --</option>
+                <option data-full="COUNSELLING: Si esegue counselling sulla diagnosi prenatale del I trimestre: screening e diagnosi prenatale invasiva. Si spiega la sensibilità, la specificità ed i limiti del test di screening (DNA fetale). Si forniscono inoltre informazioni, rischi e/o complicanze riguardo le procedure di diagnosi invasiva (villocentesi/amniocentesi).">Counselling DPN</option>
+                <option data-full="TOXO + VACCINO DTP: Si informa la paziente delle norme igienico-alimentari da seguire per ricettività alla toxoplasmosi. Informazioni e counselling per vaccinazione DTP (difterite, tetano, pertosse) da eseguire dalle 28 settimane di gravidanza e sulla vaccinazione anti-influenzale (rivolgersi al centro vaccinale email: vaccinazioni.rn@auslromagna.it per prenotare appuntamento).">Toxo + DTP</option>
+                <option data-full="CARDIRENE: Si esegue counselling con la paziente spiegando che, essendo presenti n. 2 fattori di rischio moderati per pre-eclampsia (___), secondo le LG ACOG è raccomandata la profilassi con Cardirene 150 mg da iniziare a 12 settimane fino a 36 settimane di gestazione. La paziente riferisce di voler valutare se iniziare o no la profilassi.">Cardirene</option>
+                <option data-full="PA: Si consiglia monitoraggio pressorio domiciliare 1 volta al giorno da raccogliere in un diario (portare in visione ai successivi controlli). Se la pressione in due controlli consecutivi dovesse essere superiore a 140/90 mmHg e/o in caso di comparsa di cefalea, sintomi visivi, epigastralgia, si consiglia controllo presso Pronto Soccorso Ostetrico Ginecologico.">Monitoraggio PA</option>
+                <option data-full="OBESA: Si esegue counselling con la paziente spiegandole i rischi correlati all'obesità in gravidanza (es. diabete, ipertensione, pre-eclampsia, ecc.). Si consiglia di rivolgersi ad un Dietista/Nutrizionista per un adeguato piano alimentare e per il controllo dell'incremento ponderale in gravidanza. Si consiglia inoltre attività motoria giornaliera (camminata di 30-40 minuti) e aderenza alla dieta.">Obesità</option>
+                <option data-full="IMMUNO RH: Si esegue counselling e si forniscono informazioni riguardo l'immunoprofilassi anti-D da effettuare a 28 settimane.">Immunoprofilassi Rh</option>
+              </select>
+              <textarea id="ob-counselling-txt" rows="6" style="margin-top:6px"></textarea>
+            </div>
+          </div>
+
+          <!-- ════════ OB PANEL: PRESCRIZIONI ════════ -->
+          <div id="ob-prescrizioni" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🧾">Prescrizioni Esami (selezione multipla)</h4>
+              <select onchange="appendOBText('ob-prescrizioni-txt',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi prescrizione --</option>
+                <option data-full="1ª VISITA:&#10;- esami ematici 1° trimestre (entro le 13 settimane);&#10;- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;&#10;- prelievo per NIPT Regionale (con impegnativa; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento).">1ª Visita</option>
+                <option data-full="2ª VISITA:&#10;- esami ematici 14-18 settimane;&#10;- ecografia morfologica (19-21+6 settimane) da prenotare tramite CUP con impegnativa del MMG (esenzione M20).">2ª Visita</option>
+                <option data-full="3ª VISITA:&#10;- esami ematici 19-23 settimane.">3ª Visita</option>
+                <option data-full="4ª VISITA:&#10;- esami ematici 24-27 settimane;&#10;- immunoprofilassi anti-D a 28 settimane (contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per prenotare appuntamento c/o ambulatorio GAR Ospedale di Rimini, Scala C piano 1);&#10;- TCI da eseguire entro 7 giorni dalla data dell'appuntamento per immunoprofilassi.">4ª Visita</option>
+                <option data-full="5ª VISITA:&#10;- esami ematici 28-32 settimane;&#10;- contattare il centro vaccinale tramite email vaccinazioni.rn@auslromagna.it per programmare vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.">5ª Visita</option>
+                <option data-full="6ª VISITA:&#10;- esami ematici 36 settimane;&#10;- contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento AMB. Gravidanza a termine / AMB. Prechirurgico.">6ª Visita</option>
+              </select>
+              <textarea id="ob-prescrizioni-txt" rows="6" style="margin-top:6px"></textarea>
             </div>
             <div class="section-card">
               <h4 data-icon="💊">Terapia</h4>
-              <div class="form-group"><textarea id="ob-terapia" rows="4" placeholder="es. Acido folico 400mcg 1 cpr/die..."></textarea></div>
+              <div class="form-group"><textarea id="ob-terapia" rows="3" placeholder="es. Acido folico 400mcg 1 cpr/die..."></textarea></div>
+            </div>
+          </div>
+
+          <!-- ════════ OB PANEL: CONCLUSIONI ════════ -->
+          <div id="ob-3" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="✅">Conclusioni (selezione multipla)</h4>
+              <select onchange="appendOBText('ob-diagnosi',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi conclusione --</option>
+                <option data-full="GRAV. REG: Gravidanza a ___ settimane regolare. Recarsi c/o PS Ostetrico in caso di perdite vaginali, contrazioni e/o scarsi o assenti MAF.">Gravidanza regolare</option>
+                <option data-full="GEST. ABORTO: Aborto incompleto/interno a ___ settimane ecografiche. Contattare il servizio consultoriale per presa in carico e programmare successivi appuntamenti. Recarsi c/o PS Ostetrico Ginecologico (DEA V piano) in caso di perdite ematiche a carattere emorragico e/o forti algie pelviche non responsive all'antidolorifico.">Gestione aborto</option>
+              </select>
+              <textarea id="ob-diagnosi" rows="4" style="margin-top:6px"></textarea>
             </div>
             <div class="section-card">
-              <h4 data-icon="🔄">Prossimo Controllo</h4>
-              <div class="form-group"><textarea id="ob-prossimo" rows="2" placeholder="Indicazioni per il follow-up..."></textarea></div>
+              <h4 data-icon="🔄">Controlli (selezione multipla)</h4>
+              <select onchange="appendOBText('ob-prossimo',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi controllo --</option>
+                <option data-full="ROUTINE: Prossimo controllo tra 30-40 giorni.">Routine</option>
+                <option data-full="CF1: Già programmati successivi controlli ostetrici c/o Consultorio di riferimento.">CF1</option>
+                <option data-full="CF2: Si informa la paziente della possibilità di rivolgersi c/o il Servizio Consultoriale per la presa in carico/controlli della gravidanza.">CF2</option>
+              </select>
+              <textarea id="ob-prossimo" rows="3" style="margin-top:6px"></textarea>
             </div>
           </div>
 
@@ -2584,22 +2744,24 @@ function setGynoData(data){
 }
 
 // ── VISITA OSTETRICA ──
-const OB_FIELDS=['settimane','peso','pressione','bcf','movimenti','esame','diagnosi','terapia','prossimo',
-  // Anamnesi Ostetrica
-  'dpp','gruppo','anam-g','anam-p','anam-a','anam-modalita','screen1-data','screen1-esito','nipt',
-  // Parametri estesi
-  'incremento','proteinuria','glicemia','edemi',
-  // Esame Obiettivo estesi
-  'afu','presentazione','leopold','contrazioni','perdite',
-  // Screening & Monitoraggio
-  'gbs-data','gbs-esito','ogtt-data','ogtt-esito','ogtt-valori','ctg-data','ctg-esito','ctg-note'];
+const OB_FIELDS=[
+  // Anamnesi
+  'eta','para','gruppo','tipo-grav','um','durata-ciclo','epp','um-eco','epp-eco',
+  'altezza','peso-pregrav','bmi','screening-cervicale','chirurgia','herpes','patologie',
+  'terapie-atto','allergie','fumo','familiarita','partner',
+  // Visita & Eco
+  'settimane','pressione','score-tev','peso','incremento','referto','esami-visite','esami-eco','vo',
+  'ecografo','sonda','fattori-limitanti','eco1','eco23','eco3',
+  // Biometria
+  'bio-epoca','bio-bpd','bio-hc','bio-ac','bio-fl','bio-peso','bio-peso-perc',
+  // Note, counselling, prescrizioni, conclusioni
+  'note-eco','counselling-txt','prescrizioni-txt','terapia','diagnosi','prossimo'];
 function getObData(){
   const d={};
   OB_FIELDS.forEach(f=>{
     const el=document.getElementById('ob-'+f);
     if(el) d[f]=el.value;
   });
-  d.immunoprofilassi=document.getElementById('ob-immunoprofilassi-chk')?.checked;
   return d;
 }
 function setObData(data){
@@ -2608,42 +2770,153 @@ function setObData(data){
     const el=document.getElementById('ob-'+f);
     if(el && data[f]!==undefined) el.value=data[f];
   });
-  const chk=document.getElementById('ob-immunoprofilassi-chk');
-  if(chk && data.immunoprofilassi!==undefined) chk.checked=data.immunoprofilassi;
-  // Mostra il box immunoprofilassi solo se il gruppo sanguigno indica Rh negativo
-  const gruppo=(data.gruppo||'').toLowerCase();
-  const box=document.getElementById('ob-immunoprofilassi-box');
-  if(box) box.style.display=gruppo.includes('negativo')||gruppo.includes('rh-')?'block':'none';
+  obToggleImmuno();
+  calcBMIPregravidico();
 }
 
-// Mostra/nasconde il box immunoprofilassi anti-D mentre si scrive il gruppo sanguigno
-document.addEventListener('input',e=>{
-  if(e.target && e.target.id==='ob-gruppo'){
-    const gruppo=e.target.value.toLowerCase();
-    const box=document.getElementById('ob-immunoprofilassi-box');
-    if(box) box.style.display=gruppo.includes('negativo')||gruppo.includes('rh-')?'block':'none';
-  }
-});
+// Campi che vengono riportati identici da una visita all'altra della stessa gravidanza:
+// tutta l'anamnesi, Score TEV, Esami (visite/consulenze + ecografie).
+const OB_CAMPI_RIPORTATI=[
+  'eta','para','gruppo','tipo-grav','um','durata-ciclo','epp','um-eco','epp-eco',
+  'altezza','peso-pregrav','bmi','screening-cervicale','chirurgia','herpes','patologie',
+  'terapie-atto','allergie','fumo','familiarita','partner',
+  'score-tev','esami-visite','esami-eco'];
+
+// Quando si apre una NUOVA visita ostetrica di una gravidanza che ha già visite precedenti,
+// pre-compila i campi anagrafici/anamnestici con i valori dell'ultima visita di quella gravidanza.
+function riportaDatiGravidanza(){
+  if(!curGravidanzaId) return;
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p) return;
+  const visitePrec=(p.visite||[])
+    .filter(v=>v.tipo==='ob' && v.gravidanzaId===curGravidanzaId && v.obData)
+    .sort((a,b)=>new Date(b.data)-new Date(a.data));
+  if(!visitePrec.length) return;
+  const ultima=visitePrec[0].obData;
+  OB_CAMPI_RIPORTATI.forEach(f=>{
+    const el=document.getElementById('ob-'+f);
+    if(el && !el.value && ultima[f]) el.value=ultima[f];
+  });
+  obToggleImmuno();
+  calcBMIPregravidico();
+}
 
 // Calcola l'incremento ponderale totale confrontando il peso attuale con quello
-// della PRIMA visita ostetrica registrata per questa gravidanza (peso pre-gravidico
-// o del primo controllo, usato come riferimento).
+// pregravidico (dall'anamnesi) o, in mancanza, della prima visita della gravidanza.
 function calcIncrementoPonderale(){
   const pesoAttuale=parseFloat(document.getElementById('ob-peso').value);
   const box=document.getElementById('ob-incremento-box');
   const out=document.getElementById('ob-incremento');
-  if(!pesoAttuale || !curGravidanzaId){ if(box) box.style.display='none'; return; }
-  const p=DB.pazienti.find(x=>x.id===curPaz);
-  if(!p){ if(box) box.style.display='none'; return; }
-  const visitePrecedenti=(p.visite||[])
-    .filter(v=>v.tipo==='ob' && v.gravidanzaId===curGravidanzaId && (v.obData||{}).peso)
-    .sort((a,b)=>new Date(a.data)-new Date(b.data));
-  if(!visitePrecedenti.length){ if(box) box.style.display='none'; return; }
-  const pesoIniziale=parseFloat(visitePrecedenti[0].obData.peso);
+  if(!pesoAttuale){ if(box) box.style.display='none'; return; }
+  // Riferimento: peso pregravidico dall'anamnesi (se presente), altrimenti primo peso di visita della gravidanza
+  let pesoIniziale=parseFloat(document.getElementById('ob-peso-pregrav')?.value);
+  let fonte='pregravidico';
+  if(isNaN(pesoIniziale) && curGravidanzaId){
+    const p=DB.pazienti.find(x=>x.id===curPaz);
+    const visitePrecedenti=(p?.visite||[])
+      .filter(v=>v.tipo==='ob' && v.gravidanzaId===curGravidanzaId && (v.obData||{}).peso)
+      .sort((a,b)=>new Date(a.data)-new Date(b.data));
+    if(visitePrecedenti.length){ pesoIniziale=parseFloat(visitePrecedenti[0].obData.peso); fonte='1ª visita'; }
+  }
   if(isNaN(pesoIniziale)){ if(box) box.style.display='none'; return; }
   const diff=(pesoAttuale-pesoIniziale).toFixed(1);
-  if(out){ out.value=`${diff>=0?'+':''}${diff} kg (da ${pesoIniziale} kg)`; }
+  if(out){ out.value=`${diff>=0?'+':''}${diff} kg (da ${pesoIniziale} kg ${fonte})`; }
   if(box) box.style.display='block';
+}
+
+// ── Funzioni di supporto modulo OSTETRICO ──
+// Aggiunge testo a un campo (input o textarea), su nuova riga, ignorando stringhe vuote.
+function appendOBText(id, text){
+  const el=document.getElementById(id); if(!el || !text)return;
+  el.value += (el.value && !el.value.endsWith('\n') ? '\n' : '') + text;
+}
+
+// Mostra il box immunoprofilassi anti-D se l'emogruppo indica Rh negativo (per coerenza, anche se non sempre usato)
+function obToggleImmuno(){
+  const gruppo=(document.getElementById('ob-gruppo')?.value||'').toLowerCase();
+  const box=document.getElementById('ob-immunoprofilassi-box');
+  if(box) box.style.display=(gruppo.includes('negativo')||gruppo.includes('rh-'))?'block':'none';
+}
+
+// EPP automatica dall'UM (regola di Naegele + correzione durata ciclo)
+function calcEPPAuto(){
+  const um=document.getElementById('ob-um')?.value;
+  const durata=document.getElementById('ob-durata-ciclo')?.value||28;
+  const out=document.getElementById('ob-epp');
+  const epp=calcEPP(um,durata);
+  if(out) out.value=epp?epp.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+  // Aggiorna anche le settimane nella scheda visita, se la visita è di oggi
+  aggiornaSettimaneDaUM();
+}
+
+// EPP ecografica dall'UM ecografica
+function calcEPPEcoAuto(){
+  const um=document.getElementById('ob-um-eco')?.value;
+  const out=document.getElementById('ob-epp-eco');
+  const epp=calcEPP(um,28);
+  if(out) out.value=epp?epp.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+}
+
+// Calcola le settimane di gestazione alla data della visita (oggi) e le scrive nel campo settimane
+function aggiornaSettimaneDaUM(){
+  const um=document.getElementById('ob-um')?.value;
+  const durata=document.getElementById('ob-durata-ciclo')?.value||28;
+  const campo=document.getElementById('ob-settimane');
+  if(!um||!campo)return;
+  const sett=calcSettimaneDaUM(um,new Date(),durata);
+  if(sett && !campo.value) campo.value=sett; // non sovrascrive se già compilato a mano
+}
+
+// BMI pregravidico automatico
+function calcBMIPregravidico(){
+  const h=parseFloat(document.getElementById('ob-altezza')?.value)/100;
+  const w=parseFloat(document.getElementById('ob-peso-pregrav')?.value);
+  const out=document.getElementById('ob-bmi');
+  if(!out)return;
+  if(!h||!w||h<=0){ out.value=''; return; }
+  const bmi=w/(h*h);
+  let cat='';
+  if(bmi<18.5)cat='sottopeso'; else if(bmi<25)cat='normopeso'; else if(bmi<30)cat='sovrappeso'; else cat='obesità';
+  out.value=`${bmi.toFixed(1)} (${cat})`;
+}
+
+// Aggiorna i percentili dei parametri biometrici in tempo reale
+function aggiornaPercentili(){
+  const epoca=parseSettimaneEsatte(document.getElementById('ob-bio-epoca')?.value);
+  const params=[
+    {id:'bpd',dataset:INTERGROWTH_BPD},{id:'hc',dataset:INTERGROWTH_HC},
+    {id:'ac',dataset:INTERGROWTH_AC},{id:'fl',dataset:INTERGROWTH_FL}
+  ];
+  params.forEach(p=>{
+    const val=parseFloat(document.getElementById('ob-bio-'+p.id)?.value);
+    const badge=document.getElementById('ob-perc-'+p.id);
+    if(!badge)return;
+    if(isNaN(val)||epoca===null){ badge.textContent=''; badge.className='perc-badge'; return; }
+    const perc=intergrowthPercentile(p.dataset,epoca,val);
+    if(!perc){ badge.textContent=''; return; }
+    badge.textContent='percentile '+perc;
+    // Colore: verde se 10-90, ambra se 3-10 o 90-97, rosso se fuori
+    const n=parseInt(perc);
+    let cls='perc-badge';
+    if(perc.includes('<')||perc.includes('>')) cls+=' perc-fuori';
+    else if(n<10||n>90) cls+=' perc-attenzione';
+    else cls+=' perc-ok';
+    badge.className=cls;
+  });
+}
+
+// Apre le curve di crescita per i dati biometrici inseriti nella visita ostetrica
+function apriCurveCrescitaOb(){
+  // Salva temporaneamente i dati biometrici come se fossero una eco, per riusare la pagina curve esistente
+  const epoca=document.getElementById('ob-bio-epoca')?.value;
+  if(!epoca){ if(typeof gsToast==='function')gsToast('Inserisci prima l epoca gestazionale','gs-error'); return; }
+  apriCurveCrescitaDaOb(curPaz, curGravidanzaId, {
+    settimane:epoca,
+    bpd:document.getElementById('ob-bio-bpd')?.value,
+    hc:document.getElementById('ob-bio-hc')?.value,
+    ac:document.getElementById('ob-bio-ac')?.value,
+    fl:document.getElementById('ob-bio-fl')?.value
+  });
 }
 
 // ── ECOGRAFIA OSTETRICA ──
@@ -2769,6 +3042,55 @@ function parseSettimaneEsatte(str){
   if(m) return parseInt(m[1])+parseInt(m[2])/7;
   const n=parseFloat(str.replace(',','.'));
   return isNaN(n)?null:n;
+}
+
+// Dato un valore misurato (mm) e l'epoca gestazionale, stima a quale percentile
+// corrisponde, interpolando tra i centili noti INTERGROWTH (3,5,10,50,90,95,97).
+// Restituisce una stringa tipo "50°", "<3°", ">97°", "~75°".
+function intergrowthPercentile(dataset, settimaneEsatte, valore){
+  if(valore===null||isNaN(valore)||settimaneEsatte===null)return null;
+  // Valori dei 7 centili interpolati a questa epoca
+  const vals=INTERGROWTH_CENTILI.map((c,i)=>intergrowthValoreInterpolato(dataset,settimaneEsatte,i));
+  if(vals.some(v=>v===null))return null;
+  if(valore<vals[0]) return '<3°';
+  if(valore>vals[6]) return '>97°';
+  // Trova i due centili tra cui cade e interpola linearmente il percentile
+  for(let i=0;i<vals.length-1;i++){
+    if(valore>=vals[i] && valore<=vals[i+1]){
+      const frac=(valore-vals[i])/(vals[i+1]-vals[i]||1);
+      const perc=INTERGROWTH_CENTILI[i]+(INTERGROWTH_CENTILI[i+1]-INTERGROWTH_CENTILI[i])*frac;
+      return Math.round(perc)+'°';
+    }
+  }
+  return null;
+}
+
+// Regola di Naegele con correzione per durata del ciclo (default 28 giorni):
+// EPP = UM + 280 giorni + (durataCiclo - 28). Restituisce oggetto Date.
+function calcEPP(umStr, durataCiclo=28){
+  if(!umStr)return null;
+  const um=new Date(umStr);
+  if(isNaN(um))return null;
+  const correzione=(parseInt(durataCiclo)||28)-28;
+  const epp=new Date(um);
+  epp.setDate(epp.getDate()+280+correzione);
+  return epp;
+}
+
+// Settimane di gestazione a una certa data (default oggi), calcolate dall'UM.
+// Restituisce stringa "settimane+giorni" (es. "24+3").
+function calcSettimaneDaUM(umStr, dataRiferimento=null, durataCiclo=28){
+  if(!umStr)return null;
+  const um=new Date(umStr);
+  if(isNaN(um))return null;
+  const rif=dataRiferimento?new Date(dataRiferimento):new Date();
+  const correzione=(parseInt(durataCiclo)||28)-28;
+  // L'epoca gestazionale "reale" parte dall'UM corretto per la durata del ciclo
+  const umCorretto=new Date(um);
+  umCorretto.setDate(umCorretto.getDate()-correzione);
+  const giorni=Math.floor((rif-umCorretto)/(1000*60*60*24));
+  if(giorni<0||giorni>320)return null;
+  return Math.floor(giorni/7)+'+'+(giorni%7);
 }
 
 
@@ -4061,7 +4383,7 @@ function startEditor(tipo, vid=null){
 
   const meta={
     gyno:{badge:'🌸 GINECOLOGICA',label:'Visita Ginecologica',firstTab:'ep-1'},
-    ob:{badge:'🤰 OSTETRICA',label:'Visita Ostetrica',firstTab:'ob-1'},
+    ob:{badge:'🤰 OSTETRICA',label:'Visita Ostetrica',firstTab:'ob-anamnesi'},
     eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-1'}
   }[tipo];
   document.getElementById('editor-type-badge').textContent=meta.badge;
@@ -4076,6 +4398,8 @@ function startEditor(tipo, vid=null){
   // Gravidanza: solo per nuove visite ostetriche/eco (in modifica la gravidanza è già fissata)
   if(!vid && (tipo==='ob'||tipo==='eco')){
     curGravidanzaId = risolviGravidanzaPerNuovaVisita(curPaz);
+    // Per le nuove visite ostetriche, riporta i dati anamnestici dalla visita precedente della stessa gravidanza
+    if(tipo==='ob') riportaDatiGravidanza();
   }
 
   // Attiva il primo tab del modulo corrente
@@ -4098,9 +4422,11 @@ function setEditorTab(btn,id){
 
 function salvaVisita(){
   const p=DB.pazienti.find(x=>x.id===curPaz);
+  const esistente=curVisita?p.visite.find(x=>x.id===curVisita):null;
   const v={
     id:curVisita||Date.now(),
-    data:curVisita?p.visite.find(x=>x.id===curVisita).data:new Date().toISOString().split('T')[0],
+    data:esistente?esistente.data:new Date().toISOString().split('T')[0],
+    ora:esistente?.ora||new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}),
     tipo:curMode
   };
   if(curMode==='ob'){ v.obData=getObData(); v.gravidanzaId=curGravidanzaId; }
@@ -4279,7 +4605,7 @@ function renderVisiteList(p){
     c.innerHTML+=`<div class="visit-item">
       <div class="visit-icon" style="background:var(--primary-dim)">${meta.icon}</div>
       <div class="visit-info">
-        <div class="visit-date">${new Date(v.data).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}</div>
+        <div class="visit-date">${new Date(v.data).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}${v.ora?` <span class="visit-ora">🕐 ${v.ora}</span>`:''}</div>
         <div class="visit-type">${meta.label}</div>
         <div class="visit-diag">${conclShort}</div>
       </div>
@@ -4658,36 +4984,43 @@ function buildRefertoView(v){
   if(v.tipo==='ob'){
     const o=v.obData||{};
     let html='';
-    html+=sec('📋','Anamnesi Ostetrica',[
-      ['Data presunta parto',o.dpp?new Date(o.dpp).toLocaleDateString('it-IT'):''],['Gruppo sanguigno',o.gruppo],
-      ['Immunoprofilassi anti-D',o.immunoprofilassi?'Eseguita':''],
-      ['Gravidanze/Parti/Aborti',[o['anam-g'],o['anam-p'],o['anam-a']].some(Boolean)?`G${o['anam-g']||0} P${o['anam-p']||0} A${o['anam-a']||0}`:''],
-      ['Modalità parti precedenti',o['anam-modalita']],
-      ['Screening I trimestre',o['screen1-data']?new Date(o['screen1-data']).toLocaleDateString('it-IT')+(o['screen1-esito']?' · '+o['screen1-esito']:''):''],
-      ['NIPT',o.nipt]
+    html+=sec('📋','Anamnesi',[
+      ['Età',o.eta],['PARA',o.para],['Emogruppo',o.gruppo],['Tipo gravidanza',o['tipo-grav']],
+      ['UM',o.um?new Date(o.um).toLocaleDateString('it-IT'):''],['Durata ciclo',o['durata-ciclo']?o['durata-ciclo']+' gg':''],['EPP',o.epp],
+      ['UM ecografica',o['um-eco']?new Date(o['um-eco']).toLocaleDateString('it-IT'):''],['EPP ecografica',o['epp-eco']],
+      ['Altezza',o.altezza?o.altezza+' cm':''],['Peso pregravidico',o['peso-pregrav']?o['peso-pregrav']+' kg':''],['BMI',o.bmi],
+      ['Screening cervicale',o['screening-cervicale']],['Interventi chirurgici',o.chirurgia],['Herpes genitale',o.herpes],
+      ['Patologie',o.patologie],['Terapie in atto',o['terapie-atto']],['Allergie',o.allergie],
+      ['Fumo',o.fumo],['Familiarità',o.familiarita],['Anamnesi partner',o.partner]
     ]);
-    html+=sec('🤰','Parametri Gravidanza',[
-      ['Settimane',o.settimane],['Peso',o.peso?o.peso+' kg':''],['Incremento ponderale',o.incremento],['Pressione',o.pressione],
-      ['BCF',o.bcf],['Movimenti fetali',o.movimenti],
-      ['Proteinuria',o.proteinuria],['Glicemia',o.glicemia?o.glicemia+' mg/dl':''],['Edemi',o.edemi]
+    html+=sec('🩺','Visita Ostetrica',[
+      ['Settimane',o.settimane],['PA',o.pressione],['Score TEV',o['score-tev']],
+      ['Peso attuale',o.peso?o.peso+' kg':''],['Incremento ponderale',o.incremento],
+      ['Referto anamnestico',o.referto],['Esami · visite/consulenze',o['esami-visite']],['Esami · ecografie',o['esami-eco']],['Visita ostetrica (VO)',o.vo]
     ]);
-    html+=sec('🔍','Esame Obiettivo',[
-      ['Altezza fondo uterino',o.afu?o.afu+' cm':''],['Presentazione fetale',o.presentazione],
-      ['Manovre di Leopold',o.leopold],['Altri reperti',o.esame],
-      ['Contrazioni',o.contrazioni],['Perdite',o.perdite]
+    let strum=[o.ecografo,o.sonda].filter(Boolean).join(' · ');
+    html+=sec('📡','Ecografia'+(strum?' ('+strum+')':''),[
+      ['Fattori limitanti',o['fattori-limitanti']],['Eco I trimestre',o.eco1],['Eco II-III trimestre',o.eco23],['Eco III trimestre',o.eco3]
     ]);
-    html+=sec('🧫','Tampone Vagino-Rettale (GBS)',[
-      ['Data',o['gbs-data']?new Date(o['gbs-data']).toLocaleDateString('it-IT'):''],['Esito',o['gbs-esito']]
+    // Biometria con percentili
+    const epoca=parseSettimaneEsatte(o['bio-epoca']);
+    const pBpd=epoca?intergrowthPercentile(INTERGROWTH_BPD,epoca,parseFloat(o['bio-bpd'])):null;
+    const pHc=epoca?intergrowthPercentile(INTERGROWTH_HC,epoca,parseFloat(o['bio-hc'])):null;
+    const pAc=epoca?intergrowthPercentile(INTERGROWTH_AC,epoca,parseFloat(o['bio-ac'])):null;
+    const pFl=epoca?intergrowthPercentile(INTERGROWTH_FL,epoca,parseFloat(o['bio-fl'])):null;
+    const fmt=(val,perc,unit)=>val?`${val} ${unit}${perc?' ('+perc+' pc)':''}`:'';
+    html+=sec('👶','Biometria Fetale',[
+      ['Epoca',o['bio-epoca']],
+      ['DBP',fmt(o['bio-bpd'],pBpd,'mm')],['CC',fmt(o['bio-hc'],pHc,'mm')],
+      ['CA',fmt(o['bio-ac'],pAc,'mm')],['LF',fmt(o['bio-fl'],pFl,'mm')],
+      ['Peso fetale stimato',o['bio-peso']?o['bio-peso']+' gr'+(o['bio-peso-perc']?' ('+o['bio-peso-perc']+' pc)':''):'']
     ]);
-    html+=sec('🍬','Curva Glicemica (OGTT)',[
-      ['Data',o['ogtt-data']?new Date(o['ogtt-data']).toLocaleDateString('it-IT'):''],['Esito',o['ogtt-esito']],['Valori',o['ogtt-valori']]
-    ]);
-    html+=sec('📈','Cardiotocografia (CTG)',[
-      ['Data',o['ctg-data']?new Date(o['ctg-data']).toLocaleDateString('it-IT'):''],['Tracciato',o['ctg-esito']],['Note',o['ctg-note']]
-    ]);
-    html+=sec('✅','Diagnosi',[['',o.diagnosi]]);
+    html+=sec('📝','Note Ecografiche',[['',o['note-eco']]]);
+    html+=sec('💬','Counselling',[['',o['counselling-txt']]]);
+    html+=sec('🧾','Prescrizioni Esami',[['',o['prescrizioni-txt']]]);
     html+=sec('💊','Terapia',[['',o.terapia]]);
-    html+=sec('🔄','Prossimo Controllo',[['',o.prossimo]]);
+    html+=sec('✅','Conclusioni',[['',o.diagnosi]]);
+    html+=sec('🔄','Controlli',[['',o.prossimo]]);
     if(!html) html='<div style="text-align:center;padding:30px;color:var(--label4)">Nessun dato registrato per questa visita</div>';
     return html;
   }
@@ -4786,6 +5119,71 @@ function buildRefertoView(v){
 // ═══════════════════════════════════════════════════
 //  CURVE DI CRESCITA — generazione pagina stampabile
 // ═══════════════════════════════════════════════════
+// Variante per le visite ostetriche: raccoglie i dati biometrici da tutte le visite
+// ostetriche della stessa gravidanza (+ quello corrente non ancora salvato) e disegna le curve.
+function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente){
+  const p=DB.pazienti.find(x=>x.id===pazId);
+  if(!p){ return; }
+  // Raccoglie i punti dalle visite ostetriche salvate (campi biometria) della stessa gravidanza
+  let punti=(p.visite||[])
+    .filter(x=>x.tipo==='ob' && (!gravidanzaId || x.gravidanzaId===gravidanzaId))
+    .map(x=>{
+      const o=x.obData||{};
+      return {settimane:parseSettimaneEsatte(o['bio-epoca']), bpd:o['bio-bpd'], hc:o['bio-hc'], ac:o['bio-ac'], fl:o['bio-fl']};
+    })
+    .filter(x=>x.settimane!==null && x.settimane>=14 && x.settimane<=40);
+  // Aggiunge il dato corrente (non ancora salvato)
+  if(datiCorrente){
+    const sett=parseSettimaneEsatte(datiCorrente.settimane);
+    if(sett!==null && sett>=14 && sett<=40) punti.push({settimane:sett,bpd:datiCorrente.bpd,hc:datiCorrente.hc,ac:datiCorrente.ac,fl:datiCorrente.fl});
+  }
+  if(!punti.length){ if(typeof gsToast==='function')gsToast('Nessun dato biometrico valido (epoca 14-40 sett.)','gs-error'); return; }
+  punti.sort((a,b)=>a.settimane-b.settimane);
+  generaPaginaCurve(p, punti);
+}
+
+// Genera e stampa la pagina con i 4 grafici. Accetta una lista di punti {settimane,bpd,hc,ac,fl}.
+function generaPaginaCurve(p, punti){
+  const parametri=[
+    {key:'bpd',dataset:INTERGROWTH_BPD},{key:'hc',dataset:INTERGROWTH_HC},
+    {key:'ac',dataset:INTERGROWTH_AC},{key:'fl',dataset:INTERGROWTH_FL}
+  ];
+  const w=window.open('','_blank');
+  let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
+  <style>
+    body{font-family:Georgia,serif;color:#1a1a1a;max-width:1000px;margin:30px auto;padding:0 20px}
+    h1{font-size:1.3rem;color:#c2185b;border-bottom:3px solid #c2185b;padding-bottom:14px;margin-bottom:6px}
+    .sub{color:#666;font-size:.85rem;margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px}
+    .chart-box h3{font-size:.95rem;margin:0 0 8px;color:#333}
+    .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:#555;margin-top:6px}
+    .legend span{display:inline-flex;align-items:center;gap:4px}
+    .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+    .fonte{margin-top:24px;font-size:.72rem;color:#999;border-top:1px solid #eee;padding-top:10px}
+    @media print{.grid{grid-template-columns:1fr 1fr}}
+  </style></head><body>
+    <h1>📈 Curve di Crescita Fetale — INTERGROWTH-21st</h1>
+    <div class="sub"><strong>${p.cognome} ${p.nome}</strong> · ${punti.length} rilevazion${punti.length>1?'i':'e'} per questa gravidanza</div>
+    <div class="grid">`;
+  parametri.forEach(par=>{
+    const pts=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e[par.key])})).filter(pt=>!isNaN(pt.valore));
+    html+=`<div class="chart-box"><h3>${INTERGROWTH_LABELS[par.key]}</h3>${svgCurvaCrescita(par.dataset,pts)}
+      <div class="legend">
+        <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
+        <span><span class="dot" style="background:#90a4ae"></span>3°-97° percentile</span>
+        <span><span class="dot" style="background:#42a5f5"></span>50° percentile (mediana)</span>
+      </div>
+    </div>`;
+  });
+  html+=`</div>
+    <div class="fonte">Curve di riferimento: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.</div>
+  </body></html>`;
+  w.document.write(html);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
+}
+
 function apriCurveCrescita(pazId, vid){
   const p=DB.pazienti.find(x=>x.id===pazId);
   const v=p?.visite.find(x=>x.id===vid);
