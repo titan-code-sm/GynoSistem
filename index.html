@@ -1011,43 +1011,12 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <div id="res-trimestre" style="margin-top:12px;text-align:center;"></div>
       </div>
     </div>
-    <div class="card">
-      <h4 style="font-family:var(--font-serif);font-size:1.1rem;margin-bottom:20px;">⚖️ Calcolo BMI</h4>
-      <div class="field-row r2">
-        <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="calc-peso" placeholder="65"></div>
-        <div class="form-group"><label class="form-label">Altezza (cm)</label><input type="number" id="calc-alt" placeholder="165"></div>
-      </div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;" onclick="calcolaBMI()">Calcola BMI</button>
-      <div id="res-bmi-box" style="display:none;margin-top:16px;">
-        <div class="calc-result"><div class="res-val" id="res-bmi-val"></div><div class="res-label" id="res-bmi-cat"></div></div>
-        <div id="bmi-gain-rec" style="font-size:0.82rem;color:var(--label4);text-align:center;margin-top:10px;padding:8px;background:var(--surface2);border-radius:8px;"></div>
-      </div>
-    </div>
-    <div class="card">
-      <h4 style="font-family:var(--font-serif);font-size:1.1rem;margin-bottom:20px;">🩸 Score Menorragia (PBAC)</h4>
-      <div class="form-group"><label class="form-label">Assorbenti completamente imbevuti/die</label><input type="number" id="pbac-ass" placeholder="0"></div>
-      <div class="form-group" style="margin-top:10px;"><label class="form-label">Coaguli grandi</label><input type="number" id="pbac-coag" placeholder="0"></div>
-      <div class="form-group" style="margin-top:10px;"><label class="form-label">Giorni con spotting</label><input type="number" id="pbac-spot" placeholder="0"></div>
-      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;" onclick="calcolaPBAC()">Calcola PBAC</button>
-      <div id="res-pbac-box" style="display:none;margin-top:16px;"></div>
-    </div>
   </div>
   <div class="card" style="margin-top:20px;">
-    <h4 style="font-family:var(--font-serif);font-size:1.1rem;margin-bottom:20px;">📊 Valori di Riferimento Ematici in Gravidanza</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Parametro</th><th>Non Gravida</th><th>I Trimestre</th><th>II Trimestre</th><th>III Trimestre</th></tr></thead>
-        <tbody>
-          <tr><td>Hb (g/dL)</td><td>12–16</td><td>11–14</td><td>10.5–14</td><td>11–14</td></tr>
-          <tr><td>Ht (%)</td><td>37–47</td><td>31–41</td><td>30–39</td><td>30–39</td></tr>
-          <tr><td>WBC (x10³/µL)</td><td>4.5–11</td><td>6–16</td><td>6–16</td><td>6–16</td></tr>
-          <tr><td>PLT (x10³/µL)</td><td>150–400</td><td>150–400</td><td>150–380</td><td>100–350</td></tr>
-          <tr><td>Creatinina (mg/dL)</td><td>0.6–1.1</td><td>0.4–0.8</td><td>0.4–0.8</td><td>0.4–0.9</td></tr>
-          <tr><td>TSH (µUI/mL)</td><td>0.4–4.0</td><td>0.1–2.5</td><td>0.2–3.0</td><td>0.3–3.0</td></tr>
-          <tr><td>Glicemia a digiuno (mg/dL)</td><td>70–99</td><td>65–95</td><td>65–95</td><td>65–95</td></tr>
-          <tr><td>ALT (U/L)</td><td>&lt;35</td><td>&lt;26</td><td>&lt;26</td><td>&lt;26</td></tr>
-        </tbody>
-      </table>
+    <div class="card-header"><div><div class="card-title">📓 Diario Personale</div><div class="card-subtitle">Note libere, promemoria, appunti privati — salvati solo su questo dispositivo</div></div></div>
+    <textarea id="diario-personale" rows="12" placeholder="Scrivi qui ciò che vuoi: idee, promemoria, appunti..." onblur="salvaDiarioPersonale()" style="font-family:var(--font);font-size:0.92rem;line-height:1.6"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+      <span id="diario-stato" style="font-size:0.78rem;color:var(--label4)"></span>
     </div>
   </div>
 </div>
@@ -1062,7 +1031,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     <div style="display:flex;gap:8px">
       <button class="btn btn-ghost" onclick="loadFBAppuntamenti()">🔄 Sincronizza</button>
       <button class="btn btn-primary" onclick="apriNuovaPrenotazioneGS()">+ Nuovo Appuntamento</button>
-      <button class="btn btn-primary" onclick="window.open('GynoBook.html','_blank')">↗ Apri GynoBook</button>
+      <button class="btn btn-primary" onclick="window.open('https://titan-code-sm.github.io/Gynobook/','_blank')">↗ Apri GynoBook</button>
     </div>
   </div>
 
@@ -2359,13 +2328,44 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           <!-- ════════ ECO PANEL: DOPPLER ════════ -->
           <div id="ec-doppler" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="〜">Doppler (se eseguito)</h4>
-              <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Arteria Ombelicale (PI/RI)</label><input id="ec-doppler-ombelicale" placeholder="es. PI 0.95, flusso normale"></div>
-                <div class="form-group"><label class="form-label">Arterie Uterine (PI medio)</label><input id="ec-doppler-uterine" placeholder="es. PI 1.2, no notch"></div>
+              <h4 data-icon="〜">Flussimetria Doppler (se eseguita)</h4>
+              <div style="background:var(--primary-dim);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.82rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <span>🔗 Per la classificazione precisa in percentili secondo le curve di riferimento ufficiali:</span>
+                <a href="https://www.medfetal.org/en/gestational-calculator/" target="_blank" style="color:var(--primary);font-weight:600;text-decoration:underline">medfetal.org — Calcolatore Vall d'Hebron Barcelona ↗</a>
               </div>
-              <div class="form-group"><label class="form-label">Arteria Cerebrale Media (PI/picco sistolico)</label><input id="ec-doppler-acm" placeholder="es. PI 1.6, normale per epoca"></div>
-              <div class="form-group" style="margin-top:10px"><label class="form-label">Note Doppler</label><textarea id="ec-doppler-note" rows="2"></textarea></div>
+
+              <div class="field-row r2" style="margin-bottom:12px">
+                <div class="form-group"><label class="form-label">Arteria Ombelicale — PI</label><input type="number" step="0.01" id="ec-doppler-ua-pi" placeholder="es. 0.95" oninput="calcCPR()"></div>
+                <div class="form-group"><label class="form-label">Arteria Ombelicale — Flusso Diastolico</label><select id="ec-doppler-ua-flusso">
+                  <option value="">-- Seleziona --</option>
+                  <option value="presente">Presente (normale)</option>
+                  <option value="ridotto">Ridotto</option>
+                  <option value="assente">Assente (AEDF)</option>
+                  <option value="invertito">Invertito (REDF)</option>
+                </select></div>
+              </div>
+
+              <div class="field-row r2" style="margin-bottom:12px">
+                <div class="form-group"><label class="form-label">Arteria Cerebrale Media (MCA) — PI</label><input type="number" step="0.01" id="ec-doppler-mca-pi" placeholder="es. 1.60" oninput="calcCPR()"></div>
+                <div class="form-group"><label class="form-label">MCA — Velocità Massima (cm/s)</label><input type="number" step="0.1" id="ec-doppler-mca-vmax" placeholder="es. 38.5"></div>
+              </div>
+
+              <div class="form-group" id="ec-doppler-cpr-box" style="margin-bottom:12px;display:none">
+                <label class="form-label">Cerebroplacental Ratio (CPR = MCA-PI / UA-PI) — calcolato automaticamente</label>
+                <input id="ec-doppler-cpr" readonly style="background:var(--surface2);font-weight:700">
+              </div>
+
+              <div class="field-row r2" style="margin-bottom:12px">
+                <div class="form-group"><label class="form-label">Arteria Uterina Sinistra — PI</label><input type="number" step="0.01" id="ec-doppler-utsx-pi" placeholder="es. 0.85"></div>
+                <div class="form-group"><label class="form-label">Arteria Uterina Destra — PI</label><input type="number" step="0.01" id="ec-doppler-utdx-pi" placeholder="es. 0.90"></div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:12px">
+                <label class="form-label">Dotto Venoso — PI</label>
+                <input type="number" step="0.01" id="ec-doppler-dv-pi" placeholder="es. 0.55">
+              </div>
+
+              <div class="form-group"><label class="form-label">Note Doppler</label><textarea id="ec-doppler-note" rows="2" placeholder="osservazioni aggiuntive, notch, onda 'a' del dotto venoso..."></textarea></div>
             </div>
           </div>
 
@@ -2417,20 +2417,20 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 </div>
 
 <!-- MODAL VISUALIZZA VISITA -->
-<div id="view-visita" class="overlay" style="align-items:center;justify-content:center">
-  <div style="background:var(--surface);border-radius:24px;padding:0;width:640px;max-width:95vw;max-height:88vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.18);display:flex;flex-direction:column;">
-    <div style="background:linear-gradient(135deg,var(--primary),var(--purple));padding:22px 26px;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
+<div id="view-visita" class="overlay" style="align-items:stretch;justify-content:stretch">
+  <div style="background:var(--surface);border-radius:0;padding:0;width:100vw;max-width:100vw;height:100vh;max-height:100vh;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="background:linear-gradient(135deg,var(--primary),var(--purple));padding:22px 32px;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
       <div>
-        <div style="font-family:var(--font-serif);font-size:1.4rem;font-weight:700" id="vv-title">Visita</div>
-        <div style="font-size:.82rem;opacity:.85;margin-top:2px" id="vv-subtitle"></div>
+        <div style="font-family:var(--font-serif);font-size:1.5rem;font-weight:700" id="vv-title">Visita</div>
+        <div style="font-size:.85rem;opacity:.85;margin-top:2px" id="vv-subtitle"></div>
       </div>
-      <button onclick="closeModal('view-visita')" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1rem;cursor:pointer;flex-shrink:0">✕</button>
+      <button onclick="closeModal('view-visita')" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1.1rem;cursor:pointer;flex-shrink:0">✕</button>
     </div>
-    <div id="vv-body" style="overflow-y:auto;padding:24px 28px;flex:1;font-size:.9rem;line-height:1.7;color:var(--label2)"></div>
-    <div style="padding:14px 24px 18px;border-top:1px solid var(--separator);display:flex;gap:8px;flex-shrink:0">
+    <div id="vv-body" style="overflow-y:auto;padding:32px;flex:1;font-size:.95rem;line-height:1.8;color:var(--label2);max-width:900px;margin:0 auto;width:100%"></div>
+    <div style="padding:16px 32px 20px;border-top:1px solid var(--separator);display:flex;gap:8px;flex-shrink:0;max-width:900px;margin:0 auto;width:100%;box-sizing:border-box">
       <button class="btn btn-primary" id="vv-print-btn" style="flex:1;justify-content:center">🖨️ Stampa</button>
       <button class="btn btn-ghost" id="vv-curve-btn" style="display:none">📈 Curve di Crescita</button>
-      <button class="btn btn-ghost" id="vv-riepilogo-btn" style="display:none">📑 Riepilogo Gravidanza</button>
+      <button class="btn btn-ghost" id="vv-riepilogo-btn" style="display:none" title="Genera un documento stampabile o salvabile come PDF con tutte le visite della gravidanza">📑 Riepilogo Gravidanza (PDF)</button>
       <button class="btn btn-ghost" id="vv-edit-btn">✏️ Modifica</button>
       <button class="btn btn-ghost" onclick="closeModal('view-visita')">Chiudi</button>
     </div>
@@ -2885,6 +2885,22 @@ function calcBMIPregravidico(){
 }
 
 // Aggiorna i percentili dei parametri biometrici in tempo reale
+// Cerebroplacental Ratio: semplice rapporto aritmetico MCA-PI / UA-PI.
+// La CLASSIFICAZIONE in percentili (es. "CPR < 5° percentile = a rischio") richiede
+// le curve di riferimento ufficiali in funzione dell'epoca gestazionale: per quello
+// si usa il calcolatore Medfetal (link nel pannello), per non rischiare imprecisioni
+// cliniche con formule ricostruite internamente.
+function calcCPR(){
+  const ua=parseFloat(document.getElementById('ec-doppler-ua-pi')?.value);
+  const mca=parseFloat(document.getElementById('ec-doppler-mca-pi')?.value);
+  const box=document.getElementById('ec-doppler-cpr-box');
+  const out=document.getElementById('ec-doppler-cpr');
+  if(!ua||!mca||ua<=0){ if(box) box.style.display='none'; return; }
+  const cpr=(mca/ua).toFixed(2);
+  if(out) out.value=cpr;
+  if(box) box.style.display='block';
+}
+
 function aggiornaPercentili(){
   const epoca=parseSettimaneEsatte(document.getElementById('ob-bio-epoca')?.value);
   const params=[
@@ -2932,8 +2948,9 @@ const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','bcf','liquido','placen
   'anat-cuore-esito','anat-cuore-note','anat-addome-esito','anat-addome-note','anat-arti-esito','anat-arti-note',
   // Placenta & cordone
   'placenta-sede','placenta-grado','placenta-oui','cordone-inserzione','cordone-vasi',
-  // Doppler
-  'doppler-ombelicale','doppler-uterine','doppler-acm','doppler-note'];
+  // Doppler (PI = pulsatility index secondo Fetal Medicine Foundation / Medfetal Barcelona)
+  'doppler-ua-pi','doppler-ua-flusso','doppler-mca-pi','doppler-mca-vmax','doppler-cpr',
+  'doppler-utsx-pi','doppler-utdx-pi','doppler-dv-pi','doppler-note'];
 function getEcoData(){
   const d={};
   ECO_FIELDS.forEach(f=>{
@@ -2948,6 +2965,7 @@ function setEcoData(data){
     const el=document.getElementById('ec-'+f);
     if(el && data[f]!==undefined) el.value=data[f];
   });
+  calcCPR(); // mostra il box CPR se i valori PI sono presenti
 }
 
 // ═══════════════════════════════════════════════════
@@ -3607,6 +3625,7 @@ function naviga(id){
   if(id==='appuntamenti') loadFBAppuntamenti();
   if(id==='disponibilita') renderDisponibilita();
   if(id==='ricettario') renderRicettario();
+  if(id==='utility') caricaDiarioPersonale();
 }
 
 function salvaDB(){localStorage.setItem('gynoDB_v15',JSON.stringify(DB));}
@@ -4409,6 +4428,25 @@ function prescriviFarmaciSelezionati(){
 // ═══════════════════════════════════════════════════
 //  UTILITY
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  DIARIO PERSONALE — note libere, salvate solo in locale
+// ═══════════════════════════════════════════════════
+function salvaDiarioPersonale(){
+  const testo=document.getElementById('diario-personale').value;
+  localStorage.setItem('gyno_diario_personale', testo);
+  const stato=document.getElementById('diario-stato');
+  if(stato){
+    stato.textContent='💾 Salvato '+new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    setTimeout(()=>{ if(stato.textContent.startsWith('💾')) stato.textContent=''; },3000);
+  }
+}
+
+function caricaDiarioPersonale(){
+  const el=document.getElementById('diario-personale');
+  if(!el)return;
+  el.value=localStorage.getItem('gyno_diario_personale')||'';
+}
+
 function calcolaDPP(){
   const lmp=document.getElementById('calc-lmp').value; if(!lmp)return;
   const d=new Date(lmp); d.setDate(d.getDate()+280);
@@ -4419,37 +4457,6 @@ function calcolaDPP(){
   const trimName=w<14?'🌱 I Trimestre (0-13+6)':w<28?'🌿 II Trimestre (14-27+6)':w<42?'🌳 III Trimestre (28+)':'📅 Termine superato';
   document.getElementById('res-trimestre').innerHTML=`<span class="badge badge-green">${trimName}</span>`;
   document.getElementById('res-dpp-box').style.display='block';
-}
-
-function calcolaBMI(){
-  const w=parseFloat(document.getElementById('calc-peso').value), h=parseFloat(document.getElementById('calc-alt').value)/100;
-  if(!w||!h)return;
-  const bmi=(w/(h*h)).toFixed(1);
-  let cat,col,rec;
-  if(bmi<18.5){cat='Sottopeso';col='var(--orange)';rec='Aumento di peso consigliato: +12.5–18 kg in gravidanza';}
-  else if(bmi<25){cat='Normopeso';col='var(--green)';rec='Aumento di peso consigliato in gravidanza: +11.5–16 kg';}
-  else if(bmi<30){cat='Sovrappeso';col='var(--orange)';rec='Aumento di peso consigliato: +7–11.5 kg in gravidanza';}
-  else{cat='Obesità';col='var(--red)';rec='Aumento di peso consigliato: +5–9 kg in gravidanza (monitoraggio)';}
-  document.getElementById('res-bmi-val').textContent=bmi;
-  document.getElementById('res-bmi-val').style.color=col;
-  document.getElementById('res-bmi-cat').textContent=cat;
-  document.getElementById('res-bmi-cat').style.color=col;
-  document.getElementById('bmi-gain-rec').textContent=rec;
-  document.getElementById('res-bmi-box').style.display='block';
-}
-
-function calcolaPBAC(){
-  const ass=parseFloat(document.getElementById('pbac-ass').value)||0;
-  const coag=parseFloat(document.getElementById('pbac-coag').value)||0;
-  const spot=parseFloat(document.getElementById('pbac-spot').value)||0;
-  const score=ass*5+coag*1+spot*1;
-  const c=document.getElementById('res-pbac-box');
-  let cat,col;
-  if(score<75){cat='Mestruazione normale';col='var(--green)';}
-  else if(score<150){cat='Menorragia lieve';col='var(--orange)';}
-  else{cat='Menorragia severa – valutare approfondimento';col='var(--red)';}
-  c.innerHTML=`<div class="calc-result"><div class="res-val" style="color:${col};">${score}</div><div class="res-label">Score PBAC – ${cat}</div></div>`;
-  c.style.display='block';
 }
 
 // ═══════════════════════════════════════════════════
@@ -5340,9 +5347,12 @@ function buildRefertoView(v){
       ['Sede',e['placenta-sede']],['Grado di maturità',e['placenta-grado']],['Distanza dall\'OUI',e['placenta-oui']],['Altre note',e.placenta]
     ]);
     html+=sec('🔗','Cordone Ombelicale',[['Inserzione',e['cordone-inserzione']],['Numero vasi',e['cordone-vasi']]]);
-    html+=sec('〜','Doppler',[
-      ['Arteria ombelicale',e['doppler-ombelicale']],['Arterie uterine',e['doppler-uterine']],
-      ['Arteria cerebrale media',e['doppler-acm']],['Note',e['doppler-note']]
+    html+=sec('〜','Flussimetria Doppler',[
+      ['Arteria Ombelicale — PI',e['doppler-ua-pi']],['Arteria Ombelicale — Flusso',e['doppler-ua-flusso']],
+      ['Arteria Cerebrale Media — PI',e['doppler-mca-pi']],['MCA — Velocità Massima',e['doppler-mca-vmax']?e['doppler-mca-vmax']+' cm/s':''],
+      ['Cerebroplacental Ratio (CPR)',e['doppler-cpr']],
+      ['Arteria Uterina Sinistra — PI',e['doppler-utsx-pi']],['Arteria Uterina Destra — PI',e['doppler-utdx-pi']],
+      ['Dotto Venoso — PI',e['doppler-dv-pi']],['Note',e['doppler-note']]
     ]);
     html+=sec('📄','Diagnosi / Referto',[['',e.diagnosi]]);
     html+=sec('💊','Terapia',[['',e.terapia]]);
@@ -5497,19 +5507,22 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   const dataInizio=grav?.dataInizio?new Date(grav.dataInizio).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
 
   const w=window.open('','_blank');
-  let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Riepilogo Gravidanza - ${p.cognome} ${p.nome}</title>
+  const nomeFile=`Riepilogo_Gravidanza_${p.cognome}_${p.nome}`.replace(/\s+/g,'_');
+  let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${nomeFile}</title>
   <style>
     :root{--primary:#c2185b;--primary-dim:#fbe9ef;--label:#1a1a1a;--label3:#777}
     body{font-family:Georgia,serif;color:#1a1a1a;max-width:800px;margin:30px auto;padding:0 20px;line-height:1.6}
     h1{font-size:1.4rem;color:#c2185b;border-bottom:3px solid #c2185b;padding-bottom:14px;margin-bottom:6px}
     .sub{color:#666;font-size:.9rem;margin-bottom:30px}
+    .pdf-banner{background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.85rem;color:#664d03;display:flex;align-items:center;gap:10px}
     .visita-block{margin-bottom:36px;page-break-inside:avoid}
     .visita-header{display:flex;align-items:center;gap:10px;background:#fbe9ef;border-radius:8px;padding:10px 16px;margin-bottom:14px}
     .visita-header .data{font-weight:700;font-size:1.05rem}
     .visita-header .tipo{color:#c2185b;font-size:.85rem;font-weight:600}
     .fonte{margin-top:30px;font-size:.72rem;color:#999;border-top:1px solid #eee;padding-top:10px}
-    @media print{.visita-block{page-break-after:auto}}
+    @media print{.visita-block{page-break-after:auto} .pdf-banner{display:none}}
   </style></head><body>
+    <div class="pdf-banner">💡 <div><strong>Per salvare come PDF:</strong> nella finestra di stampa che si apre, scegli "Salva come PDF" (o "Microsoft Print to PDF") invece della stampante, poi conferma. Questo banner non comparirà nella stampa/PDF.</div></div>
     <h1>📑 Riepilogo Completo Gravidanza</h1>
     <div class="sub"><strong>${p.cognome} ${p.nome}</strong>${dataInizio?' · Gravidanza iniziata il '+dataInizio:''} · ${visiteGravidanza.length} visit${visiteGravidanza.length>1?'e':'a'} registrat${visiteGravidanza.length>1?'e':'a'}</div>`;
 
