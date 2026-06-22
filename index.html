@@ -2244,12 +2244,17 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
               <h4 data-icon="👶">Biometria Fetale</h4>
               <div class="field-row r3">
                 <div class="form-group"><label class="form-label">CRL (mm)</label><input id="ec-crl" placeholder="es. 65"></div>
-                <div class="form-group"><label class="form-label">BPD (mm)</label><input id="ec-bpd" placeholder="es. 48"></div>
-                <div class="form-group"><label class="form-label">CC - Circonferenza Cranica (mm)</label><input id="ec-hc" placeholder="es. 180"></div>
+                <div class="form-group"><label class="form-label">BPD (mm)</label><input id="ec-bpd" placeholder="es. 48" oninput="calcEFW()"></div>
+                <div class="form-group"><label class="form-label">CC - Circonferenza Cranica (mm)</label><input id="ec-hc" placeholder="es. 180" oninput="calcEFW()"></div>
               </div>
               <div class="field-row r3" style="margin-top:12px">
-                <div class="form-group"><label class="form-label">FL (mm)</label><input id="ec-fl" placeholder="es. 32"></div>
-                <div class="form-group"><label class="form-label">AC (mm)</label><input id="ec-ac" placeholder="es. 160"></div>
+                <div class="form-group"><label class="form-label">FL (mm)</label><input id="ec-fl" placeholder="es. 32" oninput="calcEFW()"></div>
+                <div class="form-group"><label class="form-label">AC (mm)</label><input id="ec-ac" placeholder="es. 160" oninput="calcEFW()"></div>
+              </div>
+              <div class="form-group" id="ec-efw-box" style="margin-top:12px;display:none">
+                <label class="form-label">Peso Fetale Stimato (EFW, formula di Hadlock) — calcolato automaticamente</label>
+                <input id="ec-efw" readonly style="background:var(--surface2);font-weight:700">
+                <div id="ec-efw-nota" style="font-size:.76rem;color:var(--label4);margin-top:4px"></div>
               </div>
             </div>
             <div class="section-card">
@@ -2890,6 +2895,50 @@ function calcBMIPregravidico(){
 // le curve di riferimento ufficiali in funzione dell'epoca gestazionale: per quello
 // si usa il calcolatore Medfetal (link nel pannello), per non rischiare imprecisioni
 // cliniche con formule ricostruite internamente.
+// Peso Fetale Stimato (EFW) — formula di Hadlock (1985), la più validata e diffusa
+// a livello internazionale per la stima ecografica del peso fetale da 4 parametri
+// biometrici. log10(peso in g) = 1.3596 - 0.00386×AC×FL + 0.0064×HC + 0.00061×BPD×AC
+// + 0.0424×AC + 0.174×FL (con BPD, HC, AC, FL in cm).
+// NOTA: questo calcola il VALORE in grammi, non il percentile INTERGROWTH-21st (che
+// richiederebbe un modello statistico separato non riprodotto qui per accuratezza
+// clinica). La valutazione qui sotto è solo un confronto orientativo con la mediana
+// della circonferenza addominale per la stessa epoca, NON un percentile di peso vero.
+function calcEFW(){
+  const bpd=parseFloat(document.getElementById('ec-bpd')?.value)/10; // mm → cm
+  const hc=parseFloat(document.getElementById('ec-hc')?.value)/10;
+  const ac=parseFloat(document.getElementById('ec-ac')?.value)/10;
+  const fl=parseFloat(document.getElementById('ec-fl')?.value)/10;
+  const box=document.getElementById('ec-efw-box');
+  const out=document.getElementById('ec-efw');
+  const nota=document.getElementById('ec-efw-nota');
+  // Servono almeno HC, AC e FL (BPD opzionale ma migliora la stima se presente)
+  if(!hc||!ac||!fl||hc<=0||ac<=0||fl<=0){ if(box) box.style.display='none'; return; }
+
+  const log10peso=1.3596 - 0.00386*ac*fl + 0.0064*hc + 0.00061*bpd*ac + 0.0424*ac + 0.174*fl;
+  const peso=Math.round(Math.pow(10,log10peso));
+  if(out) out.value=`${peso} g`;
+
+  // Confronto orientativo (non un percentile) con la mediana INTERGROWTH dell'AC
+  // per la stessa epoca, se le settimane sono indicate nel referto.
+  if(nota){
+    const settimane=parseSettimaneEsatte(document.getElementById('ec-settimane')?.value);
+    let testoNota='';
+    if(settimane && settimane>=14 && settimane<=40){
+      const acMedianaMm=intergrowthValoreInterpolato(INTERGROWTH_AC,settimane,3); // indice 3 = 50° percentile
+      if(acMedianaMm){
+        const diff=((ac*10-acMedianaMm)/acMedianaMm*100).toFixed(0);
+        if(Math.abs(diff)<=10) testoNota='ℹ️ Circonferenza addominale in linea con la mediana attesa per questa epoca.';
+        else if(diff>10) testoNota=`ℹ️ Circonferenza addominale superiore di circa il ${diff}% rispetto alla mediana attesa per questa epoca.`;
+        else testoNota=`ℹ️ Circonferenza addominale inferiore di circa il ${Math.abs(diff)}% rispetto alla mediana attesa per questa epoca.`;
+      }
+    } else {
+      testoNota='💡 Inserisci le settimane di gestazione per un confronto orientativo con la crescita media attesa.';
+    }
+    nota.innerHTML=`${testoNota} Per il percentile preciso del peso stimato: <a href="https://www.medfetal.org/en/gestational-calculator/" target="_blank" style="color:var(--primary);text-decoration:underline">calcolatore ufficiale ↗</a>`;
+  }
+  if(box) box.style.display='block';
+}
+
 function calcCPR(){
   const ua=parseFloat(document.getElementById('ec-doppler-ua-pi')?.value);
   const mca=parseFloat(document.getElementById('ec-doppler-mca-pi')?.value);
@@ -2940,7 +2989,7 @@ function apriCurveCrescitaOb(){
 }
 
 // ── ECOGRAFIA OSTETRICA ──
-const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','bcf','liquido','placenta','diagnosi','terapia','prossimo',
+const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','bcf','liquido','placenta','diagnosi','terapia','prossimo',
   // Tipo esame
   'tipo-esame','vitalita','num-feti',
   // Anatomia fetale
@@ -2965,6 +3014,7 @@ function setEcoData(data){
     const el=document.getElementById('ec-'+f);
     if(el && data[f]!==undefined) el.value=data[f];
   });
+  calcEFW(); // mostra il box EFW se la biometria è presente
   calcCPR(); // mostra il box CPR se i valori PI sono presenti
 }
 
@@ -5333,7 +5383,7 @@ function buildRefertoView(v){
     ]);
     html+=sec('📏','Età Gestazionale',[['Settimane',e.settimane]]);
     html+=sec('👶','Biometria Fetale',[
-      ['CRL',e.crl?e.crl+' mm':''],['BPD',e.bpd?e.bpd+' mm':''],['CC (HC)',e.hc?e.hc+' mm':''],['FL',e.fl?e.fl+' mm':''],['AC',e.ac?e.ac+' mm':''],['BCF',e.bcf]
+      ['CRL',e.crl?e.crl+' mm':''],['BPD',e.bpd?e.bpd+' mm':''],['CC (HC)',e.hc?e.hc+' mm':''],['FL',e.fl?e.fl+' mm':''],['AC',e.ac?e.ac+' mm':''],['Peso Fetale Stimato (EFW)',e.efw],['BCF',e.bcf]
     ]);
     html+=sec('🧠','Anatomia Fetale',[
       ['Cranio/Encefalo',[e['anat-cranio-esito'],e['anat-cranio-note']].filter(Boolean).join(' · ')],
@@ -5472,8 +5522,9 @@ function generaPaginaCurve(p, punti){
     html+=`<div class="chart-box"><h3>${INTERGROWTH_LABELS[par.key]}</h3>${svgCurvaCrescita(par.dataset,pts)}
       <div class="legend">
         <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
-        <span><span class="dot" style="background:#90a4ae"></span>3°-97° percentile</span>
+        <span><span class="dot" style="background:#fb8c00"></span>3° percentile (limite basso)</span>
         <span><span class="dot" style="background:#42a5f5"></span>50° percentile (mediana)</span>
+        <span><span class="dot" style="background:#8e24aa"></span>97° percentile (limite alto)</span>
       </div>
     </div>`;
   });
@@ -5591,8 +5642,9 @@ function apriCurveCrescita(pazId, vid){
     html+=`<div class="chart-box"><h3>${INTERGROWTH_LABELS[par.key]}</h3>${svgCurvaCrescita(par.dataset,punti)}
       <div class="legend">
         <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
-        <span><span class="dot" style="background:#90a4ae"></span>3°-97° percentile</span>
+        <span><span class="dot" style="background:#fb8c00"></span>3° percentile (limite basso)</span>
         <span><span class="dot" style="background:#42a5f5"></span>50° percentile (mediana)</span>
+        <span><span class="dot" style="background:#8e24aa"></span>97° percentile (limite alto)</span>
       </div>
     </div>`;
   });
@@ -5632,9 +5684,17 @@ function svgCurvaCrescita(dataset, punti){
   svg+=`<text x="${W/2}" y="${H-4}" font-size="9" fill="#666" text-anchor="middle">Settimane di gestazione</text>`;
   // Fascia 3°-97°
   svg+=`<path d="${areaPath}" fill="#90a4ae" opacity="0.15"/>`;
-  // Linee centili: 3°,10°,50°,90°,97°
-  [{i:0,c:'#b0bec5',w:1},{i:2,c:'#b0bec5',w:1},{i:3,c:'#42a5f5',w:2},{i:4,c:'#b0bec5',w:1},{i:6,c:'#b0bec5',w:1}].forEach(l=>{
-    svg+=`<polyline points="${path(l.i)}" fill="none" stroke="${l.c}" stroke-width="${l.w}"/>`;
+  // Linee centili: 3° (arancione, limite basso), 10°/90° (grigio, riferimento secondario),
+  // 50° (blu, mediana), 97° (viola, limite alto) — colori distinti per leggere a colpo
+  // d'occhio se un valore esce dai limiti di normalità.
+  [
+    {i:0,c:'#fb8c00',w:1.5,dash:'4,2'},  // 3° percentile — arancione
+    {i:2,c:'#b0bec5',w:1},                // 10° percentile — grigio
+    {i:3,c:'#42a5f5',w:2},                // 50° percentile (mediana) — blu
+    {i:4,c:'#b0bec5',w:1},                // 90° percentile — grigio
+    {i:6,c:'#8e24aa',w:1.5,dash:'4,2'}   // 97° percentile — viola
+  ].forEach(l=>{
+    svg+=`<polyline points="${path(l.i)}" fill="none" stroke="${l.c}" stroke-width="${l.w}"${l.dash?` stroke-dasharray="${l.dash}"`:''}/>`;
   });
   // Punti della paziente, collegati da una linea rossa se >1
   if(punti.length){
