@@ -321,14 +321,14 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .editor-wrap{background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 .editor-topbar{background:var(--surface);border-bottom:1px solid var(--separator);padding:16px 28px;display:flex;align-items:center;gap:20px;}
 .editor-topbar h3{font-family:var(--font-serif);font-size:1.1rem;flex:1;}
-.editor-body{display:flex;flex:1;overflow:hidden;}
+.editor-body{display:flex;flex:1;min-width:0;overflow:hidden;}
 .editor-nav{width:200px;background:var(--surface);border-right:1px solid var(--separator);padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
 .editor-nav-btn{padding:10px 14px;text-align:left;background:transparent;border:none;border-radius:10px;font-family:var(--font);font-size:0.85rem;font-weight:500;color:var(--label3);cursor:pointer;transition:0.15s;display:flex;align-items:center;gap:10px;}
 .editor-nav-btn:hover{background:var(--surface2);color:var(--label);}
 .editor-nav-btn.active{background:var(--primary-dim);color:var(--primary);font-weight:600;}
 .editor-nav-btn .step-num{width:22px;height:22px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;}
 .editor-nav-btn.active .step-num{background:var(--primary);color:#fff;}
-.editor-content{flex:1;overflow-y:auto;padding:16px 20px;}
+.editor-content{flex:1;min-width:0;overflow-y:auto;padding:16px 20px;}
 .edit-panel{display:none;animation:fadeUp 0.25s;}
 .edit-panel.active{display:block;}
 /* Compact form in editor */
@@ -618,7 +618,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   .editor-nav::-webkit-scrollbar{display:none;}
   .editor-nav-btn{flex-shrink:0;padding:7px 12px;font-size:.75rem;}
   .editor-nav-btn .step-num{width:18px;height:18px;font-size:.62rem;}
-  .editor-content{padding:14px;overflow-y:auto;flex:1;}
+  .editor-content{padding:14px;overflow-y:auto;flex:1;min-width:0;}
 
   /* Modals → bottom sheet */
   .overlay{align-items:flex-end !important;}
@@ -1591,7 +1591,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">3</span>Referto</button>
       </div>
       <div class="editor-content">
-        <div id="gyno-panels">
+        <div id="gyno-panels" style="display:block">
 
         <!-- ════════ PANEL 1: ANAMNESI ════════ -->
         <div id="ep-1" class="edit-panel active">
@@ -4407,24 +4407,6 @@ function startEditor(tipo, vid=null){
   setEditorTab(firstBtn,meta.firstTab);
 
   if(vid) loadVisita(vid);
-
-  // DIAGNOSTICO TEMPORANEO: misura le dimensioni reali per scovare il bug del layout ostetrico
-  if(tipo==='ob'){
-    setTimeout(()=>{
-      const ec=document.querySelector('.editor-content');
-      const op=document.getElementById('ob-panels');
-      const activePanel=document.querySelector('#ob-panels .edit-panel.active');
-      console.log('[DEBUG LAYOUT OB] editor-content rect:',JSON.stringify(ec?.getBoundingClientRect()));
-      console.log('[DEBUG LAYOUT OB] ob-panels rect:',JSON.stringify(op?.getBoundingClientRect()));
-      console.log('[DEBUG LAYOUT OB] ob-panels computed width:',op?getComputedStyle(op).width:'N/A','display:',op?getComputedStyle(op).display:'N/A');
-      console.log('[DEBUG LAYOUT OB] active panel id:',activePanel?.id,'rect:',JSON.stringify(activePanel?.getBoundingClientRect()));
-      if(activePanel){
-        const firstCard=activePanel.querySelector('.section-card');
-        console.log('[DEBUG LAYOUT OB] primo .section-card rect:',JSON.stringify(firstCard?.getBoundingClientRect()));
-        console.log('[DEBUG LAYOUT OB] primo .section-card computed width/margin:',firstCard?getComputedStyle(firstCard).width:'N/A',firstCard?getComputedStyle(firstCard).marginLeft:'N/A');
-      }
-    },200);
-  }
   }catch(e){
     console.error('[DEBUG startEditor] Errore con tipo=',tipo,'vid=',vid,':',e);
     alert('Errore apertura editor ('+tipo+'): '+e.message);
