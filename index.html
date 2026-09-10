@@ -2370,10 +2370,39 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
                 <div class="form-group"><label class="form-label">LF (mm)</label><input id="ob-bio-fl" placeholder="es. 42" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-fl"></div></div>
               </div>
               <div class="field-row r2">
-                <div class="form-group"><label class="form-label">Peso fetale stimato (gr)</label><input id="ob-bio-peso" placeholder="es. 700"></div>
-                <div class="form-group"><label class="form-label">Percentile peso (manuale)</label><input id="ob-bio-peso-perc" placeholder="es. 50°"></div>
+                <div class="form-group"><label class="form-label">Peso fetale stimato (gr)</label><input id="ob-bio-peso" placeholder="es. 700" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-peso"></div></div>
+                <div class="form-group"><label class="form-label">Percentile peso (manuale, opzionale)</label><input id="ob-bio-peso-perc" placeholder="es. 50°"></div>
               </div>
-              <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="apriCurveCrescitaOb()">📈 Vedi Curve di Crescita (stampabili)</button>
+              <p style="font-size:.74rem;color:var(--label4);margin-top:6px">Il percentile del peso è stimato sulle curve INTERGROWTH-21st (EFW, Stirnemann 2017): valore <strong>orientativo</strong>, verificare con il <a href="https://fetalmedicinebarcelona.org/calc/" target="_blank" style="color:var(--primary)">calcolatore ufficiale ↗</a>.</p>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="apriCurveCrescitaOb()">📈 Vedi Curve di Crescita + peso fetale (stampabili)</button>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="〜">Velocimetria Doppler (percentili orientativi)</h4>
+              <div style="background:var(--primary-dim);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:.8rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <span>🔗 Percentili e cut-off orientativi. Classificazione ufficiale:</span>
+                <a href="https://fetalmedicinebarcelona.org/calc/" target="_blank" style="color:var(--primary);font-weight:600;text-decoration:underline">fetalmedicinebarcelona.org/calc ↗</a>
+              </div>
+              <p style="font-size:.76rem;color:var(--label4);margin-bottom:12px">Il percentile usa l'<strong>epoca gestazionale</strong> indicata nella biometria qui sopra. CPR e media delle arterie uterine sono calcolati in automatico.</p>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Arteria Ombelicale (AO) — PI</label><input type="number" step="0.01" id="ob-doppler-ua-pi" placeholder="es. 0.95" oninput="aggiornaDopplerOb()"><div class="perc-badge" id="ob-perc-ua-pi"></div></div>
+                <div class="form-group"><label class="form-label">Arteria Cerebrale Media (ACM) — PI</label><input type="number" step="0.01" id="ob-doppler-mca-pi" placeholder="es. 1.60" oninput="aggiornaDopplerOb()"><div class="perc-badge" id="ob-perc-mca-pi"></div></div>
+              </div>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">CPR — Rapporto cerebro-placentare (ACM-PI / AO-PI) — automatico</label>
+                <input id="ob-doppler-cpr" readonly style="background:var(--surface2);font-weight:700">
+                <div class="perc-badge" id="ob-perc-cpr"></div>
+              </div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Arteria Uterina (AU) destra — PI</label><input type="number" step="0.01" id="ob-doppler-uta-dx" placeholder="es. 0.90" oninput="aggiornaDopplerOb()"></div>
+                <div class="form-group"><label class="form-label">Arteria Uterina (AU) sinistra — PI</label><input type="number" step="0.01" id="ob-doppler-uta-sx" placeholder="es. 0.85" oninput="aggiornaDopplerOb()"></div>
+              </div>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">AU — media dei due PI — automatico</label>
+                <input id="ob-doppler-uta-media" readonly style="background:var(--surface2);font-weight:700">
+                <div class="perc-badge" id="ob-perc-uta-media"></div>
+              </div>
+              <div class="form-group"><label class="form-label">Note Doppler</label><textarea id="ob-doppler-note" rows="2" placeholder="flusso diastolico AO, notch protodiastolico AU, onda 'a' del dotto venoso..."></textarea></div>
             </div>
           </div>
 
@@ -3216,6 +3245,8 @@ const OB_FIELDS=[
   'ecografo','sonda','fattori-limitanti','eco1','eco23','eco3',
   // Biometria
   'bio-epoca','bio-bpd','bio-hc','bio-ac','bio-fl','bio-peso','bio-peso-perc',
+  // Velocimetria Doppler (visita ostetrica)
+  'doppler-ua-pi','doppler-mca-pi','doppler-cpr','doppler-uta-dx','doppler-uta-sx','doppler-uta-media','doppler-note',
   // Note, counselling, prescrizioni, conclusioni
   'note-eco','counselling-txt','prescrizioni-txt','terapia','diagnosi','prossimo'];
 function getObData(){
@@ -3237,6 +3268,7 @@ function setObData(data){
   if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   obToggleImmuno();
   calcBMIPregravidico();
+  if(typeof aggiornaPercentili==='function') aggiornaPercentili();
 }
 
 // Campi che vengono riportati identici da una visita all'altra della stessa gravidanza:
@@ -3454,6 +3486,152 @@ function aggiornaPercentili(){
     else cls+=' perc-ok';
     badge.className=cls;
   });
+
+  // ── Peso fetale stimato — percentile INTERGROWTH-21st (EFW, Stirnemann 2017) ──
+  const pesoBadge=document.getElementById('ob-perc-peso');
+  if(pesoBadge){
+    const peso=parseFloat(document.getElementById('ob-bio-peso')?.value);
+    const pp=(!isNaN(peso)&&epoca!==null)?efwPercentile(epoca,peso):null;
+    if(!pp){ pesoBadge.textContent=''; pesoBadge.className='perc-badge'; }
+    else{
+      pesoBadge.textContent='≈ percentile '+pp+' (orientativo)';
+      const n=parseInt(pp); let cls='perc-badge';
+      if(pp.includes('<')||pp.includes('>')) cls+=' perc-fuori';
+      else if(n<10||n>90) cls+=' perc-attenzione';
+      else cls+=' perc-ok';
+      pesoBadge.className=cls;
+    }
+  }
+
+  // ── Velocimetria Doppler ──
+  aggiornaDopplerOb();
+}
+
+// ═══════════════════════════════════════════════════
+//  PESO FETALE STIMATO — percentile INTERGROWTH-21st
+// ═══════════════════════════════════════════════════
+// Standard INTERGROWTH-21st per il peso fetale stimato: Stirnemann J, Villar J,
+// Salomon LJ, et al. "International estimated fetal weight standards of the
+// INTERGROWTH-21st Project." Ultrasound Obstet Gynecol 2017;49:478-486.
+// Centili 3°,10°,50°,90°,97° in grammi per settimana gestazionale esatta (22-40).
+// ⚠️ VALORI ORIENTATIVI ricostruiti dalle tabelle pubblicate: per l'uso nel referto
+// clinico confrontare sempre con il calcolatore ufficiale
+// (intergrowth21.tghn.org / fetalmedicinebarcelona.org/calc).
+const INTERGROWTH_EFW_CENTILI=[3,10,50,90,97];
+const INTERGROWTH_EFW={
+  22:[401,430,494,569,610],   23:[467,502,577,668,717],
+  24:[540,581,671,778,836],   25:[621,669,775,902,970],
+  26:[710,766,891,1040,1120], 27:[808,873,1019,1193,1287],
+  28:[915,991,1160,1362,1471],29:[1032,1120,1314,1548,1674],
+  30:[1159,1259,1482,1751,1897],31:[1294,1409,1663,1970,2138],
+  32:[1438,1568,1857,2204,2394],33:[1590,1735,2062,2451,2665],
+  34:[1749,1911,2277,2711,2949],35:[1913,2092,2500,2979,3242],
+  36:[2081,2277,2728,3254,3541],37:[2249,2463,2955,3527,3838],
+  38:[2415,2645,3178,3794,4128],39:[2574,2820,3390,4048,4404],
+  40:[2723,2984,3588,4284,4660]
+};
+function efwPercentile(settimaneEsatte, pesoGr){
+  if(pesoGr===null||isNaN(pesoGr)||settimaneEsatte===null)return null;
+  const w0=Math.max(22,Math.min(40,Math.floor(settimaneEsatte)));
+  const w1=Math.max(22,Math.min(40,Math.ceil(settimaneEsatte)));
+  const a=INTERGROWTH_EFW[w0], b=INTERGROWTH_EFW[w1];
+  if(!a||!b)return null;
+  const frac=w1===w0?0:(settimaneEsatte-w0);
+  const vals=INTERGROWTH_EFW_CENTILI.map((c,i)=>a[i]+(b[i]-a[i])*frac);
+  if(pesoGr<vals[0])return '<3°';
+  if(pesoGr>vals[vals.length-1])return '>97°';
+  for(let i=0;i<vals.length-1;i++){
+    if(pesoGr>=vals[i]&&pesoGr<=vals[i+1]){
+      const f=(pesoGr-vals[i])/((vals[i+1]-vals[i])||1);
+      return Math.round(INTERGROWTH_EFW_CENTILI[i]+(INTERGROWTH_EFW_CENTILI[i+1]-INTERGROWTH_EFW_CENTILI[i])*f)+'°';
+    }
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════
+//  FLUSSIMETRIA DOPPLER — percentili di riferimento
+// ═══════════════════════════════════════════════════
+// ⚠️ VALORI ORIENTATIVI. Curve di riferimento pubblicate:
+//  · Arteria ombelicale (AO) PI — Arduini D, Rizzo G. J Perinat Med 1990
+//  · Arteria cerebrale media (ACM) PI — Ebbing C, et al. UOG 2007
+//  · Rapporto cerebro-placentare (CPR) — Baschat AA, Gembruch U. UOG 2003
+//  · Arterie uterine (AU) PI medio — Gómez O, et al. UOG 2008
+// Classificazione definitiva: https://fetalmedicinebarcelona.org/calc/
+// Ogni riga: [5° centile, 50° centile, 95° centile] per settimana gestazionale.
+const DOPPLER_UA_PI={
+  20:[0.98,1.22,1.53],22:[0.92,1.15,1.44],24:[0.86,1.08,1.37],26:[0.81,1.01,1.30],
+  28:[0.75,0.95,1.21],30:[0.70,0.88,1.13],32:[0.65,0.83,1.08],34:[0.60,0.77,1.02],
+  36:[0.56,0.72,0.96],38:[0.51,0.67,0.92],40:[0.47,0.63,0.89]
+};
+const DOPPLER_MCA_PI={
+  20:[1.18,1.55,1.96],22:[1.30,1.68,2.11],24:[1.40,1.80,2.26],26:[1.47,1.90,2.38],
+  28:[1.51,1.96,2.44],30:[1.50,1.96,2.45],32:[1.44,1.90,2.40],34:[1.34,1.80,2.28],
+  36:[1.20,1.65,2.10],38:[1.03,1.46,1.87],40:[0.85,1.25,1.60]
+};
+// CPR: patologico se BASSO (sotto il 5° centile).
+const DOPPLER_CPR={
+  20:[1.03,1.83,2.90],22:[1.15,2.00,3.10],24:[1.24,2.13,3.24],26:[1.29,2.20,3.30],
+  28:[1.30,2.22,3.30],30:[1.27,2.17,3.22],32:[1.19,2.05,3.05],34:[1.08,1.87,2.80],
+  36:[0.94,1.65,2.48],38:[0.82,1.42,2.14],40:[0.72,1.22,1.85]
+};
+// AU PI medio: patologico se ALTO (sopra il 95° centile).
+const DOPPLER_UTA_PI={
+  20:[0.71,1.04,1.54],22:[0.66,0.95,1.40],24:[0.62,0.88,1.29],26:[0.58,0.82,1.20],
+  28:[0.55,0.78,1.13],30:[0.53,0.74,1.08],32:[0.51,0.72,1.04],34:[0.50,0.70,1.01],
+  36:[0.49,0.69,0.99],38:[0.48,0.68,0.98],40:[0.48,0.68,0.98]
+};
+function dopplerInterp(tab, ga){
+  const ws=Object.keys(tab).map(Number).sort((a,b)=>a-b);
+  let w0=ws[0], w1=ws[ws.length-1];
+  if(ga<=ws[0]){ w0=w1=ws[0]; }
+  else if(ga>=ws[ws.length-1]){ w0=w1=ws[ws.length-1]; }
+  else for(let i=0;i<ws.length-1;i++){ if(ga>=ws[i]&&ga<=ws[i+1]){ w0=ws[i]; w1=ws[i+1]; break; } }
+  const f=w1===w0?0:(ga-w0)/(w1-w0);
+  return tab[w0].map((v,i)=>v+(tab[w1][i]-tab[w0][i])*f);
+}
+// verso: 'alto' = patologico se sopra il 95°; 'basso' = patologico se sotto il 5°.
+function dopplerValuta(tab, ga, valore, verso){
+  if(ga===null||valore===null||isNaN(valore))return null;
+  const c=dopplerInterp(tab,ga);
+  const p5=c[0], p50=c[1], p95=c[2];
+  let perc, patologico=false;
+  if(valore<p5){ perc='<5°'; if(verso==='basso') patologico=true; }
+  else if(valore>p95){ perc='>95°'; if(verso==='alto') patologico=true; }
+  else if(valore<=p50) perc=Math.round(5+(valore-p5)/((p50-p5)||1)*45)+'°';
+  else perc=Math.round(50+(valore-p50)/((p95-p50)||1)*45)+'°';
+  return { perc, patologico, esito: patologico?'patologico':'normale' };
+}
+function aggiornaDopplerOb(){
+  const ga=parseSettimaneEsatte(document.getElementById('ob-bio-epoca')?.value);
+  const num=id=>{ const x=parseFloat(document.getElementById(id)?.value); return isNaN(x)?null:x; };
+  const uaPi=num('ob-doppler-ua-pi');
+  const mcaPi=num('ob-doppler-mca-pi');
+  const utaDx=num('ob-doppler-uta-dx');
+  const utaSx=num('ob-doppler-uta-sx');
+  // CPR automatico = ACM-PI / AO-PI
+  let cpr=null;
+  if(uaPi!==null && mcaPi!==null && uaPi>0) cpr=+(mcaPi/uaPi).toFixed(2);
+  const cprOut=document.getElementById('ob-doppler-cpr');
+  if(cprOut) cprOut.value=cpr!==null?cpr:'';
+  // Media dei due PI delle arterie uterine
+  let utaMedia=null;
+  if(utaDx!==null && utaSx!==null) utaMedia=+((utaDx+utaSx)/2).toFixed(2);
+  else if(utaDx!==null) utaMedia=utaDx;
+  else if(utaSx!==null) utaMedia=utaSx;
+  const utaMediaOut=document.getElementById('ob-doppler-uta-media');
+  if(utaMediaOut) utaMediaOut.value=utaMedia!==null?utaMedia:'';
+  const setBadge=(id,res)=>{
+    const b=document.getElementById(id);
+    if(!b)return;
+    if(!res){ b.textContent=''; b.className='perc-badge'; return; }
+    b.textContent=res.perc+' · '+res.esito;
+    b.className='perc-badge '+(res.patologico?'perc-fuori':'perc-ok');
+  };
+  setBadge('ob-perc-ua-pi',  (ga!==null&&uaPi!==null)  ? dopplerValuta(DOPPLER_UA_PI,ga,uaPi,'alto')      : null);
+  setBadge('ob-perc-mca-pi', (ga!==null&&mcaPi!==null) ? dopplerValuta(DOPPLER_MCA_PI,ga,mcaPi,'basso')   : null);
+  setBadge('ob-perc-cpr',    (ga!==null&&cpr!==null)   ? dopplerValuta(DOPPLER_CPR,ga,cpr,'basso')        : null);
+  setBadge('ob-perc-uta-media',(ga!==null&&utaMedia!==null)?dopplerValuta(DOPPLER_UTA_PI,ga,utaMedia,'alto'):null);
 }
 
 // Apre le curve di crescita per i dati biometrici inseriti nella visita ostetrica
@@ -3466,7 +3644,8 @@ function apriCurveCrescitaOb(){
     bpd:document.getElementById('ob-bio-bpd')?.value,
     hc:document.getElementById('ob-bio-hc')?.value,
     ac:document.getElementById('ob-bio-ac')?.value,
-    fl:document.getElementById('ob-bio-fl')?.value
+    fl:document.getElementById('ob-bio-fl')?.value,
+    peso:document.getElementById('ob-bio-peso')?.value
   });
 }
 
@@ -6882,8 +7061,28 @@ function getRefertoSezioni(v){
         ['Epoca',o['bio-epoca']],
         ['DBP',fmt(o['bio-bpd'],pBpd,'mm')],['CC',fmt(o['bio-hc'],pHc,'mm')],
         ['CA',fmt(o['bio-ac'],pAc,'mm')],['LF',fmt(o['bio-fl'],pFl,'mm')],
-        ['Peso fetale stimato',o['bio-peso']?o['bio-peso']+' gr'+(o['bio-peso-perc']?' ('+o['bio-peso-perc']+' pc)':''):'']
+        ['Peso fetale stimato',(()=>{
+          if(!o['bio-peso'])return '';
+          const pp=epoca!==null?efwPercentile(epoca,parseFloat(o['bio-peso'])):null;
+          const man=o['bio-peso-perc']?' ('+o['bio-peso-perc']+' pc)':'';
+          return o['bio-peso']+' gr'+man+(pp?` — ≈ ${pp} percentile INTERGROWTH-21st (orientativo)`:'');
+        })()]
       ]},
+      {icon:'〜',title:'Velocimetria Doppler',rows:(()=>{
+        const dv=(tab,val,verso)=>{
+          const r=(epoca!==null&&val)?dopplerValuta(tab,epoca,parseFloat(val),verso):null;
+          return r?` — ${r.perc}, ${r.esito}`:'';
+        };
+        return [
+          ['Arteria Ombelicale (AO) — PI', o['doppler-ua-pi']?o['doppler-ua-pi']+dv(DOPPLER_UA_PI,o['doppler-ua-pi'],'alto'):''],
+          ['Arteria Cerebrale Media (ACM) — PI', o['doppler-mca-pi']?o['doppler-mca-pi']+dv(DOPPLER_MCA_PI,o['doppler-mca-pi'],'basso'):''],
+          ['CPR (ACM-PI / AO-PI)', o['doppler-cpr']?o['doppler-cpr']+dv(DOPPLER_CPR,o['doppler-cpr'],'basso'):''],
+          ['Arteria Uterina destra — PI', o['doppler-uta-dx']],
+          ['Arteria Uterina sinistra — PI', o['doppler-uta-sx']],
+          ['Arterie Uterine — media PI', o['doppler-uta-media']?o['doppler-uta-media']+dv(DOPPLER_UTA_PI,o['doppler-uta-media'],'alto'):''],
+          ['Note Doppler', o['doppler-note']]
+        ];
+      })()},
       {icon:'📝',title:'Note Ecografiche',rows:[['Note',o['note-eco']]]},
       {icon:'💬',title:'Counselling',rows:[['Counselling',o['counselling-txt']]]},
       {icon:'🧾',title:'Prescrizioni Esami',rows:[['Prescrizioni',o['prescrizioni-txt']]]},
@@ -7022,13 +7221,13 @@ function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente){
     .filter(x=>x.tipo==='ob' && (!gravidanzaId || x.gravidanzaId===gravidanzaId))
     .map(x=>{
       const o=x.obData||{};
-      return {settimane:parseSettimaneEsatte(o['bio-epoca']), bpd:o['bio-bpd'], hc:o['bio-hc'], ac:o['bio-ac'], fl:o['bio-fl']};
+      return {settimane:parseSettimaneEsatte(o['bio-epoca']), bpd:o['bio-bpd'], hc:o['bio-hc'], ac:o['bio-ac'], fl:o['bio-fl'], peso:o['bio-peso']};
     })
     .filter(x=>x.settimane!==null && x.settimane>=14 && x.settimane<=40);
   // Aggiunge il dato corrente (non ancora salvato)
   if(datiCorrente){
     const sett=parseSettimaneEsatte(datiCorrente.settimane);
-    if(sett!==null && sett>=14 && sett<=40) punti.push({settimane:sett,bpd:datiCorrente.bpd,hc:datiCorrente.hc,ac:datiCorrente.ac,fl:datiCorrente.fl});
+    if(sett!==null && sett>=14 && sett<=40) punti.push({settimane:sett,bpd:datiCorrente.bpd,hc:datiCorrente.hc,ac:datiCorrente.ac,fl:datiCorrente.fl,peso:datiCorrente.peso});
   }
   if(!punti.length){ if(typeof gsToast==='function')gsToast('Nessun dato biometrico valido (epoca 14-40 sett.)','gs-error'); return; }
   punti.sort((a,b)=>a.settimane-b.settimane);
@@ -7070,12 +7269,61 @@ function generaPaginaCurve(p, punti){
       </div>
     </div>`;
   });
+  // 5° grafico: Peso Fetale Stimato (EFW) — curve INTERGROWTH-21st
+  const ptsEfw=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e.peso)})).filter(pt=>!isNaN(pt.valore));
+  html+=`<div class="chart-box"><h3>Peso Fetale Stimato (g) — orientativo</h3>${svgCurva5(INTERGROWTH_EFW,ptsEfw)}
+      <div class="legend">
+        <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
+        <span><span class="dot" style="background:#fb8c00"></span>3° percentile</span>
+        <span><span class="dot" style="background:#42a5f5"></span>50° percentile</span>
+        <span><span class="dot" style="background:#8e24aa"></span>97° percentile</span>
+      </div>
+      <div style="font-size:.68rem;color:#999;margin-top:4px">Percentili peso INTERGROWTH-21st (EFW): valori orientativi — verificare con il calcolatore ufficiale.</div>
+    </div>`;
   html+=`</div>
-    <div class="fonte">Curve di riferimento: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.</div>
+    <div class="fonte">Curve di riferimento biometria: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.<br>Curve del peso fetale stimato: Stirnemann J, Villar J, Salomon LJ, et al. "International estimated fetal weight standards of the INTERGROWTH-21st Project." Ultrasound Obstet Gynecol 2017;49:478-486. I valori di peso e i relativi percentili qui riportati sono orientativi: per il referto clinico confrontare con il calcolatore ufficiale (fetalmedicinebarcelona.org/calc).</div>
   </body></html>`;
   w.document.write(html);
   w.document.close();
   setTimeout(()=>w.print(),400);
+}
+
+// Variante di svgCurvaCrescita per tabelle a 5 centili [3°,10°,50°,90°,97°]
+// (usata per il peso fetale stimato EFW). Indici: 0=3°, 2=50°, 4=97°.
+function svgCurva5(dataset, punti){
+  const W=420, H=280, padL=52, padR=14, padT=14, padB=34;
+  const settimane=Object.keys(dataset).map(Number).sort((a,b)=>a-b);
+  const wMin=settimane[0], wMax=settimane[settimane.length-1];
+  const allVals=settimane.flatMap(s=>dataset[s]);
+  const vMin=Math.min(...allVals), vMax=Math.max(...allVals);
+  const vPad=(vMax-vMin)*0.08;
+  const x=s=>padL+((s-wMin)/(wMax-wMin))*(W-padL-padR);
+  const y=v=>H-padB-((v-(vMin-vPad))/((vMax+vPad)-(vMin-vPad)))*(H-padT-padB);
+  const path=idx=>settimane.map(s=>`${x(s)},${y(dataset[s][idx])}`).join(' ');
+  const areaPath=`M${path(0)} L${settimane.slice().reverse().map(s=>`${x(s)},${y(dataset[s][4])}`).join(' L')} Z`;
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#fff">`;
+  for(let s=wMin;s<=wMax;s+=2){
+    svg+=`<line x1="${x(s)}" y1="${padT}" x2="${x(s)}" y2="${H-padB}" stroke="#f0f0f0" stroke-width="1"/>`;
+    svg+=`<text x="${x(s)}" y="${H-padB+16}" font-size="8" fill="#888" text-anchor="middle">${s}</text>`;
+  }
+  svg+=`<text x="${W/2}" y="${H-4}" font-size="9" fill="#666" text-anchor="middle">Settimane di gestazione</text>`;
+  svg+=`<path d="${areaPath}" fill="#90a4ae" opacity="0.15"/>`;
+  [
+    {i:0,c:'#fb8c00',w:1.5,dash:'4,2'},
+    {i:1,c:'#b0bec5',w:1},
+    {i:2,c:'#42a5f5',w:2},
+    {i:3,c:'#b0bec5',w:1},
+    {i:4,c:'#8e24aa',w:1.5,dash:'4,2'}
+  ].forEach(l=>{
+    svg+=`<polyline points="${path(l.i)}" fill="none" stroke="${l.c}" stroke-width="${l.w}"${l.dash?` stroke-dasharray="${l.dash}"`:''}/>`;
+  });
+  if(punti.length){
+    const ptsCoord=punti.map(pt=>`${x(pt.settimane)},${y(pt.valore)}`).join(' ');
+    if(punti.length>1) svg+=`<polyline points="${ptsCoord}" fill="none" stroke="#c2185b" stroke-width="2"/>`;
+    punti.forEach(pt=>{ svg+=`<circle cx="${x(pt.settimane)}" cy="${y(pt.valore)}" r="4" fill="#c2185b" stroke="#fff" stroke-width="1.5"/>`; });
+  }
+  svg+=`</svg>`;
+  return svg;
 }
 
 // ═══════════════════════════════════════════════════
@@ -7191,8 +7439,20 @@ function apriCurveCrescita(pazId, vid){
     </div>`;
   });
 
+  // Peso Fetale Stimato (EFW) — curve INTERGROWTH-21st (orientativo)
+  const ptsEfw=ecoGravidanza.map(e=>({settimane:e.settimane, valore:parseFloat(e.eco.efw)})).filter(pt=>!isNaN(pt.valore));
+  html+=`<div class="chart-box"><h3>Peso Fetale Stimato (g) — orientativo</h3>${svgCurva5(INTERGROWTH_EFW,ptsEfw)}
+      <div class="legend">
+        <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
+        <span><span class="dot" style="background:#fb8c00"></span>3° percentile</span>
+        <span><span class="dot" style="background:#42a5f5"></span>50° percentile</span>
+        <span><span class="dot" style="background:#8e24aa"></span>97° percentile</span>
+      </div>
+      <div style="font-size:.68rem;color:#999;margin-top:4px">Percentili peso INTERGROWTH-21st (EFW): valori orientativi — verificare con il calcolatore ufficiale.</div>
+    </div>`;
+
   html+=`</div>
-    <div class="fonte">Curve di riferimento: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.</div>
+    <div class="fonte">Curve di riferimento biometria: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.<br>Curve del peso fetale stimato: Stirnemann J, Villar J, Salomon LJ, et al. Ultrasound Obstet Gynecol 2017;49:478-486 — valori orientativi.</div>
   </body></html>`;
 
   w.document.write(html);
