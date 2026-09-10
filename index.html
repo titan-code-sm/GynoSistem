@@ -1492,6 +1492,25 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
+<!-- Modal Schemi di prescrizione esami (dalla sezione Prescrizioni della visita ostetrica) -->
+<div id="modal-schemi-prescrizioni" class="overlay">
+  <div class="modal-sm" style="width:560px;max-height:88vh;overflow-y:auto;">
+    <h3>📄 Schemi di prescrizione</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:14px">Ogni schema si apre come foglio modificabile e stampabile (formato ricetta).</p>
+    <div id="schemi-lista" style="margin-bottom:14px;"></div>
+    <button class="btn btn-ghost btn-sm" onclick="_mostraFormNuovoSchema()">➕ Nuovo schema</button>
+    <div id="schema-nuovo-form" style="display:none;margin-top:12px;background:var(--surface2);border-radius:10px;padding:14px;">
+      <input type="hidden" id="schema-edit-idx" value="">
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Titolo</label><input id="schema-titolo" placeholder="es. Esami 20 settimane"></div>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Contenuto</label><textarea id="schema-testo" rows="7" placeholder="Testo dello schema, riga per riga..."></textarea></div>
+      <button class="btn btn-primary btn-sm" onclick="salvaSchema()">💾 Salva schema</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-schemi-prescrizioni')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <!-- DETTAGLIO PAZIENTE -->
 <div id="sec-dettaglio" class="section">
   <button onclick="naviga('archivio')" class="btn btn-ghost" style="margin-bottom:20px;">← Torna ai Pazienti</button>
@@ -2536,7 +2555,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
           <!-- ════════ OB PANEL: PRESCRIZIONI ════════ -->
           <div id="ob-prescrizioni" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="🧾">Prescrizioni Esami (selezione multipla)</h4>
+              <h4 data-icon="🧾">Prescrizioni Esami (selezione multipla)<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriSchemiPrescrizioni()" title="Schemi di prescrizione stampabili">📄 Schemi</button></h4>
               <select onchange="appendOBText('ob-prescrizioni-txt',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi prescrizione --</option>
                 <option data-full="1ª VISITA:&#10;- esami ematici 1° trimestre (entro le 13 settimane);&#10;- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;&#10;- prelievo per NIPT Regionale (con impegnativa; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento).">1ª Visita</option>
@@ -6799,6 +6818,7 @@ function aiAvvia(){
   if(!aiAbilitato){ aiFerma(); return; }
   aiInVisita = false;
   aiChatStoria = [];
+  aiRenderChat();
   aiUltimoBriefingTs = 0;
   aiSyncVisibilita();
   aiChiudiFumetto();
@@ -6822,7 +6842,6 @@ function aiEntraVisita(){
   aiInVisita = true;
   aiChatAperta = false;
   const c = document.getElementById('ai-chat'); if(c) c.style.display = 'none';
-  aiChatStoria = [];
   aiUltimoContesto = '';
   aiUltimoProattivoTs = 0;
   aiSyncVisibilita();
@@ -6832,7 +6851,6 @@ function aiEsciVisita(){
   aiInVisita = false;
   aiChatAperta = false;
   const c = document.getElementById('ai-chat'); if(c) c.style.display = 'none';
-  aiChatStoria = [];
   aiChiudiFumetto();
   if(!aiAbilitato){ aiFerma(); return; }
   aiSyncVisibilita();
@@ -6845,7 +6863,7 @@ function aiChiudiFumetto(){
   const box = document.getElementById('ai-fumetto-azioni'); if(box) box.remove();
   const d = document.getElementById('ai-robot-dot'); if(d) d.style.display='none';
 }
-function aiMostraFumetto(testo, azioni){
+function aiMostraFumetto(testo, azioni, noStore){
   const f = document.getElementById('ai-fumetto');
   const t = document.getElementById('ai-fumetto-testo');
   if(!f || !t) return;
@@ -6867,6 +6885,34 @@ function aiMostraFumetto(testo, azioni){
   }
   f.style.display = 'block';
   if(!aiChatAperta){ const d=document.getElementById('ai-robot-dot'); if(d) d.style.display='block'; }
+  // Memorizza il messaggio spontaneo nella conversazione: se chiudi il fumetto e
+  // poi riapri la chat, ritrovi quello che ti aveva detto.
+  if(!noStore && testo){
+    const ultimo = aiChatStoria[aiChatStoria.length-1];
+    if(!ultimo || ultimo.content !== testo) aiChatStoria.push({ role:'assistant', content:testo });
+  }
+}
+// Ricostruisce la finestra di chat dalla conversazione salvata (aiChatStoria).
+function aiRenderChat(){
+  const box = document.getElementById('ai-chat-msgs');
+  if(!box) return;
+  box.innerHTML = '';
+  if(!aiChatStoria.length){
+    const d = document.createElement('div');
+    d.className = 'ai-msg bot';
+    d.textContent = aiInVisita
+      ? 'Ciao! 👋 Sono qui per la visita. Chiedimi quello che vuoi o continua a compilare: ti segnalo se noto qualcosa.'
+      : 'Ciao! 👋 Posso darti una mano con la giornata: prova con "cosa ho in programma oggi", "ripassa la prossima paziente", oppure chiedimi un parere clinico.';
+    box.appendChild(d);
+    return;
+  }
+  aiChatStoria.forEach(m=>{
+    const d = document.createElement('div');
+    d.className = 'ai-msg ' + (m.role==='user' ? 'user' : 'bot');
+    d.textContent = m.content;
+    box.appendChild(d);
+  });
+  box.scrollTop = box.scrollHeight;
 }
 
 // ── Contesto: agenda della giornata + prossimi giorni (con i nomi delle pazienti) ──
@@ -7049,7 +7095,7 @@ async function aiRipassaCaso(pazId, label){
     if(attesa) attesa.remove();
     const risp = testo || 'Non sono riuscito a rivedere il caso, riprova tra un attimo.';
     aiChatAggiungiMsg('bot', risp);
-    aiChatStoria.push({ role:'user', content:'Ripasso del caso ' + label });
+    aiChatStoria.push({ role:'user', content:'Ripassiamo il caso: ' + label });
     aiChatStoria.push({ role:'assistant', content:risp });
   }catch(e){
     if(attesa) attesa.remove();
@@ -7096,9 +7142,7 @@ function aiToggleChat(){
     aiChiudiFumetto();
     c.style.display = 'flex';
     r.style.display = 'none';
-    if(!aiChatStoria.length) aiChatAggiungiMsg('bot', aiInVisita
-      ? 'Ciao! 👋 Sono qui per la visita. Chiedimi quello che vuoi o continua a compilare: ti segnalo se noto qualcosa.'
-      : 'Ciao! 👋 Posso darti una mano con la giornata: prova con "cosa ho in programma oggi", "ripassa la prossima paziente", oppure chiedimi un parere clinico.');
+    aiRenderChat();
     setTimeout(()=>document.getElementById('ai-chat-txt')?.focus(), 50);
   }else{
     c.style.display = 'none';
@@ -7610,6 +7654,98 @@ function stampaRicettaConTesto(paziente,dataStr,testo){
     ${printFooterHtml()}
   </body></html>`);
   w.document.close();
+}
+
+// ═══════════════════════════════════════════════════
+//  SCHEMI DI PRESCRIZIONE ESAMI — pagine stampabili/modificabili
+// ═══════════════════════════════════════════════════
+// Elenco di "schemi" (titolo + contenuto) apribili dalla sezione Prescrizioni
+// Esami della visita ostetrica: ogni schema si apre come ricetta modificabile e
+// stampabile. Gli schemi personali sono salvati per operatore; quelli predefiniti
+// riprendono i protocolli visita per visita.
+const SCHEMI_PRESCRIZIONI_DEFAULT = [
+  { titolo:'1ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (1ª visita):\n- esami ematici 1° trimestre (entro le 13 settimane);\n- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;\n- prelievo per NIPT Regionale (con impegnativa; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento).' },
+  { titolo:'2ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (2ª visita):\n- esami ematici 14-18 settimane;\n- ecografia morfologica (19-21+6 settimane) da prenotare tramite CUP con impegnativa del MMG (esenzione M20).' },
+  { titolo:'3ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (3ª visita):\n- esami ematici 19-23 settimane.' },
+  { titolo:'4ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (4ª visita):\n- esami ematici 24-27 settimane;\n- immunoprofilassi anti-D a 28 settimane (contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per prenotare appuntamento c/o ambulatorio GAR Ospedale di Rimini, Scala C piano 1);\n- TCI da eseguire entro 7 giorni dalla data dell\'appuntamento per immunoprofilassi.' },
+  { titolo:'5ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (5ª visita):\n- esami ematici 28-32 settimane;\n- contattare il centro vaccinale tramite email vaccinazioni.rn@auslromagna.it per programmare vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.' },
+  { titolo:'6ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (6ª visita):\n- esami ematici 36 settimane;\n- contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento AMB. Gravidanza a termine / AMB. Prechirurgico.' }
+];
+function _schemiKey(){ return 'gs_schemi_presc_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getSchemiPrescrizioni(){
+  try{
+    const s = localStorage.getItem(_schemiKey());
+    if(s){ const arr = JSON.parse(s); if(Array.isArray(arr)) return arr; }
+  }catch(e){}
+  return SCHEMI_PRESCRIZIONI_DEFAULT.map(x=>({...x}));
+}
+function saveSchemiPrescrizioni(arr){
+  try{ localStorage.setItem(_schemiKey(), JSON.stringify(arr)); return true; }catch(e){ return false; }
+}
+function apriSchemiPrescrizioni(){
+  renderSchemiPrescrizioni();
+  const nf = document.getElementById('schema-nuovo-form'); if(nf) nf.style.display='none';
+  document.getElementById('modal-schemi-prescrizioni').classList.add('show');
+}
+function renderSchemiPrescrizioni(){
+  const box = document.getElementById('schemi-lista');
+  if(!box) return;
+  const schemi = getSchemiPrescrizioni();
+  if(!schemi.length){ box.innerHTML = '<div style="color:var(--label4);font-size:.85rem;padding:8px 0">Nessuno schema. Aggiungine uno qui sotto.</div>'; return; }
+  box.innerHTML = schemi.map((s,i)=>`
+    <div style="border:1px solid var(--separator);border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <strong style="flex:1;">${_escHtml(s.titolo)}</strong>
+        <button class="btn btn-primary btn-sm" onclick="apriSchemaStampa(${i})">🖨️ Apri / Stampa</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="modificaSchema(${i})" title="Modifica">✏️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaSchema(${i})" title="Elimina">🗑️</button>
+      </div>
+      <div style="font-size:.78rem;color:var(--label4);white-space:pre-wrap;margin-top:6px;max-height:60px;overflow:hidden;">${_escHtml(s.testo).slice(0,220)}${s.testo.length>220?'…':''}</div>
+    </div>`).join('');
+}
+function apriSchemaStampa(i){
+  const s = getSchemiPrescrizioni()[i];
+  if(!s) return;
+  const p = DB.pazienti.find(x=>x.id===curPaz);
+  const nome = p ? `${p.cognome} ${p.nome}` : '';
+  const dataStr = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  stampaRicettaConTesto(nome, dataStr, s.testo);
+}
+function _mostraFormNuovoSchema(){
+  const f = document.getElementById('schema-nuovo-form');
+  if(f) f.style.display = f.style.display==='none' ? 'block' : 'none';
+  document.getElementById('schema-edit-idx').value = '';
+  document.getElementById('schema-titolo').value = '';
+  document.getElementById('schema-testo').value = '';
+}
+function modificaSchema(i){
+  const s = getSchemiPrescrizioni()[i];
+  if(!s) return;
+  const f = document.getElementById('schema-nuovo-form');
+  if(f) f.style.display = 'block';
+  document.getElementById('schema-edit-idx').value = String(i);
+  document.getElementById('schema-titolo').value = s.titolo;
+  document.getElementById('schema-testo').value = s.testo;
+}
+function salvaSchema(){
+  const titolo = document.getElementById('schema-titolo').value.trim();
+  const testo = document.getElementById('schema-testo').value.trim();
+  if(!titolo || !testo){ if(typeof gsToast==='function') gsToast('Titolo e contenuto obbligatori','gs-error'); return; }
+  const arr = getSchemiPrescrizioni();
+  const idx = document.getElementById('schema-edit-idx').value;
+  if(idx!=='' && arr[+idx]) arr[+idx] = { titolo, testo };
+  else arr.push({ titolo, testo });
+  saveSchemiPrescrizioni(arr);
+  document.getElementById('schema-nuovo-form').style.display = 'none';
+  renderSchemiPrescrizioni();
+  if(typeof gsToast==='function') gsToast('✅ Schema salvato','gs-success');
+}
+function eliminaSchema(i){
+  if(!confirm('Eliminare questo schema?')) return;
+  const arr = getSchemiPrescrizioni();
+  arr.splice(i,1);
+  saveSchemiPrescrizioni(arr);
+  renderSchemiPrescrizioni();
 }
 
 // Mostra la terapia di UNA visita specifica (icona 💊📋 nella lista visite della cartella).
