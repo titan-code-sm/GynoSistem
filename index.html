@@ -3601,7 +3601,15 @@ const GUIDE_DATA = {
 // ═══════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════
-window.onload = () => {
+// NON agganciato a window.onload: quell'evento aspetta che TUTTE le immagini
+// della pagina (logo.png, 654KB, anche ricaricato senza cache poco più sotto
+// per l'icona PWA) finiscano di scaricarsi. Su una connessione lenta questo
+// ritardava initFirebase() di diversi secondi, lasciando il login cliccabile
+// prima che Firebase fosse pronto — causa dell'errore "Connessione a Firebase
+// non ancora pronta". DOMContentLoaded invece parte appena l'HTML è pronto,
+// senza aspettare le immagini (ma dopo che questo script — incluse le
+// dichiarazioni più sotto, es. HOLIDAYS — ha finito di essere eseguito).
+document.addEventListener('DOMContentLoaded', function initApp(){
   const d = localStorage.getItem('gynoDB_v15');
   if(d) DB = JSON.parse(d);
   if(!DB.studi) DB.studi=[];
@@ -3615,7 +3623,7 @@ window.onload = () => {
   if(typeof tentaRiconnessioneFileLocale==='function') tentaRiconnessioneFileLocale();
   // Carica configurazione da Firebase Admin
   initFirebase();
-};
+});
 
 // ═══════════════════════════════════════════════════
 //  BACKUP AUTOMATICO SETTIMANALE
@@ -6524,7 +6532,7 @@ function closeSidebar(){
     injectIcon(canvas.toDataURL('image/png'));
   };
 
-  img.src='logo.png?v='+Date.now(); // cache-bust
+  img.src='logo.png'; // file statico: nessun bisogno di cache-bust, lo lascia scaricare una volta sola e poi in cache
 })();
 
 // ═══════════════════════════════════════════════════
