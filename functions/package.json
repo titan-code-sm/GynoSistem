@@ -1,0 +1,11 @@
+{
+  "name": "gynosystem-functions",
+  "description": "Cloud Functions per GynoSystem — proxy sicuro verso l'API di Anthropic (la chiave non è mai nel client)",
+  "engines": { "node": "20" },
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.1.0"
+  }
+}

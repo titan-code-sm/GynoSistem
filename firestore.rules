@@ -1,0 +1,140 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ═══════════════════════════════════════════════════════════
+    // LIVELLO 3: tutte le operazioni richiedono un utente autenticato
+    // tramite Firebase Authentication (email+password). Sia GynoSystem
+    // (la dottoressa) sia GynoBook (ogni studio/centro) accedono con un
+    // account Firebase Auth vero, creato manualmente in Firebase Console
+    // → Authentication → Users → Add user.
+    //
+    // Questo NON sostituisce la separazione "dati clinici mai online":
+    // visite, diagnosi, terapie restano SOLO in localStorage su GynoSystem.
+    // Qui dentro c'è solo anagrafica, appuntamenti e configurazione.
+    // ═══════════════════════════════════════════════════════════
+
+    // ── PAZIENTI ───────────────────────────────────────────────
+    // Separazione per medico: ogni documento appartiene a UN SOLO account
+    // (ownerUid = uid Firebase Auth di chi lo ha creato). Nessuno può
+    // leggere, modificare o eliminare pazienti di un altro medico — anche
+    // se entrambi usano lo stesso progetto Firebase. Non esiste eccezione
+    // per l'amministratore: chi gestisce gli account (titancodesm) non ha
+    // e non deve avere accesso ai dati clinici/anagrafici di nessuno.
+    match /pazienti/{doc} {
+      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['nome','cognome','ownerUid'])
+        && request.resource.data.nome is string
+        && request.resource.data.cognome is string
+        && request.resource.data.nome.size() > 0
+        && request.resource.data.cognome.size() > 0
+        // Blocca qualsiasi tentativo di scrivere dati clinici su Firestore
+        && !request.resource.data.keys().hasAny(['visite','alerts','diagnosi','terapia','anamnesi','eco']);
+
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['nome','cognome'])
+        && request.resource.data.nome is string
+        && request.resource.data.cognome is string
+        && !request.resource.data.keys().hasAny(['visite','alerts','diagnosi','terapia','anamnesi','eco']);
+
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // ── APPUNTAMENTI ───────────────────────────────────────────
+    // Stessa separazione per medico, tramite ownerUid.
+    match /appuntamenti/{doc} {
+      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['data','ora','pazienteId','tipo','ownerUid'])
+        && request.resource.data.data is string
+        && request.resource.data.ora is string
+        && request.resource.data.pazienteId is string
+        && request.resource.data.tipo is string;
+
+      // Tre soli pattern di modifica ammessi (mai ownerUid: non si può
+      // "regalare" un appuntamento a un altro medico modificandolo):
+      // 1) GynoBook modifica i dettagli della prenotazione (non lo stato)
+      // 2) GynoSystem aggiorna solo lo stato, quando la visita viene registrata
+      // 3) Import automatico segna il flag importedToGynoSystem
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        && (request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['data','ora','tipo','durata','note'])
+            || request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['stato'])
+            || request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['importedToGynoSystem']));
+
+      allow delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+    }
+
+    // ── CONFIG ───────────────────────────────────────────────
+    // Contiene anche config/disponibilita: nomi studi, luoghi, email di accesso,
+    // fasce orarie, durata slot. Nessuna password qui (l'accesso è gestito da
+    // Firebase Auth, non da campi custom nel documento).
+    match /config/disponibilita {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.data.keys().hasAll(['studi'])
+        && request.resource.data.studi is list;
+    }
+    match /config/{doc} {
+      allow read, write: if request.auth != null;
+    }
+
+    // ── FARMACI / LINEE GUIDA / PDF GUIDE ─────────────────────
+    // Contenuti di servizio non sensibili, gestiti da GynoSystem.
+    match /farmaci/{doc} {
+      allow read, write: if request.auth != null;
+    }
+    match /lineeGuida/{doc} {
+      allow read, write: if request.auth != null;
+    }
+    match /pdfGuide/{doc} {
+      allow read, write: if request.auth != null;
+    }
+
+    // ── UTENTI (account dello studio: profilo + stato attivo/sospeso) ──
+    // NON è l'account Firebase Auth vero e proprio (quello resta gestito
+    // da Firebase Authentication, creato dall'amministratore in Console).
+    // Questo doc è solo il "profilo applicativo" collegato allo stesso uid:
+    // serve al pannello Amministrazione per sapere chi esiste, chi è
+    // sospeso, e per bloccare l'accesso senza bisogno di Cloud Functions.
+    //
+    // Regole:
+    // - ognuno può leggere/creare SOLO il proprio doc (id === proprio uid),
+    //   e solo con attivo:true alla creazione (non ci si può riattivare da soli)
+    // - ognuno può aggiornare SOLO campi non sensibili del proprio doc
+    //   (nome, ultimoAccesso) — MAI il proprio campo 'attivo'
+    // - l'amministratore (titancodesm@gmail.com) può leggere, creare,
+    //   modificare ed eliminare qualsiasi doc utenti (serve per il
+    //   pannello: creare nuovi account, sospendere, riattivare, rimuovere)
+    match /utenti/{uid} {
+      allow read: if request.auth != null
+        && (request.auth.uid == uid || request.auth.token.email == 'titancodesm@gmail.com');
+
+      allow create: if request.auth != null
+        && (request.auth.token.email == 'titancodesm@gmail.com'
+            || (request.auth.uid == uid && request.resource.data.attivo == true));
+
+      allow update: if request.auth != null
+        && (request.auth.token.email == 'titancodesm@gmail.com'
+            || (request.auth.uid == uid
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome','ultimoAccesso','mustChangePassword'])));
+
+      allow delete: if request.auth != null && request.auth.token.email == 'titancodesm@gmail.com';
+    }
+
+    // ── DEFAULT: blocca tutto il resto ─────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
