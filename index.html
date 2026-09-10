@@ -462,6 +462,21 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .paz-dd-item:last-child{border-bottom:none;}
 .paz-dd-item:hover{background:var(--primary-dim);color:var(--primary);}
 .paz-selected-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-dim);color:var(--primary);border-radius:20px;padding:5px 12px;font-size:0.82rem;font-weight:600;margin-top:6px;}
+
+/* Casella combinata: testo libero + freccetta a destra (dentro la casella)
+   che apre un menu con suggerimenti/frasi preformate. Sostituisce le vecchie
+   coppie <select> + casella separata sottostante nelle schede visita. */
+.combo-wrap{position:relative;}
+.combo-wrap .combo-input{width:100%;padding-right:32px;box-sizing:border-box;}
+.combo-arrow{position:absolute;top:6px;right:5px;width:24px;height:24px;border:none;background:transparent;color:var(--label4);cursor:pointer;font-size:0.7rem;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0;}
+.combo-arrow:hover{background:var(--surface2);color:var(--primary);}
+.combo-menu{display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--separator);border-radius:10px;box-shadow:var(--shadow-md);z-index:60;max-height:220px;overflow-y:auto;}
+.combo-menu.show{display:block;}
+.combo-item{padding:8px 12px;font-size:0.82rem;cursor:pointer;border-bottom:1px solid var(--separator);}
+.combo-item:last-child{border-bottom:none;}
+.combo-item:hover{background:var(--primary-dim);color:var(--primary);}
+.combo-item.combo-empty{color:var(--label4);cursor:default;}
+.combo-item.combo-empty:hover{background:transparent;color:var(--label4);}
 .paz-chip-del{cursor:pointer;font-size:0.9rem;opacity:0.7;margin-left:2px;}
 .paz-chip-del:hover{opacity:1;}
 .empty-state{text-align:center;padding:60px 20px;color:var(--label4);}
@@ -2727,10 +2742,17 @@ function fillGDMacro(containerId, obj, targetId){
   });
 }
 
-function appendGDText(id, text){
+// Aggiunge testo a una casella (input o textarea) già compilata, scegliendo
+// un separatore leggibile: gli <input> a una riga scartano gli "a capo" (li
+// rimuove il browser), quindi su quelli usa "; " invece di \n.
+function appendComboText(id, text){
   const el=document.getElementById(id); if(!el || !text)return;
-  el.value += (el.value && !el.value.endsWith('\n') ? '\n' : '') + text;
+  if(!el.value){ el.value = text; return; }
+  const isTextarea = el.tagName === 'TEXTAREA';
+  const sep = isTextarea ? (el.value.endsWith('\n') ? '' : '\n') : (/[;.,]\s*$/.test(el.value) ? ' ' : '; ');
+  el.value += sep + text;
 }
+function appendGDText(id, text){ appendComboText(id, text); }
 
 function applyGDTemplate(category, selId, targetId){
   const sel=document.getElementById(selId);
@@ -2738,6 +2760,101 @@ function applyGDTemplate(category, selId, targetId){
   if(!sel||!target)return;
   const txt=GD[category][sel.value];
   if(txt) target.value=txt;
+}
+
+// ═══════════════════════════════════════════════════
+//  CASELLE COMBINATE (testo libero + freccetta con suggerimenti)
+// ═══════════════════════════════════════════════════
+// Converte automaticamente ogni coppia "<select> di suggerimenti" + "casella
+// di testo sottostante" (pattern usato in tutte le schede visita) in
+// un'unica casella: si scrive liberamente, oppure si clicca la freccetta a
+// destra (sempre dentro la casella) per scegliere da un elenco, che importa
+// il testo scelto nella stessa casella. Non tocca la logica originale di
+// ogni campo (append vs sostituzione, frasi lunghe preformate ecc.): riusa
+// esattamente lo stesso <select> e ne simula la selezione, quindi qualunque
+// comportamento avesse prima resta identico — cambia solo la presentazione.
+function initComboBoxes(){
+  document.querySelectorAll('select[onchange]').forEach(sel=>{
+    const oc = sel.getAttribute('onchange') || '';
+    let m = oc.match(/^append(?:GD|OB)Text\('([\w-]+)'/);
+    let targetId = m ? m[1] : null;
+    if(!targetId){
+      m = oc.match(/^applyGDTemplate\('[\w-]+','[\w-]+','([\w-]+)'\)$/);
+      targetId = m ? m[1] : null;
+    }
+    if(!targetId) return;
+    const target = document.getElementById(targetId);
+    if(!target || target.dataset.comboDone) return;
+    creaComboBox(sel, target);
+  });
+}
+
+function creaComboBox(sel, target){
+  target.dataset.comboDone = '1';
+  const selContainer = sel.parentElement;
+  const stessoContenitore = selContainer === target.parentElement;
+  sel.style.display = 'none';
+  if(!stessoContenitore && selContainer){
+    // Il <select> viveva da solo nel suo riquadro (pattern "Seleziona
+    // template"): nasconde l'intero riquadro, altrimenti resta un'etichetta
+    // orfana ("Seleziona template") sopra la casella.
+    selContainer.style.display = 'none';
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'combo-wrap';
+  target.parentNode.insertBefore(wrap, target);
+  wrap.appendChild(target);
+  target.classList.add('combo-input');
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'combo-arrow';
+  btn.textContent = '▾';
+  btn.title = 'Scegli da un elenco di suggerimenti';
+  wrap.appendChild(btn);
+
+  const menu = document.createElement('div');
+  menu.className = 'combo-menu';
+  wrap.appendChild(menu);
+
+  function apri(){
+    menu.innerHTML = '';
+    let n = 0;
+    Array.from(sel.options).forEach(opt=>{
+      if(!opt.value && !(opt.dataset && opt.dataset.full)) return; // salta i placeholder ("-- Seleziona --" ecc.)
+      n++;
+      const item = document.createElement('div');
+      item.className = 'combo-item';
+      item.textContent = opt.textContent;
+      item.onclick = (e)=>{
+        e.stopPropagation();
+        sel.value = opt.value;
+        sel.dispatchEvent(new Event('change')); // riusa la logica originale del campo
+        chiudi();
+        target.focus();
+      };
+      menu.appendChild(item);
+    });
+    if(!n){
+      const vuoto = document.createElement('div');
+      vuoto.className = 'combo-item combo-empty';
+      vuoto.textContent = 'Nessun suggerimento disponibile';
+      menu.appendChild(vuoto);
+    }
+    menu.classList.add('show');
+    document.addEventListener('click', fuoriClick);
+  }
+  function chiudi(){
+    menu.classList.remove('show');
+    document.removeEventListener('click', fuoriClick);
+  }
+  function fuoriClick(e){ if(!wrap.contains(e.target)) chiudi(); }
+
+  btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    if(menu.classList.contains('show')) chiudi(); else apri();
+  });
 }
 
 function calcGynoBMI(){
@@ -2923,10 +3040,7 @@ function calcIncrementoPonderale(){
 
 // ── Funzioni di supporto modulo OSTETRICO ──
 // Aggiunge testo a un campo (input o textarea), su nuova riga, ignorando stringhe vuote.
-function appendOBText(id, text){
-  const el=document.getElementById(id); if(!el || !text)return;
-  el.value += (el.value && !el.value.endsWith('\n') ? '\n' : '') + text;
-}
+function appendOBText(id, text){ appendComboText(id, text); }
 
 // Mostra il box immunoprofilassi anti-D se l'emogruppo indica Rh negativo (per coerenza, anche se non sempre usato)
 function obToggleImmuno(){
@@ -3631,6 +3745,7 @@ document.addEventListener('DOMContentLoaded', function initApp(){
   renderFarmaci();
   renderGuide('g-ob');
   renderBackupGuide();
+  if(typeof initComboBoxes==='function') initComboBoxes(); // caselle "testo libero + suggerimenti" nelle schede visita
   if(typeof tentaRiconnessioneFileLocale==='function') tentaRiconnessioneFileLocale();
   // Carica configurazione da Firebase Admin
   initFirebase();
@@ -5420,6 +5535,20 @@ function renderVisiteList(p){
 //  RICETTARIO
 // ═══════════════════════════════════════════════════
 // Estrae il testo della terapia da una visita, indipendentemente dal tipo.
+// Trasforma il testo grezzo della terapia (spesso solo un elenco di farmaci
+// e posologie) in un testo di ricetta completo e realistico — con formula di
+// apertura, elenco leggibile se ci sono più farmaci, e nota finale — come una
+// vera prescrizione medica, non solo la lista dei nomi.
+function formattaTerapiaComeRicetta(nomeCompleto, terapiaGrezza){
+  const testo=(terapiaGrezza||'').trim();
+  if(!testo) return '';
+  const voci=testo.split(/\n+|;\s*/).map(s=>s.trim()).filter(Boolean);
+  const corpo=voci.length>1
+    ? voci.map(v=>`— ${v.replace(/\.\s*$/,'')}.`).join('\n')
+    : (testo.endsWith('.')?testo:testo+'.');
+  return `Si prescrive alla paziente ${nomeCompleto} la seguente terapia:\n\n${corpo}\n\nSi raccomanda di attenersi scrupolosamente alla posologia indicata e di contattare l'ambulatorio in caso di effetti indesiderati o dubbi.`;
+}
+
 function terapiaDiVisita(v){
   if(v.tipo==='ob') return (v.obData||{}).terapia||'';
   if(v.tipo==='eco') return (v.ecoData||{}).terapia||'';
@@ -5625,12 +5754,12 @@ function apriRicettarioVisita(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p?.visite.find(x=>x.id===vid);
   if(!v)return;
-  const terapia=terapiaDiVisita(v);
+  const testoRicetta=formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`, terapiaDiVisita(v));
   const dataStr=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('rv-title').textContent=`💊 Ricettario · ${p.cognome} ${p.nome}`;
   document.getElementById('rv-subtitle').textContent=dataStr;
-  document.getElementById('rv-body').textContent=terapia||'Nessuna terapia registrata per questa visita.';
-  document.getElementById('rv-print-btn').onclick=()=>stampaRicettaConTesto(`${p.cognome} ${p.nome}`,dataStr,terapia);
+  document.getElementById('rv-body').textContent=testoRicetta||'Nessuna terapia registrata per questa visita.';
+  document.getElementById('rv-print-btn').onclick=()=>stampaRicettaConTesto(`${p.cognome} ${p.nome}`,dataStr,testoRicetta);
   document.getElementById('m-ricettario-visita').classList.add('show');
 }
 
@@ -5642,7 +5771,7 @@ function renderRicettario(){
   DB.pazienti.forEach(p=>{
     (p.visite||[]).forEach(v=>{
       const terapia=terapiaDiVisita(v);
-      if(terapia && terapia.trim()) righe.push({p,v,terapia});
+      if(terapia && terapia.trim()) righe.push({p,v,terapia,testoRicetta:formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`,terapia)});
     });
   });
   righe.sort((a,b)=>new Date(b.v.data)-new Date(a.v.data));
@@ -5667,7 +5796,7 @@ function renderRicettario(){
       </div>
       <div class="visit-actions">
         <button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisitaGlobale(${r.p.id},${r.v.id})" title="Vedi e stampa">💊📋</button>
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="stampaRicettaConTesto('${r.p.cognome} ${r.p.nome}','${new Date(r.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}',\`${r.terapia.replace(/`/g,"'")}\`)" title="Stampa direttamente">🖨️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="stampaRicettaConTesto('${r.p.cognome} ${r.p.nome}','${new Date(r.v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}',\`${r.testoRicetta.replace(/`/g,"'")}\`)" title="Stampa direttamente">🖨️</button>
       </div>
     </div>`).join('');
 }
@@ -5677,12 +5806,12 @@ function apriRicettarioVisitaGlobale(pazId,vid){
   const p=DB.pazienti.find(x=>x.id===pazId);
   const v=p?.visite.find(x=>x.id===vid);
   if(!v)return;
-  const terapia=terapiaDiVisita(v);
+  const testoRicetta=formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`, terapiaDiVisita(v));
   const dataStr=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   document.getElementById('rv-title').textContent=`💊 Ricettario · ${p.cognome} ${p.nome}`;
   document.getElementById('rv-subtitle').textContent=dataStr;
-  document.getElementById('rv-body').textContent=terapia||'Nessuna terapia registrata per questa visita.';
-  document.getElementById('rv-print-btn').onclick=()=>stampaRicettaConTesto(`${p.cognome} ${p.nome}`,dataStr,terapia);
+  document.getElementById('rv-body').textContent=testoRicetta||'Nessuna terapia registrata per questa visita.';
+  document.getElementById('rv-print-btn').onclick=()=>stampaRicettaConTesto(`${p.cognome} ${p.nome}`,dataStr,testoRicetta);
   document.getElementById('m-ricettario-visita').classList.add('show');
 }
 
