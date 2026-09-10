@@ -230,31 +230,30 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .cal-nav-title{font-weight:700;font-size:0.95rem;color:var(--label);text-transform:capitalize;}
 .cal-nav-btn{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--separator);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.9rem;transition:0.15s;}
 .cal-nav-btn:hover{background:var(--primary-dim);border-color:var(--primary);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
 .cal-day-name{text-align:center;font-size:0.7rem;font-weight:700;color:var(--label4);padding:6px 0;}
-.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:0.8rem;font-weight:500;color:var(--label2);transition:0.15s;position:relative;}
-.cal-day:hover{background:var(--primary-dim);color:var(--primary);}
-.cal-day.today{background:var(--primary);color:#fff;font-weight:700;}
-.cal-day.has-events::after{display:none;} /* rimosso il vecchio dot, usiamo i nuovi */
-.cal-dot-fb,.cal-dot-agenda,.cal-dot-prom,.cal-dot-nota{
-  display:inline-block;width:5px;height:5px;border-radius:50%;
+/* Caselle in stile agenda: bordo visibile, numero del giorno in alto, elenco degli appuntamenti con i nomi */
+.cal-day{
+  min-height:104px;border:1px solid var(--separator);border-radius:9px;background:var(--surface);
+  display:flex;flex-direction:column;align-items:stretch;gap:3px;
+  padding:5px 5px 4px;cursor:pointer;transition:0.15s;overflow:hidden;position:relative;
 }
-.cal-dot-fb    {background:var(--green);}
-.cal-dot-agenda{background:var(--primary);}
-.cal-dot-prom  {background:var(--orange);}
-.cal-dot-nota  {background:var(--label4);}
-.cal-dots-row  {display:flex;gap:2px;justify-content:center;margin-top:1px;}
-.cal-fb-badge  {
-  display:inline-flex;align-items:center;justify-content:center;
-  width:14px;height:14px;background:var(--green);color:#fff;
-  border-radius:50%;font-size:.55rem;font-weight:800;
-  margin-left:2px;vertical-align:middle;
+.cal-day:hover{border-color:var(--primary);box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.cal-day .cal-num{font-size:0.8rem;font-weight:700;color:var(--label3);align-self:flex-start;padding:1px 5px;border-radius:6px;line-height:1.5;}
+.cal-day.today{border-color:var(--primary);background:var(--primary-dim);}
+.cal-day.today .cal-num{background:var(--primary);color:#fff;}
+.cal-day.sunday .cal-num,.cal-day.holiday .cal-num{color:var(--red);}
+.cal-day.holiday{background:var(--red-dim);}
+.cal-day.cal-empty{border:none;background:transparent;cursor:default;min-height:0;}
+.cal-ev{
+  font-size:0.7rem;line-height:1.3;border-radius:5px;padding:2px 6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;
 }
-.cal-day.today .cal-dot-fb,.cal-day.today .cal-dot-agenda,
-.cal-day.today .cal-dot-prom,.cal-day.today .cal-dot-nota{background:rgba(255,255,255,.7);}
-.cal-day.today .cal-fb-badge{background:rgba(255,255,255,.9);color:var(--primary);}
-.cal-day.sunday{color:var(--red);}
-.cal-day.holiday{color:var(--red);background:var(--red-dim);}
+.cal-ev.appt {background:var(--green-dim);color:var(--green);}
+.cal-ev.agenda{background:var(--primary-dim);color:var(--primary);}
+.cal-ev.prom {background:var(--orange-dim);color:var(--orange);}
+.cal-ev.nota {background:var(--surface2);color:var(--label3);font-weight:500;}
+.cal-ev-more{font-size:0.66rem;color:var(--label4);padding:1px 5px;font-weight:600;}
 /* Badge percentile biometria fetale */
 .visit-ora{display:inline-block;margin-left:8px;font-size:.72rem;font-weight:600;color:var(--primary);background:var(--primary-dim);padding:1px 8px;border-radius:8px;vertical-align:middle;}
 .perc-badge{display:inline-block;margin-top:5px;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:10px;min-height:0;}
@@ -662,8 +661,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   .stat-card .stat-icon{width:34px;height:34px;}
 
   /* Calendar */
-  .cal-grid{gap:2px;}
-  .cal-day{font-size:.7rem;height:40px;border-radius:6px;}
+  .cal-grid{gap:3px;}
+  .cal-day{min-height:68px;padding:3px;border-radius:6px;gap:2px;}
+  .cal-day .cal-num{font-size:.72rem;padding:0 3px;}
+  .cal-ev{font-size:.6rem;padding:1px 3px;border-radius:4px;}
+  .cal-ev-more{font-size:.58rem;padding:0 3px;}
   .cal-nav-title{font-size:.85rem;}
 
   /* Visit items */
@@ -972,33 +974,31 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div id="overdue-alert-list" style="display:flex;flex-direction:column;gap:6px;"></div>
   </div>
 
-  <div class="g2">
-    <div class="card">
-      <div class="card-header">
-        <div>
-          <div class="card-title">Calendario</div>
-          <div class="card-subtitle">Clicca un giorno per aggiungere note, appuntamenti o promemoria</div>
-        </div>
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Calendario</div>
+        <div class="card-subtitle">Clicca un giorno per aggiungere note, appuntamenti o promemoria</div>
       </div>
-      <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-        <span id="cal-title" class="cal-nav-title"></span>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
-      </div>
-      <div class="cal-grid" id="cal-days-header">
-        <div class="cal-day-name">Lun</div><div class="cal-day-name">Mar</div><div class="cal-day-name">Mer</div>
-        <div class="cal-day-name">Gio</div><div class="cal-day-name">Ven</div>
-        <div class="cal-day-name" style="color:var(--red)">Sab</div>
-        <div class="cal-day-name" style="color:var(--red)">Dom</div>
-      </div>
-      <div class="cal-grid" id="calendar-body"></div>
     </div>
-    <div class="card">
-      <div class="card-header">
-        <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Prenotazioni GynoBook e promemoria, in ordine di data</div></div>
-      </div>
-      <div id="dashboard-alerts" style="max-height:480px;overflow-y:auto;"></div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+      <span id="cal-title" class="cal-nav-title"></span>
+      <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
     </div>
+    <div class="cal-grid" id="cal-days-header">
+      <div class="cal-day-name">Lun</div><div class="cal-day-name">Mar</div><div class="cal-day-name">Mer</div>
+      <div class="cal-day-name">Gio</div><div class="cal-day-name">Ven</div>
+      <div class="cal-day-name" style="color:var(--red)">Sab</div>
+      <div class="cal-day-name" style="color:var(--red)">Dom</div>
+    </div>
+    <div class="cal-grid" id="calendar-body"></div>
+  </div>
+  <div class="card" style="margin-top:24px;">
+    <div class="card-header">
+      <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Prenotazioni GynoBook e promemoria, in ordine di data</div></div>
+    </div>
+    <div id="dashboard-alerts" style="max-height:480px;overflow-y:auto;"></div>
   </div>
 
   <div class="g4" style="margin-top:24px;">
@@ -5570,32 +5570,45 @@ function renderCalendar(){
   const first=new Date(y,m,1).getDay(), start=first===0?6:first-1, dim=new Date(y,m+1,0).getDate();
   const b=document.getElementById('calendar-body'); b.innerHTML='';
   const oggi=new Date().toISOString().split('T')[0];
-  for(let i=0;i<start;i++) b.innerHTML+='<div></div>';
+  const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[x]));
+  const MAX_VISIBILI=3;
+  for(let i=0;i<start;i++) b.innerHTML+='<div class="cal-empty"></div>';
   for(let d=1;d<=dim;d++){
     const str=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const dow=new Date(y,m,d).getDay();
     const isSun=dow===0, mmdd=String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     const isHol=HOLIDAYS.includes(mmdd);
-    const dayEvs=DB.agenda.filter(x=>x.data===str);
-    let hasLocalEv=dayEvs.length>0;
-    if(!hasLocalEv) DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{if(a.data===str)hasLocalEv=true;}));
-    // Appuntamenti Firebase (GynoBook)
-    const fbAppts=GS_APPTS.filter(a=>a.data===str);
-    const hasFbAppt=fbAppts.length>0;
-    const cls=`cal-day${str===oggi?' today':''}${(isSun||isHol)&&str!==oggi?' sunday':''}${(hasLocalEv||hasFbAppt)?' has-events':''}`;
-    // Pallini: verde=appuntamento Firebase, blu=nota/agenda, arancione=promemoria
-    let dots='';
-    if(hasFbAppt)      dots+=`<span class="cal-dot-fb"></span>`;
-    if(dayEvs.some(e=>e.tipo==='appuntamento'||(!e.tipo&&e.text))) dots+=`<span class="cal-dot-agenda"></span>`;
-    if(dayEvs.some(e=>e.tipo==='promemoria'))  dots+=`<span class="cal-dot-prom"></span>`;
-    if(dayEvs.some(e=>e.tipo==='nota'))        dots+=`<span class="cal-dot-nota"></span>`;
-    const dotsHtml=dots?`<div class="cal-dots-row">${dots}</div>`:'';
-    // Numero prenotazioni sempre visibile + tooltip con i nomi al passaggio del mouse/tocco
-    const fbBadge=hasFbAppt?`<span class="cal-fb-badge">${fbAppts.length}</span>`:'';
-    const nomiTooltip=hasFbAppt?fbAppts.map(a=>`${a.pazienteNome||'Paziente'}${a.ora?' ('+a.ora+')':''}`).join(', '):'';
-    const titleAttr=nomiTooltip?` title="${nomiTooltip.replace(/"/g,'&quot;')}"`:'';
-    b.innerHTML+=`<div class="${cls}" onclick="openDay('${str}')" style="flex-direction:column;gap:1px;"${titleAttr}>
-      <span>${d}${fbBadge}</span>${dotsHtml}
+
+    // ── Eventi del giorno, con i NOMI delle pazienti ──
+    const eventi=[];
+    // 1) Appuntamenti GynoBook / creati dalla dottoressa (Firestore)
+    (typeof GS_APPTS!=='undefined'?GS_APPTS:[])
+      .filter(a=>a.data===str && a.stato!=='cancellato')
+      .sort((x,y)=>(x.ora||'99:99').localeCompare(y.ora||'99:99'))
+      .forEach(a=>eventi.push({cls:'appt', txt:`${a.ora?a.ora+' ':''}${a.pazienteNome||'Paziente'}`}));
+    // 2) Eventi dell'agenda locale (note / appuntamenti / promemoria)
+    DB.agenda.filter(x=>x.data===str)
+      .sort((x,y)=>(x.ora||'99:99').localeCompare(y.ora||'99:99'))
+      .forEach(ev=>{
+        const tipo=ev.tipo||'nota';
+        const paz=ev.pazienteId?DB.pazienti.find(x=>x.id===ev.pazienteId):null;
+        const nome=paz?`${paz.cognome} ${paz.nome}`:'';
+        const testo=(tipo==='appuntamento'&&nome)?nome:(ev.text||ev.testo||nome||tipo);
+        eventi.push({cls: tipo==='appuntamento'?'agenda':(tipo==='promemoria'?'prom':'nota'),
+                     txt:`${ev.ora?ev.ora+' ':''}${testo}`});
+      });
+    // 3) Promemoria delle pazienti scadenti quel giorno
+    DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
+      if(a.data===str) eventi.push({cls:'prom', txt:`${p.cognome}: ${a.testo||'promemoria'}`});
+    }));
+
+    const cls=`cal-day${str===oggi?' today':''}${(isSun||isHol)&&str!==oggi?' sunday':''}${isHol?' holiday':''}`;
+    const visibili=eventi.slice(0,MAX_VISIBILI)
+      .map(e=>`<div class="cal-ev ${e.cls}">${esc(e.txt)}</div>`).join('');
+    const extra=eventi.length>MAX_VISIBILI?`<div class="cal-ev-more">+${eventi.length-MAX_VISIBILI} altr${eventi.length-MAX_VISIBILI===1?'o':'i'}</div>`:'';
+    const titleAttr=eventi.length?` title="${esc(eventi.map(e=>e.txt).join(' · '))}"`:'';
+    b.innerHTML+=`<div class="${cls}" onclick="openDay('${str}')"${titleAttr}>
+      <span class="cal-num">${d}</span>${visibili}${extra}
     </div>`;
   }
 }
