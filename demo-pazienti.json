@@ -1990,5 +1990,168 @@
       "alerts": []
     }
   ],
-  "agenda": []
+  "agenda": [
+    {
+      "id": "1700000000113",
+      "data": "2026-09-11",
+      "ora": "09:00",
+      "durata": 30,
+      "text": "Controllo ostetrico e glicemico (diabete gestazionale)",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000056
+    },
+    {
+      "id": "1700000000114",
+      "data": "2026-09-15",
+      "ora": "14:00",
+      "durata": 30,
+      "text": "Controllo interinale gravidanza gemellare",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000035
+    },
+    {
+      "id": "1700000000115",
+      "data": "2026-09-16",
+      "ora": "10:30",
+      "durata": 30,
+      "text": "Consulenza chirurgica pre-miomectomia",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000011
+    },
+    {
+      "id": "1700000000116",
+      "data": "2026-09-17",
+      "ora": "08:30",
+      "durata": 30,
+      "text": "Controllo ostetrico post-cerchiaggio + cervicometria",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000062
+    },
+    {
+      "id": "1700000000117",
+      "data": "2026-09-18",
+      "ora": "11:00",
+      "durata": 30,
+      "text": "Controllo ostetrico 35-36 settimane",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000020
+    },
+    {
+      "id": "1700000000118",
+      "data": "2026-09-19",
+      "ora": "11:30",
+      "durata": 30,
+      "text": "Consulenza esito centro PMA",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000088
+    },
+    {
+      "id": "1700000000119",
+      "data": "2026-09-20",
+      "ora": "11:00",
+      "durata": 30,
+      "text": "Controllo tollerabilità TOS (POI)",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000106
+    },
+    {
+      "id": "1700000000120",
+      "data": "2026-09-22",
+      "ora": "09:30",
+      "durata": 30,
+      "text": "Ecografia morfologica II trimestre",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000008
+    },
+    {
+      "id": "1700000000121",
+      "data": "2026-09-23",
+      "ora": "10:00",
+      "durata": 30,
+      "text": "Ecografia morfologica II trimestre",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000066
+    },
+    {
+      "id": "1700000000122",
+      "data": "2026-09-24",
+      "ora": "10:00",
+      "durata": 30,
+      "text": "Controllo ecografico placenta previa",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000103
+    },
+    {
+      "id": "1700000000123",
+      "data": "2026-09-29",
+      "ora": "17:00",
+      "durata": 30,
+      "text": "Controllo tollerabilità terapia PCOS",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000041
+    },
+    {
+      "id": "1700000000124",
+      "data": "2026-10-01",
+      "ora": "09:30",
+      "durata": 20,
+      "text": "Avvio terapia con bifosfonato (post vitamina D)",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000080
+    },
+    {
+      "id": "1700000000125",
+      "data": "2026-10-06",
+      "ora": "09:00",
+      "durata": 30,
+      "text": "Controllo ostetrico + ecografia morfologica",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000008
+    },
+    {
+      "id": "1700000000126",
+      "data": "2026-10-09",
+      "ora": "11:00",
+      "durata": 30,
+      "text": "Controllo ostetrico a termine",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000020
+    },
+    {
+      "id": "1700000000127",
+      "data": "2026-10-14",
+      "ora": "10:00",
+      "durata": 20,
+      "text": "Controllo perimenopausa a 3 mesi",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000023
+    },
+    {
+      "id": "1700000000128",
+      "data": "2026-10-20",
+      "ora": "14:00",
+      "durata": 30,
+      "text": "Controllo ostetrico gravidanza gemellare",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000035
+    },
+    {
+      "id": "1700000000129",
+      "data": "2026-11-14",
+      "ora": "15:00",
+      "durata": 20,
+      "text": "Nuova valutazione vestibolodinia",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000069
+    },
+    {
+      "id": "1700000000130",
+      "data": "2026-11-25",
+      "ora": "15:30",
+      "durata": 20,
+      "text": "Controllo ecografico endometrioma",
+      "tipo": "appuntamento",
+      "pazienteId": 1700000000026
+    }
+  ]
 }
