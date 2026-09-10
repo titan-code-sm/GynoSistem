@@ -1001,9 +1001,15 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     <button class="btn btn-primary" onclick="naviga('nuova')">+ Nuova Paziente</button>
   </div>
   <div class="card">
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+    <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
       <input type="text" id="search-bar" onkeyup="renderPazienti()" placeholder="🔍  Cerca per nome, cognome..." style="flex:1;min-width:200px;margin-bottom:0;">
       <button class="btn btn-ghost" id="filtro-gravidanze-btn" onclick="toggleFiltroGravidanze()">🤰 Solo gravidanze attive</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm filtro-cat-btn" data-cat="all" onclick="setFiltroCategoriaPaz('all')">Tutte</button>
+      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="gyno" onclick="setFiltroCategoriaPaz('gyno')">🌸 Ginecologiche</button>
+      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="ob" onclick="setFiltroCategoriaPaz('ob')">🤰 Ostetriche</button>
+      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="eco" onclick="setFiltroCategoriaPaz('eco')">🖥️ Ecografie</button>
     </div>
     <div class="table-wrap">
       <table>
@@ -5097,12 +5103,23 @@ async function importaPazientiDaGynobook(){
 }
 
 let filtroGravidanzeAttive=false;
+let filtroCategoriaPaz='all'; // 'all' | 'gyno' | 'ob' | 'eco' — filtra le pazienti per tipo di visite eseguite
 
 function toggleFiltroGravidanze(){
   filtroGravidanzeAttive=!filtroGravidanzeAttive;
   const btn=document.getElementById('filtro-gravidanze-btn');
   btn.classList.toggle('btn-primary',filtroGravidanzeAttive);
   btn.classList.toggle('btn-ghost',!filtroGravidanzeAttive);
+  renderPazienti();
+}
+
+function setFiltroCategoriaPaz(cat){
+  filtroCategoriaPaz=cat;
+  document.querySelectorAll('.filtro-cat-btn').forEach(b=>{
+    const on=b.dataset.cat===cat;
+    b.classList.toggle('btn-primary',on);
+    b.classList.toggle('btn-ghost',!on);
+  });
   renderPazienti();
 }
 
@@ -5153,6 +5170,11 @@ function renderPazienti(){
 
   let filtered=DB.pazienti.filter(p=>(p.nome+' '+p.cognome).toLowerCase().includes(q));
 
+  // Filtro per categoria di visita eseguita (ginecologiche / ostetriche / ecografie)
+  if(filtroCategoriaPaz!=='all'){
+    filtered=filtered.filter(p=>(p.visite||[]).some(v=>v.tipo===filtroCategoriaPaz));
+  }
+
   if(filtroGravidanzeAttive){
     filtered=filtered.map(p=>({p,grav:gravidanzaAttiva(p)})).filter(x=>x.grav);
     filtered.sort((a,b)=>{
@@ -5178,7 +5200,8 @@ function renderPazienti(){
 
   thead.innerHTML='<th>Paziente</th><th>Data Nascita</th><th>Telefono</th><th>Ultima Visita</th><th>Visite</th>';
   filtered.sort((a,b)=>(a.cognome||'').localeCompare(b.cognome||''));
-  document.getElementById('pazienti-count').textContent=`${filtered.length} pazienti`;
+  const catLbl={gyno:' · ginecologiche',ob:' · ostetriche',eco:' · ecografie'}[filtroCategoriaPaz]||'';
+  document.getElementById('pazienti-count').textContent=`${filtered.length} pazienti${catLbl}`;
   if(!filtered.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--label4);padding:40px;">Nessun paziente trovato</td></tr>';return;}
   filtered.forEach(p=>{
     const last=p.visite?.length?new Date(p.visite[p.visite.length-1].data).toLocaleDateString('it-IT'):'-';
