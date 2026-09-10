@@ -338,6 +338,8 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mfv-guida{background:rgba(80,130,220,0.12);border-color:rgba(120,160,230,0.3);color:var(--label);}}
 .mfv-sez-tit{font-size:0.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;}
 .mfv-sez-tit:first-child{margin-top:0;}
+.informativa-card .informativa-testo{font-size:0.82rem;line-height:1.55;color:var(--label3);}
+.informativa-card h4 button{flex-shrink:0;}
 .modal-sm{background:var(--surface);border-radius:var(--radius-lg);padding:32px;width:520px;box-shadow:var(--shadow-lg);}
 .modal-sm h3{font-family:var(--font-serif);font-size:1.5rem;margin-bottom:8px;}
 .modal-sm p{color:var(--label4);font-size:0.875rem;margin-bottom:24px;}
@@ -2011,12 +2013,15 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
               <div class="form-group"><label class="form-label">Ecografo</label><select id="gd-ecografo"></select></div>
               <div class="form-group"><label class="form-label">Sonda</label><select id="gd-sonda"></select></div>
             </div>
-            <div class="form-group" style="margin-top:10px">
-              <label class="form-label" style="display:flex;align-items:center;gap:8px">
-                <input type="checkbox" id="gd-informativa-chk" checked style="width:auto" onchange="toggleInformativa()">
-                Includere informativa al referto
-              </label>
-            </div>
+          </div>
+
+          <div class="section-card informativa-card">
+            <h4 data-icon="📋">Informativa e consenso</h4>
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+              <input type="checkbox" id="gd-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0" onchange="toggleInformativa()">
+              <span class="informativa-testo"></span>
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Visita Ginecologica con Ecografia')">🖨️ Stampa informativa / consenso informato</button>
           </div>
 
           <div class="section-card">
@@ -2307,7 +2312,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             </div>
 
             <div class="section-card">
-              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)</h4>
+              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="stampaInformativaConsenso('Ecografia Ostetrica I Trimestre')" title="Stampa informativa/consenso">🖨️ Informativa</button></h4>
               <select onchange="appendOBText('ob-eco1',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">ECO Datazione</option>
@@ -2320,7 +2325,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             </div>
 
             <div class="section-card">
-              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office</h4>
+              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="stampaInformativaConsenso('Ecografia Ostetrica II-III Trimestre')" title="Stampa informativa/consenso">🖨️ Informativa</button></h4>
               <select onchange="appendOBText('ob-eco23',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento.">2-3 Trim Office</option>
@@ -2329,12 +2334,21 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             </div>
 
             <div class="section-card">
-              <h4 data-icon="3️⃣">Ecografia III Trimestre</h4>
+              <h4 data-icon="3️⃣">Ecografia III Trimestre<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="stampaInformativaConsenso('Ecografia Ostetrica III Trimestre')" title="Stampa informativa/consenso">🖨️ Informativa</button></h4>
               <select onchange="appendOBText('ob-eco3',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
               </select>
               <textarea id="ob-eco3" rows="3" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card informativa-card">
+              <h4 data-icon="📋">Informativa e consenso</h4>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="ob-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0" onchange="toggleInformativa()">
+                <span class="informativa-testo"></span>
+              </label>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Visita Ostetrica con Ecografia')">🖨️ Stampa informativa / consenso informato</button>
             </div>
           </div>
 
@@ -2613,6 +2627,15 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
               <h4 data-icon="📄">Diagnosi / Referto</h4>
               <div class="form-group"><textarea id="ec-diagnosi" rows="6" placeholder="Referto conclusivo dell'esame ecografico..."></textarea></div>
             </div>
+
+            <div class="section-card informativa-card">
+              <h4 data-icon="📋">Informativa e consenso</h4>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="ec-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0" onchange="toggleInformativa()">
+                <span class="informativa-testo"></span>
+              </label>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Ecografia Ostetrica')">🖨️ Stampa informativa / consenso informato</button>
+            </div>
             <div class="section-card">
               <h4 data-icon="💊">Terapia<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriSelettoreFarmaciVisita('ec-terapia')">+ Farmaci</button></h4>
               <div class="form-group"><textarea id="ec-terapia" rows="4"></textarea></div>
@@ -2821,7 +2844,7 @@ const GD = {
   // ECOGRAFO / SONDA
   ecografo: ["", "Voluson S10", "Samsung"],
   sonda: ["", "TV", "TA", "TV+TA", "TR"],
-  informativa: "La Persona Assistita ha avuto modo di ricevere una adeguata informazione su scopi e limiti dell'esame attraverso il colloquio con il proprio Ginecologo (ai quali ha avuto la possibilità di porre i quesiti ritenuti opportuni) e attraverso la lettura di un foglio informativo che si allega al referto. La persona assistita acconsente all'effettuazione dell'indagine nelle modalità proposte.",
+  informativa: "Informazione: la Persona Assistita ha avuto modo di ricevere una adeguata informazione su scopi e limiti dell'esame attraverso il colloquio con il proprio Ginecologo (al quale ha avuto la possibilità di porre i quesiti ritenuti opportuni) e attraverso la lettura di un foglio informativo che si allega al referto. La persona assistita acconsente all'effettuazione dell'indagine nelle modalità proposte e firma consenso informato in allegato.",
 
   // ECOGRAFIA (tendina → testo completo)
   ecografia: {
@@ -3045,7 +3068,73 @@ function toggleFamil(btn, value){
 }
 
 function toggleInformativa(){
-  // L'informativa viene gestita in fase di stampa
+  // Il testo dell'informativa finisce nel referto solo se la casella è spuntata
+  // (gestito in getRefertoSezioni). Qui non serve altro.
+}
+
+// Popola tutte le caselle ".informativa-testo" col testo unico GD.informativa
+function renderInformativeTesti(){
+  document.querySelectorAll('.informativa-testo').forEach(el=>{ el.textContent = GD.informativa; });
+}
+
+// Apre una pagina stampabile e modificabile con l'informativa e il consenso
+// informato, intestata come la ricetta. tipoEsame = descrizione dell'indagine.
+function stampaInformativaConsenso(tipoEsame){
+  const cfg = (typeof getIntestazioneRicetta==='function') ? getIntestazioneRicetta() : {};
+  const p = DB.pazienti.find(x=>x.id===curPaz);
+  const nome = p ? `${p.cognome} ${p.nome}` : '________________________';
+  const nascita = p && p.nascita ? new Date(p.nascita).toLocaleDateString('it-IT') : '____________';
+  const oggi = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  const w = window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informativa e Consenso</title>
+  <style>
+    body{font-family:Georgia,serif;color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
+    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid #c2185b;padding-bottom:16px;margin-bottom:24px}
+    .ic-header img{max-height:60px}
+    .ic-header h1{font-size:1.2rem;margin:0;color:#c2185b}
+    .ic-header .spec{font-size:.82rem;color:#555;margin-top:2px}
+    .ic-header .contatti{font-size:.76rem;color:#777;margin-top:3px}
+    h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
+    .ic-meta{font-size:.9rem;margin-bottom:20px}
+    .ic-meta div{margin-bottom:3px}
+    .ic-body{font-size:.98rem;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:24px;outline:none}
+    .ic-body:focus{background:#fffdf5}
+    .ic-consenso{font-size:.98rem;margin-bottom:34px}
+    .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
+    .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
+    .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
+    .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:#c2185b;color:#fff;cursor:pointer}
+    .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+    @media print{body{margin:0;padding:26px}.ic-toolbar{display:none}}
+  </style></head><body>
+    <div class="ic-toolbar">✏️ Puoi modificare il testo prima di stampare.
+      <button onclick="window.print()">🖨️ Stampa</button>
+      <button class="sec" onclick="window.close()">Chiudi</button>
+    </div>
+    <div class="ic-header">
+      ${cfg.logo?`<img src="${cfg.logo}">`:''}
+      <div>
+        <h1>${cfg.nome||'Dr.ssa Cristina Guidi'}</h1>
+        <div class="spec">${cfg.spec||''}</div>
+        <div class="contatti">${[cfg.indirizzo,cfg.contatti].filter(Boolean).join(' · ')}</div>
+      </div>
+    </div>
+    <h2>INFORMATIVA E CONSENSO INFORMATO</h2>
+    <div class="ic-meta">
+      <div><strong>Esame:</strong> ${tipoEsame||'Esame ecografico'}</div>
+      <div><strong>Persona assistita:</strong> ${nome} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
+      <div><strong>Data:</strong> ${oggi}</div>
+    </div>
+    <div class="ic-body" contenteditable="true" spellcheck="false">${GD.informativa}</div>
+    <div class="ic-consenso" contenteditable="true" spellcheck="false">
+      La sottoscritta, presa visione di quanto sopra e avendo ricevuto adeguate informazioni sugli scopi, i limiti e le eventuali alternative dell'esame, avendo potuto porre domande e ricevuto risposte esaurienti, <strong>acconsente</strong> liberamente all'esecuzione dell'indagine nelle modalità proposte.
+    </div>
+    <div class="firme">
+      <div class="l">Firma della persona assistita</div>
+      <div class="l">Firma del medico</div>
+    </div>
+  </body></html>`);
+  w.document.close();
 }
 
 function initGynoSelects(){
@@ -3135,6 +3224,7 @@ function getObData(){
     const el=document.getElementById('ob-'+f);
     if(el) d[f]=el.value;
   });
+  d.informativa=document.getElementById('ob-informativa-chk')?.checked;
   return d;
 }
 function setObData(data){
@@ -3143,6 +3233,8 @@ function setObData(data){
     const el=document.getElementById('ob-'+f);
     if(el && data[f]!==undefined) el.value=data[f];
   });
+  const chk=document.getElementById('ob-informativa-chk');
+  if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   obToggleImmuno();
   calcBMIPregravidico();
 }
@@ -3155,6 +3247,30 @@ const OB_CAMPI_RIPORTATI=[
   'terapie-atto','allergie','fumo','familiarita','partner',
   'score-tev','esami-visite','esami-eco'];
 
+// GINECOLOGIA — campi riportati da una visita ginecologica precedente della
+// stessa paziente: dati costituzionali + anamnesi patologica + familiarità.
+const GD_CAMPI_RIPORTATI=['altezza','para','menarca','menopausa',
+  'allergie','terapie-atto','chirurgia','patologie','cefalea','emicrania','familiarita'];
+
+function riportaDatiGyno(){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p) return;
+  // Ordina le visite ginecologiche precedenti dalla più recente alla più vecchia:
+  // per ogni campo prende il primo valore compilato che trova risalendo indietro.
+  const prec=(p.visite||[]).filter(v=>v.tipo==='gyno' && v.gynoData)
+    .sort((a,b)=>new Date(b.data)-new Date(a.data));
+  if(!prec.length) return;
+  GD_CAMPI_RIPORTATI.forEach(f=>{
+    const el=document.getElementById('gd-'+f);
+    if(!el || el.value) return;
+    for(const v of prec){
+      const val=v.gynoData[f];
+      if(val && String(val).trim()){ el.value=val; break; }
+    }
+  });
+  if(typeof calcGynoBMI==='function') calcGynoBMI();
+}
+
 // Quando si apre una NUOVA visita ostetrica di una gravidanza che ha già visite precedenti,
 // pre-compila i campi anagrafici/anamnestici con i valori dell'ultima visita di quella gravidanza.
 function riportaDatiGravidanza(){
@@ -3165,10 +3281,15 @@ function riportaDatiGravidanza(){
     .filter(v=>v.tipo==='ob' && v.gravidanzaId===curGravidanzaId && v.obData)
     .sort((a,b)=>new Date(b.data)-new Date(a.data));
   if(!visitePrec.length) return;
-  const ultima=visitePrec[0].obData;
+  // Per ogni campo prende il primo valore compilato risalendo indietro nelle
+  // visite della STESSA gravidanza (non solo dall'ultima).
   OB_CAMPI_RIPORTATI.forEach(f=>{
     const el=document.getElementById('ob-'+f);
-    if(el && !el.value && ultima[f]) el.value=ultima[f];
+    if(!el || el.value) return;
+    for(const v of visitePrec){
+      const val=v.obData[f];
+      if(val && String(val).trim()){ el.value=val; break; }
+    }
   });
   obToggleImmuno();
   calcBMIPregravidico();
@@ -3367,6 +3488,7 @@ function getEcoData(){
     const el=document.getElementById('ec-'+f);
     if(el) d[f]=el.value;
   });
+  d.informativa=document.getElementById('ec-informativa-chk')?.checked;
   return d;
 }
 function setEcoData(data){
@@ -3375,6 +3497,8 @@ function setEcoData(data){
     const el=document.getElementById('ec-'+f);
     if(el && data[f]!==undefined) el.value=data[f];
   });
+  const chk=document.getElementById('ec-informativa-chk');
+  if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   calcEFW(); // mostra il box EFW se la biometria è presente
   calcCPR(); // mostra il box CPR se i valori PI sono presenti
 }
@@ -5855,6 +5979,9 @@ function startEditor(tipo, vid=null){
     initGynoSelects();
     const bmiBox=document.getElementById('gd-bmi-box');
     if(bmiBox) bmiBox.style.display='none';
+    // Per le nuove visite ginecologiche, riporta i dati costituzionali/anamnestici
+    // dall'ultima visita ginecologica della paziente.
+    if(!vid) riportaDatiGyno();
   }
 
   // Gravidanza: solo per nuove visite ostetriche/eco (in modifica la gravidanza è già fissata)
@@ -5868,6 +5995,7 @@ function startEditor(tipo, vid=null){
   const firstBtn=document.querySelector('#'+navs[tipo]+' .editor-nav-btn');
   setEditorTab(firstBtn,meta.firstTab);
 
+  if(typeof renderInformativeTesti==='function') renderInformativeTesti();
   if(vid) loadVisita(vid);
   if(typeof aiMostraRobot==='function') aiMostraRobot();
   }catch(e){
@@ -6407,7 +6535,7 @@ function formattaTerapiaComeRicetta(nomeCompleto, terapiaGrezza){
   const corpo=voci.length>1
     ? voci.map(v=>`— ${v.replace(/\.\s*$/,'')}.`).join('\n')
     : (testo.endsWith('.')?testo:testo+'.');
-  return `Si prescrive alla paziente ${nomeCompleto} la seguente terapia:\n\n${corpo}\n\nSi raccomanda di attenersi scrupolosamente alla posologia indicata e di contattare l'ambulatorio in caso di effetti indesiderati o dubbi.`;
+  return `Si prescrive alla paziente ${nomeCompleto} la seguente terapia:\n\n${corpo}`;
 }
 
 function terapiaDiVisita(v){
@@ -6586,11 +6714,21 @@ function stampaRicettaConTesto(paziente,dataStr,testo){
     .rx-header .spec{font-size:.85rem;color:#555;margin-top:2px}
     .rx-header .contatti{font-size:.78rem;color:#777;margin-top:4px}
     .rx-meta{display:flex;justify-content:space-between;margin-bottom:30px;font-size:.92rem}
-    .rx-body{white-space:pre-wrap;font-size:1.05rem;min-height:300px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:24px 0}
+    .rx-body{white-space:pre-wrap;font-size:1.05rem;min-height:300px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:24px 0;outline:none}
+    .rx-body:focus{background:#fffdf5}
     .rx-footer{margin-top:40px;text-align:right}
     .rx-footer .firma-line{display:inline-block;border-top:1px solid #1a1a1a;width:220px;margin-top:50px;padding-top:6px;font-size:.82rem;color:#555}
-    @media print{body{margin:0;padding:30px}}
+    .rx-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
+    .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:#c2185b;color:#fff;cursor:pointer}
+    .rx-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+    body{padding-top:70px}
+    @media print{body{margin:0;padding:30px}.rx-toolbar{display:none}}
   </style></head><body>
+    <div class="rx-toolbar no-print">
+      ✏️ Puoi modificare il testo qui sotto prima di stampare.
+      <button onclick="window.print()">🖨️ Stampa</button>
+      <button class="sec" onclick="window.close()">Chiudi</button>
+    </div>
     <div class="rx-header">
       ${cfg.logo?`<img src="${cfg.logo}">`:''}
       <div>
@@ -6603,11 +6741,10 @@ function stampaRicettaConTesto(paziente,dataStr,testo){
       <div><strong>Paziente:</strong> ${paziente||'________________________'}</div>
       <div><strong>Data:</strong> ${dataStr||'__________________'}</div>
     </div>
-    <div class="rx-body">${(testo||'').replace(/</g,'&lt;')}</div>
+    <div class="rx-body" contenteditable="true" spellcheck="false">${(testo||'').replace(/</g,'&lt;')}</div>
     <div class="rx-footer"><div class="firma-line">Firma del medico</div></div>
   </body></html>`);
   w.document.close();
-  setTimeout(()=>w.print(),300);
 }
 
 // Mostra la terapia di UNA visita specifica (icona 💊📋 nella lista visite della cartella).
@@ -6752,7 +6889,8 @@ function getRefertoSezioni(v){
       {icon:'🧾',title:'Prescrizioni Esami',rows:[['Prescrizioni',o['prescrizioni-txt']]]},
       {icon:'💊',title:'Terapia',rows:[['Terapia',o.terapia]]},
       {icon:'✅',title:'Conclusioni',rows:[['Conclusioni',o.diagnosi]]},
-      {icon:'🔄',title:'Controlli',rows:[['Prossimo controllo',o.prossimo]]}
+      {icon:'🔄',title:'Controlli',rows:[['Prossimo controllo',o.prossimo]]},
+      {icon:'📋',title:'Informativa',rows:[['Nota',o.informativa?GD.informativa:'']]}
     ];
   }
 
@@ -6789,7 +6927,8 @@ function getRefertoSezioni(v){
       ]},
       {icon:'📄',title:'Diagnosi / Referto',rows:[['Diagnosi',e.diagnosi]]},
       {icon:'💊',title:'Terapia',rows:[['Terapia',e.terapia]]},
-      {icon:'🔄',title:'Prossimo Controllo',rows:[['Prossimo controllo',e.prossimo]]}
+      {icon:'🔄',title:'Prossimo Controllo',rows:[['Prossimo controllo',e.prossimo]]},
+      {icon:'📋',title:'Informativa',rows:[['Nota',e.informativa?GD.informativa:'']]}
     ];
   }
 
