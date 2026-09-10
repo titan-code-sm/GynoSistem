@@ -865,6 +865,12 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 <!-- MAIN -->
 <main>
 
+<!-- Banner modalità demo: visibile SOLO quando l'account è in modalità dimostrativa -->
+<div id="demo-banner" style="display:none;background:linear-gradient(135deg,#ff9800,#f57c00);color:#fff;padding:10px 20px;border-radius:12px;margin-bottom:18px;font-weight:700;font-size:0.85rem;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(245,124,0,0.35);">
+  <span style="font-size:1.1rem;">🎭</span>
+  <span>Modalità dimostrativa — queste pazienti sono di esempio, non reali. Nessun dato viene salvato online.</span>
+</div>
+
 <!-- DASHBOARD -->
 <div id="sec-home" class="section active">
   <div class="page-header">
@@ -3697,6 +3703,7 @@ const ADMIN_EMAIL = 'titancodesm@gmail.com';
 let gsUnsubUtente = null;   // listener live sul proprio profilo (sospensione durante la sessione)
 let gsSuspensionMsg = null; // messaggio da mostrare al prossimo onAuthStateChanged(null)
 let gsUserNome = '';        // nome del medico/operatrice loggata, da mostrare al posto di un nome fisso
+let gsDemoMode = false;     // true se l'amministratore ha attivato i dati dimostrativi per questo account
 
 // Mostra ovunque nell'app il nome di chi ha fatto login, al posto di un
 // nome fisso nel codice — coerente con un accesso multi-utente.
@@ -3731,6 +3738,7 @@ async function handleUserProfile(user){
 
   let mustChange = false;
   let nome = user.displayName || user.email.split('@')[0];
+  let demoMode = false;
 
   if(!snap.exists){
     // Nessun profilo ancora: account creato prima di questo sistema (o a mano
@@ -3741,6 +3749,7 @@ async function handleUserProfile(user){
         nome,
         attivo: true,
         mustChangePassword: false,
+        demoMode: false,
         createdAt: new Date().toISOString(),
         ultimoAccesso: new Date().toISOString()
       });
@@ -3754,12 +3763,15 @@ async function handleUserProfile(user){
     }
     mustChange = data.mustChangePassword === true;
     nome = data.nome || nome;
+    demoMode = data.demoMode === true;
     try{ await ref.update({ ultimoAccesso: new Date().toISOString(), email: user.email }); }catch(e){}
   }
   applyNomeMedico(nome);
+  gsDemoMode = demoMode;
 
   // Se l'amministratore sospende l'account mentre è già collegato, lo scollega subito;
-  // se cambia solo il nome, lo aggiorna live in tutta l'interfaccia.
+  // se cambia solo il nome, lo aggiorna live in tutta l'interfaccia. La modalità demo
+  // invece si applica al prossimo login, non a caldo (evita di perdere lavoro in corso).
   if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
   gsUnsubUtente = ref.onSnapshot(docSnap=>{
     if(!docSnap.exists || !gsCurrentUser) return;
@@ -3825,6 +3837,19 @@ async function proceedAfterLogin(){
 
   if(navPrincipale) navPrincipale.style.display='';
   if(navStrumenti) navStrumenti.style.display='';
+
+  if(gsDemoMode){
+    // Modalità dimostrativa: pazienti di esempio, sandbox completamente
+    // separata. Niente sync verso Firestore (né pazienti né appuntamenti):
+    // una demo non deve mai toccare dati reali o il progetto Firebase.
+    mostraBannerDemo(true);
+    await caricaDatiDemo(gsCurrentUser.uid);
+    naviga('home');
+    loadAdminConfig(); // solo contenuti di servizio condivisi (farmaci, linee guida), nessun dato paziente
+    return;
+  }
+
+  mostraBannerDemo(false);
   caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
   naviga('home');
   controllaBackupAutomatico();
@@ -3904,16 +3929,20 @@ async function renderAdminUtenti(){
       if(u.eliminato){ stato='Eliminato'; colore='#c62828'; }
       else if(u.attivo===false){ stato='Sospeso'; colore='#b26a00'; }
       const isSelf = uid === gsCurrentUser.uid;
+      const demoBadge = u.demoMode ? ' · <span style="color:#e65100;font-weight:600;">🎭 Demo attiva</span>' : '';
       return `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--separator);border-radius:10px;flex-wrap:wrap;">
           <div>
             <div style="font-weight:600;">${u.nome||u.email}${isSelf?' <span style="font-weight:400;color:var(--label4);font-size:0.75rem;">(tu)</span>':''}</div>
-            <div style="font-size:0.78rem;color:var(--label4);">${u.email} · <span style="color:${colore};font-weight:600;">${stato}</span>${u.ultimoAccesso?` · ultimo accesso ${new Date(u.ultimoAccesso).toLocaleDateString('it-IT')}`:''}</div>
+            <div style="font-size:0.78rem;color:var(--label4);">${u.email} · <span style="color:${colore};font-weight:600;">${stato}</span>${u.ultimoAccesso?` · ultimo accesso ${new Date(u.ultimoAccesso).toLocaleDateString('it-IT')}`:''}${demoBadge}</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             ${!isSelf ? (u.attivo===false
               ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', true)">Riattiva</button>`
               : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', false)">Sospendi</button>`) : ''}
+            ${!isSelf ? (u.demoMode
+              ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', false)">🎭 Disattiva demo</button>`
+              : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', true)">🎭 Attiva demo</button>`) : ''}
             <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminRichiediReset('${u.email}')">Richiedi cambio password</button>
             ${!isSelf && !u.eliminato ? `<button class="btn" style="padding:6px 12px;font-size:0.8rem;background:var(--red-dim);color:var(--red);" onclick="adminEliminaUtente('${uid}','${u.email}')">Elimina</button>` : ''}
           </div>
@@ -3974,6 +4003,17 @@ async function adminImpostaStato(uid, attivo){
   try{
     await gsDb.collection('utenti').doc(uid).update({ attivo, eliminato:false });
     gsToast(attivo ? '✅ Account riattivato' : '⛔ Account sospeso', 'gs-success');
+    renderAdminUtenti();
+  }catch(e){ console.warn(e); gsToast('Errore nell\'operazione', 'gs-info'); }
+}
+
+// Attiva/disattiva la modalità dimostrativa per un account: al prossimo
+// login vedrà (o smetterà di vedere) le 30 pazienti di esempio, in una
+// sandbox locale separata dal proprio archivio reale e da Firestore.
+async function adminToggleDemo(uid, valore){
+  try{
+    await gsDb.collection('utenti').doc(uid).update({ demoMode: valore });
+    gsToast(valore ? '🎭 Modalità demo attivata (dal prossimo login)' : '🎭 Modalità demo disattivata (dal prossimo login)', 'gs-success');
     renderAdminUtenti();
   }catch(e){ console.warn(e); gsToast('Errore nell\'operazione', 'gs-info'); }
 }
@@ -4060,6 +4100,30 @@ function caricaDatiLocaliUtente(uid){
 function scaricaDatiLocaliUtente(){
   gsDbStorageKey = null;
   DB = { pazienti:[], agenda:[] };
+}
+
+// ── MODALITÀ DEMO ──
+// Attivata dall'amministratore per un account specifico (utenti/{uid}.demoMode).
+// Carica SEMPRE una copia fresca del dataset dimostrativo (demo-pazienti.json,
+// file statico incluso nell'app — nessuna paziente reale, mai su Firestore)
+// in una chiave locale separata da quella dei dati veri: disattivare la
+// modalità demo riporta sempre l'account al proprio archivio reale intatto.
+async function caricaDatiDemo(uid){
+  gsDbStorageKey = 'gynoDB_v15_demo_' + uid;
+  try{
+    const resp = await fetch('demo-pazienti.json');
+    DB = await resp.json();
+  }catch(e){
+    console.warn('Errore caricamento dati demo:', e);
+    DB = { pazienti:[], agenda:[] };
+  }
+  if(!DB.studi) DB.studi=[];
+  salvaDB(); // sovrascrive eventuali resti di una demo precedente: sempre puliti
+}
+
+function mostraBannerDemo(mostra){
+  const b = document.getElementById('demo-banner');
+  if(b) b.style.display = mostra ? 'flex' : 'none';
 }
 
 // ═══════════════════════════════════════════════════
@@ -4426,7 +4490,7 @@ function creaPaziente(){
 }
 
 function syncPazienteFirebase(p){
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser)return;
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return; // in demo: mai toccare Firestore
   const data={nome:p.nome,cognome:p.cognome,nascita:p.nascita||'',tel:p.tel||'',email:p.email||'',cf:p.cf||'',updatedAt:new Date().toISOString(),source:'gynosystem',ownerUid:gsCurrentUser.uid};
   gsDb.collection('pazienti').doc(String(p.id)).set(data,{merge:true})
     .then(()=>gsToast('Anagrafica sincronizzata su Firebase','gs-success'))
@@ -4668,8 +4732,8 @@ async function eliminaPaziente(){
   // Rimuove la paziente dal DB locale (dati clinici)
   DB.pazienti=DB.pazienti.filter(x=>x.id!==curPaz);
   salvaDB();
-  // Rimuove anche l'anagrafica corrispondente su Firestore, se presente
-  if(gsFirebaseReady&&gsDb){
+  // Rimuove anche l'anagrafica corrispondente su Firestore, se presente (mai in demo)
+  if(gsFirebaseReady&&gsDb&&!gsDemoMode){
     try{ await gsDb.collection('pazienti').doc(String(curPaz)).delete(); }catch(e){ console.warn('Eliminazione Firebase:',e); }
     if(p.fbId){
       try{ await gsDb.collection('pazienti').doc(p.fbId).delete(); }catch(e){ console.warn('Eliminazione Firebase (fbId):',e); }
@@ -5179,7 +5243,7 @@ function salvaVisita(){
 // prenotato da GynoBook (stessa paziente, stessa data) passa automaticamente a "completato".
 // Nessun dato clinico viene scritto su Firestore: solo il campo "stato" dell'appuntamento.
 async function completaAppuntamentoFirebase(p, dataVisita){
-  if(!gsFirebaseReady||!gsDb||!p||!gsCurrentUser)return;
+  if(!gsFirebaseReady||!gsDb||!p||!gsCurrentUser||gsDemoMode)return; // in demo: mai toccare Firestore
   try{
     const possibiliId=[String(p.id)];
     if(p.fbId) possibiliId.push(p.fbId);
@@ -5255,6 +5319,7 @@ async function salvaPrenotazioneGS(){
   const data=document.getElementById('np-data').value;
   const ora=document.getElementById('np-ora').value;
   const tipo=document.getElementById('np-tipo').value;
+  if(gsDemoMode){ if(typeof gsToast==='function')gsToast('Non disponibile in modalità demo','gs-info'); return; }
   if(!_npSelectedPazId){ if(typeof gsToast==='function')gsToast('Seleziona una paziente','gs-error'); return; }
   if(!data||!ora||!tipo){ if(typeof gsToast==='function')gsToast('Data, ora e tipo visita sono obbligatori','gs-error'); return; }
   if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
@@ -6981,6 +7046,8 @@ function initFirebase() {
         // di chi era collegato prima.
         if(_gsApptListener){ _gsApptListener(); _gsApptListener=null; }
         GS_APPTS=[];
+        gsDemoMode=false;
+        mostraBannerDemo(false);
         scaricaDatiLocaliUtente(); // pulisce subito l'archivio clinico dalla memoria
         naviga('home'); // dashboard vuota dietro l'overlay, pronta per il prossimo login
         document.getElementById('login-overlay').style.display='flex';

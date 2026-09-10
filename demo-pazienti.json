@@ -1,0 +1,1994 @@
+{
+  "pazienti": [
+    {
+      "id": 1700000000002,
+      "nome": "Giulia",
+      "cognome": "Bianchi",
+      "nascita": "1996-03-12",
+      "tel": "+378 549 871234",
+      "email": "giulia.bianchi96@gmail.com",
+      "cf": "BNCGLI96C52H501X",
+      "note": "Nessuna allergia nota.",
+      "visite": [
+        {
+          "id": 1700000000000,
+          "data": "2026-05-18",
+          "ora": "17:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "30",
+            "altezza": "165",
+            "peso": "58",
+            "para": "0000",
+            "menarca": "12",
+            "um": "2026-05-05",
+            "pa": "115/70",
+            "menopausa": "no",
+            "ciclo-ritmo": "Regolare, 28 giorni",
+            "dismenorrea": "Lieve",
+            "fumo": "No",
+            "screening-cervicale": "Ultimo Pap 3 anni fa, negativo",
+            "allergie": "Nessuna nota",
+            "chirurgia": "Nessuna",
+            "patologie": "Nessuna",
+            "motivo": "Controllo ginecologico annuale di routine e Pap test",
+            "esame-generale": "Buone condizioni generali, BMI 21.3",
+            "speculum": "Genitali esterni nella norma. Portio regolare, normoepitelizzata.",
+            "prelievi": "Eseguito Pap test in giornata",
+            "bimanuale": "Utero in asse, regolare. Annessi liberi, non dolenti.",
+            "ecografia": "Utero regolare (85x45x38mm), rima endometriale 4mm. Ovaie nella norma bilateralmente.",
+            "conclusioni": "Esame nella norma. In attesa di referto Pap test.",
+            "terapia": "Nessuna terapia necessaria",
+            "prossimi": "A referto Pap test disponibile"
+          }
+        },
+        {
+          "id": 1700000000001,
+          "data": "2026-06-09",
+          "ora": "16:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "30",
+            "motivo": "Controllo per consegna referto Pap test",
+            "esame-generale": "Asintomatica, nessuna novità clinica dal controllo precedente",
+            "conclusioni": "Pap test: negativo per lesioni intraepiteliali o malignità (NILM). Nessun ulteriore approfondimento necessario.",
+            "terapia": "Nessuna",
+            "prossimi": "Controllo di routine tra 1 anno"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000008,
+      "nome": "Francesca",
+      "cognome": "Rossi",
+      "nascita": "1990-07-08",
+      "tel": "+378 549 872345",
+      "email": "francesca.rossi90@outlook.it",
+      "cf": "RSSFNC90L48H501Y",
+      "note": "Prima gravidanza. Molto ansiosa, richiede spiegazioni dettagliate.",
+      "visite": [
+        {
+          "id": 1700000000003,
+          "data": "2026-05-20",
+          "ora": "09:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000003,
+          "obData": {
+            "eta": "36",
+            "para": "0000",
+            "gruppo": "A positivo",
+            "tipo-grav": "Spontanea",
+            "um": "2026-04-02",
+            "durata-ciclo": "28",
+            "epp": "2027-01-07",
+            "altezza": "168",
+            "peso-pregrav": "62",
+            "bmi": "22.0 (normopeso)",
+            "chirurgia": "Appendicectomia a 19 anni",
+            "terapie-atto": "Acido folico 400mcg/die",
+            "fumo": "No",
+            "familiarita": "Diabete tipo 2 materno",
+            "settimane": "6+6",
+            "pressione": "110/65",
+            "score-tev": "Basso rischio",
+            "peso": "62.3",
+            "referto": "Prima visita ostetrica: gravidanza confermata da beta-hCG e amenorrea",
+            "counselling-txt": "Informativa su acido folico e screening prenatali disponibili",
+            "terapia": "Acido folico 400mcg/die, Vitamina D 1000 UI/die",
+            "diagnosi": "Gravidanza intrauterina singola, 6+6 settimane, in evoluzione",
+            "prossimo": "tra 3 settimane per screening combinato I trimestre"
+          }
+        },
+        {
+          "id": 1700000000004,
+          "data": "2026-05-20",
+          "ora": "09:30",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000003,
+          "ecoData": {
+            "settimane": "6+6",
+            "crl": "9",
+            "bcf": "148 bpm, ritmico",
+            "tipo-esame": "Ecografia I trimestre (datazione)",
+            "vitalita": "Presente",
+            "num-feti": "1",
+            "diagnosi": "Camera gestazionale singola con embrione vitale, CRL 9mm compatibile con 6+6 settimane",
+            "prossimo": "Screening combinato a 11-13 settimane"
+          }
+        },
+        {
+          "id": 1700000000005,
+          "data": "2026-06-17",
+          "ora": "09:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000003,
+          "obData": {
+            "settimane": "11+1",
+            "pressione": "112/68",
+            "peso": "63.0",
+            "score-tev": "Basso rischio",
+            "esami-visite": "Bi-test eseguito in data odierna con NT",
+            "referto": "Translucenza nucale 1.4mm, bi-test in attesa di calcolo del rischio combinato",
+            "terapia": "Prosecuzione acido folico e vitamina D",
+            "diagnosi": "Gravidanza singola 11+1 settimane, screening combinato I trimestre eseguito",
+            "prossimo": "tra 3-4 settimane con esito screening combinato"
+          }
+        },
+        {
+          "id": 1700000000006,
+          "data": "2026-07-15",
+          "ora": "10:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000003,
+          "obData": {
+            "settimane": "15+1",
+            "pressione": "115/70",
+            "peso": "64.2",
+            "incremento": "+2.2 kg",
+            "referto": "Screening combinato: rischio basso (1:3200), NIPT non necessario",
+            "counselling-txt": "Rassicurata la paziente, comunicato esito favorevole dello screening",
+            "terapia": "Prosecuzione supplementazione",
+            "diagnosi": "Gravidanza singola 15+1 settimane, screening a basso rischio, decorso fisiologico",
+            "prossimo": "tra 5 settimane per ecografia morfologica"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000007,
+          "data": "2026-08-19",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000006,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000011,
+      "nome": "Elena",
+      "cognome": "Ferrari",
+      "nascita": "1984-11-22",
+      "tel": "+378 549 873456",
+      "email": "elena.ferrari84@libero.it",
+      "cf": "FRRLNE84S62H501Z",
+      "note": "Riferita da MMG per menorragia persistente.",
+      "visite": [
+        {
+          "id": 1700000000009,
+          "data": "2026-05-22",
+          "ora": "10:15",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "41",
+            "altezza": "160",
+            "peso": "64",
+            "para": "2002",
+            "um": "2026-05-14",
+            "pa": "120/80",
+            "ciclo-quantita": "Abbondante, con coaguli",
+            "dismenorrea": "Moderata, peggiorata",
+            "allergie": "Penicillina (rash)",
+            "chirurgia": "2 parti cesarei",
+            "patologie": "Anemia sideropenica lieve in trattamento",
+            "sint-dolore": "Dolore pelvico gravativo in fase mestruale",
+            "sint-sangu": "Menorragia da circa 4 mesi",
+            "motivo": "Menorragia persistente da 4 mesi con anemizzazione, dolore pelvico gravativo",
+            "esame-generale": "Pallore cutaneo lieve, BMI 25.0",
+            "bimanuale": "Utero aumentato di volume, consistenza irregolare, dolorabilità modica",
+            "ecografia": "Utero aumentato (98x72x65mm) per mioma intramurale fondo uterino 45x38mm e mioma subsieroso 18mm parete posteriore. Rima endometriale regolare (8mm).",
+            "conclusioni": "Mioma uterino intramurale sintomatico (FIGO tipo 4) associato a piccolo mioma subsieroso",
+            "esami-richiesti": "Emocromo, ferritina, RMN pelvica pre-operatoria",
+            "terapia": "Acido tranexamico 1g x3/die nei giorni di flusso abbondante. Prosecuzione ferro.",
+            "prossimi": "tra 3 settimane con referti RMN ed emocromo"
+          }
+        },
+        {
+          "id": 1700000000010,
+          "data": "2026-06-12",
+          "ora": "11:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "41",
+            "motivo": "Controllo con referti RMN ed emocromo per decisione terapeutica",
+            "esame-generale": "Emocromo: Hb 10.8 g/dl (in miglioramento da 9.6), ferritina in ripresa",
+            "conclusioni": "RMN conferma mioma intramurale FIGO 4 di 46mm senza segni di degenerazione. Indicazione a miomectomia laparoscopica data l'età e il desiderio di preservare la fertilità.",
+            "esami-richiesti": "Programmazione pre-operatoria: ECG, visita anestesiologica",
+            "terapia": "Prosecuzione acido tranexamico nei giorni di flusso in attesa dell'intervento. Ferro confermato.",
+            "prossimi": "Consulenza chirurgica per programmazione miomectomia laparoscopica"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000014,
+      "nome": "Martina",
+      "cognome": "Conti",
+      "nascita": "1999-05-14",
+      "tel": "+378 549 874567",
+      "email": "martina.conti99@gmail.com",
+      "cf": "CNTMTN99E54H501W",
+      "note": "Studentessa universitaria, richiede discrezione con la famiglia.",
+      "visite": [
+        {
+          "id": 1700000000012,
+          "data": "2026-06-05",
+          "ora": "16:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "27",
+            "altezza": "170",
+            "peso": "61",
+            "para": "0000",
+            "um": "2026-05-28",
+            "pa": "110/70",
+            "fumo": "Occasionale, 2-3 sigarette/settimana",
+            "screening-cervicale": "Mai eseguito",
+            "familiarita": "Madre con trombosi venosa profonda post-partum",
+            "motivo": "Richiesta di contraccezione ormonale, nuova relazione stabile",
+            "esame-generale": "BMI 21.1, PA nella norma",
+            "bimanuale": "Utero e annessi nella norma",
+            "conclusioni": "Familiarità positiva per TVP da approfondire prima di prescrivere estroprogestinico",
+            "esami-richiesti": "Screening trombofilico completo",
+            "terapia": "In attesa esami: contraccezione con solo progestinico (desogestrel 75mcg) come opzione ponte",
+            "prossimi": "tra 3 settimane con esito screening trombofilico"
+          }
+        },
+        {
+          "id": 1700000000013,
+          "data": "2026-06-26",
+          "ora": "15:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "27",
+            "motivo": "Controllo con esito screening trombofilico",
+            "conclusioni": "Screening trombofilico (proteina C, S, APCR, Fattore V Leiden, mutazione FII, antitrombina III) tutto nella norma. Nessuna controindicazione a estroprogestinico.",
+            "terapia": "Prescritto estroprogestinico combinato a basso dosaggio (etinilestradiolo 20mcg/drospirenone 3mg). Sospeso desogestrel.",
+            "prossimi": "Controllo di tolleranza tra 3 mesi"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000020,
+      "nome": "Chiara",
+      "cognome": "Romano",
+      "nascita": "1987-02-03",
+      "tel": "+378 549 875678",
+      "email": "chiara.romano87@gmail.com",
+      "cf": "RMNCHR87B43H501Q",
+      "note": "Seconda gravidanza. Primo parto eutocico nel 2022.",
+      "visite": [
+        {
+          "id": 1700000000015,
+          "data": "2026-05-15",
+          "ora": "11:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000015,
+          "obData": {
+            "eta": "39",
+            "para": "1001",
+            "gruppo": "0 positivo",
+            "um": "2025-12-15",
+            "epp": "2026-09-21",
+            "altezza": "163",
+            "peso-pregrav": "59",
+            "settimane": "21+5",
+            "pressione": "116/74",
+            "peso": "67.0",
+            "incremento": "+8.0 kg",
+            "vo": "Presentazione non ancora stabile",
+            "esami-eco": "Morfologica eseguita a 20 settimane, nella norma",
+            "referto": "Decorso fisiologico finora",
+            "terapia": "Multivitaminico in gravidanza",
+            "diagnosi": "Gravidanza singola 21+5 settimane, decorso regolare",
+            "prossimo": "tra 5 settimane, curva OGTT programmata"
+          }
+        },
+        {
+          "id": 1700000000016,
+          "data": "2026-07-10",
+          "ora": "11:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000015,
+          "obData": {
+            "settimane": "29+3",
+            "pressione": "118/75",
+            "peso": "71.0",
+            "incremento": "+12.0 kg",
+            "score-tev": "Basso rischio",
+            "esami-visite": "OGTT negativa a 26 settimane",
+            "vo": "Presentazione cefalica",
+            "counselling-txt": "Discusso piano del parto, corso pre-parto in corso",
+            "diagnosi": "Gravidanza singola 29+3 settimane, cefalica, decorso fisiologico",
+            "prossimo": "tra 3 settimane con ecografia di accrescimento"
+          }
+        },
+        {
+          "id": 1700000000017,
+          "data": "2026-07-10",
+          "ora": "11:30",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000015,
+          "ecoData": {
+            "settimane": "29+3",
+            "bpd": "75",
+            "hc": "268",
+            "ac": "252",
+            "fl": "56",
+            "efw": "1380",
+            "bcf": "145 bpm, ritmico",
+            "liquido": "Normale",
+            "placenta": "Fundica anteriore, grado I",
+            "tipo-esame": "Ecografia di accrescimento",
+            "num-feti": "1",
+            "doppler-ua-pi": "0.85",
+            "doppler-mca-pi": "1.65",
+            "doppler-cpr": "1.94",
+            "diagnosi": "Feto in accrescimento regolare (55° percentile), Doppler nella norma",
+            "prossimo": "Nuova eco a 33-34 settimane"
+          }
+        },
+        {
+          "id": 1700000000018,
+          "data": "2026-08-07",
+          "ora": "10:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000015,
+          "obData": {
+            "settimane": "33+3",
+            "pressione": "122/78",
+            "peso": "73.8",
+            "incremento": "+14.8 kg",
+            "vo": "Presentazione cefalica confermata",
+            "referto": "Tampone vagino-rettale eseguito in data odierna",
+            "terapia": "Prosecuzione multivitaminico",
+            "diagnosi": "Gravidanza singola 33+3 settimane, cefalica, decorso regolare",
+            "prossimo": "tra 2 settimane, controllo a 35-36 settimane"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000019,
+          "data": "2026-08-21",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000018,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000023,
+      "nome": "Sara",
+      "cognome": "Ricci",
+      "nascita": "1980-09-19",
+      "tel": "+378 549 876789",
+      "email": "sara.ricci80@gmail.com",
+      "cf": "RCCSRA80P59H501R",
+      "note": "Ciclo irregolare da 8 mesi, in ansia per la menopausa.",
+      "visite": [
+        {
+          "id": 1700000000021,
+          "data": "2026-05-19",
+          "ora": "09:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "45",
+            "altezza": "167",
+            "peso": "66",
+            "para": "2002",
+            "um": "2026-02-10",
+            "pa": "128/82",
+            "menopausa": "no, cicli irregolari da 8 mesi",
+            "ciclo-ritmo": "Irregolare, saltato 2 cicli",
+            "dispareunia": "Lieve secchezza vaginale",
+            "fumo": "Ex fumatrice, sospeso 5 anni fa",
+            "chirurgia": "Colecistectomia 2018",
+            "patologie": "Ipertensione lieve in trattamento",
+            "motivo": "Vampate di calore, irregolarità mestruale da 8 mesi, insonnia",
+            "esame-generale": "BMI 23.7, PA lievemente elevata",
+            "speculum": "Mucosa vaginale con lieve pallore, compatibile con ipoestrogenismo iniziale",
+            "ecografia": "Utero lievemente ridotto, rima endometriale 3mm. Ovaie con scarsi follicoli antrali, transizione menopausale.",
+            "meno-vampate": "4-5 episodi/die, interferiscono col sonno",
+            "meno-secchezza": "Lieve",
+            "esami-richiesti": "FSH, LH, estradiolo, TSH, profilo lipidico e glicemico",
+            "terapia": "Isoflavoni di soia come supporto sintomatico",
+            "prossimi": "tra 6-8 settimane con esiti ormonali"
+          }
+        },
+        {
+          "id": 1700000000022,
+          "data": "2026-07-14",
+          "ora": "10:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "45",
+            "motivo": "Controllo con esiti ormonali per valutazione TOS",
+            "conclusioni": "FSH 38 UI/L, estradiolo 22 pg/ml: quadro confermato di perimenopausa avanzata. TSH nella norma. Profilo lipidico lievemente alterato (LDL 145).",
+            "meno-vampate": "Invariate, 4-5 episodi/die",
+            "esami-richiesti": "Nessuno aggiuntivo per ora",
+            "terapia": "Avvio TOS transdermica a basso dosaggio (estradiolo gel 0.75mg/die) con monitoraggio pressorio, data la familiarità e il quadro lipidico",
+            "prossimi": "tra 3 mesi per valutazione tollerabilità"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000026,
+      "nome": "Valentina",
+      "cognome": "Esposito",
+      "nascita": "1994-06-27",
+      "tel": "+378 549 877890",
+      "email": "valentina.esposito94@gmail.com",
+      "cf": "SPSVNT94H67H501S",
+      "note": "Dolore pelvico cronico da 2 anni.",
+      "visite": [
+        {
+          "id": 1700000000024,
+          "data": "2026-05-25",
+          "ora": "15:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "32",
+            "altezza": "162",
+            "peso": "55",
+            "para": "0000",
+            "um": "2026-05-16",
+            "pa": "105/65",
+            "dispareunia": "Presente, profonda, premestruale",
+            "dismenorrea": "Severa, invalidante, non responsiva a FANS",
+            "familiarita": "Madre con endometriosi diagnosticata",
+            "sint-dolore": "Dolore pelvico cronico, ciclico e non, dolore alla defecazione in fase mestruale",
+            "sint-dispareunia": "Presente, profonda",
+            "motivo": "Dolore pelvico cronico da 2 anni, dismenorrea severa, dispareunia profonda. RMN esterna portata in visione.",
+            "esame-generale": "BMI 21.0",
+            "bimanuale": "Utero retroverso fisso, dolorabilità ai legamenti utero-sacrali, nodulazioni al fornice posteriore. Annesso sinistro poco mobile, dolente.",
+            "ecografia": "In sede ovarica sinistra formazione cistica 34mm \"a vetro smerigliato\", compatibile con endometrioma. Segni indiretti di aderenze pelviche.",
+            "conclusioni": "Quadro fortemente suggestivo di endometriosi pelvica profonda con endometrioma ovarico sinistro",
+            "esami-richiesti": "CA-125, consulenza centro endometriosi",
+            "terapia": "Avvio dienogest 2mg/die continuativo per soppressione ormonale e controllo del dolore",
+            "prossimi": "tra 2 mesi per valutare risposta alla terapia"
+          }
+        },
+        {
+          "id": 1700000000025,
+          "data": "2026-07-27",
+          "ora": "15:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "32",
+            "motivo": "Controllo a 2 mesi di terapia con dienogest",
+            "sint-dolore": "Netto miglioramento della dismenorrea, dolore pelvico cronico ridotto di circa il 60%",
+            "sint-dispareunia": "Ancora presente ma meno intensa",
+            "conclusioni": "Buona risposta clinica alla terapia medica. CA-125 lievemente elevato (52 U/ml), coerente con endometrioma noto.",
+            "ecografia": "Endometrioma ovarico sinistro stabile in dimensioni (32mm), non incremento rispetto al controllo precedente",
+            "terapia": "Prosecuzione dienogest 2mg/die, buona tollerabilità riferita (lieve spotting iniziale, ora risolto)",
+            "prossimi": "tra 4 mesi, controllo ecografico dell'endometrioma. Consulenza chirurgica rimandata, terapia medica efficace."
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000029,
+      "nome": "Alessia",
+      "cognome": "Marino",
+      "nascita": "2001-01-05",
+      "tel": "+378 549 878901",
+      "email": "alessia.marino01@gmail.com",
+      "cf": "MRNLSS01A45H501T",
+      "note": "Inviata dal centro screening per Pap test ASC-US e HPV hr positivo.",
+      "visite": [
+        {
+          "id": 1700000000027,
+          "data": "2026-05-28",
+          "ora": "10:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "25",
+            "altezza": "158",
+            "peso": "54",
+            "um": "2026-05-20",
+            "pa": "110/70",
+            "fumo": "Sì, circa 10 sigarette/die",
+            "terapie-atto": "Contraccettivo orale combinato da 3 anni",
+            "motivo": "Colposcopia di approfondimento per Pap test ASC-US con HPV hr positivo genotipo 16",
+            "pap-data": "2026-04-25",
+            "pap-esito": "ASC-US",
+            "hpv-data": "2026-04-25",
+            "hpv-esito": "Positivo, alto rischio",
+            "hpv-genotipo": "HPV 16",
+            "speculum": "Portio regolare in visione diretta, non lesioni macroscopicamente evidenti",
+            "colpo-visione": "GSC completamente visibile (tipo 1)",
+            "colpo-aree": "Area aceto-bianca sottile, margini regolari, ore 11-1, <1/4 della portio",
+            "colpo-test": "Test di Schiller positivo (iodo-negativo) nell'area descritta",
+            "bio-sede": "Biopsia mirata a ore 12",
+            "bio-esito": "In attesa di referto istologico",
+            "conclusioni": "Colposcopia soddisfacente, biopsia mirata eseguita",
+            "terapia": "Consigliata sospensione del fumo",
+            "prossimi": "tra 3-4 settimane con referto istologico"
+          }
+        },
+        {
+          "id": 1700000000028,
+          "data": "2026-06-25",
+          "ora": "11:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "25",
+            "motivo": "Consegna referto istologico biopsia cervicale",
+            "bio-esito": "CIN1 (displasia lieve), margini liberi",
+            "colpo-followup": "Follow-up conservativo: nuovo Pap test + HPV test a 6 mesi, secondo linee guida per CIN1",
+            "conclusioni": "CIN1 confermato istologicamente. Alto tasso di regressione spontanea atteso, specie con cessazione del fumo.",
+            "terapia": "Nessun trattamento escissionale indicato al momento. Rinforzato consiglio di sospendere il fumo.",
+            "prossimi": "tra 6 mesi, Pap test + HPV test di controllo"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000035,
+      "nome": "Federica",
+      "cognome": "Greco",
+      "nascita": "1989-08-30",
+      "tel": "+378 549 879012",
+      "email": "federica.greco89@gmail.com",
+      "cf": "GRCFRC89M70H501U",
+      "note": "Gravidanza gemellare dopo PMA. Seguita anche da centro di II livello.",
+      "visite": [
+        {
+          "id": 1700000000030,
+          "data": "2026-05-26",
+          "ora": "14:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000030,
+          "obData": {
+            "eta": "37",
+            "para": "0000",
+            "gruppo": "B positivo",
+            "tipo-grav": "PMA - stimolazione ovarica",
+            "um": "2026-03-02",
+            "epp": "2026-12-07",
+            "altezza": "172",
+            "peso-pregrav": "65",
+            "terapie-atto": "Progesterone micronizzato vaginale 200mg/die",
+            "settimane": "12+2",
+            "pressione": "113/70",
+            "score-tev": "Rischio intermedio (gemellare)",
+            "peso": "67.5",
+            "referto": "Gravidanza gemellare bicoriale biamniotica confermata, screening combinato eseguito in data odierna per entrambi i feti",
+            "vo": "Feto A cefalico, Feto B podalico",
+            "counselling-txt": "Discussi rischi specifici della gravidanza gemellare, calendario controlli ravvicinati concordato",
+            "terapia": "Prosecuzione progesterone vaginale",
+            "diagnosi": "Gravidanza gemellare bicoriale biamniotica 12+2 settimane",
+            "prossimo": "tra 4-5 settimane"
+          }
+        },
+        {
+          "id": 1700000000031,
+          "data": "2026-06-30",
+          "ora": "14:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000030,
+          "obData": {
+            "settimane": "17+3",
+            "pressione": "115/72",
+            "peso": "69.0",
+            "incremento": "+4.0 kg",
+            "esami-visite": "Screening combinato: basso rischio per entrambi i feti",
+            "vo": "Feto A cefalico, Feto B podalico",
+            "diagnosi": "Gravidanza gemellare 17+3 settimane, decorso regolare",
+            "prossimo": "tra 4 settimane, morfologica a 20-21 settimane"
+          }
+        },
+        {
+          "id": 1700000000032,
+          "data": "2026-08-25",
+          "ora": "14:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000030,
+          "obData": {
+            "settimane": "25+3",
+            "pressione": "118/74",
+            "peso": "73.0",
+            "incremento": "+8.0 kg",
+            "score-tev": "Rischio intermedio, confermato",
+            "esami-visite": "Curva OGTT anticipata (gemellare) negativa",
+            "referto": "Cervicometria 34mm, nella norma per epoca e gravidanza gemellare",
+            "terapia": "Prosecuzione progesterone vaginale fino a 34 settimane",
+            "diagnosi": "Gravidanza gemellare 25+3 settimane, decorso regolare",
+            "prossimo": "tra 2-3 settimane"
+          }
+        },
+        {
+          "id": 1700000000033,
+          "data": "2026-08-25",
+          "ora": "14:30",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000030,
+          "ecoData": {
+            "settimane": "25+3",
+            "bpd": "64",
+            "hc": "232",
+            "ac": "206",
+            "fl": "47",
+            "efw": "790",
+            "bcf": "Feto A 150 bpm, Feto B 144 bpm",
+            "liquido": "Normale in entrambe le sacche",
+            "placenta": "Due placente distinte",
+            "tipo-esame": "Ecografia gemellare di controllo",
+            "num-feti": "2 (bicoriale biamniotica)",
+            "doppler-ua-pi": "0.90 (Feto A) / 0.93 (Feto B)",
+            "diagnosi": "Biometria concordante per epoca in entrambi i feti, Doppler nella norma",
+            "prossimo": "Controllo interinale tra 2-3 settimane"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000034,
+          "data": "2026-09-08",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000032,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000038,
+      "nome": "Silvia",
+      "cognome": "Bruno",
+      "nascita": "1973-04-11",
+      "tel": "+378 549 870123",
+      "email": "silvia.bruno73@gmail.com",
+      "cf": "BRNSLV73D51H501V",
+      "note": "Amenorrea da 14 mesi.",
+      "visite": [
+        {
+          "id": 1700000000036,
+          "data": "2026-05-14",
+          "ora": "11:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "52",
+            "altezza": "164",
+            "peso": "68",
+            "para": "2002",
+            "um": "2024-12-06 (poi amenorrea)",
+            "pa": "132/84",
+            "menopausa": "sì, amenorrea da 14 mesi",
+            "dispareunia": "Presente, secchezza vaginale significativa",
+            "patologie": "Ipercolesterolemia lieve, non trattata",
+            "motivo": "Vampate severe, sudorazioni notturne, secchezza vaginale, calo della libido",
+            "esame-generale": "BMI 25.3, PA lievemente elevata",
+            "speculum": "Mucosa vaginale pallida, assottigliata, atrofia vulvo-vaginale",
+            "ecografia": "Utero ridotto di volume (58x32x28mm), rima endometriale 2mm, regolare per stato menopausale",
+            "meno-vampate": "Severe, 8-10 episodi/die",
+            "meno-secchezza": "Marcata, dispareunia secondaria",
+            "meno-moc-data": "2026-01-20",
+            "meno-moc-tscore": "-1.4 (osteopenia lombare lieve)",
+            "esami-richiesti": "Profilo lipidico, glicemia, funzionalità epatica",
+            "meno-tos-tipo": "TOS combinata transdermica (estradiolo gel + progesterone micronizzato orale)",
+            "meno-tos-da": "2026-05-14",
+            "terapia": "Avvio TOS transdermica + gel vaginale acido ialuronico",
+            "prossimi": "tra 3 mesi per tollerabilità"
+          }
+        },
+        {
+          "id": 1700000000037,
+          "data": "2026-08-13",
+          "ora": "11:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "52",
+            "motivo": "Controllo a 3 mesi di TOS",
+            "meno-vampate": "Riduzione marcata, 1-2 episodi/die",
+            "meno-secchezza": "Netto miglioramento con gel vaginale",
+            "esame-generale": "PA 128/80, ben tollerata la terapia, nessun sanguinamento anomalo riferito",
+            "conclusioni": "Ottima risposta clinica alla TOS, buona tollerabilità, nessun effetto avverso",
+            "terapia": "Prosecuzione TOS transdermica allo stesso dosaggio",
+            "prossimi": "Controllo annuale con mammografia e MOC di controllo tra 12 mesi"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000041,
+      "nome": "Laura",
+      "cognome": "Gallo",
+      "nascita": "1992-10-25",
+      "tel": "+378 549 871122",
+      "email": "laura.gallo92@gmail.com",
+      "cf": "GLLLRA92R65H501Y",
+      "note": "Desiderio di prole futuro, non nell'immediato.",
+      "visite": [
+        {
+          "id": 1700000000039,
+          "data": "2026-06-01",
+          "ora": "16:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "33",
+            "altezza": "166",
+            "peso": "78",
+            "para": "0000",
+            "um": "2026-05-02",
+            "pa": "118/76",
+            "ciclo-ritmo": "Oligomenorrea, cicli ogni 45-60 giorni",
+            "patologie": "Insulino-resistenza in valutazione",
+            "familiarita": "Madre con diabete tipo 2, sorella con PCOS",
+            "motivo": "Irregolarità mestruale cronica, acne, lieve irsutismo, difficoltà a perdere peso",
+            "esame-generale": "BMI 28.3, acne al volto e al dorso, lieve irsutismo (Ferriman-Gallwey ~9)",
+            "ecografia": "Ovaio destro 42x24mm con >12 follicoli antrali \"a collana di perle\". Ovaio sinistro analogo aspetto multifollicolare.",
+            "conclusioni": "Quadro compatibile con PCOS secondo criteri di Rotterdam",
+            "esami-richiesti": "Testosterone, SHBG, DHEAS, 17-OH-progesterone, glicemia/insulinemia/HOMA-IR, TSH",
+            "terapia": "Consigliato calo ponderale 5-10%. In attesa di esami per terapia definitiva.",
+            "prossimi": "tra 4 settimane"
+          }
+        },
+        {
+          "id": 1700000000040,
+          "data": "2026-06-29",
+          "ora": "17:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "33",
+            "motivo": "Controllo con esiti ematici per impostare terapia",
+            "conclusioni": "Testosterone libero elevato, HOMA-IR 3.2 (insulino-resistenza confermata), TSH nella norma",
+            "terapia": "Avvio metformina 500mg x2/die con incremento graduale, associata a estroprogestinico con azione antiandrogenica (ciproterone acetato/etinilestradiolo)",
+            "prossimi": "tra 3 mesi per valutazione tollerabilità e risposta metabolica"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000044,
+      "nome": "Roberta",
+      "cognome": "Costa",
+      "nascita": "1985-12-16",
+      "tel": "+378 549 872233",
+      "email": "roberta.costa85@gmail.com",
+      "cf": "CSTRRT85T56H501Z",
+      "note": "Non desidera gravidanze.",
+      "visite": [
+        {
+          "id": 1700000000042,
+          "data": "2026-06-03",
+          "ora": "09:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "40",
+            "altezza": "161",
+            "peso": "60",
+            "para": "1001",
+            "um": "2026-05-21",
+            "pa": "112/72",
+            "chirurgia": "Parto cesareo 2015",
+            "motivo": "IUD al rame in sede da 5 anni (scadenza), richiesta rimozione e reinserimento",
+            "esame-generale": "BMI 23.1",
+            "speculum": "Fili IUD visibili all'OUE. Portio regolare.",
+            "ecografia": "IUD correttamente posizionato in cavità uterina",
+            "conclusioni": "IUD in sede corretta, giunto a scadenza per timing",
+            "terapia": "Eseguita rimozione dello IUD scaduto e contestuale inserimento di nuovo dispositivo, procedura ben tollerata",
+            "prossimi": "Controllo di follow-up a 4-6 settimane"
+          }
+        },
+        {
+          "id": 1700000000043,
+          "data": "2026-07-17",
+          "ora": "09:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "40",
+            "motivo": "Controllo posizionamento nuovo IUD a 6 settimane dall'inserimento",
+            "ecografia": "Nuovo IUD correttamente posizionato in cavità uterina, fili visibili in vagina, nessuna dislocazione",
+            "esame-generale": "Nessun sintomo riferito, ciclo regolare",
+            "conclusioni": "Posizionamento corretto confermato ecograficamente",
+            "terapia": "Nessuna, controllo di routine",
+            "prossimi": "Controllo ecografico annuale, salvo sintomi"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000047,
+      "nome": "Ilaria",
+      "cognome": "De Luca",
+      "nascita": "1997-03-02",
+      "tel": "+378 549 873344",
+      "email": "ilaria.deluca97@gmail.com",
+      "cf": "DLCLRI97C42H501W",
+      "note": "Prima visita ginecologica in assoluto.",
+      "visite": [
+        {
+          "id": 1700000000045,
+          "data": "2026-05-21",
+          "ora": "15:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "28",
+            "altezza": "169",
+            "peso": "59",
+            "para": "0000",
+            "um": "2026-05-09",
+            "pa": "108/68",
+            "motivo": "Prima visita ginecologica, nessun sintomo particolare",
+            "esame-generale": "BMI 20.7",
+            "speculum": "Genitali esterni nella norma. Portio regolare.",
+            "prelievi": "Eseguito primo Pap test",
+            "bimanuale": "Utero e annessi nella norma",
+            "ecografia": "Utero e ovaie bilateralmente nella norma",
+            "conclusioni": "Prima visita nella norma. In attesa di referto Pap test.",
+            "terapia": "Fornite informazioni su contraccezione e prevenzione",
+            "prossimi": "A referto Pap test disponibile"
+          }
+        },
+        {
+          "id": 1700000000046,
+          "data": "2026-06-11",
+          "ora": "16:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "28",
+            "motivo": "Controllo per consegna referto Pap test",
+            "conclusioni": "Pap test negativo (NILM). Nessun ulteriore approfondimento necessario.",
+            "terapia": "Nessuna",
+            "prossimi": "Controllo annuale, prima se comparissero sintomi"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000050,
+      "nome": "Michela",
+      "cognome": "Villa",
+      "nascita": "1981-07-09",
+      "tel": "+378 549 874455",
+      "email": "michela.villa81@gmail.com",
+      "cf": "VLLMHL81L49H501X",
+      "note": "Miomectomia laparoscopica eseguita presso altra struttura.",
+      "visite": [
+        {
+          "id": 1700000000048,
+          "data": "2026-06-19",
+          "ora": "10:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "45",
+            "altezza": "165",
+            "peso": "63",
+            "para": "1001",
+            "um": "2026-06-08",
+            "pa": "120/76",
+            "chirurgia": "Miomectomia laparoscopica (3 miomi, il maggiore 6cm) 6 settimane fa",
+            "motivo": "Controllo post-operatorio a 6 settimane da miomectomia laparoscopica",
+            "esame-generale": "Cicatrici laparoscopiche in buon esito, buone condizioni generali",
+            "bimanuale": "Utero di dimensioni regolari, non dolorabilità",
+            "ecografia": "Utero regolare, miometrio in via di rimarginazione, non raccolte",
+            "conclusioni": "Decorso post-operatorio regolare",
+            "terapia": "Ripresa graduale attività fisica consentita",
+            "prossimi": "tra 6 settimane per controllo a 3 mesi con ciclo mestruale ripreso"
+          }
+        },
+        {
+          "id": 1700000000049,
+          "data": "2026-08-14",
+          "ora": "10:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "45",
+            "motivo": "Controllo post-operatorio a 3 mesi da miomectomia",
+            "ciclo-ritmo": "Regolare, tornato normale",
+            "ciclo-quantita": "Normale, nettamente ridotta rispetto a prima dell'intervento",
+            "esame-generale": "BMI 23.1, cicatrici in buon esito",
+            "bimanuale": "Utero regolare, non dolorabilità, non masse residue",
+            "ecografia": "Utero regolare (72x40x35mm), miometrio omogeneo, non formazioni miomatose residue o recidive. Rima endometriale 6mm.",
+            "conclusioni": "Ottimo esito post-miomectomia, nessuna recidiva a 3 mesi. Ciclo normalizzato.",
+            "esami-richiesti": "Emocromo di controllo (atteso nella norma)",
+            "terapia": "Nessuna terapia necessaria",
+            "prossimi": "Controllo ecografico a 1 anno, salvo sintomi"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000056,
+      "nome": "Anna",
+      "cognome": "Fontana",
+      "nascita": "1988-02-14",
+      "tel": "+378 549 875566",
+      "email": "anna.fontana88@gmail.com",
+      "cf": "FNTNNA88B54H501Y",
+      "note": "Diabete gestazionale, in dieta e automonitoraggio.",
+      "visite": [
+        {
+          "id": 1700000000051,
+          "data": "2026-06-05",
+          "ora": "13:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000051,
+          "obData": {
+            "eta": "38",
+            "para": "0000",
+            "gruppo": "A negativo",
+            "um": "2026-03-15",
+            "epp": "2026-12-20",
+            "altezza": "160",
+            "peso-pregrav": "70",
+            "bmi": "27.3 (sovrappeso)",
+            "familiarita": "Diabete tipo 2 in entrambi i genitori",
+            "settimane": "12+2",
+            "pressione": "120/78",
+            "peso": "71.5",
+            "esami-visite": "Programmata curva OGTT a 24-26 settimane data familiarità e sovrappeso pregravidico",
+            "terapia": "Multivitaminico in gravidanza",
+            "diagnosi": "Gravidanza singola 12+2 settimane",
+            "prossimo": "tra 6 settimane"
+          }
+        },
+        {
+          "id": 1700000000052,
+          "data": "2026-07-17",
+          "ora": "13:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000051,
+          "obData": {
+            "settimane": "18+2",
+            "pressione": "122/79",
+            "peso": "74.0",
+            "incremento": "+4.0 kg",
+            "referto": "OGTT anticipata: glicemia a digiuno 96, a 1h 195, a 2h 168 mg/dl — 2 valori alterati, diagnosi di diabete gestazionale",
+            "counselling-txt": "Educazione alimentare avviata, automonitoraggio glicemico prescritto",
+            "terapia": "Dieta per diabete gestazionale, automonitoraggio glicemico 4 volte/die",
+            "diagnosi": "Gravidanza 18+2 settimane, diabete gestazionale di nuova diagnosi",
+            "prossimo": "tra 2 settimane, controllo glicemico"
+          }
+        },
+        {
+          "id": 1700000000053,
+          "data": "2026-08-28",
+          "ora": "13:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000051,
+          "obData": {
+            "settimane": "23+6",
+            "pressione": "124/80",
+            "peso": "78.0",
+            "incremento": "+8.0 kg",
+            "esami-visite": "Diario glicemico: digiuno 88-92 mg/dl, post-prandiali 110-130 mg/dl, buon controllo con la sola dieta",
+            "counselling-txt": "Rinforzata educazione alimentare, consulenza diabetologica programmata",
+            "terapia": "Prosecuzione dieta e automonitoraggio, nessuna terapia insulinica necessaria per ora",
+            "diagnosi": "Gravidanza 23+6 settimane, diabete gestazionale in buon compenso dietetico",
+            "prossimo": "tra 2 settimane"
+          }
+        },
+        {
+          "id": 1700000000054,
+          "data": "2026-08-28",
+          "ora": "14:00",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000051,
+          "ecoData": {
+            "settimane": "23+6",
+            "bpd": "59",
+            "hc": "218",
+            "ac": "192",
+            "fl": "43",
+            "efw": "620",
+            "bcf": "148 bpm, ritmico",
+            "liquido": "Normale",
+            "placenta": "Corpo posteriore, grado 0",
+            "tipo-esame": "Ecografia di controllo crescita (diabete gestazionale)",
+            "num-feti": "1",
+            "doppler-ua-pi": "0.92",
+            "diagnosi": "Biometria in linea con l'epoca, nessun segno precoce di macrosomia. Da monitorare per il diabete gestazionale.",
+            "prossimo": "Nuova ecografia a 28-30 settimane"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000055,
+          "data": "2026-09-11",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000053,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000062,
+      "nome": "Beatrice",
+      "cognome": "Marchetti",
+      "nascita": "1992-04-17",
+      "tel": "+378 549 880011",
+      "email": "beatrice.marchetti92@gmail.com",
+      "cf": "MRCBRC92D57H501A",
+      "note": "Anamnesi positiva per parto pretermine a 32 settimane. Gravidanza ad alto rischio, seguita in stretta collaborazione con centro di II livello.",
+      "visite": [
+        {
+          "id": 1700000000057,
+          "data": "2026-06-08",
+          "ora": "08:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000057,
+          "obData": {
+            "eta": "34",
+            "para": "0100",
+            "gruppo": "0 negativo",
+            "tipo-grav": "Spontanea",
+            "um": "2026-01-20",
+            "epp": "2026-10-27",
+            "altezza": "159",
+            "peso-pregrav": "56",
+            "patologie": "Pregresso parto pretermine a 32 settimane (parto precedente)",
+            "settimane": "19+4",
+            "pressione": "110/68",
+            "peso": "58.0",
+            "referto": "Cervicometria 18mm (accorciamento significativo), riferito dolore pelvico gravativo",
+            "terapia": "Ricovero per monitoraggio, avviata progesterone vaginale 200mg/die",
+            "diagnosi": "Minaccia di parto pretermine, cervice corta a 19+4 settimane in paziente con anamnesi positiva",
+            "prossimo": "Valutazione cerchiaggio cervicale d'urgenza"
+          }
+        },
+        {
+          "id": 1700000000058,
+          "data": "2026-06-09",
+          "ora": "09:00",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000057,
+          "ecoData": {
+            "settimane": "19+5",
+            "bpd": "44",
+            "hc": "168",
+            "ac": "140",
+            "fl": "28",
+            "efw": "280",
+            "bcf": "150 bpm, ritmico",
+            "liquido": "Normale",
+            "placenta": "Corpo anteriore, non previa",
+            "tipo-esame": "Ecografia + cervicometria pre-cerchiaggio",
+            "num-feti": "1",
+            "diagnosi": "Cervice 16mm con funneling a imbuto, feto morfologicamente regolare per epoca",
+            "prossimo": "Cerchiaggio cervicale d'urgenza (secondo McDonald)"
+          }
+        },
+        {
+          "id": 1700000000059,
+          "data": "2026-07-06",
+          "ora": "09:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000057,
+          "obData": {
+            "settimane": "23+4",
+            "pressione": "112/70",
+            "peso": "59.5",
+            "referto": "Cerchiaggio secondo McDonald eseguito 4 settimane fa, decorso post-procedurale regolare. Riposo relativo prescritto.",
+            "terapia": "Prosecuzione progesterone vaginale, riposo relativo",
+            "diagnosi": "Gravidanza 23+4 settimane, post-cerchiaggio, stabile",
+            "prossimo": "tra 3 settimane con controllo cervicometrico"
+          }
+        },
+        {
+          "id": 1700000000060,
+          "data": "2026-08-03",
+          "ora": "09:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000057,
+          "obData": {
+            "settimane": "27+5",
+            "pressione": "115/72",
+            "peso": "61.0",
+            "referto": "Cervicometria stabile a 25mm, cerchiaggio in sede, nessun segno di minaccia in atto",
+            "terapia": "Prosecuzione progesterone fino a 36 settimane, quando è prevista la rimozione del cerchiaggio",
+            "diagnosi": "Gravidanza 27+5 settimane, stabile dopo cerchiaggio",
+            "prossimo": "tra 3 settimane"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000061,
+          "data": "2026-08-24",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000060,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000066,
+      "nome": "Noemi",
+      "cognome": "Barbieri",
+      "nascita": "1987-09-02",
+      "tel": "+378 549 880122",
+      "email": "noemi.barbieri87@gmail.com",
+      "cf": "BRBNMO87P42H501B",
+      "note": "Gravidanza ottenuta con FIVET dopo 3 anni di infertilità. Seguita anche dal centro PMA di riferimento.",
+      "visite": [
+        {
+          "id": 1700000000063,
+          "data": "2026-05-27",
+          "ora": "10:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000063,
+          "obData": {
+            "eta": "39",
+            "para": "0000",
+            "gruppo": "AB positivo",
+            "tipo-grav": "FIVET - transfer di 2 embrioni",
+            "um": "2026-04-10 (data transfer nota, EPP calcolata su transfer)",
+            "epp": "2027-01-15",
+            "altezza": "165",
+            "peso-pregrav": "58",
+            "terapie-atto": "Progesterone micronizzato vaginale 400mg/die, supporto luteale post-transfer",
+            "settimane": "6+0",
+            "pressione": "108/68",
+            "peso": "58.5",
+            "referto": "Gravidanza da FIVET con transfer di 2 embrioni, beta-hCG in crescita adeguata",
+            "terapia": "Prosecuzione supporto luteale",
+            "diagnosi": "Gravidanza post-PMA, 6 settimane, da confermare numero di camere gestazionali",
+            "prossimo": "tra 1 settimana per prima ecografia"
+          }
+        },
+        {
+          "id": 1700000000064,
+          "data": "2026-06-03",
+          "ora": "10:00",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000063,
+          "ecoData": {
+            "settimane": "7+0",
+            "crl": "8 (camera A) / 6 (camera B, senza attività cardiaca)",
+            "bcf": "Camera A: 140 bpm. Camera B: attività cardiaca assente.",
+            "tipo-esame": "Ecografia I trimestre",
+            "vitalita": "Presente in camera A, assente in camera B",
+            "num-feti": "2 camere gestazionali, 1 vitale",
+            "diagnosi": "Gravidanza gemellare bicoriale iniziale con arresto precoce di uno dei due embrioni (verosimile \"vanishing twin\"). Prosecuzione fisiologica della camera A, vitale.",
+            "terapia": "Nessuna variazione, monitoraggio ravvicinato",
+            "prossimo": "Controllo ecografico tra 2 settimane per confermare evoluzione"
+          }
+        },
+        {
+          "id": 1700000000065,
+          "data": "2026-06-24",
+          "ora": "10:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000063,
+          "obData": {
+            "settimane": "10+1",
+            "pressione": "110/70",
+            "peso": "59.0",
+            "referto": "Confermata evoluzione regolare della camera vitale, riassorbimento completo della seconda camera senza sintomi",
+            "counselling-txt": "Rassicurata la paziente sul fenomeno del \"vanishing twin\", frequente nelle gravidanze da PMA con transfer multiplo, senza impatto sul feto sopravvissuto",
+            "terapia": "Prosecuzione supporto luteale fino a 12 settimane",
+            "diagnosi": "Gravidanza singola vitale 10+1 settimane, dopo vanishing twin",
+            "prossimo": "tra 3 settimane per screening combinato"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000069,
+      "nome": "Camilla",
+      "cognome": "Moretti",
+      "nascita": "1996-11-30",
+      "tel": "+378 549 880233",
+      "email": "camilla.moretti96@gmail.com",
+      "cf": "MRTCLL96S70H501C",
+      "note": "Percorso diagnostico già iniziato con altro specialista, dolore cronico con forte impatto sulla qualità di vita.",
+      "visite": [
+        {
+          "id": 1700000000067,
+          "data": "2026-06-16",
+          "ora": "14:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "29",
+            "altezza": "163",
+            "peso": "56",
+            "para": "0000",
+            "um": "2026-06-04",
+            "pa": "112/70",
+            "dispareunia": "Severa, tipo bruciore, presente da oltre 1 anno, anche al contatto con indumenti stretti",
+            "sint-prurito": "Assente",
+            "sint-dispareunia": "Severa",
+            "motivo": "Dolore vulvare cronico tipo bruciore, dispareunia severa da oltre 1 anno, già esclusa causa infettiva da altro specialista",
+            "esame-generale": "BMI 21.1, nessun disagio psicologico evidente ma paziente riferisce forte impatto sulla vita di coppia",
+            "speculum": "Mucosa vaginale normotrofica, non segni di infezione in atto",
+            "bimanuale": "Q-tip test positivo con dolore evocato a livello del vestibolo vulvare in sede 4-8 ore, in assenza di lesioni visibili. Muscolatura del pavimento pelvico ipertonica alla palpazione.",
+            "conclusioni": "Quadro clinico compatibile con vestibolodinia provocata localizzata, associata a ipertono del pavimento pelvico",
+            "esami-richiesti": "Tampone vaginale per esclusione infettiva (già negativo secondo referto esterno portato in visione)",
+            "terapia": "Avvio terapia topica con lidocaina gel 5% prima dei rapporti, indicazione a percorso di riabilitazione del pavimento pelvico con fisioterapista specializzata",
+            "prossimi": "tra 8 settimane per valutare risposta a terapia topica e riabilitazione"
+          }
+        },
+        {
+          "id": 1700000000068,
+          "data": "2026-08-14",
+          "ora": "15:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "29",
+            "motivo": "Controllo a 8 settimane dall'avvio di terapia topica e riabilitazione del pavimento pelvico",
+            "sint-dispareunia": "Miglioramento parziale, dolore ridotto di circa il 40% secondo la paziente",
+            "bimanuale": "Q-tip test ancora lievemente positivo ma con dolore evocato minore rispetto al controllo precedente. Ipertono del pavimento pelvico in miglioramento secondo referto della fisioterapista.",
+            "conclusioni": "Risposta parziale ma incoraggiante alla terapia multimodale, percorso da proseguire",
+            "terapia": "Prosecuzione lidocaina gel topica e riabilitazione del pavimento pelvico, valutare in futuro aggiunta di amitriptilina a basso dosaggio se il miglioramento dovesse arrestarsi",
+            "prossimi": "tra 3 mesi per nuova valutazione della risposta terapeutica"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000074,
+      "nome": "Giorgia",
+      "cognome": "Longo",
+      "nascita": "1995-01-18",
+      "tel": "+378 549 880344",
+      "email": "giorgia.longo95@gmail.com",
+      "cf": "LNGGRG95A58H501D",
+      "note": "Prima gravidanza. Seguita con particolare attenzione al supporto emotivo durante il percorso.",
+      "visite": [
+        {
+          "id": 1700000000070,
+          "data": "2026-06-20",
+          "ora": "09:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000070,
+          "obData": {
+            "eta": "31",
+            "para": "0000",
+            "gruppo": "A positivo",
+            "tipo-grav": "Spontanea",
+            "um": "2026-05-01",
+            "epp": "2027-02-05",
+            "altezza": "167",
+            "peso-pregrav": "60",
+            "settimane": "7+2",
+            "pressione": "115/72",
+            "peso": "60.5",
+            "referto": "Prima visita ostetrica di controllo, lieve spotting riferito nelle ultime 48 ore",
+            "diagnosi": "Gravidanza 7+2 settimane, da confermare vitalità per spotting riferito",
+            "prossimo": "Ecografia di controllo in giornata"
+          }
+        },
+        {
+          "id": 1700000000071,
+          "data": "2026-06-20",
+          "ora": "09:30",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000070,
+          "ecoData": {
+            "settimane": "7+2 (attesa)",
+            "crl": "9 (compatibile con circa 6+3 settimane, non 7+2 attese)",
+            "bcf": "Attività cardiaca assente",
+            "tipo-esame": "Ecografia transvaginale per spotting",
+            "vitalita": "Assente",
+            "num-feti": "1 camera gestazionale, embrione non vitale",
+            "diagnosi": "Gravidanza arrestata (missed abortion), CRL non compatibile con attività cardiaca attesa per epoca dichiarata. Da confermare con secondo controllo a distanza secondo linee guida.",
+            "terapia": "Colloquio di comunicazione della diagnosi, spiegate le opzioni di gestione (attesa, medica, chirurgica)",
+            "prossimo": "Controllo di conferma a 7-10 giorni prima di procedere, salvo variazione del quadro clinico"
+          }
+        },
+        {
+          "id": 1700000000072,
+          "data": "2026-07-02",
+          "ora": "09:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "31",
+            "motivo": "Controllo di conferma diagnosi e gestione della gravidanza arrestata",
+            "ecografia": "Confermata assenza di attività cardiaca, camera gestazionale invariata. Diagnosi di missed abortion confermata.",
+            "conclusioni": "Gravidanza arrestata confermata. Paziente orientata verso gestione medica (misoprostolo) dopo colloquio informato.",
+            "terapia": "Misoprostolo secondo protocollo, controllo ecografico di verifica programmato",
+            "prossimi": "tra 2 settimane per verifica ecografica dello svuotamento uterino"
+          }
+        },
+        {
+          "id": 1700000000073,
+          "data": "2026-07-16",
+          "ora": "10:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "31",
+            "motivo": "Controllo post-gestione medica della gravidanza arrestata",
+            "ecografia": "Cavità uterina regolare, rima endometriale sottile, non residui evidenziabili",
+            "esame-generale": "Buone condizioni generali, sanguinamento in progressiva riduzione, dolore ben controllato con la terapia analgesica",
+            "conclusioni": "Svuotamento uterino completo, decorso regolare",
+            "terapia": "Nessuna terapia aggiuntiva necessaria. Fornito supporto informativo su successivo tentativo di concepimento.",
+            "prossimi": "Controllo libero, disponibile per supporto quando la coppia deciderà di ritentare"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000077,
+      "nome": "Arianna",
+      "cognome": "Rinaldi",
+      "nascita": "1993-02-09",
+      "tel": "+378 549 880455",
+      "email": "arianna.rinaldi93@gmail.com",
+      "cf": "RNLRNN93B49H501E",
+      "note": "Allattamento esclusivo al seno, parto recente.",
+      "visite": [
+        {
+          "id": 1700000000075,
+          "data": "2026-07-01",
+          "ora": "16:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "33",
+            "altezza": "164",
+            "peso": "64",
+            "para": "1001",
+            "um": "Amenorrea da allattamento, parto 3 mesi fa",
+            "pa": "116/74",
+            "chirurgia": "Parto vaginale eutocico 3 mesi fa",
+            "terapie-atto": "Allattamento esclusivo al seno",
+            "motivo": "Richiesta contraccezione post-partum compatibile con allattamento, a 3 mesi dal parto",
+            "esame-generale": "BMI 23.8, buon recupero post-partum",
+            "speculum": "Portio regolare, esito del parto nella norma",
+            "bimanuale": "Utero involuto regolarmente, non dolorabilità",
+            "conclusioni": "Nessuna controindicazione a IUD ormonale, opzione ideale compatibile con allattamento",
+            "terapia": "Inserimento IUD a rilascio di levonorgestrel (52mg), procedura ben tollerata",
+            "prossimi": "Controllo di posizionamento a 6 settimane"
+          }
+        },
+        {
+          "id": 1700000000076,
+          "data": "2026-08-12",
+          "ora": "15:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "33",
+            "motivo": "Controllo posizionamento IUD ormonale a 6 settimane",
+            "ecografia": "IUD correttamente posizionato in cavità uterina",
+            "esame-generale": "Amenorrea da IUD, effetto atteso e riferito come gradito dalla paziente",
+            "conclusioni": "Posizionamento corretto confermato",
+            "terapia": "Nessuna",
+            "prossimi": "Controllo di routine tra 1 anno"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000080,
+      "nome": "Debora",
+      "cognome": "Santoro",
+      "nascita": "1968-08-22",
+      "tel": "+378 549 880566",
+      "email": "debora.santoro68@gmail.com",
+      "cf": "SNTDBR68M62H501F",
+      "note": "Familiarità per frattura osteoporotica.",
+      "visite": [
+        {
+          "id": 1700000000078,
+          "data": "2026-05-15",
+          "ora": "09:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "58",
+            "altezza": "158",
+            "peso": "61",
+            "para": "2002",
+            "menopausa": "sì, da 9 anni",
+            "pa": "134/86",
+            "patologie": "Osteoporosi diagnosticata da MOC recente, ipertensione lieve in trattamento con ACE-inibitore",
+            "familiarita": "Madre con frattura di femore a 70 anni",
+            "motivo": "Controllo ginecologico di routine e valutazione impostazione terapia per osteoporosi post-menopausale",
+            "esame-generale": "BMI 24.4, statura invariata rispetto a controlli precedenti (no perdita di altezza sospetta per fratture vertebrali)",
+            "speculum": "Mucosa vaginale con atrofia lieve",
+            "bimanuale": "Utero e annessi ridotti, nella norma per età",
+            "ecografia": "Utero atrofico, rima endometriale sottile e regolare. Ovaie non visualizzabili, atteso in menopausa avanzata.",
+            "meno-moc-data": "2026-04-28",
+            "meno-moc-tscore": "-2.8 lombare, -2.5 femorale (osteoporosi)",
+            "esami-richiesti": "Calcemia, vitamina D, funzionalità renale prima di avviare bifosfonato",
+            "conclusioni": "Osteoporosi post-menopausale conclamata, indicazione a terapia specifica",
+            "terapia": "In attesa di esami ematici per avvio di acido alendronico settimanale + supplementazione calcio/vitamina D",
+            "prossimi": "tra 3 settimane con esiti ematici"
+          }
+        },
+        {
+          "id": 1700000000079,
+          "data": "2026-06-05",
+          "ora": "09:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "58",
+            "motivo": "Controllo con esiti ematici per avvio terapia osteoporosi",
+            "conclusioni": "Vitamina D insufficiente (18 ng/ml), calcemia e funzionalità renale nella norma",
+            "terapia": "Avvio supplementazione vitamina D ad alto dosaggio per 8 settimane, poi acido alendronico 70mg/settimana + calcio 1000mg/die",
+            "prossimi": "tra 8 settimane per avvio effettivo del bifosfonato dopo correzione della vitamina D"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000085,
+      "nome": "Veronica",
+      "cognome": "Pellegrini",
+      "nascita": "1996-03-25",
+      "tel": "+378 549 880677",
+      "email": "veronica.pellegrini96@gmail.com",
+      "cf": "PLLVRC96C65H501G",
+      "note": "Prima gravidanza, decorso fisiologico fino al termine.",
+      "visite": [
+        {
+          "id": 1700000000081,
+          "data": "2026-08-20",
+          "ora": "08:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000081,
+          "obData": {
+            "eta": "30",
+            "para": "0000",
+            "gruppo": "0 positivo",
+            "tipo-grav": "Spontanea",
+            "um": "2025-11-14",
+            "epp": "2026-08-21",
+            "altezza": "166",
+            "peso-pregrav": "61",
+            "settimane": "40+0",
+            "pressione": "118/76",
+            "peso": "70.0",
+            "vo": "Presentazione cefalica, impegnata",
+            "referto": "Gravidanza a termine, nessun segno di travaglio in atto",
+            "terapia": "Nessuna variazione, monitoraggio del benessere fetale",
+            "diagnosi": "Gravidanza singola a termine (40+0), in attesa di travaglio spontaneo",
+            "prossimo": "tra 3 giorni per monitoraggio, se non insorge travaglio spontaneo"
+          }
+        },
+        {
+          "id": 1700000000082,
+          "data": "2026-08-27",
+          "ora": "08:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000081,
+          "obData": {
+            "settimane": "41+0",
+            "pressione": "120/78",
+            "peso": "70.5",
+            "referto": "Cardiotocografia eseguita in giornata: tracciato reattivo, rassicurante. Liquido amniotico valutato ecograficamente nella norma (AFI 9cm).",
+            "terapia": "Programmata induzione del travaglio a 41+3 secondo protocollo per gravidanza post-termine, salvo travaglio spontaneo prima",
+            "diagnosi": "Gravidanza post-termine (41+0 settimane), benessere materno-fetale rassicurante",
+            "prossimo": "tra 3 giorni, controllo pre-induzione o insorgenza travaglio spontaneo"
+          }
+        },
+        {
+          "id": 1700000000083,
+          "data": "2026-08-27",
+          "ora": "09:00",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000081,
+          "ecoData": {
+            "settimane": "41+0",
+            "bpd": "96",
+            "hc": "345",
+            "ac": "365",
+            "fl": "75",
+            "efw": "3650",
+            "bcf": "142 bpm, ritmico, reattivo",
+            "liquido": "Normale (AFI 9.0 cm)",
+            "placenta": "Fundica, grado III (maturazione avanzata, attesa a termine)",
+            "tipo-esame": "Ecografia di controllo gravidanza post-termine",
+            "vitalita": "Presente, movimenti attivi",
+            "num-feti": "1",
+            "doppler-ua-pi": "0.78",
+            "doppler-ua-flusso": "Normale",
+            "diagnosi": "Feto eutrofico per epoca, liquido e Doppler nella norma, nessun segno di insufficienza placentare",
+            "prossimo": "Induzione programmata a 41+3 se non insorge travaglio spontaneo"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000084,
+          "data": "2026-08-30",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000082,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000088,
+      "nome": "Simona",
+      "cognome": "De Angelis",
+      "nascita": "1990-01-11",
+      "tel": "+378 549 880788",
+      "email": "simona.deangelis90@gmail.com",
+      "cf": "DNGSMN90A61H501H",
+      "note": "Ricerca di prole da 14 mesi. Partner già inviato per spermiogramma.",
+      "visite": [
+        {
+          "id": 1700000000086,
+          "data": "2026-06-10",
+          "ora": "11:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "36",
+            "altezza": "170",
+            "peso": "64",
+            "para": "0000",
+            "um": "2026-05-30",
+            "pa": "115/72",
+            "ciclo-ritmo": "Regolare",
+            "patologie": "Nessuna nota",
+            "motivo": "Ricerca di prole da 14 mesi senza concepimento (infertilità primaria), richiesta inquadramento diagnostico di coppia",
+            "esame-generale": "BMI 22.1",
+            "bimanuale": "Utero e annessi nella norma, non dolorabilità",
+            "ecografia": "Utero regolare. Conta follicoli antrali: 5 a destra, 4 a sinistra (ridotta per l'età).",
+            "conclusioni": "Da approfondire riserva ovarica e pervietà tubarica, oltre a valutazione andrologica del partner",
+            "esami-richiesti": "AMH, FSH/LH/estradiolo in III giornata del ciclo, isterosalpingografia o sonoisterosalpingografia, spermiogramma del partner",
+            "terapia": "Nessuna al momento, in attesa di completamento diagnostico",
+            "prossimi": "tra 4 settimane con esiti degli esami"
+          }
+        },
+        {
+          "id": 1700000000087,
+          "data": "2026-07-08",
+          "ora": "11:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "36",
+            "motivo": "Controllo con esiti diagnostici della coppia",
+            "conclusioni": "AMH 0.9 ng/ml (ridotta riserva ovarica per l'età), sonoisterosalpingografia con tube pervie bilateralmente, spermiogramma del partner nella norma",
+            "esami-richiesti": "Nessuno aggiuntivo, quadro diagnostico completo",
+            "terapia": "Data la riduzione della riserva ovarica, indicazione a non procrastinare: proposta consulenza presso centro di procreazione medicalmente assistita per valutare stimolazione ovarica o PMA di I livello",
+            "prossimi": "Consulenza presso centro PMA, controllo di follow-up dopo la consulenza"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000091,
+      "nome": "Alessandra",
+      "cognome": "Fabbri",
+      "nascita": "2000-07-19",
+      "tel": "+378 549 880899",
+      "email": "alessandra.fabbri00@gmail.com",
+      "cf": "FBBLSN00L59H501I",
+      "note": "Episodio di dolore pelvico acuto, gestito ambulatorialmente.",
+      "visite": [
+        {
+          "id": 1700000000089,
+          "data": "2026-06-22",
+          "ora": "10:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "26",
+            "altezza": "167",
+            "peso": "58",
+            "para": "0000",
+            "um": "2026-06-15",
+            "pa": "110/68",
+            "sint-dolore": "Dolore pelvico destro acuto insorto 3 giorni fa, di intensità moderata",
+            "motivo": "Dolore pelvico destro acuto da 3 giorni, sospetta cisti ovarica",
+            "esame-generale": "BMI 20.8, addome trattabile, dolorabilità in fossa iliaca destra senza segni di reazione peritoneale",
+            "bimanuale": "Dolorabilità annessiale destra, formazione palpabile di consistenza cistica",
+            "ecografia": "Ovaio destro con formazione cistica 52mm a contenuto anecogeno omogeneo, parete sottile e regolare, non setti né componenti solide, non segnale vascolare al color-Doppler. Compatibile con cisti funzionale (follicolare).",
+            "conclusioni": "Cisti ovarica funzionale destra, aspetto tipicamente benigno",
+            "esami-richiesti": "Nessuno, non indicato CA-125 per aspetto ecografico tipico in paziente giovane",
+            "terapia": "Atteggiamento attendista, analgesico al bisogno (ibuprofene)",
+            "prossimi": "Controllo ecografico tra 6-8 settimane per verificare risoluzione spontanea"
+          }
+        },
+        {
+          "id": 1700000000090,
+          "data": "2026-08-17",
+          "ora": "10:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "26",
+            "motivo": "Controllo ecografico di verifica risoluzione cisti ovarica",
+            "sint-dolore": "Risolto completamente da circa un mese",
+            "ecografia": "Ovaio destro regolare, non più visualizzabile la formazione cistica precedentemente descritta. Risoluzione spontanea completa.",
+            "conclusioni": "Cisti ovarica funzionale risolta spontaneamente, come atteso",
+            "terapia": "Nessuna",
+            "prossimi": "Controllo di routine, nessun follow-up specifico necessario"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000094,
+      "nome": "Rita",
+      "cognome": "Serra",
+      "nascita": "1992-12-03",
+      "tel": "+378 549 880900",
+      "email": "rita.serra92@gmail.com",
+      "cf": "SRRRIT92T43H501J",
+      "note": "Terzo episodio di vaginosi batterica in 6 mesi.",
+      "visite": [
+        {
+          "id": 1700000000092,
+          "data": "2026-05-30",
+          "ora": "15:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "34",
+            "altezza": "160",
+            "peso": "62",
+            "para": "1001",
+            "um": "2026-05-18",
+            "pa": "114/70",
+            "sint-perdite": "Perdite maleodoranti, colore grigiastro, terzo episodio negli ultimi 6 mesi",
+            "motivo": "Vaginosi batterica ricorrente, terzo episodio in 6 mesi",
+            "esame-generale": "BMI 24.2",
+            "speculum": "Perdite vaginali grigiastre, omogenee, odore caratteristico positivo al whiff test",
+            "prelievi": "Eseguito tampone vaginale con score di Nugent",
+            "conclusioni": "Quadro clinico compatibile con vaginosi batterica, in attesa di conferma microbiologica",
+            "terapia": "Metronidazolo gel vaginale 0.75% per 5 giorni",
+            "prossimi": "tra 3 settimane con esito tampone e verifica della risoluzione"
+          }
+        },
+        {
+          "id": 1700000000093,
+          "data": "2026-06-20",
+          "ora": "15:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "34",
+            "motivo": "Controllo post-terapia e discussione strategia per recidive",
+            "esame-generale": "Sintomatologia risolta dopo la terapia",
+            "conclusioni": "Score di Nugent confermato patologico al momento della diagnosi, ora clinicamente risolto. Data la ricorrenza (3 episodi in 6 mesi), indicata strategia di mantenimento.",
+            "terapia": "Proposto schema di mantenimento con metronidazolo gel 2 volte/settimana per 3-6 mesi, associato a probiotici vaginali",
+            "prossimi": "tra 3 mesi per verifica dell'efficacia della terapia di mantenimento"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000097,
+      "nome": "Patrizia",
+      "cognome": "Leone",
+      "nascita": "1963-05-08",
+      "tel": "+378 549 881011",
+      "email": "patrizia.leone63@gmail.com",
+      "cf": "LNEPTR63E48H501K",
+      "note": "Percorso avviato con urgenza per sanguinamento post-menopausale. Inviata a centro oncologico di riferimento per il proseguo diagnostico-terapeutico.",
+      "visite": [
+        {
+          "id": 1700000000095,
+          "data": "2026-06-13",
+          "ora": "09:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "63",
+            "altezza": "162",
+            "peso": "70",
+            "para": "2002",
+            "menopausa": "sì, da 14 anni",
+            "pa": "138/86",
+            "patologie": "Ipertensione in trattamento, diabete tipo 2 in trattamento con metformina",
+            "sint-sangu": "Sanguinamento vaginale post-menopausale, episodio singolo 1 settimana fa",
+            "motivo": "Sanguinamento vaginale post-menopausale da valutare con urgenza",
+            "esame-generale": "BMI 26.7, condizioni generali buone",
+            "speculum": "Portio atrofica, non lesioni cervicali visibili, non sanguinamento in atto al momento della visita",
+            "bimanuale": "Utero di dimensioni regolari per età, non dolorabilità, annessi non palpabili",
+            "ecografia": "Rima endometriale ispessita, 9mm, disomogenea, per uno spessore non atteso in paziente in menopausa da 14 anni (soglia di allarme >4-5mm)",
+            "conclusioni": "Ispessimento endometriale sospetto in contesto di sanguinamento post-menopausale: da approfondire istologicamente con urgenza secondo linee guida, per escludere patologia neoplastica endometriale",
+            "esami-richiesti": "Isteroscopia diagnostica con biopsia endometriale mirata, programmata con urgenza",
+            "terapia": "Nessuna terapia in attesa dell'accertamento istologico",
+            "prossimi": "Isteroscopia con biopsia programmata entro 2 settimane, poi controllo con referto"
+          }
+        },
+        {
+          "id": 1700000000096,
+          "data": "2026-07-01",
+          "ora": "10:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "63",
+            "motivo": "Consegna referto isteroscopia con biopsia endometriale",
+            "conclusioni": "Referto istologico: iperplasia endometriale atipica. Indicazione a consulenza oncologica ginecologica per definizione del percorso terapeutico (isterectomia in centro di riferimento oncologico vs sorveglianza intensiva in casi selezionati).",
+            "esami-richiesti": "Consulenza presso centro di riferimento di ginecologia oncologica, già attivata con invio urgente",
+            "terapia": "In attesa di valutazione oncologica specialistica, nessuna terapia autonoma avviata",
+            "prossimi": "Follow-up dopo la consulenza oncologica, la paziente è stata informata con colloquio dedicato e supportata nel percorso"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000103,
+      "nome": "Elisa",
+      "cognome": "Testa",
+      "nascita": "1991-10-14",
+      "tel": "+378 549 881122",
+      "email": "elisa.testa91@gmail.com",
+      "cf": "TSTLSE91R54H501L",
+      "note": "Utero pregresso cesareo. Gravidanza ad alto rischio per placenta previa, monitoraggio ecografico seriale ravvicinato.",
+      "visite": [
+        {
+          "id": 1700000000098,
+          "data": "2026-06-02",
+          "ora": "09:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000098,
+          "obData": {
+            "eta": "35",
+            "para": "0100",
+            "gruppo": "B negativo",
+            "tipo-grav": "Spontanea",
+            "um": "2026-01-10",
+            "epp": "2026-10-17",
+            "altezza": "161",
+            "peso-pregrav": "60",
+            "chirurgia": "Parto cesareo precedente (2021)",
+            "settimane": "20+3",
+            "pressione": "112/70",
+            "peso": "62.0",
+            "referto": "Morfologica eseguita in data odierna, riscontrata placenta previa completa",
+            "terapia": "Consigliato riposo relativo, astensione da rapporti e sforzi fisici intensi",
+            "diagnosi": "Gravidanza 20+3 settimane con placenta previa completa, utero pregresso cesareo (attenzione a placenta accreta)",
+            "prossimo": "tra 4 settimane con controllo ecografico dedicato"
+          }
+        },
+        {
+          "id": 1700000000099,
+          "data": "2026-06-02",
+          "ora": "09:30",
+          "tipo": "eco",
+          "gravidanzaId": 1700000000098,
+          "ecoData": {
+            "settimane": "20+3",
+            "bpd": "47",
+            "hc": "178",
+            "ac": "152",
+            "fl": "32",
+            "efw": "340",
+            "bcf": "146 bpm, ritmico",
+            "liquido": "Normale",
+            "placenta": "Placenta previa completa, ricopre interamente l'OUI",
+            "tipo-esame": "Ecografia morfologica + valutazione placentare",
+            "num-feti": "1",
+            "diagnosi": "Placenta previa completa. Dato l'utero pregresso cesareo, da valutare con Doppler dedicato il rischio di placenta accreta nei controlli successivi.",
+            "prossimo": "Controllo ecografico dedicato tra 4 settimane, eventuale RMN se segni sospetti di accretismo"
+          }
+        },
+        {
+          "id": 1700000000100,
+          "data": "2026-06-30",
+          "ora": "09:30",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000098,
+          "obData": {
+            "settimane": "24+3",
+            "pressione": "114/72",
+            "peso": "63.5",
+            "referto": "Nessun episodio di sanguinamento riferito, riposo relativo mantenuto",
+            "diagnosi": "Gravidanza 24+3 settimane, placenta previa completa persistente",
+            "prossimo": "tra 4 settimane"
+          }
+        },
+        {
+          "id": 1700000000101,
+          "data": "2026-08-04",
+          "ora": "10:00",
+          "tipo": "ob",
+          "gravidanzaId": 1700000000098,
+          "obData": {
+            "settimane": "29+1",
+            "pressione": "116/74",
+            "peso": "65.0",
+            "referto": "Placenta previa completa confermata al controllo ecografico odierno, non segni ecografici di accretismo. Programmato taglio cesareo elettivo a 36-37 settimane.",
+            "counselling-txt": "Discusso piano del parto con taglio cesareo programmato, spiegati i segnali di allarme (sanguinamento) per cui recarsi immediatamente in Pronto Soccorso",
+            "diagnosi": "Gravidanza 29+1 settimane, placenta previa completa persistente, pianificazione parto cesareo",
+            "prossimo": "tra 3 settimane, controlli ravvicinati fino al parto programmato"
+          }
+        }
+      ],
+      "alerts": [
+        {
+          "id": 1700000000102,
+          "data": "2026-08-25",
+          "testo": "Prossimo controllo (Visita Ostetrica)",
+          "visitaId": 1700000000101,
+          "automatico": true
+        }
+      ]
+    },
+    {
+      "id": 1700000000106,
+      "nome": "Cristina",
+      "cognome": "Mazza",
+      "nascita": "1988-06-05",
+      "tel": "+378 549 881233",
+      "email": "cristina.mazza88@gmail.com",
+      "cf": "MZZCST88H45H501M",
+      "note": "Diagnosi di insufficienza ovarica prematura a 38 anni. Percorso di supporto psicologico offerto e accettato.",
+      "visite": [
+        {
+          "id": 1700000000104,
+          "data": "2026-05-16",
+          "ora": "11:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "38",
+            "altezza": "165",
+            "peso": "59",
+            "para": "0000",
+            "um": "2026-02-20 (poi amenorrea)",
+            "pa": "116/72",
+            "menopausa": "sospetta, amenorrea da 12 settimane",
+            "ciclo-ritmo": "Amenorrea da circa 3 mesi, preceduta da cicli irregolari da 8 mesi",
+            "familiarita": "Nessuna nota di menopausa precoce",
+            "motivo": "Amenorrea da 3 mesi in donna di 38 anni, vampate di calore, desiderio di prole non ancora realizzato",
+            "esame-generale": "BMI 21.7",
+            "ecografia": "Utero regolare, ovaie di volume ridotto con scarsissimi follicoli antrali visibili bilateralmente",
+            "meno-vampate": "Presenti, 3-4 episodi/die",
+            "esami-richiesti": "FSH e estradiolo ripetuti a distanza di 4-6 settimane (criterio diagnostico POI), AMH, cariotipo, screening per X fragile e anticorpi anti-surrene",
+            "conclusioni": "Sospetta insufficienza ovarica prematura (POI), da confermare con secondo dosaggio ormonale a distanza",
+            "terapia": "Nessuna in attesa di conferma diagnostica",
+            "prossimi": "tra 5 settimane con esiti completi"
+          }
+        },
+        {
+          "id": 1700000000105,
+          "data": "2026-06-20",
+          "ora": "11:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "38",
+            "motivo": "Controllo con esiti completi per conferma diagnostica",
+            "conclusioni": "FSH confermato elevato in due dosaggi a distanza (42 e 45 UI/L), estradiolo basso, AMH non dosabile. Cariotipo normale (46,XX), screening X fragile negativo. Diagnosi di insufficienza ovarica prematura (POI) confermata.",
+            "esami-richiesti": "MOC basale (rischio di osteoporosi precoce), profilo lipidico",
+            "meno-tos-tipo": "TOS raccomandata fino all'età media della menopausa naturale (circa 51 anni), per protezione ossea e cardiovascolare",
+            "meno-tos-da": "2026-06-20",
+            "terapia": "Avvio TOS transdermica. Discussa con la paziente anche la possibilità di preservazione della fertilità con ovodonazione, vista la diagnosi di POI, con invio a counseling dedicato.",
+            "prossimi": "tra 3 mesi per tollerabilità TOS, counseling sulla fertilità già attivato separatamente"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000109,
+      "nome": "Marta",
+      "cognome": "Colombo",
+      "nascita": "1979-03-27",
+      "tel": "+378 549 881344",
+      "email": "marta.colombo79@gmail.com",
+      "cf": "CLMMRT79C67H501N",
+      "note": "Perimenopausa con menometrorragia, iperplasia endometriale semplice in trattamento.",
+      "visite": [
+        {
+          "id": 1700000000107,
+          "data": "2026-06-26",
+          "ora": "10:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "47",
+            "altezza": "163",
+            "peso": "74",
+            "para": "1001",
+            "um": "2026-06-10",
+            "pa": "124/78",
+            "menopausa": "no",
+            "ciclo-quantita": "Abbondante da circa 6 mesi, con episodi di sanguinamento intermestruale",
+            "patologie": "Sovrappeso, insulino-resistenza lieve",
+            "sint-sangu": "Menometrorragia da 6 mesi",
+            "motivo": "Sanguinamento uterino anomalo (menometrorragia) da 6 mesi in perimenopausa",
+            "esame-generale": "BMI 27.8",
+            "bimanuale": "Utero lievemente aumentato di volume, non dolorabilità",
+            "ecografia": "Rima endometriale ispessita e disomogenea, 14mm, in fase proliferativa avanzata del ciclo",
+            "conclusioni": "Ispessimento endometriale da approfondire istologicamente vista l'età e la sintomatologia",
+            "esami-richiesti": "Isteroscopia diagnostica con biopsia endometriale",
+            "terapia": "In attesa di isteroscopia, acido tranexamico nei giorni di flusso abbondante",
+            "prossimi": "tra 3 settimane con esito isteroscopia"
+          }
+        },
+        {
+          "id": 1700000000108,
+          "data": "2026-07-17",
+          "ora": "11:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "47",
+            "motivo": "Consegna referto isteroscopia con biopsia endometriale",
+            "conclusioni": "Iperplasia endometriale semplice senza atipie. Nessun segno di malignità. Indicazione a terapia medica progestinica come prima linea, con controllo bioptico di verifica a distanza.",
+            "terapia": "Avvio IUD a rilascio di levonorgestrel (azione progestinica locale, efficace sia come terapia dell'iperplasia sia come contraccezione)",
+            "prossimi": "Controllo bioptico di verifica a 6 mesi dall'inserimento dello IUD terapeutico"
+          }
+        }
+      ],
+      "alerts": []
+    },
+    {
+      "id": 1700000000112,
+      "nome": "Teresa",
+      "cognome": "Farina",
+      "nascita": "1959-12-01",
+      "tel": "+378 549 881455",
+      "email": "teresa.farina59@gmail.com",
+      "cf": "FRNTRS59T41H501O",
+      "note": "Astensione dai rapporti da 1 anno per dispareunia severa, ottima risposta alla terapia locale.",
+      "visite": [
+        {
+          "id": 1700000000110,
+          "data": "2026-07-09",
+          "ora": "16:30",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "67",
+            "altezza": "157",
+            "peso": "65",
+            "para": "3003",
+            "menopausa": "sì, da 20 anni",
+            "pa": "130/80",
+            "patologie": "Nessuna di rilievo ginecologico",
+            "dispareunia": "Severa, ha determinato astensione dai rapporti da circa 1 anno",
+            "motivo": "Secchezza vaginale severa, bruciore, dispareunia, urgenza minzionale associata",
+            "esame-generale": "BMI 26.4, condizioni generali buone",
+            "speculum": "Mucosa vaginale pallida, assottigliata, perdita delle pliche, fragilità tissutale con lieve sanguinamento al contatto dello speculum. Quadro tipico di sindrome genito-urinaria della menopausa.",
+            "bimanuale": "Utero e annessi non palpabili, atrofici, nella norma per età",
+            "ecografia": "Utero fortemente atrofico, rima endometriale non misurabile (lineare)",
+            "conclusioni": "Sindrome genito-urinaria della menopausa (atrofia vulvo-vaginale severa) con importante impatto sulla qualità di vita",
+            "meno-secchezza": "Severa, con fragilità mucosa e sanguinamento da contatto",
+            "esami-richiesti": "Nessuno aggiuntivo, quadro clinico tipico",
+            "terapia": "Avvio estrogeni locali vaginali a basso dosaggio (promestriene o estriolo crema), non essendovi controindicazioni sistemiche vista la sola via locale",
+            "prossimi": "tra 8-10 settimane per valutare risposta alla terapia locale"
+          }
+        },
+        {
+          "id": 1700000000111,
+          "data": "2026-09-08",
+          "ora": "16:00",
+          "tipo": "gyno",
+          "gynoData": {
+            "eta": "67",
+            "motivo": "Controllo a circa 2 mesi di terapia estrogenica locale",
+            "dispareunia": "Netto miglioramento, ripresa dell'attività sessuale con minimo disagio residuo",
+            "speculum": "Mucosa vaginale con evidente miglioramento del trofismo, pliche parzialmente riformate, non più fragilità al contatto",
+            "conclusioni": "Ottima risposta alla terapia estrogenica locale",
+            "terapia": "Prosecuzione della terapia locale a dosaggio di mantenimento (2 volte/settimana)",
+            "prossimi": "Controllo di routine tra 6-12 mesi"
+          }
+        }
+      ],
+      "alerts": []
+    }
+  ],
+  "agenda": []
+}
