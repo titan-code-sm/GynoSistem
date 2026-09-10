@@ -1,7 +1,7 @@
 {
   "pazienti": [
     {
-      "id": 1700000000002,
+      "id": 1700000000003,
       "nome": "Giulia",
       "cognome": "Bianchi",
       "nascita": "1996-03-12",
@@ -57,10 +57,17 @@
           }
         }
       ],
-      "alerts": []
+      "alerts": [
+        {
+          "id": 1700000000002,
+          "data": "2026-08-04",
+          "testo": "Richiamare la paziente per comunicare esito Pap test",
+          "automatico": false
+        }
+      ]
     },
     {
-      "id": 1700000000008,
+      "id": 1700000000009,
       "nome": "Francesca",
       "cognome": "Rossi",
       "nascita": "1990-07-08",
@@ -70,11 +77,11 @@
       "note": "Prima gravidanza. Molto ansiosa, richiede spiegazioni dettagliate.",
       "visite": [
         {
-          "id": 1700000000003,
+          "id": 1700000000004,
           "data": "2026-05-20",
           "ora": "09:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000003,
+          "gravidanzaId": 1700000000004,
           "obData": {
             "eta": "36",
             "para": "0000",
@@ -102,11 +109,11 @@
           }
         },
         {
-          "id": 1700000000004,
+          "id": 1700000000005,
           "data": "2026-05-20",
           "ora": "09:30",
           "tipo": "eco",
-          "gravidanzaId": 1700000000003,
+          "gravidanzaId": 1700000000004,
           "ecoData": {
             "settimane": "6+6",
             "crl": "9",
@@ -119,11 +126,11 @@
           }
         },
         {
-          "id": 1700000000005,
+          "id": 1700000000006,
           "data": "2026-06-17",
           "ora": "09:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000003,
+          "gravidanzaId": 1700000000004,
           "obData": {
             "settimane": "11+1",
             "pressione": "112/68",
@@ -137,11 +144,11 @@
           }
         },
         {
-          "id": 1700000000006,
+          "id": 1700000000007,
           "data": "2026-07-15",
           "ora": "10:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000003,
+          "gravidanzaId": 1700000000004,
           "obData": {
             "settimane": "15+1",
             "pressione": "115/70",
@@ -157,16 +164,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000007,
+          "id": 1700000000008,
           "data": "2026-08-19",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000006,
+          "visitaId": 1700000000007,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000011,
+      "id": 1700000000013,
       "nome": "Elena",
       "cognome": "Ferrari",
       "nascita": "1984-11-22",
@@ -176,7 +183,7 @@
       "note": "Riferita da MMG per menorragia persistente.",
       "visite": [
         {
-          "id": 1700000000009,
+          "id": 1700000000010,
           "data": "2026-05-22",
           "ora": "10:15",
           "tipo": "gyno",
@@ -205,7 +212,7 @@
           }
         },
         {
-          "id": 1700000000010,
+          "id": 1700000000011,
           "data": "2026-06-12",
           "ora": "11:00",
           "tipo": "gyno",
@@ -220,10 +227,17 @@
           }
         }
       ],
-      "alerts": []
+      "alerts": [
+        {
+          "id": 1700000000012,
+          "data": "2026-07-20",
+          "testo": "Verificare se ha fissato la consulenza chirurgica per la miomectomia",
+          "automatico": false
+        }
+      ]
     },
     {
-      "id": 1700000000014,
+      "id": 1700000000016,
       "nome": "Martina",
       "cognome": "Conti",
       "nascita": "1999-05-14",
@@ -233,7 +247,7 @@
       "note": "Studentessa universitaria, richiede discrezione con la famiglia.",
       "visite": [
         {
-          "id": 1700000000012,
+          "id": 1700000000014,
           "data": "2026-06-05",
           "ora": "16:00",
           "tipo": "gyno",
@@ -257,7 +271,7 @@
           }
         },
         {
-          "id": 1700000000013,
+          "id": 1700000000015,
           "data": "2026-06-26",
           "ora": "15:30",
           "tipo": "gyno",
@@ -273,7 +287,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000020,
+      "id": 1700000000022,
       "nome": "Chiara",
       "cognome": "Romano",
       "nascita": "1987-02-03",
@@ -283,11 +297,11 @@
       "note": "Seconda gravidanza. Primo parto eutocico nel 2022.",
       "visite": [
         {
-          "id": 1700000000015,
+          "id": 1700000000017,
           "data": "2026-05-15",
           "ora": "11:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000015,
+          "gravidanzaId": 1700000000017,
           "obData": {
             "eta": "39",
             "para": "1001",
@@ -309,11 +323,11 @@
           }
         },
         {
-          "id": 1700000000016,
+          "id": 1700000000018,
           "data": "2026-07-10",
           "ora": "11:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000015,
+          "gravidanzaId": 1700000000017,
           "obData": {
             "settimane": "29+3",
             "pressione": "118/75",
@@ -328,11 +342,11 @@
           }
         },
         {
-          "id": 1700000000017,
+          "id": 1700000000019,
           "data": "2026-07-10",
           "ora": "11:30",
           "tipo": "eco",
-          "gravidanzaId": 1700000000015,
+          "gravidanzaId": 1700000000017,
           "ecoData": {
             "settimane": "29+3",
             "bpd": "75",
@@ -353,11 +367,11 @@
           }
         },
         {
-          "id": 1700000000018,
+          "id": 1700000000020,
           "data": "2026-08-07",
           "ora": "10:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000015,
+          "gravidanzaId": 1700000000017,
           "obData": {
             "settimane": "33+3",
             "pressione": "122/78",
@@ -373,16 +387,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000019,
+          "id": 1700000000021,
           "data": "2026-08-21",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000018,
+          "visitaId": 1700000000020,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000023,
+      "id": 1700000000026,
       "nome": "Sara",
       "cognome": "Ricci",
       "nascita": "1980-09-19",
@@ -392,7 +406,7 @@
       "note": "Ciclo irregolare da 8 mesi, in ansia per la menopausa.",
       "visite": [
         {
-          "id": 1700000000021,
+          "id": 1700000000023,
           "data": "2026-05-19",
           "ora": "09:30",
           "tipo": "gyno",
@@ -421,7 +435,7 @@
           }
         },
         {
-          "id": 1700000000022,
+          "id": 1700000000024,
           "data": "2026-07-14",
           "ora": "10:00",
           "tipo": "gyno",
@@ -436,10 +450,17 @@
           }
         }
       ],
-      "alerts": []
+      "alerts": [
+        {
+          "id": 1700000000025,
+          "data": "2026-08-25",
+          "testo": "Sollecitare esecuzione profilo lipidico di controllo (mai arrivato il referto)",
+          "automatico": false
+        }
+      ]
     },
     {
-      "id": 1700000000026,
+      "id": 1700000000029,
       "nome": "Valentina",
       "cognome": "Esposito",
       "nascita": "1994-06-27",
@@ -449,7 +470,7 @@
       "note": "Dolore pelvico cronico da 2 anni.",
       "visite": [
         {
-          "id": 1700000000024,
+          "id": 1700000000027,
           "data": "2026-05-25",
           "ora": "15:00",
           "tipo": "gyno",
@@ -476,7 +497,7 @@
           }
         },
         {
-          "id": 1700000000025,
+          "id": 1700000000028,
           "data": "2026-07-27",
           "ora": "15:30",
           "tipo": "gyno",
@@ -495,7 +516,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000029,
+      "id": 1700000000032,
       "nome": "Alessia",
       "cognome": "Marino",
       "nascita": "2001-01-05",
@@ -505,7 +526,7 @@
       "note": "Inviata dal centro screening per Pap test ASC-US e HPV hr positivo.",
       "visite": [
         {
-          "id": 1700000000027,
+          "id": 1700000000030,
           "data": "2026-05-28",
           "ora": "10:00",
           "tipo": "gyno",
@@ -535,7 +556,7 @@
           }
         },
         {
-          "id": 1700000000028,
+          "id": 1700000000031,
           "data": "2026-06-25",
           "ora": "11:00",
           "tipo": "gyno",
@@ -553,7 +574,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000035,
+      "id": 1700000000038,
       "nome": "Federica",
       "cognome": "Greco",
       "nascita": "1989-08-30",
@@ -563,11 +584,11 @@
       "note": "Gravidanza gemellare dopo PMA. Seguita anche da centro di II livello.",
       "visite": [
         {
-          "id": 1700000000030,
+          "id": 1700000000033,
           "data": "2026-05-26",
           "ora": "14:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000030,
+          "gravidanzaId": 1700000000033,
           "obData": {
             "eta": "37",
             "para": "0000",
@@ -591,11 +612,11 @@
           }
         },
         {
-          "id": 1700000000031,
+          "id": 1700000000034,
           "data": "2026-06-30",
           "ora": "14:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000030,
+          "gravidanzaId": 1700000000033,
           "obData": {
             "settimane": "17+3",
             "pressione": "115/72",
@@ -608,11 +629,11 @@
           }
         },
         {
-          "id": 1700000000032,
+          "id": 1700000000035,
           "data": "2026-08-25",
           "ora": "14:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000030,
+          "gravidanzaId": 1700000000033,
           "obData": {
             "settimane": "25+3",
             "pressione": "118/74",
@@ -627,11 +648,11 @@
           }
         },
         {
-          "id": 1700000000033,
+          "id": 1700000000036,
           "data": "2026-08-25",
           "ora": "14:30",
           "tipo": "eco",
-          "gravidanzaId": 1700000000030,
+          "gravidanzaId": 1700000000033,
           "ecoData": {
             "settimane": "25+3",
             "bpd": "64",
@@ -652,16 +673,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000034,
+          "id": 1700000000037,
           "data": "2026-09-08",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000032,
+          "visitaId": 1700000000035,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000038,
+      "id": 1700000000041,
       "nome": "Silvia",
       "cognome": "Bruno",
       "nascita": "1973-04-11",
@@ -671,7 +692,7 @@
       "note": "Amenorrea da 14 mesi.",
       "visite": [
         {
-          "id": 1700000000036,
+          "id": 1700000000039,
           "data": "2026-05-14",
           "ora": "11:30",
           "tipo": "gyno",
@@ -701,7 +722,7 @@
           }
         },
         {
-          "id": 1700000000037,
+          "id": 1700000000040,
           "data": "2026-08-13",
           "ora": "11:00",
           "tipo": "gyno",
@@ -720,7 +741,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000041,
+      "id": 1700000000044,
       "nome": "Laura",
       "cognome": "Gallo",
       "nascita": "1992-10-25",
@@ -730,7 +751,7 @@
       "note": "Desiderio di prole futuro, non nell'immediato.",
       "visite": [
         {
-          "id": 1700000000039,
+          "id": 1700000000042,
           "data": "2026-06-01",
           "ora": "16:30",
           "tipo": "gyno",
@@ -754,7 +775,7 @@
           }
         },
         {
-          "id": 1700000000040,
+          "id": 1700000000043,
           "data": "2026-06-29",
           "ora": "17:00",
           "tipo": "gyno",
@@ -770,7 +791,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000044,
+      "id": 1700000000048,
       "nome": "Roberta",
       "cognome": "Costa",
       "nascita": "1985-12-16",
@@ -780,7 +801,7 @@
       "note": "Non desidera gravidanze.",
       "visite": [
         {
-          "id": 1700000000042,
+          "id": 1700000000045,
           "data": "2026-06-03",
           "ora": "09:00",
           "tipo": "gyno",
@@ -802,7 +823,7 @@
           }
         },
         {
-          "id": 1700000000043,
+          "id": 1700000000046,
           "data": "2026-07-17",
           "ora": "09:30",
           "tipo": "gyno",
@@ -817,10 +838,17 @@
           }
         }
       ],
-      "alerts": []
+      "alerts": [
+        {
+          "id": 1700000000047,
+          "data": "2026-06-10",
+          "testo": "Chiamare per ricordare il Pap test annuale, mai prenotato",
+          "automatico": false
+        }
+      ]
     },
     {
-      "id": 1700000000047,
+      "id": 1700000000051,
       "nome": "Ilaria",
       "cognome": "De Luca",
       "nascita": "1997-03-02",
@@ -830,7 +858,7 @@
       "note": "Prima visita ginecologica in assoluto.",
       "visite": [
         {
-          "id": 1700000000045,
+          "id": 1700000000049,
           "data": "2026-05-21",
           "ora": "15:30",
           "tipo": "gyno",
@@ -853,7 +881,7 @@
           }
         },
         {
-          "id": 1700000000046,
+          "id": 1700000000050,
           "data": "2026-06-11",
           "ora": "16:00",
           "tipo": "gyno",
@@ -869,7 +897,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000050,
+      "id": 1700000000054,
       "nome": "Michela",
       "cognome": "Villa",
       "nascita": "1981-07-09",
@@ -879,7 +907,7 @@
       "note": "Miomectomia laparoscopica eseguita presso altra struttura.",
       "visite": [
         {
-          "id": 1700000000048,
+          "id": 1700000000052,
           "data": "2026-06-19",
           "ora": "10:30",
           "tipo": "gyno",
@@ -901,7 +929,7 @@
           }
         },
         {
-          "id": 1700000000049,
+          "id": 1700000000053,
           "data": "2026-08-14",
           "ora": "10:30",
           "tipo": "gyno",
@@ -923,7 +951,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000056,
+      "id": 1700000000060,
       "nome": "Anna",
       "cognome": "Fontana",
       "nascita": "1988-02-14",
@@ -933,11 +961,11 @@
       "note": "Diabete gestazionale, in dieta e automonitoraggio.",
       "visite": [
         {
-          "id": 1700000000051,
+          "id": 1700000000055,
           "data": "2026-06-05",
           "ora": "13:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000051,
+          "gravidanzaId": 1700000000055,
           "obData": {
             "eta": "38",
             "para": "0000",
@@ -958,11 +986,11 @@
           }
         },
         {
-          "id": 1700000000052,
+          "id": 1700000000056,
           "data": "2026-07-17",
           "ora": "13:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000051,
+          "gravidanzaId": 1700000000055,
           "obData": {
             "settimane": "18+2",
             "pressione": "122/79",
@@ -976,11 +1004,11 @@
           }
         },
         {
-          "id": 1700000000053,
+          "id": 1700000000057,
           "data": "2026-08-28",
           "ora": "13:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000051,
+          "gravidanzaId": 1700000000055,
           "obData": {
             "settimane": "23+6",
             "pressione": "124/80",
@@ -994,11 +1022,11 @@
           }
         },
         {
-          "id": 1700000000054,
+          "id": 1700000000058,
           "data": "2026-08-28",
           "ora": "14:00",
           "tipo": "eco",
-          "gravidanzaId": 1700000000051,
+          "gravidanzaId": 1700000000055,
           "ecoData": {
             "settimane": "23+6",
             "bpd": "59",
@@ -1019,16 +1047,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000055,
+          "id": 1700000000059,
           "data": "2026-09-11",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000053,
+          "visitaId": 1700000000057,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000062,
+      "id": 1700000000066,
       "nome": "Beatrice",
       "cognome": "Marchetti",
       "nascita": "1992-04-17",
@@ -1038,11 +1066,11 @@
       "note": "Anamnesi positiva per parto pretermine a 32 settimane. Gravidanza ad alto rischio, seguita in stretta collaborazione con centro di II livello.",
       "visite": [
         {
-          "id": 1700000000057,
+          "id": 1700000000061,
           "data": "2026-06-08",
           "ora": "08:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000057,
+          "gravidanzaId": 1700000000061,
           "obData": {
             "eta": "34",
             "para": "0100",
@@ -1063,11 +1091,11 @@
           }
         },
         {
-          "id": 1700000000058,
+          "id": 1700000000062,
           "data": "2026-06-09",
           "ora": "09:00",
           "tipo": "eco",
-          "gravidanzaId": 1700000000057,
+          "gravidanzaId": 1700000000061,
           "ecoData": {
             "settimane": "19+5",
             "bpd": "44",
@@ -1085,11 +1113,11 @@
           }
         },
         {
-          "id": 1700000000059,
+          "id": 1700000000063,
           "data": "2026-07-06",
           "ora": "09:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000057,
+          "gravidanzaId": 1700000000061,
           "obData": {
             "settimane": "23+4",
             "pressione": "112/70",
@@ -1101,11 +1129,11 @@
           }
         },
         {
-          "id": 1700000000060,
+          "id": 1700000000064,
           "data": "2026-08-03",
           "ora": "09:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000057,
+          "gravidanzaId": 1700000000061,
           "obData": {
             "settimane": "27+5",
             "pressione": "115/72",
@@ -1119,16 +1147,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000061,
+          "id": 1700000000065,
           "data": "2026-08-24",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000060,
+          "visitaId": 1700000000064,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000066,
+      "id": 1700000000070,
       "nome": "Noemi",
       "cognome": "Barbieri",
       "nascita": "1987-09-02",
@@ -1138,11 +1166,11 @@
       "note": "Gravidanza ottenuta con FIVET dopo 3 anni di infertilità. Seguita anche dal centro PMA di riferimento.",
       "visite": [
         {
-          "id": 1700000000063,
+          "id": 1700000000067,
           "data": "2026-05-27",
           "ora": "10:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000063,
+          "gravidanzaId": 1700000000067,
           "obData": {
             "eta": "39",
             "para": "0000",
@@ -1163,11 +1191,11 @@
           }
         },
         {
-          "id": 1700000000064,
+          "id": 1700000000068,
           "data": "2026-06-03",
           "ora": "10:00",
           "tipo": "eco",
-          "gravidanzaId": 1700000000063,
+          "gravidanzaId": 1700000000067,
           "ecoData": {
             "settimane": "7+0",
             "crl": "8 (camera A) / 6 (camera B, senza attività cardiaca)",
@@ -1181,11 +1209,11 @@
           }
         },
         {
-          "id": 1700000000065,
+          "id": 1700000000069,
           "data": "2026-06-24",
           "ora": "10:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000063,
+          "gravidanzaId": 1700000000067,
           "obData": {
             "settimane": "10+1",
             "pressione": "110/70",
@@ -1201,7 +1229,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000069,
+      "id": 1700000000073,
       "nome": "Camilla",
       "cognome": "Moretti",
       "nascita": "1996-11-30",
@@ -1211,7 +1239,7 @@
       "note": "Percorso diagnostico già iniziato con altro specialista, dolore cronico con forte impatto sulla qualità di vita.",
       "visite": [
         {
-          "id": 1700000000067,
+          "id": 1700000000071,
           "data": "2026-06-16",
           "ora": "14:30",
           "tipo": "gyno",
@@ -1236,7 +1264,7 @@
           }
         },
         {
-          "id": 1700000000068,
+          "id": 1700000000072,
           "data": "2026-08-14",
           "ora": "15:00",
           "tipo": "gyno",
@@ -1254,7 +1282,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000074,
+      "id": 1700000000078,
       "nome": "Giorgia",
       "cognome": "Longo",
       "nascita": "1995-01-18",
@@ -1264,11 +1292,11 @@
       "note": "Prima gravidanza. Seguita con particolare attenzione al supporto emotivo durante il percorso.",
       "visite": [
         {
-          "id": 1700000000070,
+          "id": 1700000000074,
           "data": "2026-06-20",
           "ora": "09:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000070,
+          "gravidanzaId": 1700000000074,
           "obData": {
             "eta": "31",
             "para": "0000",
@@ -1287,11 +1315,11 @@
           }
         },
         {
-          "id": 1700000000071,
+          "id": 1700000000075,
           "data": "2026-06-20",
           "ora": "09:30",
           "tipo": "eco",
-          "gravidanzaId": 1700000000070,
+          "gravidanzaId": 1700000000074,
           "ecoData": {
             "settimane": "7+2 (attesa)",
             "crl": "9 (compatibile con circa 6+3 settimane, non 7+2 attese)",
@@ -1305,7 +1333,7 @@
           }
         },
         {
-          "id": 1700000000072,
+          "id": 1700000000076,
           "data": "2026-07-02",
           "ora": "09:30",
           "tipo": "gyno",
@@ -1319,7 +1347,7 @@
           }
         },
         {
-          "id": 1700000000073,
+          "id": 1700000000077,
           "data": "2026-07-16",
           "ora": "10:00",
           "tipo": "gyno",
@@ -1337,7 +1365,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000077,
+      "id": 1700000000081,
       "nome": "Arianna",
       "cognome": "Rinaldi",
       "nascita": "1993-02-09",
@@ -1347,7 +1375,7 @@
       "note": "Allattamento esclusivo al seno, parto recente.",
       "visite": [
         {
-          "id": 1700000000075,
+          "id": 1700000000079,
           "data": "2026-07-01",
           "ora": "16:00",
           "tipo": "gyno",
@@ -1370,7 +1398,7 @@
           }
         },
         {
-          "id": 1700000000076,
+          "id": 1700000000080,
           "data": "2026-08-12",
           "ora": "15:30",
           "tipo": "gyno",
@@ -1388,7 +1416,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000080,
+      "id": 1700000000084,
       "nome": "Debora",
       "cognome": "Santoro",
       "nascita": "1968-08-22",
@@ -1398,7 +1426,7 @@
       "note": "Familiarità per frattura osteoporotica.",
       "visite": [
         {
-          "id": 1700000000078,
+          "id": 1700000000082,
           "data": "2026-05-15",
           "ora": "09:00",
           "tipo": "gyno",
@@ -1425,7 +1453,7 @@
           }
         },
         {
-          "id": 1700000000079,
+          "id": 1700000000083,
           "data": "2026-06-05",
           "ora": "09:30",
           "tipo": "gyno",
@@ -1441,7 +1469,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000085,
+      "id": 1700000000089,
       "nome": "Veronica",
       "cognome": "Pellegrini",
       "nascita": "1996-03-25",
@@ -1451,11 +1479,11 @@
       "note": "Prima gravidanza, decorso fisiologico fino al termine.",
       "visite": [
         {
-          "id": 1700000000081,
+          "id": 1700000000085,
           "data": "2026-08-20",
           "ora": "08:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000081,
+          "gravidanzaId": 1700000000085,
           "obData": {
             "eta": "30",
             "para": "0000",
@@ -1476,11 +1504,11 @@
           }
         },
         {
-          "id": 1700000000082,
+          "id": 1700000000086,
           "data": "2026-08-27",
           "ora": "08:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000081,
+          "gravidanzaId": 1700000000085,
           "obData": {
             "settimane": "41+0",
             "pressione": "120/78",
@@ -1492,11 +1520,11 @@
           }
         },
         {
-          "id": 1700000000083,
+          "id": 1700000000087,
           "data": "2026-08-27",
           "ora": "09:00",
           "tipo": "eco",
-          "gravidanzaId": 1700000000081,
+          "gravidanzaId": 1700000000085,
           "ecoData": {
             "settimane": "41+0",
             "bpd": "96",
@@ -1519,16 +1547,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000084,
+          "id": 1700000000088,
           "data": "2026-08-30",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000082,
+          "visitaId": 1700000000086,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000088,
+      "id": 1700000000092,
       "nome": "Simona",
       "cognome": "De Angelis",
       "nascita": "1990-01-11",
@@ -1538,7 +1566,7 @@
       "note": "Ricerca di prole da 14 mesi. Partner già inviato per spermiogramma.",
       "visite": [
         {
-          "id": 1700000000086,
+          "id": 1700000000090,
           "data": "2026-06-10",
           "ora": "11:00",
           "tipo": "gyno",
@@ -1562,7 +1590,7 @@
           }
         },
         {
-          "id": 1700000000087,
+          "id": 1700000000091,
           "data": "2026-07-08",
           "ora": "11:30",
           "tipo": "gyno",
@@ -1579,7 +1607,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000091,
+      "id": 1700000000095,
       "nome": "Alessandra",
       "cognome": "Fabbri",
       "nascita": "2000-07-19",
@@ -1589,7 +1617,7 @@
       "note": "Episodio di dolore pelvico acuto, gestito ambulatorialmente.",
       "visite": [
         {
-          "id": 1700000000089,
+          "id": 1700000000093,
           "data": "2026-06-22",
           "ora": "10:00",
           "tipo": "gyno",
@@ -1612,7 +1640,7 @@
           }
         },
         {
-          "id": 1700000000090,
+          "id": 1700000000094,
           "data": "2026-08-17",
           "ora": "10:30",
           "tipo": "gyno",
@@ -1630,7 +1658,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000094,
+      "id": 1700000000098,
       "nome": "Rita",
       "cognome": "Serra",
       "nascita": "1992-12-03",
@@ -1640,7 +1668,7 @@
       "note": "Terzo episodio di vaginosi batterica in 6 mesi.",
       "visite": [
         {
-          "id": 1700000000092,
+          "id": 1700000000096,
           "data": "2026-05-30",
           "ora": "15:00",
           "tipo": "gyno",
@@ -1662,7 +1690,7 @@
           }
         },
         {
-          "id": 1700000000093,
+          "id": 1700000000097,
           "data": "2026-06-20",
           "ora": "15:30",
           "tipo": "gyno",
@@ -1679,7 +1707,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000097,
+      "id": 1700000000101,
       "nome": "Patrizia",
       "cognome": "Leone",
       "nascita": "1963-05-08",
@@ -1689,7 +1717,7 @@
       "note": "Percorso avviato con urgenza per sanguinamento post-menopausale. Inviata a centro oncologico di riferimento per il proseguo diagnostico-terapeutico.",
       "visite": [
         {
-          "id": 1700000000095,
+          "id": 1700000000099,
           "data": "2026-06-13",
           "ora": "09:30",
           "tipo": "gyno",
@@ -1714,7 +1742,7 @@
           }
         },
         {
-          "id": 1700000000096,
+          "id": 1700000000100,
           "data": "2026-07-01",
           "ora": "10:00",
           "tipo": "gyno",
@@ -1731,7 +1759,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000103,
+      "id": 1700000000107,
       "nome": "Elisa",
       "cognome": "Testa",
       "nascita": "1991-10-14",
@@ -1741,11 +1769,11 @@
       "note": "Utero pregresso cesareo. Gravidanza ad alto rischio per placenta previa, monitoraggio ecografico seriale ravvicinato.",
       "visite": [
         {
-          "id": 1700000000098,
+          "id": 1700000000102,
           "data": "2026-06-02",
           "ora": "09:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000098,
+          "gravidanzaId": 1700000000102,
           "obData": {
             "eta": "35",
             "para": "0100",
@@ -1766,11 +1794,11 @@
           }
         },
         {
-          "id": 1700000000099,
+          "id": 1700000000103,
           "data": "2026-06-02",
           "ora": "09:30",
           "tipo": "eco",
-          "gravidanzaId": 1700000000098,
+          "gravidanzaId": 1700000000102,
           "ecoData": {
             "settimane": "20+3",
             "bpd": "47",
@@ -1788,11 +1816,11 @@
           }
         },
         {
-          "id": 1700000000100,
+          "id": 1700000000104,
           "data": "2026-06-30",
           "ora": "09:30",
           "tipo": "ob",
-          "gravidanzaId": 1700000000098,
+          "gravidanzaId": 1700000000102,
           "obData": {
             "settimane": "24+3",
             "pressione": "114/72",
@@ -1803,11 +1831,11 @@
           }
         },
         {
-          "id": 1700000000101,
+          "id": 1700000000105,
           "data": "2026-08-04",
           "ora": "10:00",
           "tipo": "ob",
-          "gravidanzaId": 1700000000098,
+          "gravidanzaId": 1700000000102,
           "obData": {
             "settimane": "29+1",
             "pressione": "116/74",
@@ -1821,16 +1849,16 @@
       ],
       "alerts": [
         {
-          "id": 1700000000102,
+          "id": 1700000000106,
           "data": "2026-08-25",
           "testo": "Prossimo controllo (Visita Ostetrica)",
-          "visitaId": 1700000000101,
+          "visitaId": 1700000000105,
           "automatico": true
         }
       ]
     },
     {
-      "id": 1700000000106,
+      "id": 1700000000110,
       "nome": "Cristina",
       "cognome": "Mazza",
       "nascita": "1988-06-05",
@@ -1840,7 +1868,7 @@
       "note": "Diagnosi di insufficienza ovarica prematura a 38 anni. Percorso di supporto psicologico offerto e accettato.",
       "visite": [
         {
-          "id": 1700000000104,
+          "id": 1700000000108,
           "data": "2026-05-16",
           "ora": "11:00",
           "tipo": "gyno",
@@ -1865,7 +1893,7 @@
           }
         },
         {
-          "id": 1700000000105,
+          "id": 1700000000109,
           "data": "2026-06-20",
           "ora": "11:30",
           "tipo": "gyno",
@@ -1884,7 +1912,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000109,
+      "id": 1700000000113,
       "nome": "Marta",
       "cognome": "Colombo",
       "nascita": "1979-03-27",
@@ -1894,7 +1922,7 @@
       "note": "Perimenopausa con menometrorragia, iperplasia endometriale semplice in trattamento.",
       "visite": [
         {
-          "id": 1700000000107,
+          "id": 1700000000111,
           "data": "2026-06-26",
           "ora": "10:30",
           "tipo": "gyno",
@@ -1920,7 +1948,7 @@
           }
         },
         {
-          "id": 1700000000108,
+          "id": 1700000000112,
           "data": "2026-07-17",
           "ora": "11:00",
           "tipo": "gyno",
@@ -1936,7 +1964,7 @@
       "alerts": []
     },
     {
-      "id": 1700000000112,
+      "id": 1700000000116,
       "nome": "Teresa",
       "cognome": "Farina",
       "nascita": "1959-12-01",
@@ -1946,7 +1974,7 @@
       "note": "Astensione dai rapporti da 1 anno per dispareunia severa, ottima risposta alla terapia locale.",
       "visite": [
         {
-          "id": 1700000000110,
+          "id": 1700000000114,
           "data": "2026-07-09",
           "ora": "16:30",
           "tipo": "gyno",
@@ -1972,7 +2000,7 @@
           }
         },
         {
-          "id": 1700000000111,
+          "id": 1700000000115,
           "data": "2026-09-08",
           "ora": "16:00",
           "tipo": "gyno",
@@ -1992,166 +2020,166 @@
   ],
   "agenda": [
     {
-      "id": "1700000000113",
+      "id": "1700000000117",
       "data": "2026-09-11",
       "ora": "09:00",
       "durata": 30,
       "text": "Controllo ostetrico e glicemico (diabete gestazionale)",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000056
+      "pazienteId": 1700000000060
     },
     {
-      "id": "1700000000114",
+      "id": "1700000000118",
       "data": "2026-09-15",
       "ora": "14:00",
       "durata": 30,
       "text": "Controllo interinale gravidanza gemellare",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000035
+      "pazienteId": 1700000000038
     },
     {
-      "id": "1700000000115",
+      "id": "1700000000119",
       "data": "2026-09-16",
       "ora": "10:30",
       "durata": 30,
       "text": "Consulenza chirurgica pre-miomectomia",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000011
+      "pazienteId": 1700000000013
     },
     {
-      "id": "1700000000116",
+      "id": "1700000000120",
       "data": "2026-09-17",
       "ora": "08:30",
       "durata": 30,
       "text": "Controllo ostetrico post-cerchiaggio + cervicometria",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000062
+      "pazienteId": 1700000000066
     },
     {
-      "id": "1700000000117",
+      "id": "1700000000121",
       "data": "2026-09-18",
       "ora": "11:00",
       "durata": 30,
       "text": "Controllo ostetrico 35-36 settimane",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000020
+      "pazienteId": 1700000000022
     },
     {
-      "id": "1700000000118",
+      "id": "1700000000122",
       "data": "2026-09-19",
       "ora": "11:30",
       "durata": 30,
       "text": "Consulenza esito centro PMA",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000088
+      "pazienteId": 1700000000092
     },
     {
-      "id": "1700000000119",
+      "id": "1700000000123",
       "data": "2026-09-20",
       "ora": "11:00",
       "durata": 30,
       "text": "Controllo tollerabilità TOS (POI)",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000106
+      "pazienteId": 1700000000110
     },
     {
-      "id": "1700000000120",
+      "id": "1700000000124",
       "data": "2026-09-22",
       "ora": "09:30",
       "durata": 30,
       "text": "Ecografia morfologica II trimestre",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000008
+      "pazienteId": 1700000000009
     },
     {
-      "id": "1700000000121",
+      "id": "1700000000125",
       "data": "2026-09-23",
       "ora": "10:00",
       "durata": 30,
       "text": "Ecografia morfologica II trimestre",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000066
+      "pazienteId": 1700000000070
     },
     {
-      "id": "1700000000122",
+      "id": "1700000000126",
       "data": "2026-09-24",
       "ora": "10:00",
       "durata": 30,
       "text": "Controllo ecografico placenta previa",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000103
+      "pazienteId": 1700000000107
     },
     {
-      "id": "1700000000123",
+      "id": "1700000000127",
       "data": "2026-09-29",
       "ora": "17:00",
       "durata": 30,
       "text": "Controllo tollerabilità terapia PCOS",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000041
+      "pazienteId": 1700000000044
     },
     {
-      "id": "1700000000124",
+      "id": "1700000000128",
       "data": "2026-10-01",
       "ora": "09:30",
       "durata": 20,
       "text": "Avvio terapia con bifosfonato (post vitamina D)",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000080
+      "pazienteId": 1700000000084
     },
     {
-      "id": "1700000000125",
+      "id": "1700000000129",
       "data": "2026-10-06",
       "ora": "09:00",
       "durata": 30,
       "text": "Controllo ostetrico + ecografia morfologica",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000008
+      "pazienteId": 1700000000009
     },
     {
-      "id": "1700000000126",
+      "id": "1700000000130",
       "data": "2026-10-09",
       "ora": "11:00",
       "durata": 30,
       "text": "Controllo ostetrico a termine",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000020
+      "pazienteId": 1700000000022
     },
     {
-      "id": "1700000000127",
+      "id": "1700000000131",
       "data": "2026-10-14",
       "ora": "10:00",
       "durata": 20,
       "text": "Controllo perimenopausa a 3 mesi",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000023
+      "pazienteId": 1700000000026
     },
     {
-      "id": "1700000000128",
+      "id": "1700000000132",
       "data": "2026-10-20",
       "ora": "14:00",
       "durata": 30,
       "text": "Controllo ostetrico gravidanza gemellare",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000035
+      "pazienteId": 1700000000038
     },
     {
-      "id": "1700000000129",
+      "id": "1700000000133",
       "data": "2026-11-14",
       "ora": "15:00",
       "durata": 20,
       "text": "Nuova valutazione vestibolodinia",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000069
+      "pazienteId": 1700000000073
     },
     {
-      "id": "1700000000130",
+      "id": "1700000000134",
       "data": "2026-11-25",
       "ora": "15:30",
       "durata": 20,
       "text": "Controllo ecografico endometrioma",
       "tipo": "appuntamento",
-      "pazienteId": 1700000000026
+      "pazienteId": 1700000000029
     }
   ]
 }

@@ -899,6 +899,15 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
   </div>
 
+  <!-- Alert promemoria scaduti: visibile solo se ce ne sono, un solo colpo d'occhio -->
+  <div id="overdue-alert-banner" style="display:none;background:linear-gradient(135deg,#e53935,#c62828);color:#fff;border-radius:14px;padding:16px 20px;margin-bottom:20px;box-shadow:0 6px 20px rgba(198,40,40,0.3);">
+    <div style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:0.95rem;margin-bottom:10px;">
+      <span style="font-size:1.3rem;">⚠️</span>
+      <span id="overdue-alert-title">Promemoria scaduti</span>
+    </div>
+    <div id="overdue-alert-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
+
   <div class="g2">
     <div class="card">
       <div class="card-header">
@@ -1603,6 +1612,18 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     <div id="crypto-pass-err" style="color:#c62828;font-size:0.82rem;margin-bottom:10px;display:none;"></div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="confermaPassphraseCifratura()">Conferma</button>
     <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModal('modal-crypto-pass')">Annulla</button>
+  </div>
+</div>
+
+<!-- Modal scelta dati demo: quale set caricare per questo accesso in modalità dimostrativa -->
+<div id="modal-scelta-demo" class="overlay">
+  <div class="modal-sm">
+    <h3>🎭 Modalità Dimostrativa</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:18px">Questo account è in modalità demo. Quali dati vuoi caricare per questo accesso?</p>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="sceltaDatiDemo('default')">📋 Usa i dati demo di default</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="document.getElementById('demo-file-input').click()">📂 Carica un file JSON personalizzato</button>
+    <input type="file" id="demo-file-input" accept="application/json,.json" style="display:none" onchange="caricaFileDemoPersonalizzato(this)">
+    <div id="demo-file-err" style="color:#c62828;font-size:0.82rem;margin-top:10px;display:none;"></div>
   </div>
 </div>
 
@@ -3974,10 +3995,10 @@ async function proceedAfterLogin(){
     // Modalità dimostrativa: pazienti di esempio, sandbox completamente
     // separata. Niente sync verso Firestore (né pazienti né appuntamenti):
     // una demo non deve mai toccare dati reali o il progetto Firebase.
+    // Ad ogni accesso si chiede quali dati caricare (default o un file
+    // proprio), invece di caricare sempre e solo il set predefinito.
     mostraBannerDemo(true);
-    await caricaDatiDemo(gsCurrentUser.uid);
-    naviga('home');
-    loadAdminConfig(); // solo contenuti di servizio condivisi (farmaci, linee guida), nessun dato paziente
+    apriSceltaDatiDemo();
     return;
   }
 
@@ -4250,7 +4271,59 @@ async function caricaDatiDemo(uid){
     DB = { pazienti:[], agenda:[] };
   }
   if(!DB.studi) DB.studi=[];
+  if(!DB.agenda) DB.agenda=[];
   salvaDB(); // sovrascrive eventuali resti di una demo precedente: sempre puliti
+}
+
+// Mostra la scelta "dati di default o file personalizzato" a ogni accesso in
+// modalità demo — chiesta esplicitamente, invece di caricare sempre e solo
+// il set predefinito.
+function apriSceltaDatiDemo(){
+  const err=document.getElementById('demo-file-err');
+  if(err) err.style.display='none';
+  document.getElementById('modal-scelta-demo').classList.add('show');
+}
+
+async function sceltaDatiDemo(tipo){
+  if(tipo==='default'){
+    await caricaDatiDemo(gsCurrentUser.uid);
+    closeModal('modal-scelta-demo');
+    await proseguiDopoCaricamentoDemo();
+  }
+  // tipo==='file': non fa nulla qui, l'input file gestisce da sé il caricamento
+  // (vedi caricaFileDemoPersonalizzato) quando l'utente sceglie un file.
+}
+
+// Carica un file JSON scelto in locale al posto del set demo predefinito —
+// stessa sandbox separata (chiave locale demo), nessuna scrittura su Firestore.
+function caricaFileDemoPersonalizzato(input){
+  const file=input.files[0];
+  const err=document.getElementById('demo-file-err');
+  if(!file) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    let dati;
+    try{ dati=JSON.parse(e.target.result); }
+    catch(x){ if(err){ err.textContent='File non valido: non è un JSON leggibile.'; err.style.display='block'; } return; }
+    if(!dati || !Array.isArray(dati.pazienti)){
+      if(err){ err.textContent='File non valido: manca l\'elenco "pazienti".'; err.style.display='block'; }
+      return;
+    }
+    gsDbStorageKey='gynoDB_v15_demo_'+gsCurrentUser.uid;
+    DB=dati;
+    if(!DB.studi) DB.studi=[];
+    if(!DB.agenda) DB.agenda=[];
+    salvaDB();
+    closeModal('modal-scelta-demo');
+    await proseguiDopoCaricamentoDemo();
+  };
+  r.readAsText(file);
+  input.value=''; // permette di ricaricare lo stesso file una seconda volta, se serve
+}
+
+async function proseguiDopoCaricamentoDemo(){
+  naviga('home');
+  loadAdminConfig(); // solo contenuti di servizio condivisi (farmaci, linee guida), nessun dato paziente
 }
 
 function mostraBannerDemo(mostra){
@@ -4272,6 +4345,7 @@ function renderDashboard(){
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{if(v.data===oggi)visitOggi++;}));
   document.getElementById('stat-oggi').textContent=visitOggi;
   renderAlertsHome();
+  renderPromemoriaScaduti();
 }
 
 function renderAlertsHome(){
@@ -4323,6 +4397,36 @@ function renderAlertsHome(){
       <span onclick="openPaziente(${r.p.id})" style="color:var(--primary);cursor:pointer;font-size:.75rem;font-weight:600;">Apri →</span>
     </div>`;
   }).join('');
+}
+
+// Banner ben visibile in cima alla Dashboard con TUTTI i promemoria delle
+// pazienti la cui data è già passata rispetto a oggi (non semplicemente in
+// arrivo): es. apri l'app il 9/9/2026 e un promemoria era datato 4/8/2026.
+// Confronto per stringa 'YYYY-MM-DD' (non new Date()<new Date()): evita che
+// un promemoria di OGGI risulti "scaduto" solo perché sono passate delle ore.
+function renderPromemoriaScaduti(){
+  const banner=document.getElementById('overdue-alert-banner');
+  const list=document.getElementById('overdue-alert-list');
+  const title=document.getElementById('overdue-alert-title');
+  if(!banner||!list||!title) return;
+  const oggi=new Date().toISOString().split('T')[0];
+  let scaduti=[];
+  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
+    if(a.data && a.data<oggi) scaduti.push({p,a});
+  }));
+  if(!scaduti.length){ banner.style.display='none'; return; }
+  scaduti.sort((x,y)=>(x.a.data||'').localeCompare(y.a.data||''));
+  title.textContent=`${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'} — nessuna visita/controllo registrato da allora`;
+  list.innerHTML=scaduti.map(({p,a})=>{
+    const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    const giorni=Math.round((new Date(oggi)-new Date(a.data))/(1000*60*60*24));
+    return `<div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.16);border-radius:8px;padding:9px 12px;cursor:pointer;flex-wrap:wrap;" onclick="openPaziente(${p.id})">
+      <span style="font-weight:700;">${p.cognome} ${p.nome}</span>
+      <span style="opacity:0.95;">${a.testo}</span>
+      <span style="margin-left:auto;font-size:0.78rem;opacity:0.9;white-space:nowrap;">${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</span>
+    </div>`;
+  }).join('');
+  banner.style.display='block';
 }
 
 // ═══════════════════════════════════════════════════
