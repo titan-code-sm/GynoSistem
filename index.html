@@ -412,6 +412,12 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .patient-hero p{opacity:0.75;font-size:0.875rem;}
 .patient-hero-meta{display:flex;gap:24px;margin-top:16px;}
 .patient-hero-meta span{display:flex;align-items:center;gap:6px;font-size:0.82rem;opacity:0.85;}
+.grav-badge-hero{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);border-radius:14px;padding:5px 14px;font-family:var(--font-serif);font-size:1.15rem;font-weight:800;letter-spacing:0.3px;white-space:nowrap;}
+/* Settimane di gravidanza "in grosso" nei parametri visita */
+.ob-settimane-wrap{display:flex;align-items:center;gap:8px;}
+input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-serif);letter-spacing:0.5px;text-align:center;padding:8px 10px;color:var(--primary);}
+.ob-settimane-recalc{flex-shrink:0;width:34px;height:34px;border-radius:9px;border:1px solid var(--separator);background:var(--surface2);cursor:pointer;font-size:0.95rem;color:var(--label3);}
+.ob-settimane-recalc:hover{border-color:var(--primary);color:var(--primary);}
 
 /* ─── VISIT CARD ─── */
 .visit-item{background:var(--surface);border:1px solid var(--separator);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:16px;transition:0.15s;}
@@ -1413,7 +1419,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 <div id="modal-farmaci-visita" class="overlay">
   <div class="modal-sm mfv-box">
     <div class="mfv-head">
-      <h3 style="margin-bottom:2px">💊 Farmaci per la Terapia</h3>
+      <h3 style="margin-bottom:2px" id="mfv-titolo">💊 Farmaci per la Terapia</h3>
       <button class="mfv-x" onclick="closeModal('modal-farmaci-visita')" title="Chiudi">✕</button>
     </div>
     <input id="mfv-search" placeholder="🔍 Cerca farmaco, principio attivo o patologia..." style="margin:10px 0" oninput="renderFarmaciModal()">
@@ -1428,7 +1434,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <div class="mfv-foot-actions">
         <span class="mfv-count-lbl"><span id="mfv-count">0</span> selezionati</span>
         <button class="btn btn-ghost" onclick="closeModal('modal-farmaci-visita')">Annulla</button>
-        <button class="btn btn-primary" onclick="confermaFarmaciSelezionatiVisita(document.getElementById('mfv-anche-ricetta').checked)">Inserisci in Terapia</button>
+        <button class="btn btn-primary" id="mfv-btn-conferma" onclick="confermaFarmaciSelezionatiVisita(document.getElementById('mfv-anche-ricetta').checked)">Inserisci in Terapia</button>
       </div>
     </div>
   </div>
@@ -1477,7 +1483,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   <div class="patient-hero">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;">
       <div>
-        <h2 id="d-titolo">Paziente</h2>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <h2 id="d-titolo">Paziente</h2>
+          <span id="d-grav-badge" class="grav-badge-hero" style="display:none;"></span>
+        </div>
         <p id="d-sottotitolo">Data nascita · Contatti</p>
         <div class="patient-hero-meta">
           <span id="h-eta">📅 Età</span>
@@ -1527,7 +1536,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       </div>
       <div class="card" style="margin-bottom:16px;">
         <div class="card-header"><div><div class="card-title">💊 Farmaci Attuali</div><div class="card-subtitle">Ultima terapia prescritta e storico nel tempo</div></div>
-          <button class="btn btn-ghost btn-sm btn-icon" onclick="apriNuovoFarmacoManuale()" title="Aggiungi farmaco">➕</button>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button class="btn btn-ghost btn-sm" onclick="apriSelettoreFarmaciPaziente()" title="Prescrivi farmaci dal prontuario e/o crea la ricetta">💊 Prescrivi</button>
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="apriNuovoFarmacoManuale()" title="Aggiungi farmaco a mano">➕</button>
+          </div>
         </div>
         <div id="farmaci-attuali-box"></div>
       </div>
@@ -2288,7 +2300,13 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
             <div class="section-card">
               <h4 data-icon="📐">Parametri Visita</h4>
               <div class="field-row r3" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Settimane gravidanza (auto da UM)</label><input id="ob-settimane" placeholder="es. 24+3"></div>
+                <div class="form-group">
+                  <label class="form-label">Settimane di gravidanza (auto · modificabile)</label>
+                  <div class="ob-settimane-wrap">
+                    <input id="ob-settimane" class="ob-settimane-big" placeholder="es. 24+3">
+                    <button type="button" class="ob-settimane-recalc" onclick="ricalcolaSettimaneOb(true)" title="Ricalcola dalle date della gravidanza">↻</button>
+                  </div>
+                </div>
                 <div class="form-group"><label class="form-label">PA (mmHg)</label><input id="ob-pressione" placeholder="120/80"></div>
                 <div class="form-group"><label class="form-label">Score TEV</label><input id="ob-score-tev" placeholder="es. 1"></div>
               </div>
@@ -3430,17 +3448,13 @@ function calcEPPEcoAuto(){
   const out=document.getElementById('ob-epp-eco');
   const epp=calcEPP(um,28);
   if(out) out.value=epp?epp.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+  ricalcolaSettimaneOb(true); // la datazione ecografica ha la precedenza
 }
 
 // Calcola le settimane di gestazione alla data della visita (oggi) e le scrive nel campo settimane
-function aggiornaSettimaneDaUM(){
-  const um=document.getElementById('ob-um')?.value;
-  const durata=document.getElementById('ob-durata-ciclo')?.value||28;
-  const campo=document.getElementById('ob-settimane');
-  if(!um||!campo)return;
-  const sett=calcSettimaneDaUM(um,new Date(),durata);
-  if(sett && !campo.value) campo.value=sett; // non sovrascrive se già compilato a mano
-}
+// Compat: ora la logica sta in ricalcolaSettimaneOb (che considera anche UM
+// ecografica, settimane registrate in visite precedenti ed EPP/DPP).
+function aggiornaSettimaneDaUM(){ ricalcolaSettimaneOb(true); }
 
 // BMI pregravidico automatico
 function calcBMIPregravidico(){
@@ -3881,7 +3895,89 @@ function calcSettimaneDaUM(umStr, dataRiferimento=null, durataCiclo=28){
   return Math.floor(giorni/7)+'+'+(giorni%7);
 }
 
+// Interpreta una data scritta in vari formati: ISO (2027-06-15), numerica
+// (15/06/2027, 15-6-27) o italiana estesa ("15 giugno 2027"). Restituisce Date o null.
+function _parseDataFlessibile(str){
+  if(!str) return null;
+  if(str instanceof Date) return isNaN(str)?null:str;
+  str=String(str).trim();
+  let m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
+  m=str.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+  if(m){ let y=+m[3]; if(y<100) y+=2000; return new Date(y, +m[2]-1, +m[1]); }
+  m=str.match(/^(\d{1,2})\s+([a-zàèéìòù]+)\s+(\d{4})/i);
+  if(m && typeof MESI_ITA!=='undefined' && MESI_ITA[m[2].toLowerCase()]!==undefined)
+    return new Date(+m[3], MESI_ITA[m[2].toLowerCase()], +m[1]);
+  const d=new Date(str);
+  return isNaN(d)?null:d;
+}
 
+// Settimane di gestazione "vive" per una gravidanza, a una certa data (default oggi).
+// Priorità della datazione: UM ecografica → UM anamnestica → settimane già
+// registrate in una visita (estrapolate) → EPP/DPP. `extra` (facoltativo) contiene
+// i valori attualmente digitati nel form della visita, che hanno la precedenza.
+// Restituisce la stringa "settimane+giorni" (es. "31+4") oppure null.
+function calcolaSettimaneGravidanza(p, gravidanzaId, dataRif, extra){
+  dataRif = dataRif ? new Date(dataRif) : new Date();
+  extra = extra || {};
+  if(!gravidanzaId && p) gravidanzaId = (gravidanzaAttiva(p)||{}).gravidanzaId;
+  const visite = ((p&&p.visite)||[])
+    .filter(v=>(v.tipo==='ob'||v.tipo==='eco') && (!gravidanzaId || v.gravidanzaId===gravidanzaId))
+    .sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const pick = (chiave)=>{
+    if(extra[chiave]) return extra[chiave];
+    for(const v of visite){
+      const d = v.obData || v.ecoData;
+      const val = d && d[chiave];
+      if(val && String(val).trim()) return val;
+    }
+    return null;
+  };
+  const durata = extra.durata || pick('durata-ciclo') || 28;
+  const fmt = gg => (gg>=0 && gg<=44*7) ? (Math.floor(gg/7)+'+'+(gg%7)) : null;
+  const _mezzogiorno = d => { const x=new Date(d); x.setHours(12,0,0,0); return x; };
+  const _gg = (a,b) => Math.round((_mezzogiorno(a) - _mezzogiorno(b))/86400000);
+
+  const umEco = extra.umEco || pick('um-eco');
+  if(umEco){ const s=calcSettimaneDaUM(umEco, dataRif, 28); if(s) return s; }
+
+  const um = extra.um || pick('um');
+  if(um){ const s=calcSettimaneDaUM(um, dataRif, durata); if(s) return s; }
+
+  for(const v of visite){
+    const sRaw = (v.obData && v.obData.settimane) || (v.ecoData && v.ecoData.settimane);
+    const base = (typeof parseSettimaneEsatte==='function') ? parseSettimaneEsatte(sRaw) : null;
+    if(base!==null && !isNaN(base)){
+      const gg = Math.round(base*7) + _gg(dataRif, v.data);
+      const r = fmt(gg); if(r) return r;
+    }
+  }
+
+  const g = ((p&&p.gravidanze)||[]).find(x=>x.id===gravidanzaId);
+  const eppRaw = extra.eppEco || extra.epp || pick('epp-eco') || pick('epp') || (g && (g.dpp || g.epp));
+  const epp = _parseDataFlessibile(eppRaw);
+  if(epp){
+    const gg = 280 - _gg(epp, dataRif);
+    const r = fmt(gg); if(r) return r;
+  }
+  return null;
+}
+
+// Ricalcola e scrive il campo "Settimane di gravidanza" nella scheda visita OB.
+// force=true sovrascrive anche un valore già presente (es. dopo modifica di UM).
+function ricalcolaSettimaneOb(force){
+  const campo = document.getElementById('ob-settimane');
+  if(!campo) return;
+  const p = DB.pazienti.find(x=>x.id===curPaz);
+  const sett = calcolaSettimaneGravidanza(p, curGravidanzaId, new Date(), {
+    um: document.getElementById('ob-um')?.value,
+    umEco: document.getElementById('ob-um-eco')?.value,
+    durata: document.getElementById('ob-durata-ciclo')?.value,
+    epp: document.getElementById('ob-epp')?.value,
+    eppEco: document.getElementById('ob-epp-eco')?.value
+  });
+  if(sett && (force || !campo.value.trim())) campo.value = sett;
+}
 
 let curPaz = null, curVisita = null, curMode = 'gyno', calDate = new Date();
 let curGravidanzaId = null; // gravidanza assegnata alla visita ostetrica/eco in corso di compilazione
@@ -5111,7 +5207,7 @@ function renderAlertsHome(){
     if(r.tipo==='appuntamento'){
       const a=r.a;
       const isOggi=a.data===oggi;
-      const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+      const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
       const localId=trovaPazienteLocaleId(a.pazienteId);
       const nameClick=localId?`onclick="openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
       return `<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
@@ -5126,7 +5222,7 @@ function renderAlertsHome(){
     // Promemoria
     const past=new Date(r.a.data)<new Date();
     return `<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}">
-      <span class="alert-date">${new Date(r.a.data).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</span>
+      <span class="alert-date">${new Date(r.a.data).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})}</span>
       <span class="alert-text"><strong onclick="openPaziente(${r.p.id})" style="cursor:pointer;color:var(--primary)">${r.p.cognome}</strong>: ${r.a.testo}</span>
       <span onclick="openPaziente(${r.p.id})" style="color:var(--primary);cursor:pointer;font-size:.75rem;font-weight:600;">Apri →</span>
     </div>`;
@@ -5657,8 +5753,19 @@ function openPaziente(id){
   document.getElementById('h-tel').textContent=`📞 ${p.tel||'–'}`;
   document.getElementById('h-email').textContent=`✉️ ${p.email||'–'}`;
   document.getElementById('h-cf').textContent=`🪪 ${p.cf||'–'}`;
+  const ga=gravidanzaAttiva(p);
   const gravBtn=document.getElementById('h-grav-conclusa-btn');
-  if(gravBtn) gravBtn.style.display=gravidanzaAttiva(p)?'inline-flex':'none';
+  if(gravBtn) gravBtn.style.display=ga?'inline-flex':'none';
+  const gravBadge=document.getElementById('d-grav-badge');
+  if(gravBadge){
+    if(ga){
+      const sett=calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date());
+      gravBadge.textContent = sett ? `🤰 ${sett} settimane` : '🤰 gravidanza in corso';
+      gravBadge.style.display='inline-flex';
+    } else {
+      gravBadge.style.display='none';
+    }
+  }
   document.getElementById('e-nome').value=p.nome;
   document.getElementById('e-cognome').value=p.cognome;
   document.getElementById('e-nascita').value=p.nascita||'';
@@ -5919,11 +6026,17 @@ let farmaciSelezionatiVisita = new Set();
 let _targetTerapiaFieldId = null;
 let _mfvSpec = 'all';   // filtro specialità: 'all' | 'gin' | 'ost'
 let _mfvCat = null;     // patologia selezionata (null = schermata categorie)
+let _mfvModoPaziente = false; // true = aperto dalla cartella paziente (non da una visita)
 
 function apriSelettoreFarmaciVisita(targetFieldId){
+  _mfvModoPaziente = false;
   _targetTerapiaFieldId = targetFieldId;
   farmaciSelezionatiVisita.clear();
   _mfvCat = null;
+  const titolo = document.getElementById('mfv-titolo');
+  if(titolo) titolo.textContent = '💊 Farmaci per la Terapia';
+  const btnConf = document.getElementById('mfv-btn-conferma');
+  if(btnConf) btnConf.textContent = 'Inserisci in Terapia';
   const search = document.getElementById('mfv-search');
   if(search) search.value='';
   const chk = document.getElementById('mfv-anche-ricetta');
@@ -5940,6 +6053,28 @@ function setMfvSpec(spec){
   _mfvCat = null; // tornando al filtro specialità si riparte dalle categorie
   document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===spec));
   renderFarmaciModal();
+}
+
+// Selettore farmaci aperto dalla cartella paziente (box "Farmaci Attuali"):
+// i farmaci scelti vengono aggiunti alla terapia della paziente e, su richiesta,
+// si genera subito la ricetta. Non serve una visita aperta.
+function apriSelettoreFarmaciPaziente(){
+  const p = DB.pazienti.find(x=>x.id===curPaz);
+  if(!p){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
+  _mfvModoPaziente = true;
+  _targetTerapiaFieldId = null;
+  farmaciSelezionatiVisita.clear();
+  _mfvCat = null;
+  _mfvSpec = 'all';
+  const search = document.getElementById('mfv-search'); if(search) search.value='';
+  const chk = document.getElementById('mfv-anche-ricetta'); if(chk) chk.checked = true;
+  document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===_mfvSpec));
+  const titolo = document.getElementById('mfv-titolo');
+  if(titolo) titolo.textContent = `💊 Prescrivi a ${p.cognome} ${p.nome}`;
+  const btnConf = document.getElementById('mfv-btn-conferma');
+  if(btnConf) btnConf.textContent = 'Aggiungi alla terapia';
+  renderFarmaciModal();
+  document.getElementById('modal-farmaci-visita').classList.add('show');
 }
 
 function mfvApriCategoria(pat){ _mfvCat = pat; renderFarmaciModal(); document.getElementById('mfv-body').scrollTop=0; }
@@ -6017,12 +6152,37 @@ function renderFarmaciModal(){
 // su richiesta, genera e stampa subito la ricetta con quegli stessi farmaci
 // (non serve prima salvare la visita: usa il nome della paziente aperta).
 function confermaFarmaciSelezionatiVisita(ancheStampa){
-  if(!farmaciSelezionatiVisita.size || !_targetTerapiaFieldId){ closeModal('modal-farmaci-visita'); return; }
-  const testo=[...farmaciSelezionatiVisita]
-    .map(idx=>FARMACI[idx])
-    .filter(Boolean)
-    .map(f=>`${f.n} (${f.p}) — ${f.dose}`)
-    .join('\n');
+  if(!farmaciSelezionatiVisita.size){ closeModal('modal-farmaci-visita'); return; }
+  const scelti=[...farmaciSelezionatiVisita].map(idx=>FARMACI[idx]).filter(Boolean);
+  const testo=scelti.map(f=>`${f.n} (${f.p}) — ${f.dose}`).join('\n');
+
+  // ── Aperto dalla cartella paziente: aggiunge alla terapia della paziente ──
+  if(_mfvModoPaziente){
+    const p=DB.pazienti.find(x=>x.id===curPaz);
+    if(p){
+      if(!p.farmaciManuali) p.farmaciManuali=[];
+      const oggiIso=new Date().toISOString().split('T')[0];
+      scelti.forEach((f,i)=>{
+        p.farmaciManuali.push({
+          id:'fm'+Date.now().toString(36)+i,
+          farmaco:f.n, dosaggio:f.p, note:f.dose, daQuando:oggiIso
+        });
+      });
+      salvaDB();
+      renderFarmaciAttuali(p);
+      if(typeof gsToast==='function') gsToast('💊 Farmaci aggiunti alla terapia', 'gs-success');
+      if(ancheStampa){
+        const dataStr=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+        stampaRicettaConTesto(`${p.cognome} ${p.nome}`, dataStr, formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`, testo));
+      }
+    }
+    closeModal('modal-farmaci-visita');
+    farmaciSelezionatiVisita.clear();
+    _mfvModoPaziente=false;
+    return;
+  }
+
+  if(!_targetTerapiaFieldId){ closeModal('modal-farmaci-visita'); return; }
   appendComboText(_targetTerapiaFieldId, testo);
   closeModal('modal-farmaci-visita');
   if(typeof gsToast==='function') gsToast('💊 Farmaci aggiunti alla terapia', 'gs-success');
@@ -6233,6 +6393,9 @@ function startEditor(tipo, vid=null){
 
   if(typeof renderInformativeTesti==='function') renderInformativeTesti();
   if(vid) loadVisita(vid);
+  // Settimane di gravidanza: precompila in automatico (senza sovrascrivere un
+  // valore già registrato), poi resta modificabile a mano.
+  if(tipo==='ob' && typeof ricalcolaSettimaneOb==='function') ricalcolaSettimaneOb(!vid);
   if(typeof aiMostraRobot==='function') aiMostraRobot();
   }catch(e){
     console.error('[DEBUG startEditor] Errore con tipo=',tipo,'vid=',vid,':',e);
@@ -6673,7 +6836,7 @@ function _aiDataRel(dstr){
   if(gg===-1) return 'ieri';
   if(gg>1 && gg<=10) return 'tra ' + gg + ' giorni';
   if(gg<0) return Math.abs(gg) + ' giorni fa';
-  return new Date(dstr + 'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  return new Date(dstr + 'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 function _aiEtichettaCaso(pazId, label){
   const gia = _aiCasiImminenti.find(c=>c.pazId===pazId);
@@ -8526,7 +8689,7 @@ function showNuovaPrenotazionePopup(nuovi){
   if(tit) tit.textContent=nuovi.length>1?`🔔 ${nuovi.length} Nuove Prenotazioni`:'🔔 Nuova Prenotazione';
   list.innerHTML=nuovi.map(a=>{
     const localId=trovaPazienteLocaleId(a.pazienteId);
-    const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+    const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     const nameClick=localId?`onclick="closeModal('nuova-pren-popup');openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
     return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px">
       <div style="font-weight:700;font-size:1rem;margin-bottom:4px" ${nameClick}>${a.pazienteNome||'Paziente'}${localId?' ↗':''}</div>
@@ -8539,7 +8702,7 @@ function showNuovaPrenotazionePopup(nuovi){
 }
 
 function showApptPopup(appts, oggi){
-  const dStr=new Date(oggi+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  const dStr=new Date(oggi+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const el=document.getElementById('popup-appts-date');
   if(el) el.textContent=dStr;
   const tit=document.getElementById('popup-appts-title');
@@ -8592,7 +8755,7 @@ function renderFBAppts(){
   document.getElementById('appt-next-badge').textContent=apptNext.length;
 
   function apptRow(a,showDate=false){
-    const dStr=showDate?new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'})+' ':'';
+    const dStr=showDate?new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' ':'';
     const localId=trovaPazienteLocaleId(a.pazienteId);
     const nomeClick=localId?`onclick="apriCartellaDaAppuntamento('${localId}','${a.tipo||''}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted"`:'';
     const centroHtml=a.createdByOrg?`<span class="badge badge-blue" style="margin-left:6px">🏥 ${a.createdByOrg}</span>`:'<span class="badge badge-purple" style="margin-left:6px">👩‍⚕️ Dr.ssa Guidi</span>';
