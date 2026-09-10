@@ -1898,10 +1898,13 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ob-3')">✅ Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-eco" style="display:none">
-        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ec-1')"><span class="step-num">1</span>Biometria Fetale</button>
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'ec-dati')">📋 Tipo & Datazione</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-1')"><span class="step-num">1</span>Biometria Fetale</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-referti')">🖥️ Referti Ecografici</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-anatomia')">🧠 Anatomia Fetale</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-2')"><span class="step-num">2</span>Annessi & Liquido</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-doppler')">〜 Doppler</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-note')">📝 Note Ecografiche</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">3</span>Referto</button>
       </div>
       <div class="editor-content">
@@ -2603,18 +2606,31 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
              ═══════════════════════════════════════════════ -->
         <div id="eco-panels" style="display:none">
 
-          <!-- ════════ ECO PANEL 1: BIOMETRIA FETALE ════════ -->
-          <div id="ec-1" class="edit-panel active">
+          <!-- ════════ ECO PANEL: TIPO & DATAZIONE ════════ -->
+          <div id="ec-dati" class="edit-panel active">
+            <datalist id="dl-tipo-eco">
+              <option value="Ecografia ostetrica I trimestre"></option>
+              <option value="Ecografia ostetrica I trimestre con translucenza nucale (NT)"></option>
+              <option value="Ecografia di datazione"></option>
+              <option value="Ecografia morfologica (II trimestre)"></option>
+              <option value="Ecografia ostetrica III trimestre"></option>
+              <option value="Ecografia di accrescimento / controllo di crescita"></option>
+            </datalist>
+            <datalist id="dl-indicazione-eco">
+              <option value="Datazione"></option>
+              <option value="Ecografia I trimestre"></option>
+              <option value="Accrescimento fetale"></option>
+            </datalist>
+            <datalist id="dl-sonda-eco"><option value="TV"></option><option value="TA"></option><option value="TV e TA"></option></datalist>
+            <datalist id="dl-ecografo-eco"><option value="Voluson S10"></option><option value="Voluson E10"></option><option value="Samsung"></option></datalist>
+
             <div class="section-card">
               <h4 data-icon="📋">Tipo di Esame</h4>
-              <div class="field-row r3">
-                <div class="form-group"><label class="form-label">Tipo Ecografia</label><select id="ec-tipo-esame">
-                  <option value="">-- Seleziona --</option>
-                  <option value="i_trimestre">I Trimestre (datazione/translucenza nucale)</option>
-                  <option value="morfologica">Morfologica (II trimestre)</option>
-                  <option value="iii_trimestre">III Trimestre</option>
-                  <option value="crescita">Controllo di crescita</option>
-                </select></div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Tipo Ecografia (selezionabile e modificabile)</label><input id="ec-tipo-esame" list="dl-tipo-eco" placeholder="scegli o scrivi..."></div>
+                <div class="form-group"><label class="form-label">Indicazione (selezionabile e modificabile)</label><input id="ec-indicazione" list="dl-indicazione-eco" placeholder="Datazione / Ecografia I trimestre / Accrescimento fetale"></div>
+              </div>
+              <div class="field-row r2">
                 <div class="form-group"><label class="form-label">Vitalità Fetale</label><select id="ec-vitalita">
                   <option value="">-- Seleziona --</option><option value="presente">Presente</option><option value="assente">Assente</option>
                 </select></div>
@@ -2623,30 +2639,131 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                 </select></div>
               </div>
             </div>
+
+            <div class="section-card">
+              <h4 data-icon="📅">Datazione</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">UM (Ultima Mestruazione)</label><input type="date" id="ec-um" onchange="calcDatazioneEco()"></div>
+                <div class="form-group"><label class="form-label">EPP (da UM)</label><input id="ec-epp" placeholder="calcolata da UM"></div>
+              </div>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">Epoca gestazionale da UM</label><input id="ec-epoca-um" placeholder="auto da UM"></div>
+                <div class="form-group"><label class="form-label">Epoca gestazionale ecografica</label><input id="ec-epoca-eco" placeholder="es. 12+3 (da CRL/biometria)"></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🧪">Test di Screening I Trimestre (selezione multipla)</h4>
+              <select onchange="appendComboText('ec-test-screening',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi --</option>
+                <option data-full="Ecografia I trimestre nella norma con NT = ___ mm, NIPT/G-test basso rischio.">Eco I trim norma + NIPT basso rischio</option>
+                <option data-full="Test combinato basso rischio.">Test combinato basso rischio</option>
+                <option data-full="Non eseguito screening I trimestre per scelta.">Non eseguito per scelta</option>
+                <option data-full="CVS/Amniocentesi: cariotipo normale 46,XX / 46,XY.">CVS/Amniocentesi cariotipo normale</option>
+              </select>
+              <textarea id="ec-test-screening" rows="3" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🔬">Ecografia Morfologica</h4>
+              <select onchange="appendComboText('ec-eco-morfologica',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi --</option>
+                <option data-full="Ecografia morfologica eseguita, regolare. Placenta ___ normoinserta.">Morfologica regolare</option>
+              </select>
+              <textarea id="ec-eco-morfologica" rows="2" style="margin-top:6px" placeholder="testo modificabile"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🩺">Dati Clinici</h4>
+              <select onchange="appendComboText('ec-dati-clinici',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi --</option>
+                <option data-full="Gravida a ___ settimane. Seguita c/o CF, esegue regolari controlli ecografici ed esami ematici nella norma.">Gravida a ?? sett · seguita c/o CF</option>
+              </select>
+              <textarea id="ec-dati-clinici" rows="3" style="margin-top:6px"></textarea>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="📡">Strumentazione</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Ecografo (selezionabile e modificabile)</label><input id="ec-ecografo" list="dl-ecografo-eco" placeholder="es. Voluson S10"></div>
+                <div class="form-group"><label class="form-label">Sonda (selezionabile e modificabile)</label><input id="ec-sonda" list="dl-sonda-eco" placeholder="TV / TA / TV e TA"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fattori limitanti l'esame (selezione multipla)</label>
+                <select onchange="appendComboText('ec-fattori-limitanti',this.options[this.selectedIndex].text)">
+                  <option value="">-- Aggiungi fattore --</option>
+                  <option>Nessuno</option>
+                  <option>Intenso meteorismo intestinale</option>
+                  <option>BMI</option>
+                  <option>Feto in dorso anteriore</option>
+                  <option>Pregressi interventi chirurgici</option>
+                  <option>Scarsa ecogenicità di parete addominale</option>
+                </select>
+                <textarea id="ec-fattori-limitanti" rows="2" style="margin-top:6px"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════ ECO PANEL 1: BIOMETRIA FETALE ════════ -->
+          <div id="ec-1" class="edit-panel">
             <div class="section-card">
               <h4 data-icon="📏">Età Gestazionale</h4>
-              <div class="form-group"><input id="ec-settimane" placeholder="es. 20+5 settimane"></div>
+              <div class="form-group"><input id="ec-settimane" placeholder="es. 20+5 settimane" oninput="aggiornaPercentiliEco()"></div>
             </div>
             <div class="section-card">
-              <h4 data-icon="👶">Biometria Fetale</h4>
+              <h4 data-icon="👶">Biometria Fetale (con percentili INTERGROWTH-21st)</h4>
               <div class="field-row r3">
                 <div class="form-group"><label class="form-label">CRL (mm)</label><input id="ec-crl" placeholder="es. 65"></div>
-                <div class="form-group"><label class="form-label">BPD (mm)</label><input id="ec-bpd" placeholder="es. 48" oninput="calcEFW()"></div>
-                <div class="form-group"><label class="form-label">CC - Circonferenza Cranica (mm)</label><input id="ec-hc" placeholder="es. 180" oninput="calcEFW()"></div>
+                <div class="form-group"><label class="form-label">BPD (mm)</label><input id="ec-bpd" placeholder="es. 48" oninput="calcEFW();aggiornaPercentiliEco()"><div class="perc-badge" id="ec-perc-bpd"></div></div>
+                <div class="form-group"><label class="form-label">CC (mm)</label><input id="ec-hc" placeholder="es. 180" oninput="calcEFW();aggiornaPercentiliEco()"><div class="perc-badge" id="ec-perc-hc"></div></div>
               </div>
               <div class="field-row r3" style="margin-top:12px">
-                <div class="form-group"><label class="form-label">FL (mm)</label><input id="ec-fl" placeholder="es. 32" oninput="calcEFW()"></div>
-                <div class="form-group"><label class="form-label">AC (mm)</label><input id="ec-ac" placeholder="es. 160" oninput="calcEFW()"></div>
+                <div class="form-group"><label class="form-label">FL (mm)</label><input id="ec-fl" placeholder="es. 32" oninput="calcEFW();aggiornaPercentiliEco()"><div class="perc-badge" id="ec-perc-fl"></div></div>
+                <div class="form-group"><label class="form-label">AC (mm)</label><input id="ec-ac" placeholder="es. 160" oninput="calcEFW();aggiornaPercentiliEco()"><div class="perc-badge" id="ec-perc-ac"></div></div>
               </div>
               <div class="form-group" id="ec-efw-box" style="margin-top:12px;display:none">
                 <label class="form-label">Peso Fetale Stimato (EFW, formula di Hadlock) — calcolato automaticamente</label>
                 <input id="ec-efw" readonly style="background:var(--surface2);font-weight:700">
                 <div id="ec-efw-nota" style="font-size:.76rem;color:var(--label4);margin-top:4px"></div>
+                <div class="perc-badge" id="ec-perc-peso"></div>
               </div>
+              <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="apriCurveCrescitaEco()">📈 Vedi Curve di Crescita + peso fetale (stampabili)</button>
             </div>
             <div class="section-card">
               <h4 data-icon="❤️">Battito Cardiaco Fetale</h4>
               <div class="form-group"><input id="ec-bcf" placeholder="es. 150 bpm, ritmo regolare"></div>
+            </div>
+          </div>
+
+          <!-- ════════ ECO PANEL: REFERTI ECOGRAFICI ════════ -->
+          <div id="ec-referti" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="stampaInformativaConsenso('Ecografia Ostetrica I Trimestre')" title="Stampa informativa/consenso">🖨️ Informativa</button></h4>
+              <select onchange="appendComboText('ec-eco1',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi referto --</option>
+                <option data-full="ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">ECO Datazione</option>
+                <option data-full="RIDATAZIONE: Si esegue ridatazione ecografica della gravidanza per CRL corrispondente a ___ settimane ecografiche. Pertanto risulta UM ecografica ___ , EPP ecografica ___ .">Ridatazione</option>
+                <option data-full="ABORTO: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo senza attività cardiaca, CRL di ___ mm corrispondente a ___ settimane gestazionali (oppure privo di echi embrionari). Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">Aborto</option>
+                <option data-full="1° TRIM 11-13 OFFICE: Feto singolo dotato di BCF e MAF, placenta ___ , liquido amniotico regolare.">1°Trim 11-13 Office</option>
+                <option data-full="NT: Feto singolo, dotato di attività cardiaca e motoria, con CRL corrispondente a ___ settimane gestazionali. L'esplorazione dell'anatomia fetale di base, limitata dall'epoca gestazionale, ha permesso di visualizzare: Estremo cefalico: presenza delle ossa del cranio; linea mediana; plessi coroidei all'interno dei ventricoli. Addome: normale inserzione del cordone ombelicale; stomaco evidenziato ed omolaterale al cuore; arti superiori e inferiori; liquido amniotico nella norma; placenta normale. La misurazione della translucenza nucale (NT) è risultata pari a ___ mm.">NT (translucenza)</option>
+              </select>
+              <textarea id="ec-eco1" rows="4" style="margin-top:6px"></textarea>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="stampaInformativaConsenso('Ecografia Ostetrica II-III Trimestre')" title="Stampa informativa/consenso">🖨️ Informativa</button></h4>
+              <select onchange="appendComboText('ec-eco23',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi referto --</option>
+                <option data-full="2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento.">2-3 Trim Office</option>
+              </select>
+              <textarea id="ec-eco23" rows="3" style="margin-top:6px"></textarea>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="3️⃣">Ecografia III Trimestre<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="stampaInformativaConsenso('Ecografia Ostetrica III Trimestre')" title="Stampa informativa/consenso">🖨️ Informativa</button></h4>
+              <select onchange="appendComboText('ec-eco3',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi referto --</option>
+                <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
+              </select>
+              <textarea id="ec-eco3" rows="3" style="margin-top:6px"></textarea>
             </div>
           </div>
 
@@ -2761,18 +2878,42 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
             </div>
           </div>
 
+          <!-- ════════ ECO PANEL: NOTE ECOGRAFICHE ════════ -->
+          <div id="ec-note" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="📝">Note Ecografiche (selezione multipla)</h4>
+              <select onchange="appendComboText('ec-note-eco',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi nota --</option>
+                <option data-full="DATAZIONE: Si spiega alla paziente che l'ecografia in data odierna è finalizzata alla datazione della gravidanza e non allo screening delle cromosomopatie.">Datazione</option>
+                <option data-full="ECO 1 TRIM: Si raccomanda esecuzione di ecografia morfologica di screening del II trimestre a 19-21 settimane gestazionali per la valutazione dell'anatomia fetale.">Eco 1 Trim</option>
+                <option data-full="ECO 3 TRIM: Per 'visualizzato' si intende che l'organo o apparato indagato presenta caratteristiche ecografiche regolari per l'età gestazionale. La stima del peso fetale è inficiata da un errore uguale o superiore al +/- 10% e non è raccomandata se non in casi selezionati. Si informa la persona assistita/coppia degli esiti dell'esame ecografico effettuato e dei suoi limiti nella individuazione delle anomalie fetali. Il riconoscimento delle malformazioni non è un obiettivo specifico della ecografia del terzo trimestre nelle gravidanze a basso rischio. – Linee Guida SIEOG.">Eco 3 Trim</option>
+                <option data-full="BT OK: Il rischio delle alterazioni cromosomiche più frequenti, ricalcolato sulla base dello spessore della translucenza retronucale ed al dato biochimico, con il software della FMF, è risultato a rischio BASSO per le trisomie 13, 18 e 21 (cut-off Regionale 1:300 per la T21 e 1:150 per T13 e T18). Si allega referto della FMF con calcolo del rischio ed immagini iconografiche dell'esame.">BT Basso rischio</option>
+                <option data-full="CONSULENZA: Si esegue consulenza post-test, si spiega che l'esame eseguito (test combinato/NIPT) è consigliato (non obbligatorio) e che rappresenta un test di screening per alcune delle alterazioni cromosomiche maggiori (T21, T13, T18). Tale test fornisce risultati probabilistici di rischio (alto o basso), pertanto non è test diagnostico né sostitutivo degli esami di diagnosi prenatale invasiva (villocentesi e/o amniocentesi). Si raccomanda l'esecuzione dell'ecografia morfologica di screening del II trimestre tra 19 e 21 settimane gestazionali.">Consulenza post-test</option>
+                <option data-full="ABORTO: Si propone alla paziente atteggiamento di attesa di 2 settimane, come da Linee Guida NICE, per permettere l'eventuale espulsione spontanea del prodotto del concepimento.">Aborto (gestione)</option>
+              </select>
+              <textarea id="ec-note-eco" rows="6" style="margin-top:6px"></textarea>
+            </div>
+          </div>
+
           <!-- ════════ ECO PANEL 3: REFERTO ════════ -->
           <div id="ec-3" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="📄">Diagnosi / Referto</h4>
-              <div class="form-group"><textarea id="ec-diagnosi" rows="6" placeholder="Referto conclusivo dell'esame ecografico..."></textarea></div>
+              <h4 data-icon="✅">Conclusioni (selezione multipla)</h4>
+              <select onchange="appendComboText('ec-diagnosi',this.options[this.selectedIndex].dataset.full||'')">
+                <option value="">-- Aggiungi conclusione --</option>
+                <option data-full="DATAZIONE: Gravidanza intrauterina singola in regolare evoluzione.">Datazione — regolare evoluzione</option>
+                <option data-full="INCERTA EVOLUTIVITA': Gravidanza intrauterina singola ad incerta evolutività. Controllo ecografico fra 7-10 giorni.">Incerta evolutività</option>
+                <option data-full="ECO 3 TRIM: Valori biometrici nella norma/anormali per l'età gestazionale.">Eco 3° trimestre</option>
+                <option data-full="ABORTO: Aborto incompleto/interno a ___ settimane ecografiche. Contattare il servizio consultoriale per presa in carico e programmare successivi app.ti. Recarsi c/o PS Ostetrico Ginecologico (DEA V piano) in caso di perdite ematiche a carattere emorragico e/o forti algie pelviche non responsive all'antidolorifico.">Aborto</option>
+              </select>
+              <textarea id="ec-diagnosi" rows="6" style="margin-top:6px" placeholder="Referto conclusivo dell'esame ecografico..."></textarea>
             </div>
 
             <div class="section-card informativa-card">
               <h4 data-icon="📋">Informativa e consenso</h4>
               <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
-                <input type="checkbox" id="ec-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0" onchange="toggleInformativa()">
-                <span class="informativa-testo"></span>
+                <input type="checkbox" id="ec-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
+                <span class="informativa-testo-eco" style="font-size:0.82rem;line-height:1.55;color:var(--label3)"></span>
               </label>
               <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Ecografia Ostetrica')">🖨️ Stampa informativa / consenso informato</button>
             </div>
@@ -2986,6 +3127,7 @@ const GD = {
   ecografo: ["", "Voluson S10", "Samsung"],
   sonda: ["", "TV", "TA", "TV+TA", "TR"],
   informativa: "Informazione: la Persona Assistita ha avuto modo di ricevere una adeguata informazione su scopi e limiti dell'esame attraverso il colloquio con il proprio Ginecologo (al quale ha avuto la possibilità di porre i quesiti ritenuti opportuni) e attraverso la lettura di un foglio informativo che si allega al referto. La persona assistita acconsente all'effettuazione dell'indagine nelle modalità proposte e firma consenso informato in allegato.",
+  informativaEco: "La persona assistita acconsente all'effettuazione dell'indagine ecografica, adeguatamente informata su scopi e limiti dell'esame ecografico attraverso il colloquio con il proprio Ginecologo (al quale ha avuto la possibilità di porre eventuali quesiti) e attraverso la lettura di un supporto informativo cartaceo che si allega al referto. Firma consenso informato in allegato.",
 
   // ECOGRAFIA (tendina → testo completo)
   ecografia: {
@@ -3216,12 +3358,33 @@ function toggleInformativa(){
 // Popola tutte le caselle ".informativa-testo" col testo unico GD.informativa
 function renderInformativeTesti(){
   document.querySelectorAll('.informativa-testo').forEach(el=>{ el.textContent = GD.informativa; });
+  document.querySelectorAll('.informativa-testo-eco').forEach(el=>{ el.textContent = GD.informativaEco; });
+}
+
+// Precompila la datazione della scheda ecografia dalla gravidanza in corso
+// (UM/EPP dalle visite ostetriche, epoca calcolata a oggi). Non sovrascrive
+// campi già compilati; tutto resta modificabile.
+function riportaDatiEco(nuova){
+  const p = DB.pazienti.find(x=>x.id===curPaz);
+  if(!p) return;
+  const V = (id,val)=>{ const el=document.getElementById(id); if(el && val && (nuova || !el.value.trim())) el.value=val; };
+  const visiteGrav = (p.visite||[])
+    .filter(v=>(v.tipo==='ob'||v.tipo==='eco') && (!curGravidanzaId || v.gravidanzaId===curGravidanzaId))
+    .sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const pick = k => { for(const v of visiteGrav){ const d=v.obData||v.ecoData||{}; if(d[k] && String(d[k]).trim()) return d[k]; } return null; };
+  V('ec-um', pick('um'));
+  V('ec-epp', pick('epp'));
+  calcDatazioneEco();
+  const sett = (typeof calcolaSettimaneGravidanza==='function') ? calcolaSettimaneGravidanza(p, curGravidanzaId, new Date()) : null;
+  if(sett){ V('ec-settimane', sett); V('ec-epoca-um', sett); }
+  if(typeof aggiornaPercentiliEco==='function') aggiornaPercentiliEco();
 }
 
 // Apre una pagina stampabile e modificabile con l'informativa e il consenso
 // informato, intestata come la ricetta. tipoEsame = descrizione dell'indagine.
 function stampaInformativaConsenso(tipoEsame){
   const c = getPrintCfg(); const l = c.layout;
+  const testoInformativa = /^ecografia/i.test(tipoEsame||'') ? GD.informativaEco : GD.informativa;
   const p = DB.pazienti.find(x=>x.id===curPaz);
   const nome = p ? `${p.cognome} ${p.nome}` : '________________________';
   const nascita = p && p.nascita ? new Date(p.nascita).toLocaleDateString('it-IT') : '____________';
@@ -3260,7 +3423,7 @@ function stampaInformativaConsenso(tipoEsame){
       <div><strong>Persona assistita:</strong> ${nome} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
       <div><strong>Data:</strong> ${oggi}</div>
     </div>
-    <div class="ic-body" contenteditable="true" spellcheck="false">${GD.informativa}</div>
+    <div class="ic-body" contenteditable="true" spellcheck="false">${testoInformativa}</div>
     <div class="ic-consenso" contenteditable="true" spellcheck="false">
       La sottoscritta, presa visione di quanto sopra e avendo ricevuto adeguate informazioni sugli scopi, i limiti e le eventuali alternative dell'esame, avendo potuto porre domande e ricevuto risposte esaurienti, <strong>acconsente</strong> liberamente all'esecuzione dell'indagine nelle modalità proposte.
     </div>
@@ -3554,6 +3717,7 @@ function calcEFW(){
     nota.innerHTML=`${testoNota} Per il percentile preciso del peso stimato: <a href="https://www.medfetal.org/en/gestational-calculator/" target="_blank" style="color:var(--primary);text-decoration:underline">calcolatore ufficiale ↗</a>`;
   }
   if(box) box.style.display='block';
+  if(typeof aggiornaPercentiliEco==='function') aggiornaPercentiliEco();
 }
 
 function calcCPR(){
@@ -3754,8 +3918,17 @@ function apriCurveCrescitaOb(){
 
 // ── ECOGRAFIA OSTETRICA ──
 const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','bcf','liquido','placenta','diagnosi','terapia','prossimo',
-  // Tipo esame
-  'tipo-esame','vitalita','num-feti',
+  // Tipo esame & datazione
+  'tipo-esame','indicazione','vitalita','num-feti',
+  'um','epp','epoca-um','epoca-eco',
+  // Testi preformati datazione
+  'test-screening','eco-morfologica','dati-clinici',
+  // Strumentazione
+  'ecografo','sonda','fattori-limitanti',
+  // Referti ecografici (come in visita ostetrica)
+  'eco1','eco23','eco3',
+  // Note ecografiche
+  'note-eco',
   // Anatomia fetale
   'anat-cranio-esito','anat-cranio-note','anat-colonna-esito','anat-colonna-note',
   'anat-cuore-esito','anat-cuore-note','anat-addome-esito','anat-addome-note','anat-arti-esito','anat-arti-note',
@@ -3783,6 +3956,70 @@ function setEcoData(data){
   if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   calcEFW(); // mostra il box EFW se la biometria è presente
   calcCPR(); // mostra il box CPR se i valori PI sono presenti
+  if(typeof aggiornaPercentiliEco==='function') aggiornaPercentiliEco();
+}
+
+// UM → EPP (Naegele) + epoca gestazionale da UM, per la scheda ecografia.
+function calcDatazioneEco(){
+  const um=document.getElementById('ec-um')?.value;
+  const epp=(typeof calcEPP==='function')?calcEPP(um,28):null;
+  const outEpp=document.getElementById('ec-epp');
+  if(outEpp) outEpp.value=epp?epp.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+  const outEpoca=document.getElementById('ec-epoca-um');
+  if(outEpoca && um){ const s=(typeof calcSettimaneDaUM==='function')?calcSettimaneDaUM(um,new Date(),28):null; if(s) outEpoca.value=s; }
+}
+
+// Percentili INTERGROWTH-21st per la biometria della scheda ecografia (usa ec-settimane).
+function aggiornaPercentiliEco(){
+  const epoca=parseSettimaneEsatte(document.getElementById('ec-settimane')?.value);
+  [
+    {id:'bpd',dataset:INTERGROWTH_BPD},{id:'hc',dataset:INTERGROWTH_HC},
+    {id:'ac',dataset:INTERGROWTH_AC},{id:'fl',dataset:INTERGROWTH_FL}
+  ].forEach(p=>{
+    const badge=document.getElementById('ec-perc-'+p.id);
+    if(!badge)return;
+    const val=parseFloat(document.getElementById('ec-'+p.id)?.value);
+    if(isNaN(val)||epoca===null){ badge.textContent=''; badge.className='perc-badge'; return; }
+    const perc=intergrowthPercentile(p.dataset,epoca,val);
+    if(!perc){ badge.textContent=''; badge.className='perc-badge'; return; }
+    badge.textContent='percentile '+perc;
+    const n=parseInt(perc); let cls='perc-badge';
+    if(perc.includes('<')||perc.includes('>')) cls+=' perc-fuori';
+    else if(n<10||n>90) cls+=' perc-attenzione';
+    else cls+=' perc-ok';
+    badge.className=cls;
+  });
+  // Percentile del peso (EFW) — usa il valore già calcolato da calcEFW (grammi)
+  const pesoBadge=document.getElementById('ec-perc-peso');
+  if(pesoBadge){
+    const peso=parseFloat((document.getElementById('ec-efw')?.value||'').replace(/[^\d.]/g,''));
+    const pp=(!isNaN(peso)&&epoca!==null&&typeof efwPercentile==='function')?efwPercentile(epoca,peso):null;
+    if(!pp){ pesoBadge.textContent=''; pesoBadge.className='perc-badge'; }
+    else{
+      pesoBadge.textContent='≈ percentile '+pp+' (orientativo)';
+      const n=parseInt(pp); let cls='perc-badge';
+      if(pp.includes('<')||pp.includes('>')) cls+=' perc-fuori';
+      else if(n<10||n>90) cls+=' perc-attenzione';
+      else cls+=' perc-ok';
+      pesoBadge.className=cls;
+    }
+  }
+}
+
+// Curve di crescita dalla scheda ecografia in compilazione (dati non ancora salvati).
+function apriCurveCrescitaEco(){
+  const sett=document.getElementById('ec-settimane')?.value;
+  if(!parseSettimaneEsatte(sett)){ if(typeof gsToast==='function')gsToast('Inserisci prima l\'epoca gestazionale','gs-error'); return; }
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p) return;
+  apriCurveCrescitaDaOb(curPaz, curGravidanzaId, {
+    settimane:sett,
+    bpd:document.getElementById('ec-bpd')?.value,
+    hc:document.getElementById('ec-hc')?.value,
+    ac:document.getElementById('ec-ac')?.value,
+    fl:document.getElementById('ec-fl')?.value,
+    peso:(document.getElementById('ec-efw')?.value||'').replace(/[^\d.]/g,'')
+  });
 }
 
 // ═══════════════════════════════════════════════════
@@ -6429,7 +6666,7 @@ function startEditor(tipo, vid=null){
   const meta={
     gyno:{badge:'🌸 GINECOLOGICA',label:'Visita Ginecologica',firstTab:'ep-1'},
     ob:{badge:'🤰 OSTETRICA',label:'Visita Ostetrica',firstTab:'ob-anamnesi'},
-    eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-1'}
+    eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-dati'}
   }[tipo];
   document.getElementById('editor-type-badge').textContent=meta.badge;
   document.getElementById('editor-title').textContent=`${meta.label} – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
@@ -6459,6 +6696,7 @@ function startEditor(tipo, vid=null){
   // Settimane di gravidanza: precompila in automatico (senza sovrascrivere un
   // valore già registrato), poi resta modificabile a mano.
   if(tipo==='ob' && typeof ricalcolaSettimaneOb==='function') ricalcolaSettimaneOb(!vid);
+  if(tipo==='eco' && typeof riportaDatiEco==='function') riportaDatiEco(!vid);
   if(typeof aiMostraRobot==='function') aiMostraRobot();
   }catch(e){
     console.error('[DEBUG startEditor] Errore con tipo=',tipo,'vid=',vid,':',e);
@@ -7919,13 +8157,36 @@ function getRefertoSezioni(v){
     const e=v.ecoData||{};
     const TIPO_ESAME_LABEL={i_trimestre:'I Trimestre',morfologica:'Morfologica (II trimestre)',iii_trimestre:'III Trimestre',crescita:'Controllo di crescita'};
     const NUM_FETI_LABEL={singola:'Gravidanza singola',gemellare_bi:'Gemellare bicoriale',gemellare_mono:'Gemellare monocoriale'};
+    const epocaEc=parseSettimaneEsatte(e.settimane);
+    const pEc=(id,ds)=>epocaEc!==null&&e[id]?intergrowthPercentile(ds,epocaEc,parseFloat(e[id])):null;
+    const fmtEc=(val,perc,u)=>val?`${val} ${u}${perc?' ('+perc+' pc)':''}`:'';
+    const strumEc=[e.ecografo,e.sonda].filter(Boolean).join(' · ');
     return [
       {icon:'📋',title:'Tipo di Esame',rows:[
-        ['Tipo ecografia',TIPO_ESAME_LABEL[e['tipo-esame']]||''],['Vitalità fetale',e.vitalita],['Numero feti',NUM_FETI_LABEL[e['num-feti']]||'']
+        ['Tipo ecografia',TIPO_ESAME_LABEL[e['tipo-esame']]||e['tipo-esame']],['Indicazione',e.indicazione],['Vitalità fetale',e.vitalita],['Numero feti',NUM_FETI_LABEL[e['num-feti']]||'']
+      ]},
+      {icon:'📅',title:'Datazione',rows:[
+        ['UM',e.um?new Date(e.um).toLocaleDateString('it-IT'):''],['EPP',e.epp],
+        ['Epoca gestazionale da UM',e['epoca-um']],['Epoca gestazionale ecografica',e['epoca-eco']]
+      ]},
+      {icon:'🧪',title:'Screening / Dati Clinici',rows:[
+        ['Test di screening I trimestre',e['test-screening']],['Ecografia morfologica',e['eco-morfologica']],['Dati clinici',e['dati-clinici']]
       ]},
       {icon:'📏',title:'Età Gestazionale',rows:[['Settimane',e.settimane]]},
+      {icon:'🖥️',title:'Referti Ecografici'+(strumEc?' ('+strumEc+')':''),rows:[
+        ['Fattori limitanti',e['fattori-limitanti']],['Eco I trimestre',e.eco1],['Eco II-III trimestre',e.eco23],['Eco III trimestre',e.eco3]
+      ]},
       {icon:'👶',title:'Biometria Fetale',rows:[
-        ['CRL',e.crl?e.crl+' mm':''],['BPD',e.bpd?e.bpd+' mm':''],['CC (HC)',e.hc?e.hc+' mm':''],['FL',e.fl?e.fl+' mm':''],['AC',e.ac?e.ac+' mm':''],['Peso Fetale Stimato (EFW)',e.efw],['BCF',e.bcf]
+        ['CRL',e.crl?e.crl+' mm':''],
+        ['BPD',fmtEc(e.bpd,pEc('bpd',INTERGROWTH_BPD),'mm')],['CC (HC)',fmtEc(e.hc,pEc('hc',INTERGROWTH_HC),'mm')],
+        ['FL',fmtEc(e.fl,pEc('fl',INTERGROWTH_FL),'mm')],['AC',fmtEc(e.ac,pEc('ac',INTERGROWTH_AC),'mm')],
+        ['Peso Fetale Stimato (EFW)',(()=>{
+          if(!e.efw)return '';
+          const g=parseFloat(String(e.efw).replace(/[^\d.]/g,''));
+          const pp=(epocaEc!==null&&!isNaN(g)&&typeof efwPercentile==='function')?efwPercentile(epocaEc,g):null;
+          return e.efw+(pp?` — ≈ ${pp} percentile INTERGROWTH-21st (orientativo)`:'');
+        })()],
+        ['BCF',e.bcf]
       ]},
       {icon:'🧠',title:'Anatomia Fetale',rows:[
         ['Cranio/Encefalo',[e['anat-cranio-esito'],e['anat-cranio-note']].filter(Boolean).join(' · ')],
@@ -7946,10 +8207,11 @@ function getRefertoSezioni(v){
         ['Arteria Uterina Sinistra — PI',e['doppler-utsx-pi']],['Arteria Uterina Destra — PI',e['doppler-utdx-pi']],
         ['Dotto Venoso — PI',e['doppler-dv-pi']],['Note',e['doppler-note']]
       ]},
-      {icon:'📄',title:'Diagnosi / Referto',rows:[['Diagnosi',e.diagnosi]]},
+      {icon:'📝',title:'Note Ecografiche',rows:[['Note',e['note-eco']]]},
+      {icon:'✅',title:'Conclusioni / Referto',rows:[['Conclusioni',e.diagnosi]]},
       {icon:'💊',title:'Terapia',rows:[['Terapia',e.terapia]]},
       {icon:'🔄',title:'Prossimo Controllo',rows:[['Prossimo controllo',e.prossimo]]},
-      {icon:'📋',title:'Informativa',rows:[['Nota',e.informativa?GD.informativa:'']]}
+      {icon:'📋',title:'Informativa',rows:[['Nota',e.informativa?GD.informativaEco:'']]}
     ];
   }
 
