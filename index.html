@@ -754,17 +754,40 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <div class="lpc-role">Ginecologia · Ostetricia</div>
       </div>
     </div>
-    <input type="email" id="login-email" class="login-input" placeholder="Email" style="margin-bottom:10px" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
-    <div class="pass-wrap">
-      <input type="password" id="login-pass" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkLogin()">
-      <button class="eye-toggle" type="button" onclick="toggleEye('login-pass',this)" tabindex="-1">
-        <svg id="eye-gs-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        <svg id="eye-gs-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-      </button>
-    </div>
-    <button class="login-btn" onclick="checkLogin()">Accedi</button>
+    <form id="login-form" autocomplete="on" onsubmit="event.preventDefault();checkLogin();">
+      <input type="email" id="login-email" name="email" class="login-input" placeholder="Email" autocomplete="username" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}">
+      <div class="pass-wrap">
+        <input type="password" id="login-pass" name="password" class="login-input" placeholder="Password" autocomplete="current-password">
+        <button class="eye-toggle" type="button" onclick="toggleEye('login-pass',this)" tabindex="-1">
+          <svg id="eye-gs-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg id="eye-gs-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <div class="login-remember">
+        <input type="checkbox" id="login-remember-chk" checked>
+        <label for="login-remember-chk">Resta collegata su questo dispositivo</label>
+      </div>
+      <button class="login-btn" type="submit">Accedi</button>
+    </form>
     <div id="login-err" class="login-err">Email o password non corretti.</div>
     <button class="forgot-link" onclick="resetPasswordEmail()">Ho dimenticato la password</button>
+  </div>
+</div>
+
+<!-- CAMBIO PASSWORD OBBLIGATORIO (primo accesso con password provvisoria) -->
+<div id="force-pwd-overlay" style="position:fixed;inset:0;background:linear-gradient(160deg,#fdf0f5 0%,#fce4ec 45%,#f8d7e3 100%);z-index:9999;display:none;align-items:center;justify-content:center;">
+  <div class="login-card">
+    <div class="login-avatar-wrap"><div class="login-avatar">🔑</div></div>
+    <h1>Crea la tua password</h1>
+    <div class="login-version" style="margin-bottom:18px;">Per motivi di sicurezza, imposta una password personale prima di continuare</div>
+    <div class="pass-wrap" style="margin-bottom:10px;">
+      <input type="password" id="force-pwd-new" class="login-input" placeholder="Nuova password (min. 6 caratteri)" autocomplete="new-password">
+    </div>
+    <div class="pass-wrap">
+      <input type="password" id="force-pwd-confirm" class="login-input" placeholder="Conferma password" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitForcePasswordChange()">
+    </div>
+    <button class="login-btn" style="margin-top:16px;" onclick="submitForcePasswordChange()">Conferma e Continua</button>
+    <div id="force-pwd-err" class="login-err">Errore.</div>
   </div>
 </div>
 
@@ -800,6 +823,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <button onclick="naviga('farmacia')" id="nav-farmacia"><span class="nav-icon">💊</span>Farmacia</button>
       <button onclick="naviga('utility')" id="nav-utility"><span class="nav-icon">🧮</span>Utility</button>
       <button onclick="naviga('backup')" id="nav-backup"><span class="nav-icon">🗄️</span>Archiviazione</button>
+    </div>
+    <div class="nav-group" id="nav-group-admin" style="display:none">
+      <div class="nav-group-label">Amministrazione</div>
+      <button onclick="naviga('amministrazione')" id="nav-amministrazione"><span class="nav-icon">🛡️</span>Account e Accessi</button>
     </div>
   </nav>
 
@@ -1415,6 +1442,15 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
           <button class="btn" style="justify-content:flex-start;background:var(--red-dim);color:var(--red);border:1px solid var(--red-dim);" onclick="resetDB()">🗑️ Cancella tutti i dati</button>
         </div>
       </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div><div class="card-title">🔐 Salvataggio Automatico Cifrato</div><div class="card-subtitle">Collega un file sul tuo PC: si aggiorna da solo, cifrato con una password tua (Chrome/Edge)</div></div></div>
+        <div id="fsa-status" style="font-size:0.82rem;color:var(--label4);margin-bottom:12px;">Nessun file collegato.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-primary" id="fsa-btn-connetti" style="justify-content:flex-start;" onclick="connettiFileLocale()">🔗 Collega file locale</button>
+          <button class="btn btn-ghost" id="fsa-btn-sblocca" style="justify-content:flex-start;display:none;" onclick="sbloccaCifratura()">🔓 Sblocca salvataggio (inserisci password)</button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="ripristinaDaFileCifrato()">📂 Ripristina da file locale cifrato</button>
+        </div>
+      </div>
       <div class="card">
         <div class="card-header"><div class="card-title">📈 Stato Database</div></div>
         <div id="db-stats" style="display:flex;flex-direction:column;gap:10px;"></div>
@@ -1425,6 +1461,39 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
         <div class="card-header"><div><div class="card-title">🔐 Guida all'Archiviazione Sicura</div><div class="card-subtitle">Raccomandazioni GDPR e HIPAA per dati sanitari</div></div></div>
         <div id="backup-guide-content"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- AMMINISTRAZIONE ACCOUNT (visibile solo all'amministratore) -->
+<div id="sec-amministrazione" class="section">
+  <div class="page-header">
+    <div><div class="page-title">Account e Accessi</div><div class="page-subtitle">Gestione degli accessi a GynoSystem — visibile solo all'amministratore</div></div>
+  </div>
+
+  <div style="background:var(--surface2);border:1px solid var(--separator);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.8rem;color:var(--label4);">
+    ℹ️ "Elimina" blocca subito e per sempre l'accesso all'app. L'utenza tecnica resta comunque elencata in Firebase finché non la rimuovi anche da lì:
+    <a href="https://console.firebase.google.com/project/gynosistem/authentication/users" target="_blank" rel="noopener" style="color:var(--primary);">apri Firebase Console →</a>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-header"><div><div class="card-title">➕ Nuovo Account</div><div class="card-subtitle">Crea un accesso email+password per un nuovo membro dello studio</div></div></div>
+    <div class="field-row r2" style="margin-bottom:10px;">
+      <div class="form-group"><label class="form-label">Nome e Cognome</label><input type="text" id="adm-new-nome" placeholder="es. Dr.ssa Maria Rossi"></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" id="adm-new-email" placeholder="nome@esempio.it" autocomplete="off"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="form-label">Password provvisoria</label>
+      <input type="text" id="adm-new-pass" placeholder="Almeno 6 caratteri (potrà cambiarla dopo)" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" onclick="adminCreaUtente()" style="width:100%;justify-content:center;">Crea Account</button>
+    <div id="adm-new-msg" style="font-size:0.82rem;margin-top:10px;display:none;"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div><div class="card-title">👥 Account Esistenti</div><div class="card-subtitle">Sospendi, riattiva, richiedi cambio password o rimuovi un accesso</div></div></div>
+    <div id="adm-utenti-list" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="color:var(--label4);font-size:0.85rem;">Caricamento...</div>
     </div>
   </div>
 </div>
@@ -1489,6 +1558,25 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 
       <button class="btn btn-primary" onclick="addCalEvent()" style="width:100%;justify-content:center;">+ Aggiungi Evento</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL PASSWORD DI CIFRATURA (salvataggio locale automatico) -->
+<div id="modal-crypto-pass" class="overlay">
+  <div class="modal-sm">
+    <h3 id="crypto-modal-title">🔒 Password di cifratura</h3>
+    <p id="crypto-modal-desc">Protegge il file locale con i dati delle pazienti. <strong>Ricordala bene</strong>: se la perdi, nessuno — nemmeno tu — potrà più leggere quel file.</p>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label class="form-label">Password</label>
+      <input type="password" id="crypto-pass-input" class="login-input" placeholder="Password di cifratura" onkeydown="if(event.key==='Enter')confermaPassphraseCifratura()">
+    </div>
+    <div class="form-group" id="crypto-pass-confirm-wrap" style="margin-bottom:12px;">
+      <label class="form-label">Conferma password</label>
+      <input type="password" id="crypto-pass-confirm" class="login-input" placeholder="Ripeti la password" onkeydown="if(event.key==='Enter')confermaPassphraseCifratura()">
+    </div>
+    <div id="crypto-pass-err" style="color:#c62828;font-size:0.82rem;margin-bottom:10px;display:none;"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="confermaPassphraseCifratura()">Conferma</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModal('modal-crypto-pass')">Annulla</button>
   </div>
 </div>
 
@@ -3535,6 +3623,7 @@ window.onload = () => {
   renderGuide('g-ob');
   renderBackupGuide();
   controllaBackupAutomatico();
+  if(typeof tentaRiconnessioneFileLocale==='function') tentaRiconnessioneFileLocale();
   // Carica configurazione da Firebase Admin
   initFirebase();
 };
@@ -3597,12 +3686,118 @@ function startClock(){
 let gsAuth=null;
 let gsCurrentUser=null;
 
+// Unico account che può vedere/usare il pannello "Account e Accessi".
+// Non è una password nel codice: è un vero account Firebase Auth, e il
+// controllo si basa sull'email dell'utente autenticato (server-side, non
+// aggirabile leggendo il sorgente della pagina).
+const ADMIN_EMAIL = 'titancodesm@gmail.com';
+
+let gsUnsubUtente = null;   // listener live sul proprio profilo (sospensione durante la sessione)
+let gsSuspensionMsg = null; // messaggio da mostrare al prossimo onAuthStateChanged(null)
+
+// Chiamata dopo ogni login riuscito. Crea/legge il "profilo applicativo"
+// dell'utente in Firestore (utenti/{uid}): serve a sapere chi esiste, se è
+// stato sospeso, e se deve ancora impostare una password personale al posto
+// di quella provvisoria data dall'amministratore — senza bisogno di Cloud
+// Functions. Ritorna {ok:false} se l'accesso va bloccato (account sospeso).
+async function handleUserProfile(user){
+  if(!gsDb) return {ok:true, mustChange:false}; // se Firestore non è pronto, non blocchiamo l'accesso
+  const ref = gsDb.collection('utenti').doc(user.uid);
+  let snap;
+  try{
+    snap = await ref.get();
+  }catch(e){
+    console.warn('Errore lettura profilo utente:', e);
+    return {ok:true, mustChange:false}; // fail-open: un problema di rete non deve bloccare chi è già autorizzato
+  }
+
+  let mustChange = false;
+
+  if(!snap.exists){
+    // Nessun profilo ancora: account creato prima di questo sistema (o a mano
+    // da Console), non forziamo il cambio password perché non è "provvisoria".
+    try{
+      await ref.set({
+        email: user.email,
+        nome: user.displayName || user.email.split('@')[0],
+        attivo: true,
+        mustChangePassword: false,
+        createdAt: new Date().toISOString(),
+        ultimoAccesso: new Date().toISOString()
+      });
+    }catch(e){ console.warn('Errore creazione profilo utente:', e); }
+  }else{
+    const data = snap.data();
+    if(data.attivo === false){
+      gsSuspensionMsg = 'Questo account è stato sospeso. Contatta l\'amministratore.';
+      await gsAuth.signOut();
+      return {ok:false, mustChange:false};
+    }
+    mustChange = data.mustChangePassword === true;
+    try{ await ref.update({ ultimoAccesso: new Date().toISOString(), email: user.email }); }catch(e){}
+  }
+
+  // Se l'amministratore sospende l'account mentre è già collegato, lo scollega subito
+  if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
+  gsUnsubUtente = ref.onSnapshot(docSnap=>{
+    if(docSnap.exists && docSnap.data().attivo === false && gsCurrentUser){
+      gsSuspensionMsg = 'Il tuo accesso è stato sospeso dall\'amministratore.';
+      gsAuth.signOut();
+    }
+  });
+
+  // Mostra la voce "Amministrazione" solo all'account admin
+  const navGroup = document.getElementById('nav-group-admin');
+  if(navGroup) navGroup.style.display = (user.email === ADMIN_EMAIL) ? '' : 'none';
+
+  return {ok:true, mustChange};
+}
+
+function showForcePasswordChange(){
+  const ov = document.getElementById('force-pwd-overlay');
+  if(ov){ ov.style.display='flex'; document.getElementById('force-pwd-new').focus(); }
+}
+
+async function submitForcePasswordChange(){
+  const p1 = document.getElementById('force-pwd-new').value;
+  const p2 = document.getElementById('force-pwd-confirm').value;
+  const err = document.getElementById('force-pwd-err');
+  const showErr = m=>{ err.textContent=m; err.style.display='block'; setTimeout(()=>err.style.display='none',4000); };
+  if(!p1 || p1.length<6){ showErr('La password deve avere almeno 6 caratteri.'); return; }
+  if(p1!==p2){ showErr('Le due password non coincidono.'); return; }
+  try{
+    await gsCurrentUser.updatePassword(p1);
+    await gsDb.collection('utenti').doc(gsCurrentUser.uid).update({ mustChangePassword:false });
+    document.getElementById('force-pwd-overlay').style.display='none';
+    document.getElementById('force-pwd-new').value='';
+    document.getElementById('force-pwd-confirm').value='';
+    await proceedAfterLogin();
+  }catch(e){
+    console.warn(e);
+    if(e.code==='auth/requires-recent-login') showErr('Sessione scaduta: esci e rientra con la password provvisoria, poi riprova.');
+    else showErr('Errore nel salvataggio della nuova password.');
+  }
+}
+
+// Sequenza post-login "normale" (nessun cambio password in sospeso)
+async function proceedAfterLogin(){
+  document.getElementById('login-overlay').style.display='none';
+  loadAdminConfig();
+  loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
+  importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
+  syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
+}
+
 async function checkLogin(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-pass').value;
   if(!email||!pass){ showLoginError('Inserisci email e password.'); return; }
   if(!gsAuth){ showLoginError('Connessione a Firebase non ancora pronta, riprova in un istante.'); return; }
   try{
+    // "Resta collegata": sessione persistente tra riaperture del browser (default),
+    // oppure valida solo per questa scheda/finestra se la checkbox è deselezionata.
+    const resta = document.getElementById('login-remember-chk')?.checked !== false;
+    await gsAuth.setPersistence(resta ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION);
     await gsAuth.signInWithEmailAndPassword(email,pass);
     // Il listener onAuthStateChanged (più sotto) gestisce l'accesso effettivo
   }catch(e){
@@ -3633,6 +3828,123 @@ async function resetPasswordEmail(){
   }catch(e){
     showLoginError('Impossibile inviare l\'email di reset. Verifica che l\'indirizzo sia corretto.');
   }
+}
+
+// ═══════════════════════════════════════════════════
+//  PANNELLO AMMINISTRAZIONE (solo ADMIN_EMAIL)
+// ═══════════════════════════════════════════════════
+// Nessuna Cloud Function: tutto qui gira sull'SDK client di Firebase.
+// Per questo "Elimina" non cancella davvero l'utenza da Firebase
+// Authentication (serve l'Admin SDK lato server) — blocca invece
+// definitivamente l'accesso all'app tramite il profilo su Firestore.
+// L'utenza resta visibile in Console finché non la si rimuove a mano.
+
+async function renderAdminUtenti(){
+  const box = document.getElementById('adm-utenti-list');
+  if(!box) return;
+  if(!gsCurrentUser || gsCurrentUser.email !== ADMIN_EMAIL){
+    box.innerHTML = '<div style="color:var(--label4);font-size:0.85rem;">Accesso non autorizzato.</div>';
+    return;
+  }
+  box.innerHTML = '<div style="color:var(--label4);font-size:0.85rem;">Caricamento...</div>';
+  try{
+    const snap = await gsDb.collection('utenti').orderBy('createdAt','desc').get();
+    if(snap.empty){ box.innerHTML = '<div style="color:var(--label4);font-size:0.85rem;">Nessun account trovato.</div>'; return; }
+    box.innerHTML = snap.docs.map(d=>{
+      const u = d.data();
+      const uid = d.id;
+      let stato='Attivo', colore='#2e7d32';
+      if(u.eliminato){ stato='Eliminato'; colore='#c62828'; }
+      else if(u.attivo===false){ stato='Sospeso'; colore='#b26a00'; }
+      const isSelf = uid === gsCurrentUser.uid;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--separator);border-radius:10px;flex-wrap:wrap;">
+          <div>
+            <div style="font-weight:600;">${u.nome||u.email}${isSelf?' <span style="font-weight:400;color:var(--label4);font-size:0.75rem;">(tu)</span>':''}</div>
+            <div style="font-size:0.78rem;color:var(--label4);">${u.email} · <span style="color:${colore};font-weight:600;">${stato}</span>${u.ultimoAccesso?` · ultimo accesso ${new Date(u.ultimoAccesso).toLocaleDateString('it-IT')}`:''}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${!isSelf ? (u.attivo===false
+              ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', true)">Riattiva</button>`
+              : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', false)">Sospendi</button>`) : ''}
+            <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminRichiediReset('${u.email}')">Richiedi cambio password</button>
+            ${!isSelf && !u.eliminato ? `<button class="btn" style="padding:6px 12px;font-size:0.8rem;background:var(--red-dim);color:var(--red);" onclick="adminEliminaUtente('${uid}','${u.email}')">Elimina</button>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+  }catch(e){
+    console.warn('Errore caricamento utenti:', e);
+    box.innerHTML = '<div style="color:var(--red);font-size:0.85rem;">Errore nel caricamento degli account. Verifica le regole Firestore.</div>';
+  }
+}
+
+async function adminCreaUtente(){
+  const nome = document.getElementById('adm-new-nome').value.trim();
+  const email = document.getElementById('adm-new-email').value.trim();
+  const pass = document.getElementById('adm-new-pass').value;
+  const msg = document.getElementById('adm-new-msg');
+  const showMsg = (text, ok) => {
+    msg.textContent = text;
+    msg.style.display = 'block';
+    msg.style.color = ok ? '#2e7d32' : '#c62828';
+  };
+  if(!gsCurrentUser || gsCurrentUser.email !== ADMIN_EMAIL){ showMsg('Non autorizzata.', false); return; }
+  if(!nome || !email || !pass){ showMsg('Compila tutti i campi.', false); return; }
+  if(pass.length < 6){ showMsg('La password deve avere almeno 6 caratteri.', false); return; }
+
+  try{
+    // Istanza Firebase separata e "usa e getta": crea il nuovo utente senza
+    // toccare la sessione dell'amministratore collegato in questo momento.
+    const secApp = firebase.apps.find(a=>a.name==='gynosystem-admin-temp') || firebase.initializeApp(GS_FIREBASE_CONFIG, 'gynosystem-admin-temp');
+    const secAuth = secApp.auth();
+    await secAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+    const cred = await secAuth.createUserWithEmailAndPassword(email, pass);
+    const newUid = cred.user.uid;
+    await secAuth.signOut();
+
+    await gsDb.collection('utenti').doc(newUid).set({
+      email, nome, attivo:true, eliminato:false,
+      mustChangePassword:true, // al primo accesso dovrà impostarne una sua, al posto di quella provvisoria
+      createdAt: new Date().toISOString(),
+      createdBy: gsCurrentUser.email
+    });
+
+    showMsg(`✅ Account creato per ${email}.`, true);
+    document.getElementById('adm-new-nome').value='';
+    document.getElementById('adm-new-email').value='';
+    document.getElementById('adm-new-pass').value='';
+    renderAdminUtenti();
+  }catch(e){
+    let m = 'Errore nella creazione dell\'account.';
+    if(e.code==='auth/email-already-in-use') m='Esiste già un account con questa email.';
+    if(e.code==='auth/weak-password') m='Password troppo debole (minimo 6 caratteri).';
+    if(e.code==='auth/invalid-email') m='Email non valida.';
+    showMsg(m, false);
+  }
+}
+
+async function adminImpostaStato(uid, attivo){
+  try{
+    await gsDb.collection('utenti').doc(uid).update({ attivo, eliminato:false });
+    gsToast(attivo ? '✅ Account riattivato' : '⛔ Account sospeso', 'gs-success');
+    renderAdminUtenti();
+  }catch(e){ console.warn(e); gsToast('Errore nell\'operazione', 'gs-info'); }
+}
+
+async function adminRichiediReset(email){
+  try{
+    await gsAuth.sendPasswordResetEmail(email);
+    gsToast(`📧 Email di reset inviata a ${email}`, 'gs-success');
+  }catch(e){ console.warn(e); gsToast('Impossibile inviare l\'email di reset', 'gs-info'); }
+}
+
+async function adminEliminaUtente(uid, email){
+  if(!confirm(`Eliminare l'accesso di ${email}? Non potrà più entrare in GynoSystem.\n\nNota: l'utenza resterà comunque elencata in Firebase Console finché non la rimuovi manualmente da lì (Authentication → Users) — qui viene solo bloccato l'accesso all'app.`)) return;
+  try{
+    await gsDb.collection('utenti').doc(uid).update({ attivo:false, eliminato:true, eliminatoAt: new Date().toISOString() });
+    gsToast('🗑️ Accesso eliminato', 'gs-success');
+    renderAdminUtenti();
+  }catch(e){ console.warn(e); gsToast('Errore nell\'eliminazione', 'gs-info'); }
 }
 
 // ── Mostra/Nascondi password ──
@@ -3676,9 +3988,13 @@ function naviga(id){
   if(id==='disponibilita') renderDisponibilita();
   if(id==='ricettario') renderRicettario();
   if(id==='utility') caricaDiarioPersonale();
+  if(id==='amministrazione') renderAdminUtenti();
 }
 
-function salvaDB(){localStorage.setItem('gynoDB_v15',JSON.stringify(DB));}
+function salvaDB(){
+  localStorage.setItem('gynoDB_v15',JSON.stringify(DB));
+  if(typeof scheduleAutoSaveFile==='function') scheduleAutoSaveFile();
+}
 
 // ═══════════════════════════════════════════════════
 //  DASHBOARD
@@ -5745,6 +6061,247 @@ function visualizzaVisita(vid){
 
 
 // ═══════════════════════════════════════════════════
+//  SALVATAGGIO LOCALE AUTOMATICO E CIFRATO (File System Access API)
+// ═══════════════════════════════════════════════════
+// Alternativa/complemento al backup manuale qui sotto: una volta collegato
+// un file sul PC (Chrome/Edge), ad ogni salvaDB() viene scritta una copia
+// cifrata (AES-256-GCM, chiave derivata via PBKDF2 da una password scelta
+// dall'utente) — nessun click ripetuto, e il file resta illeggibile senza
+// la password anche se qualcuno ci mette le mani sopra.
+// La password NON viene mai salvata da nessuna parte: va reinserita una
+// volta per sessione (rimane in memoria solo finché la pagina resta aperta).
+
+let gsFsaHandle = null;      // FileSystemFileHandle del file collegato
+let gsCryptoKey = null;      // CryptoKey AES in memoria (nulla finché non si sblocca)
+let gsAutoSaveTimer = null;  // debounce per non scrivere su disco ad ogni tasto
+
+// ── IndexedDB: unico posto dove può essere salvato un FileSystemHandle
+// (non è serializzabile in localStorage) ──
+function gsIdbOpen(){
+  return new Promise((res,rej)=>{
+    const req = indexedDB.open('gynosystem-fsa', 1);
+    req.onupgradeneeded = ()=>{ if(!req.result.objectStoreNames.contains('handles')) req.result.createObjectStore('handles'); };
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = ()=>rej(req.error);
+  });
+}
+async function gsIdbSet(key, val){
+  const db = await gsIdbOpen();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction('handles','readwrite');
+    tx.objectStore('handles').put(val, key);
+    tx.oncomplete = ()=>res();
+    tx.onerror = ()=>rej(tx.error);
+  });
+}
+async function gsIdbGet(key){
+  const db = await gsIdbOpen();
+  return new Promise((res,rej)=>{
+    const tx = db.transaction('handles','readonly');
+    const req = tx.objectStore('handles').get(key);
+    req.onsuccess = ()=>res(req.result);
+    req.onerror = ()=>rej(req.error);
+  });
+}
+
+// ── Conversioni base64 "a blocchi" (evita di superare il limite di
+// argomenti di String.fromCharCode su database di parecchi MB) ──
+function gsBufToB64(buf){
+  const bytes = new Uint8Array(buf);
+  let binary = '';
+  const chunk = 0x8000;
+  for(let i=0;i<bytes.length;i+=chunk) binary += String.fromCharCode.apply(null, bytes.subarray(i, i+chunk));
+  return btoa(binary);
+}
+function gsB64ToBuf(b64){
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+  return bytes;
+}
+
+// ── Crittografia (Web Crypto, nativa del browser) ──
+async function gsDeriveKey(passphrase, saltB64){
+  const salt = saltB64 ? gsB64ToBuf(saltB64) : crypto.getRandomValues(new Uint8Array(16));
+  const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:150000, hash:'SHA-256'},
+    baseKey, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']
+  );
+  return {key, saltB64: gsBufToB64(salt)};
+}
+async function gsEncryptJSON(obj, key, saltB64){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const cipherBuf = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, new TextEncoder().encode(JSON.stringify(obj)));
+  return { v:1, alg:'AES-GCM-256/PBKDF2-150000', salt:saltB64, iv:gsBufToB64(iv), data:gsBufToB64(cipherBuf) };
+}
+async function gsDecryptJSON(payload, passphrase){
+  const {key} = await gsDeriveKey(passphrase, payload.salt);
+  const plainBuf = await crypto.subtle.decrypt({name:'AES-GCM', iv:gsB64ToBuf(payload.iv)}, key, gsB64ToBuf(payload.data));
+  return JSON.parse(new TextDecoder().decode(plainBuf));
+}
+
+// ── UI: stato della card "Salvataggio Automatico Cifrato" ──
+function aggiornaStatoFsa(){
+  const status = document.getElementById('fsa-status');
+  const btnConnetti = document.getElementById('fsa-btn-connetti');
+  const btnSblocca = document.getElementById('fsa-btn-sblocca');
+  if(!status) return;
+  if(!('showSaveFilePicker' in window)){
+    status.textContent = '⚠️ Il tuo browser non supporta questa funzione (serve Chrome o Edge). Usa il backup manuale qui sopra.';
+    if(btnConnetti) btnConnetti.style.display='none';
+    if(btnSblocca) btnSblocca.style.display='none';
+    return;
+  }
+  if(!gsFsaHandle){
+    status.textContent = 'Nessun file collegato.';
+    if(btnConnetti){ btnConnetti.style.display=''; btnConnetti.textContent='🔗 Collega file locale'; }
+    if(btnSblocca) btnSblocca.style.display='none';
+  }else if(!gsCryptoKey){
+    status.textContent = `🔗 File collegato (${gsFsaHandle.name}) — cifratura bloccata, inserisci la password per riattivare il salvataggio automatico.`;
+    if(btnConnetti) btnConnetti.style.display='none';
+    if(btnSblocca) btnSblocca.style.display='';
+  }else{
+    status.textContent = `✅ Salvataggio automatico attivo su "${gsFsaHandle.name}" (cifrato).`;
+    if(btnConnetti) btnConnetti.style.display='none';
+    if(btnSblocca) btnSblocca.style.display='none';
+  }
+}
+
+// ── Collega un nuovo file sul PC ──
+async function connettiFileLocale(){
+  if(!('showSaveFilePicker' in window)){
+    alert('Il tuo browser non supporta il collegamento diretto a un file locale. Usa Chrome o Edge, oppure continua a usare "Esporta Backup JSON".');
+    return;
+  }
+  try{
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'GynoSystem_Dati.json',
+      types: [{description:'File JSON', accept:{'application/json':['.json']}}]
+    });
+    gsFsaHandle = handle;
+    await gsIdbSet('dbFileHandle', handle);
+    aggiornaStatoFsa();
+    apriModalCifratura(localStorage.getItem('gyno_crypto_salt') ? 'unlock' : 'set');
+  }catch(e){
+    if(e.name!=='AbortError'){ console.warn(e); gsToast('Impossibile collegare il file', 'gs-info'); }
+  }
+}
+
+function sbloccaCifratura(){
+  apriModalCifratura(localStorage.getItem('gyno_crypto_salt') ? 'unlock' : 'set');
+}
+
+let gsCryptoModalMode = 'set';
+function apriModalCifratura(mode){
+  gsCryptoModalMode = mode;
+  const title = document.getElementById('crypto-modal-title');
+  const desc = document.getElementById('crypto-modal-desc');
+  const confirmWrap = document.getElementById('crypto-pass-confirm-wrap');
+  document.getElementById('crypto-pass-input').value='';
+  document.getElementById('crypto-pass-confirm').value='';
+  document.getElementById('crypto-pass-err').style.display='none';
+  if(mode==='set'){
+    title.textContent = '🔒 Imposta la password di cifratura';
+    desc.innerHTML = 'Protegge il file locale con i dati delle pazienti. <strong>Ricordala bene</strong>: se la perdi, nessuno — nemmeno tu — potrà più leggere quel file.';
+    confirmWrap.style.display='';
+  }else{
+    title.textContent = '🔓 Sblocca il salvataggio automatico';
+    desc.textContent = 'Inserisci la password di cifratura scelta la prima volta, per riattivare il salvataggio automatico su questo file.';
+    confirmWrap.style.display='none';
+  }
+  document.getElementById('modal-crypto-pass').classList.add('show');
+  document.getElementById('crypto-pass-input').focus();
+}
+
+async function confermaPassphraseCifratura(){
+  const p1 = document.getElementById('crypto-pass-input').value;
+  const p2 = document.getElementById('crypto-pass-confirm').value;
+  const err = document.getElementById('crypto-pass-err');
+  const showErr = m=>{ err.textContent=m; err.style.display='block'; };
+  if(!p1 || p1.length<6){ showErr('La password deve avere almeno 6 caratteri.'); return; }
+
+  if(gsCryptoModalMode==='set'){
+    if(p1!==p2){ showErr('Le due password non coincidono.'); return; }
+    const {key, saltB64} = await gsDeriveKey(p1, null);
+    localStorage.setItem('gyno_crypto_salt', saltB64);
+    gsCryptoKey = key;
+    closeModal('modal-crypto-pass');
+    aggiornaStatoFsa();
+    await scriviFileLocale(); // primo salvataggio immediato
+    gsToast('🔒 Cifratura attivata, salvataggio automatico avviato', 'gs-success');
+  }else{
+    const saltB64 = localStorage.getItem('gyno_crypto_salt');
+    const {key} = await gsDeriveKey(p1, saltB64);
+    gsCryptoKey = key;
+    closeModal('modal-crypto-pass');
+    aggiornaStatoFsa();
+    gsToast('🔓 Salvataggio automatico riattivato', 'gs-success');
+    scheduleAutoSaveFile();
+  }
+}
+
+// ── Scrittura su disco (debounced, chiamata da salvaDB()) ──
+function scheduleAutoSaveFile(){
+  if(!gsFsaHandle || !gsCryptoKey) return;
+  clearTimeout(gsAutoSaveTimer);
+  gsAutoSaveTimer = setTimeout(scriviFileLocale, 1500);
+}
+async function scriviFileLocale(){
+  if(!gsFsaHandle || !gsCryptoKey) return;
+  try{
+    // Il permesso può essere richiesto solo in risposta a un gesto utente:
+    // se nel frattempo è scaduto, ci si ferma silenziosamente qui e la card
+    // di stato mostrerà il pulsante per sbloccare/ricollegare.
+    if((await gsFsaHandle.queryPermission({mode:'readwrite'})) !== 'granted') return;
+    const payload = await gsEncryptJSON(DB, gsCryptoKey, localStorage.getItem('gyno_crypto_salt'));
+    const writable = await gsFsaHandle.createWritable();
+    await writable.write(JSON.stringify(payload));
+    await writable.close();
+  }catch(e){ console.warn('Errore scrittura file locale:', e); }
+}
+
+// ── Ripristino da un file cifrato (indipendente dal file "collegato") ──
+async function ripristinaDaFileCifrato(){
+  if(!('showOpenFilePicker' in window)){
+    alert('Il tuo browser non supporta questa funzione. Usa Chrome o Edge, oppure "Ripristina da file JSON" per backup non cifrati.');
+    return;
+  }
+  try{
+    const [handle] = await window.showOpenFilePicker({types:[{description:'File JSON', accept:{'application/json':['.json']}}]});
+    const file = await handle.getFile();
+    const payload = JSON.parse(await file.text());
+    if(!payload || !payload.salt || !payload.data){ alert('Questo file non è un backup cifrato di GynoSystem.'); return; }
+    const pass = prompt('Password di cifratura del file selezionato:');
+    if(!pass) return;
+    const dati = await gsDecryptJSON(payload, pass);
+    if(!confirm('Sovrascrivere tutti i dati attuali con quelli di questo file? L\'operazione non è reversibile.')) return;
+    DB = dati;
+    salvaDB();
+    location.reload();
+  }catch(e){
+    if(e.name==='AbortError') return;
+    console.warn(e);
+    alert('Impossibile leggere il file: password errata o file non valido.');
+  }
+}
+
+// ── All'avvio: riaggancia un file già collegato in precedenza, se il
+// permesso è ancora valido (senza permesso non si può fare nulla finché
+// l'utente non clicca di nuovo — i browser lo impediscono per sicurezza) ──
+async function tentaRiconnessioneFileLocale(){
+  try{
+    const handle = await gsIdbGet('dbFileHandle');
+    if(!handle) { aggiornaStatoFsa(); return; }
+    const perm = await handle.queryPermission({mode:'readwrite'});
+    if(perm==='granted') gsFsaHandle = handle;
+    else { gsFsaHandle = handle; } // lo mostriamo comunque "collegato": basterà sbloccare la cifratura per far ripartire il permesso al primo salvataggio
+  }catch(e){ /* nessun file collegato in precedenza */ }
+  aggiornaStatoFsa();
+}
+
+
+// ═══════════════════════════════════════════════════
 //  BACKUP / EXPORT
 // ═══════════════════════════════════════════════════
 function backupData(){
@@ -6354,17 +6911,25 @@ function initFirebase() {
     // L'accesso ai dati avviene SOLO dopo che Firebase Auth confirma l'utente.
     // Questo sostituisce il vecchio controllo password manuale: ora è Firebase
     // stesso a gestire la sessione (persistente tra le visite, come prima, ma vero).
-    gsAuth.onAuthStateChanged(user=>{
+    gsAuth.onAuthStateChanged(async user=>{
       if(user){
         gsCurrentUser=user;
-        document.getElementById('login-overlay').style.display='none';
-        loadAdminConfig();
-        loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
-        importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
-        syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
+        const result = await handleUserProfile(user);
+        if(!result.ok) return; // profilo sospeso: handleUserProfile ha già lanciato signOut()
+        if(result.mustChange){
+          // Password provvisoria data dall'amministratore: nasconde il login
+          // ma blocca l'app finché non ne viene impostata una personale.
+          document.getElementById('login-overlay').style.display='none';
+          showForcePasswordChange();
+          return;
+        }
+        await proceedAfterLogin();
       }else{
         gsCurrentUser=null;
+        if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
         document.getElementById('login-overlay').style.display='flex';
+        document.getElementById('force-pwd-overlay').style.display='none';
+        if(gsSuspensionMsg){ showLoginError(gsSuspensionMsg); gsSuspensionMsg=null; }
       }
     });
   } catch(e) {
