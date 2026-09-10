@@ -1477,6 +1477,21 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
+<!-- Modal ALLERTA promemoria scaduti (compare all'apertura della cartella paziente) -->
+<div id="modal-promemoria-scaduti" class="overlay">
+  <div class="modal-sm" style="width:480px;border:2px solid var(--red);border-top:6px solid var(--red);">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+      <span style="font-size:1.8rem;">⚠️</span>
+      <h3 style="color:var(--red);margin:0;" id="prom-scad-titolo">Promemoria scaduto</h3>
+    </div>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:16px;" id="prom-scad-sottotitolo"></p>
+    <div id="prom-scad-lista" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-primary" onclick="closeModal('modal-promemoria-scaduti')">Ho capito</button>
+    </div>
+  </div>
+</div>
+
 <!-- DETTAGLIO PAZIENTE -->
 <div id="sec-dettaglio" class="section">
   <button onclick="naviga('archivio')" class="btn btn-ghost" style="margin-bottom:20px;">← Torna ai Pazienti</button>
@@ -1642,7 +1657,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <span style="font-weight:600;">Attiva l'assistente</span>
     </label>
     <div style="background:var(--surface2);border:1px solid var(--separator);border-radius:10px;padding:12px 14px;font-size:0.8rem;color:var(--label4);line-height:1.55;">
-      ⚠️ <strong>Privacy:</strong> con l'assistente attivo, il testo clinico che scrivi nella visita (sintomi, esame obiettivo, diagnosi…) viene inviato al fornitore AI per generare i suggerimenti. <strong>Non</strong> vengono mai inviati nome, cognome, data di nascita, codice fiscale o contatti della paziente. Se preferisci che nessun dato esca dal dispositivo, lascia l'assistente spento.
+      ⚠️ <strong>Privacy:</strong> con l'assistente attivo, i dati inviati al fornitore AI sono:
+      <br>• <strong>durante la visita</strong>: solo il testo clinico che scrivi (sintomi, esame obiettivo, diagnosi…), <strong>senza</strong> nome, data di nascita, codice fiscale o contatti;
+      <br>• <strong>sulla dashboard</strong> (punto della giornata e ripasso dei casi): anche <strong>cognome e nome</strong> delle pazienti in agenda e nei promemoria, la loro età e la storia clinica — così l'assistente può dirti chiaramente di chi sta parlando. <strong>Non</strong> vengono comunque inviati codice fiscale né contatti.
+      <br>Se preferisci che nessun dato esca dal dispositivo, lascia l'assistente spento.
     </div>
     <div id="ai-stato-riga" style="font-size:0.8rem;color:var(--label4);margin-top:10px;"></div>
   </div>
@@ -5259,6 +5277,31 @@ function renderPromemoriaScaduti(){
   banner.style.display='block';
 }
 
+// Popup di allerta ROSSA all'apertura della cartella di una paziente che ha
+// promemoria con data già passata (nessun controllo registrato da allora).
+function mostraAllertaPromemoriaScaduti(p){
+  const modal=document.getElementById('modal-promemoria-scaduti');
+  if(!modal||!p) return;
+  const oggi=new Date().toISOString().split('T')[0];
+  const scaduti=(p.alerts||[]).filter(a=>a.data && a.data<oggi)
+    .sort((x,y)=>(x.data||'').localeCompare(y.data||''));
+  if(!scaduti.length){ modal.classList.remove('show'); return; }
+  const tit=document.getElementById('prom-scad-titolo');
+  const sub=document.getElementById('prom-scad-sottotitolo');
+  const lista=document.getElementById('prom-scad-lista');
+  if(tit) tit.textContent = `${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'}`;
+  if(sub) sub.textContent = `${p.cognome} ${p.nome} — nessuna visita o controllo registrato da allora.`;
+  if(lista) lista.innerHTML = scaduti.map(a=>{
+    const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    const giorni=Math.round((new Date(oggi+'T12:00:00')-new Date(a.data+'T12:00:00'))/86400000);
+    return `<div style="background:var(--red-dim);border-radius:10px;padding:12px 14px;">
+      <div style="font-weight:700;color:var(--red);margin-bottom:3px;">${a.testo||'Promemoria'}</div>
+      <div style="font-size:.8rem;color:var(--label3);">Scaduto il ${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</div>
+    </div>`;
+  }).join('');
+  modal.classList.add('show');
+}
+
 // ═══════════════════════════════════════════════════
 //  CALENDAR
 // ═══════════════════════════════════════════════════
@@ -5777,6 +5820,7 @@ function openPaziente(id){
   renderVisiteList(p);
   renderAlertsPaz(p);
   renderFarmaciAttuali(p);
+  mostraAllertaPromemoriaScaduti(p);
 }
 
 function toggleEdit(){
@@ -6825,7 +6869,7 @@ function aiMostraFumetto(testo, azioni){
   if(!aiChatAperta){ const d=document.getElementById('ai-robot-dot'); if(d) d.style.display='block'; }
 }
 
-// ── Contesto de-identificato: agenda della giornata + prossimi giorni ──
+// ── Contesto: agenda della giornata + prossimi giorni (con i nomi delle pazienti) ──
 function _aiDataRel(dstr){
   if(!dstr) return '';
   const oggi = new Date(); oggi.setHours(0,0,0,0);
@@ -6838,10 +6882,18 @@ function _aiDataRel(dstr){
   if(gg<0) return Math.abs(gg) + ' giorni fa';
   return new Date(dstr + 'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
+// La dottoressa ha scelto (Impostazioni) che l'assistente usi i NOMI delle
+// pazienti nel punto della giornata e nel ripasso dei casi, altrimenti non si
+// capisce di chi si parla. Restano esclusi codice fiscale e contatti.
+function _aiNomePaz(pazId){
+  const p = DB.pazienti.find(x=>x.id===pazId);
+  if(!p) return 'paziente';
+  return `${p.cognome||''} ${p.nome||''}`.trim() || 'paziente';
+}
 function _aiEtichettaCaso(pazId, label){
   const gia = _aiCasiImminenti.find(c=>c.pazId===pazId);
-  if(gia) return gia.et; // stessa paziente già elencata: riusa l'etichetta
-  const et = 'paziente ' + String.fromCharCode(65 + _aiCasiImminenti.length); // A, B, C…
+  if(gia) return gia.et;
+  const et = _aiNomePaz(pazId);
   _aiCasiImminenti.push({ pazId, label, et });
   return et;
 }
@@ -6878,7 +6930,7 @@ function aiAgendaContesto(){
         const et = _aiEtichettaCaso(localId, `${a.ora||''} ${a.tipo||'visita'}`.trim());
         riga += ` · ${et} — ${aiRiassuntoBreveCartella(localId)}`;
       } else {
-        riga += ' · (paziente non ancora in archivio)';
+        riga += (a.pazienteNome ? ` · ${a.pazienteNome}` : '') + ' (non ancora in archivio)';
       }
       txt += riga + '\n';
     });
@@ -6900,26 +6952,28 @@ function aiAgendaContesto(){
     scaduti.sort((x,y)=>x.a.data.localeCompare(y.a.data));
     txt += `\nPROMEMORIA SCADUTI (${scaduti.length}) — nessun controllo registrato da allora:\n`;
     scaduti.slice(0,10).forEach(({p,a})=>{
-      const et = _aiEtichettaCaso(p.id, 'promemoria scaduto');
-      txt += `- ${_aiDataRel(a.data)} · ${et}: ${a.testo}\n`;
+      _aiEtichettaCaso(p.id, 'promemoria scaduto'); // rende ripassabile il caso
+      txt += `- ${_aiDataRel(a.data)} · ${p.cognome} ${p.nome}: ${a.testo}\n`;
     });
   }
   if(arrivo.length){
     arrivo.sort((x,y)=>x.a.data.localeCompare(y.a.data));
     txt += `\nCONTROLLI / PROMEMORIA IN ARRIVO (7 giorni):\n`;
-    arrivo.slice(0,10).forEach(({p,a})=> txt += `- ${_aiDataRel(a.data)}: ${a.testo}\n`);
+    arrivo.slice(0,10).forEach(({p,a})=> txt += `- ${_aiDataRel(a.data)} · ${p.cognome} ${p.nome}: ${a.testo}\n`);
   }
   return txt.trim();
 }
 
-// Storia clinica de-identificata di una paziente (per il "ripasso del caso").
-// Nessun nome, cognome, data di nascita, codice fiscale o contatto: solo età e clinica.
+// Storia clinica di una paziente (per il "ripasso del caso"). Include nome e
+// cognome (scelta della dottoressa in Impostazioni) ed età. NON include codice
+// fiscale né contatti.
 function aiContestoPaziente(pazId){
   const p = DB.pazienti.find(x=>x.id===pazId);
   if(!p) return '';
   const boiler = (typeof GD!=='undefined' && GD.informativa) ? GD.informativa : '__n__';
   let txt = '';
-  if(p.nascita){ const e = new Date().getFullYear() - new Date(p.nascita).getFullYear(); if(e>0 && e<120) txt += `Donna di ${e} anni.\n`; }
+  const eta = p.nascita ? (new Date().getFullYear() - new Date(p.nascita).getFullYear()) : null;
+  txt += `Paziente: ${p.cognome||''} ${p.nome||''}`.trim() + (eta && eta>0 && eta<120 ? `, ${eta} anni` : '') + '.\n';
   const alerts = (p.alerts||[]).map(a=>`${a.data?_aiDataRel(a.data)+': ':''}${a.testo}`).filter(Boolean);
   if(alerts.length) txt += 'Promemoria / note attive:\n' + alerts.map(a=>'- '+a).join('\n') + '\n';
   const vis = (p.visite||[]).slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,4);
@@ -6953,7 +7007,8 @@ async function aiBriefingDashboard(forzato){
       [{ role:'user', content:
         "Sei il mio assistente. Guarda la mia agenda qui sotto e parlami come un collega: 3-5 righe al massimo. " +
         "Dimmi cosa ho in programma oggi e a breve, e ricordami le cose davvero importanti (promemoria scaduti, controlli urgenti, gravidanze da monitorare). " +
-        "Chiudi con UNA domanda: se voglio ripassare insieme uno dei casi in arrivo (cita la sua etichetta 'paziente X'). Vai al sodo, niente elenco pedante.\n\n" + ctx }],
+        "Cita SEMPRE le pazienti per cognome e nome (non 'paziente X'). " +
+        "Chiudi con UNA domanda: se voglio ripassare insieme una delle pazienti in arrivo (nominala). Vai al sodo, niente elenco pedante.\n\n" + ctx }],
       aiSystemPrompt('dashboard'));
     if(testo){
       const azioni = _aiCasiImminenti.slice(0,4).map(c=>({
@@ -6986,7 +7041,7 @@ async function aiRipassaCaso(pazId, label){
   aiPending = true;
   try{
     const sys = aiSystemPrompt('dashboard') +
-      "\n\nStoria clinica della paziente (dati de-identificati, nessun nome):\n" + ctx;
+      "\n\nStoria clinica della paziente:\n" + ctx;
     const testo = await aiChiama('chat',
       [{ role:'user', content:
         "Ripassa questo caso con me: (1) riassumi in 3-4 punti la storia clinica rilevante; (2) elenca in 2-3 punti cosa controllare o chiedere alla prossima visita; (3) segnala eventuali red flag o esami da non dimenticare." }],

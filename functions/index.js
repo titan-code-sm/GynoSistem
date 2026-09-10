@@ -10,8 +10,13 @@
  *  - limite di richieste per utente (anti-abuso)
  *  - tetto massimo di token in uscita per contenere i costi
  *
- * Nessun dato anagrafico identificativo transita da qui: il client invia solo
- * il testo clinico che l'operatore ha scritto nella visita.
+ * Cosa invia il client (deciso lato app, vedi Impostazioni → Assistente):
+ *  - durante la visita: solo il testo clinico scritto dall'operatore, senza
+ *    nome/data di nascita/codice fiscale/contatti;
+ *  - sulla dashboard (punto della giornata / ripasso casi): anche cognome, nome
+ *    ed età delle pazienti in agenda e nei promemoria, mai codice fiscale o
+ *    contatti. Scelta esplicita dell'operatore per rendere utile il riepilogo.
+ * Questa funzione non ispeziona il contenuto: si limita a inoltrarlo ad Anthropic.
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
