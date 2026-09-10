@@ -801,7 +801,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 
   <nav>
-    <div class="nav-group">
+    <div class="nav-group" id="nav-group-principale">
       <div class="nav-group-label">Principale</div>
       <button onclick="naviga('home')" id="nav-home" class="active"><span class="nav-icon">🏠</span>Dashboard</button>
       <button onclick="naviga('archivio')" id="nav-archivio"><span class="nav-icon">👩‍⚕️</span>Pazienti</button>
@@ -810,7 +810,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
       <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">📋</span>Ricettario</button>
     </div>
-    <div class="nav-group">
+    <div class="nav-group" id="nav-group-strumenti">
       <div class="nav-group-label">Strumenti</div>
       <button onclick="naviga('guide')" id="nav-guide"><span class="nav-icon">📋</span>Linee Guida</button>
       <button onclick="naviga('farmacia')" id="nav-farmacia"><span class="nav-icon">💊</span>Farmacia</button>
@@ -2565,6 +2565,11 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 //  DATABASE & STATE
 // ═══════════════════════════════════════════════════
 let DB = { pazienti:[], agenda:[] };
+// Chiave localStorage per l'archivio clinico dell'utente attualmente loggato.
+// Impostata da caricaDatiLocaliUtente() DOPO il login: prima di allora resta
+// null e salvaDB() non scrive nulla, cosa voluta — ogni medico deve avere il
+// proprio archivio, mai quello di qualcun altro sullo stesso computer.
+let gsDbStorageKey = null;
 
 // Hash SHA-256 (Web Crypto API nativa, nessuna libreria esterna).
 // Usata per le password studio e per la password di eliminazione paziente:
@@ -3610,16 +3615,16 @@ const GUIDE_DATA = {
 // senza aspettare le immagini (ma dopo che questo script — incluse le
 // dichiarazioni più sotto, es. HOLIDAYS — ha finito di essere eseguito).
 document.addEventListener('DOMContentLoaded', function initApp(){
-  const d = localStorage.getItem('gynoDB_v15');
-  if(d) DB = JSON.parse(d);
-  if(!DB.studi) DB.studi=[];
-  migraStudiVecchiFormato(); // una tantum: aggiorna gli studi creati con versioni precedenti
+  // Nota: NESSUN dato clinico viene caricato qui. DB resta vuoto finché non
+  // sappiamo CHI ha fatto login — lo carica caricaDatiLocaliUtente(uid),
+  // chiamata da proceedAfterLogin() più sotto, con la chiave per-utente
+  // corretta. Renderizzare ora con DB vuoto è innocuo: è tutto nascosto
+  // dietro l'overlay di login finché l'accesso non viene confermato.
   startClock();
   naviga('home');
   renderFarmaci();
   renderGuide('g-ob');
   renderBackupGuide();
-  controllaBackupAutomatico();
   if(typeof tentaRiconnessioneFileLocale==='function') tentaRiconnessioneFileLocale();
   // Carica configurazione da Firebase Admin
   initFirebase();
@@ -3803,9 +3808,30 @@ async function submitForcePasswordChange(){
 // Sequenza post-login "normale" (nessun cambio password in sospeso)
 async function proceedAfterLogin(){
   document.getElementById('login-overlay').style.display='none';
+  const isAdmin = gsCurrentUser && gsCurrentUser.email === ADMIN_EMAIL;
+  const navPrincipale = document.getElementById('nav-group-principale');
+  const navStrumenti = document.getElementById('nav-group-strumenti');
+
+  if(isAdmin){
+    // L'amministratore gestisce SOLO gli account: nessun dato clinico viene
+    // caricato né mostrato, la parte clinica dell'app resta completamente
+    // nascosta e irraggiungibile dal menu.
+    if(navPrincipale) navPrincipale.style.display='none';
+    if(navStrumenti) navStrumenti.style.display='none';
+    scaricaDatiLocaliUtente();
+    naviga('amministrazione');
+    return;
+  }
+
+  if(navPrincipale) navPrincipale.style.display='';
+  if(navStrumenti) navStrumenti.style.display='';
+  caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
+  naviga('home');
+  controllaBackupAutomatico();
+
   loadAdminConfig();
-  loadFBAppuntamenti(); // carica subito gli appuntamenti da GynoBook
-  importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook
+  loadFBAppuntamenti(); // carica gli appuntamenti — SOLO i propri (vedi ownerUid)
+  importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook — SOLO le proprie
   syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
 }
 
@@ -4013,8 +4039,27 @@ function naviga(id){
 }
 
 function salvaDB(){
-  localStorage.setItem('gynoDB_v15',JSON.stringify(DB));
+  if(!gsDbStorageKey) return; // nessun utente loggato: non scrivere/mescolare nulla
+  localStorage.setItem(gsDbStorageKey,JSON.stringify(DB));
   if(typeof scheduleAutoSaveFile==='function') scheduleAutoSaveFile();
+}
+
+// Carica l'archivio clinico locale del medico che ha appena fatto login.
+// Ogni account ha la propria chiave ('gynoDB_v15_'+uid): su uno stesso
+// computer condiviso, medici diversi non vedono mai i dati l'uno dell'altro.
+function caricaDatiLocaliUtente(uid){
+  gsDbStorageKey = 'gynoDB_v15_' + uid;
+  const d = localStorage.getItem(gsDbStorageKey);
+  DB = d ? JSON.parse(d) : { pazienti:[], agenda:[] };
+  if(!DB.studi) DB.studi=[];
+  migraStudiVecchiFormato();
+}
+
+// Chiamata al logout (o se l'accesso viene bloccato): svuota subito i dati
+// clinici dalla memoria, non lasciarli visibili/modificabili dietro l'overlay.
+function scaricaDatiLocaliUtente(){
+  gsDbStorageKey = null;
+  DB = { pazienti:[], agenda:[] };
 }
 
 // ═══════════════════════════════════════════════════
@@ -4381,8 +4426,8 @@ function creaPaziente(){
 }
 
 function syncPazienteFirebase(p){
-  if(!gsFirebaseReady||!gsDb)return;
-  const data={nome:p.nome,cognome:p.cognome,nascita:p.nascita||'',tel:p.tel||'',email:p.email||'',cf:p.cf||'',updatedAt:new Date().toISOString(),source:'gynosystem'};
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser)return;
+  const data={nome:p.nome,cognome:p.cognome,nascita:p.nascita||'',tel:p.tel||'',email:p.email||'',cf:p.cf||'',updatedAt:new Date().toISOString(),source:'gynosystem',ownerUid:gsCurrentUser.uid};
   gsDb.collection('pazienti').doc(String(p.id)).set(data,{merge:true})
     .then(()=>gsToast('Anagrafica sincronizzata su Firebase','gs-success'))
     .catch(e=>console.warn('Firebase sync:',e));
@@ -4397,13 +4442,14 @@ function syncPazienteFirebase(p){
 // pronta per visite/alerts) e segniamo il documento come importato
 // così non viene mai più riprocessato. Nessun dato clinico transita
 // mai su Firestore: solo nome, cognome, nascita, tel, email, cf, note.
+// NOTA: filtriamo per ownerUid come per tutto il resto — se in futuro
+// GynoBook viene collegato dovrà anche lui scrivere ownerUid sui documenti
+// che crea (a quale medico/studio appartiene la prenotazione), altrimenti
+// le regole Firestore li bloccheranno comunque per chiunque.
 async function importaPazientiDaGynobook(){
-  if(!gsFirebaseReady||!gsDb)return;
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser)return;
   try{
-    // Leggiamo TUTTE le pazienti su Firestore (non solo quelle con importedToGynoSystem===false):
-    // un filtro lato server fallirebbe per documenti più vecchi privi di quel campo.
-    // Il confronto "è già stata importata?" lo facciamo qui, lato client, sull'id locale.
-    const snap=await gsDb.collection('pazienti').get();
+    const snap=await gsDb.collection('pazienti').where('ownerUid','==',gsCurrentUser.uid).get();
     if(snap.empty)return;
     let importate=0;
     const daSegnare=[];
@@ -5133,11 +5179,11 @@ function salvaVisita(){
 // prenotato da GynoBook (stessa paziente, stessa data) passa automaticamente a "completato".
 // Nessun dato clinico viene scritto su Firestore: solo il campo "stato" dell'appuntamento.
 async function completaAppuntamentoFirebase(p, dataVisita){
-  if(!gsFirebaseReady||!gsDb||!p)return;
+  if(!gsFirebaseReady||!gsDb||!p||!gsCurrentUser)return;
   try{
     const possibiliId=[String(p.id)];
     if(p.fbId) possibiliId.push(p.fbId);
-    const snap=await gsDb.collection('appuntamenti').where('data','==',dataVisita).get();
+    const snap=await gsDb.collection('appuntamenti').where('data','==',dataVisita).where('ownerUid','==',gsCurrentUser.uid).get();
     if(snap.empty)return;
     const batchUpdates=[];
     snap.forEach(doc=>{
@@ -5211,7 +5257,7 @@ async function salvaPrenotazioneGS(){
   const tipo=document.getElementById('np-tipo').value;
   if(!_npSelectedPazId){ if(typeof gsToast==='function')gsToast('Seleziona una paziente','gs-error'); return; }
   if(!data||!ora||!tipo){ if(typeof gsToast==='function')gsToast('Data, ora e tipo visita sono obbligatori','gs-error'); return; }
-  if(!gsFirebaseReady||!gsDb){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
 
   const p=DB.pazienti.find(x=>x.id===_npSelectedPazId);
   const appt={
@@ -5222,10 +5268,11 @@ async function salvaPrenotazioneGS(){
     tipo,
     stato:'confermato', // prenotata direttamente dalla dottoressa: già confermata
     note:document.getElementById('np-note').value.trim(),
-    createdBy:'Dr.ssa Cristina Guidi',
+    createdBy:gsUserNome||gsCurrentUser.email,
     createdByOrg:'', // vuoto = creata dalla dottoressa, non da un centro esterno (coerente con GynoBook)
     createdAt:new Date().toISOString(),
-    source:'gynosystem'
+    source:'gynosystem',
+    ownerUid:gsCurrentUser.uid
   };
   try{
     await gsDb.collection('appuntamenti').add(appt);
@@ -6544,12 +6591,13 @@ let _gsApptFirstLoad = true;
 let _gsKnownApptIds = new Set();
 
 async function loadFBAppuntamenti(){
-  if(!gsFirebaseReady){gsToast('Firebase non disponibile','gs-error');return;}
+  if(!gsFirebaseReady||!gsCurrentUser){gsToast('Firebase non disponibile','gs-error');return;}
   // Se il listener è già attivo, non serve rifare nulla (è realtime)
   if(_gsApptListener){ renderFBAppts(); renderAlertsHome(); renderCalendar(); return; }
 
-  // Avvia listener realtime: rileva automaticamente nuove prenotazioni da GynoBook
-  _gsApptListener = gsDb.collection('appuntamenti').onSnapshot(snap=>{
+  // Avvia listener realtime SOLO sugli appuntamenti di questo medico
+  // (rileva automaticamente nuove prenotazioni da GynoBook, quando/se sarà collegato)
+  _gsApptListener = gsDb.collection('appuntamenti').where('ownerUid','==',gsCurrentUser.uid).onSnapshot(snap=>{
     const prev = new Set(GS_APPTS.map(a=>a.id));
     GS_APPTS = snap.docs.map(d=>({id:d.id,...d.data()}));
     GS_APPTS.sort((a,b)=>{
@@ -6927,6 +6975,14 @@ function initFirebase() {
       }else{
         gsCurrentUser=null;
         if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
+        // Ferma il listener appuntamenti del medico appena uscito: se sul
+        // prossimo login entra un medico diverso (stesso browser, senza
+        // ricaricare la pagina), non deve MAI ritrovarsi gli appuntamenti
+        // di chi era collegato prima.
+        if(_gsApptListener){ _gsApptListener(); _gsApptListener=null; }
+        GS_APPTS=[];
+        scaricaDatiLocaliUtente(); // pulisce subito l'archivio clinico dalla memoria
+        naviga('home'); // dashboard vuota dietro l'overlay, pronta per il prossimo login
         document.getElementById('login-overlay').style.display='flex';
         document.getElementById('force-pwd-overlay').style.display='none';
         if(gsSuspensionMsg){ showLoginError(gsSuspensionMsg); gsSuspensionMsg=null; }
