@@ -310,9 +310,33 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .overlay.show{display:flex;}
 /* Modali aperte DA DENTRO l'editor visita: devono stare sopra l'editor stesso (z-index 2000) */
 #modal-farmaci-visita.overlay,#modal-post-visita.overlay{z-index:2600;}
+.mfv-box{width:min(760px,95vw);max-height:90vh;padding:22px 22px 0;display:flex;flex-direction:column;}
+.mfv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.mfv-x{border:none;background:var(--surface2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9rem;color:var(--label4);flex-shrink:0;}
+.mfv-x:hover{background:var(--separator);color:var(--label);}
+.mfv-spec-row{display:flex;gap:6px;margin-bottom:12px;}
 .mfv-spec-btn{flex:1;padding:7px 8px;font-size:0.78rem;font-weight:600;border:1px solid var(--separator);background:var(--surface);color:var(--label3);border-radius:9px;cursor:pointer;transition:0.15s;}
 .mfv-spec-btn:hover{border-color:var(--primary);}
 .mfv-spec-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+#mfv-body{overflow-y:auto;flex:1;min-height:200px;padding-right:4px;margin-bottom:6px;}
+.mfv-foot{display:flex;align-items:center;justify-content:space-between;gap:14px 20px;padding:14px 0;margin-top:6px;border-top:1px solid var(--separator);flex-wrap:wrap;background:var(--surface);position:sticky;bottom:0;}
+.mfv-foot-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.mfv-foot .btn{padding:9px 18px;white-space:nowrap;}
+.mfv-ric-chk{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--label3);cursor:pointer;user-select:none;white-space:nowrap;}
+.mfv-ric-chk input{width:auto;}
+.mfv-count-lbl{font-size:0.8rem;color:var(--label4);white-space:nowrap;}
+.mfv-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mfv-cat-tile{text-align:left;padding:12px 14px;border:1px solid var(--separator);border-radius:12px;background:var(--surface);cursor:pointer;transition:0.15s;}
+.mfv-cat-tile:hover{border-color:var(--primary);background:var(--primary-dim);}
+.mfv-cat-tile .t{font-weight:700;font-size:0.86rem;color:var(--label);line-height:1.3;}
+.mfv-cat-tile .n{font-size:0.74rem;color:var(--label4);margin-top:3px;}
+.mfv-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--primary);font-weight:600;font-size:0.84rem;cursor:pointer;padding:0;margin-bottom:12px;}
+.mfv-guida{background:#eef4ff;border:1px solid #cfe0ff;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:0.82rem;line-height:1.55;color:#1e3a5f;}
+.mfv-guida b{display:block;margin-bottom:4px;color:#0d2a4d;}
+:root:not([data-theme="light"]) .mfv-guida{background:rgba(80,130,220,0.12);border-color:rgba(120,160,230,0.3);color:var(--label);}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mfv-guida{background:rgba(80,130,220,0.12);border-color:rgba(120,160,230,0.3);color:var(--label);}}
+.mfv-sez-tit{font-size:0.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;}
+.mfv-sez-tit:first-child{margin-top:0;}
 .modal-sm{background:var(--surface);border-radius:var(--radius-lg);padding:32px;width:520px;box-shadow:var(--shadow-lg);}
 .modal-sm h3{font-family:var(--font-serif);font-size:1.5rem;margin-bottom:8px;}
 .modal-sm p{color:var(--label4);font-size:0.875rem;margin-bottom:24px;}
@@ -1352,21 +1376,25 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 
 <!-- Modal Selettore Farmaci (dal campo Terapia di una visita) -->
 <div id="modal-farmaci-visita" class="overlay">
-  <div class="modal-sm" style="width:640px;max-height:85vh;display:flex;flex-direction:column;">
-    <h3>💊 Aggiungi Farmaci alla Terapia</h3>
-    <p style="color:var(--label4);font-size:.85rem;margin-bottom:12px">Seleziona uno o più farmaci: vengono scritti nel campo Terapia e puoi generare subito la ricetta.</p>
-    <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <button type="button" class="mfv-spec-btn active" data-spec="all" onclick="setMfvSpec('all')">Tutte le specialità</button>
+  <div class="modal-sm mfv-box">
+    <div class="mfv-head">
+      <h3 style="margin-bottom:2px">💊 Farmaci per la Terapia</h3>
+      <button class="mfv-x" onclick="closeModal('modal-farmaci-visita')" title="Chiudi">✕</button>
+    </div>
+    <input id="mfv-search" placeholder="🔍 Cerca farmaco, principio attivo o patologia..." style="margin:10px 0" oninput="renderFarmaciModal()">
+    <div class="mfv-spec-row">
+      <button type="button" class="mfv-spec-btn active" data-spec="all" onclick="setMfvSpec('all')">Tutte</button>
       <button type="button" class="mfv-spec-btn" data-spec="gin" onclick="setMfvSpec('gin')">🌸 Ginecologia</button>
       <button type="button" class="mfv-spec-btn" data-spec="ost" onclick="setMfvSpec('ost')">🤰 Ostetricia</button>
     </div>
-    <input id="mfv-search" placeholder="🔍 Cerca farmaco o principio attivo..." style="margin-bottom:14px" oninput="renderFarmaciModal()">
-    <div id="mfv-grid" style="overflow-y:auto;flex:1;min-height:200px;padding-right:4px;"></div>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--separator);">
-      <span style="font-size:0.82rem;color:var(--label4);flex-shrink:0;"><span id="mfv-count">0</span> selezionati</span>
-      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeModal('modal-farmaci-visita')">Annulla</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="confermaFarmaciSelezionatiVisita(false)">✅ Inserisci in Terapia</button>
-      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="confermaFarmaciSelezionatiVisita(true)">🖨️ Inserisci e Stampa Ricetta</button>
+    <div id="mfv-body"></div>
+    <div class="mfv-foot">
+      <label class="mfv-ric-chk"><input type="checkbox" id="mfv-anche-ricetta"> Genera anche la ricetta</label>
+      <div class="mfv-foot-actions">
+        <span class="mfv-count-lbl"><span id="mfv-count">0</span> selezionati</span>
+        <button class="btn btn-ghost" onclick="closeModal('modal-farmaci-visita')">Annulla</button>
+        <button class="btn btn-primary" onclick="confermaFarmaciSelezionatiVisita(document.getElementById('mfv-anche-ricetta').checked)">Inserisci in Terapia</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3437,41 +3465,297 @@ let curGravidanzaId = null; // gravidanza assegnata alla visita ostetrica/eco in
 // pagina Farmacia), spec ('gin' | 'ost' | 'both' — specialità) e pat
 // (patologia/indicazione, usata nel selettore farmaci della scheda visita).
 const FARMACI = [
-  // INTEGR.
-  {n:"Folidex 400",p:"Acido Folico",dose:"1 cp 400mcg/die dal preconcezionale fino alla 12a settimana",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
-  {n:"Prefolic 5mg",p:"Acido Folico",dose:"1 cp 5mg/die (alto rischio: epilessia, DM, obesità)",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
-  {n:"Polimag Fast",p:"Magnesio pidolato",dose:"1 bustina x2/die in acqua – utile nei crampi e insonnia gestazionale",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
-  {n:"Ferrograd C",p:"Solfato ferroso 325mg + Vit C",dose:"1 cp/die a stomaco vuoto – se intolleranza: con pasto",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
-  {n:"Tardyferon",p:"Solfato ferroso 80mg",dose:"1-2 cp/die in caso di anemia sideropenica",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
-  {n:"Pronatal Forte",p:"Multivitaminico prenatal",dose:"1 cp/die con pasto (DHA + Fe + Folati)",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
-  {n:"Omega3 Polaris",p:"DHA/EPA",dose:"1 cp/die 500mg – III trimestre e allattamento",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
-  {n:"Calcium Sandoz",p:"Calcio gluconato 1g",dose:"2 cp/die se apporto dietetico insufficiente",cat:"integ",col:"green",spec:"both",pat:"Integrazione minerale"},
-  // ANTIBIOTICI
-  {n:"Augmentin 1g",p:"Amoxicillina + Acido Clavulanico",dose:"1 cp x2/die per 6gg. In gravidanza: sicuro (cat. B)",cat:"anti",col:"red",spec:"both",pat:"Infezioni batteriche generali"},
-  {n:"Zitromax 500",p:"Azitromicina",dose:"500mg 1cp/die per 3gg (chlamydia: 1g singola dose)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
-  {n:"Monuril 3g",p:"Fosfomicina",dose:"1 bustina singola (cistite non complicata) – sicuro in gravidanza",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
-  {n:"Trimossazolo 960",p:"Trimetoprim+Sulfametossazolo",dose:"1 cp x2/die per 7gg – evitare in I trim e vicino al termine",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
-  {n:"Metronidazolo 500",p:"Metronidazolo",dose:"500mg x2/die per 7gg (BV/Trichomonas) – evitare I trim.",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali (BV / Trichomonas)"},
-  {n:"Fluconazolo 150",p:"Fluconazolo",dose:"150mg singola dose (candida) – CONTROINDICATO in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali (Candida)"},
-  {n:"Clindamicina Vaginal",p:"Clindamicina 2%",dose:"1 applicatore vaginale/sera per 7gg (BV in gravidanza)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali (BV / Trichomonas)"},
-  // ORMONI
-  {n:"Progeffik 200",p:"Progesterone micronizzato",dose:"200mg ovuli vaginali ore 22 (I trim., minaccia aborto, cervicoinsuff.)",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / minaccia aborto"},
-  {n:"Progeffik 100",p:"Progesterone micronizzato",dose:"100mg vaginali x2 – luteal support in IVF",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / PMA"},
-  {n:"Dufaston 10",p:"Didrogesterone",dose:"10mg x2/die giorni 16-25 (insufficienza luteale)",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità ciclo"},
-  {n:"Nuvaring",p:"Etonogestrel 120µg + Etinilestradiolo 15µg",dose:"1 anello vaginale per 3 settimane, rimozione 1 sett.",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
-  {n:"Slinda",p:"Drospirenone 4mg",dose:"1 cp/die in continuo (POP) – utile in allattamento",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
-  {n:"Yasmin",p:"Drospirenone 3mg + EE 30µg",dose:"1 cp/die per 21gg, pausa 7gg",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
-  {n:"Mirena",p:"Levonorgestrel 52mg IUD",dose:"Inserzione intrauterina – validità 5-8 anni",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
-  {n:"Kyleena",p:"Levonorgestrel 19.5mg IUD",dose:"Inserzione intrauterina – validità 5 anni (indicata nullipare)",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
-  {n:"Tibolone Libbs 2.5",p:"Tibolone",dose:"1 cp/die in continuo – menopausa (solo post-menopausali)",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa / Terapia ormonale sostitutiva"},
-  {n:"Estrofem 2mg",p:"Estradiolo orale",dose:"1 cp/die (HRT – ciclica o continua)",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa / Terapia ormonale sostitutiva"},
-  {n:"Utrogestan 100",p:"Progesterone micronizzato orale",dose:"200-300mg/die ore 22 (deficit luteale, amenorrea)",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità ciclo"},
-  // ALTRO
-  {n:"Buscopan 10",p:"N-butilbromuro scopolamina",dose:"10mg 1 cp o supp. al bisogno per dolore/spasmo",cat:"altro",col:"gray",spec:"both",pat:"Dolore / spasmo"},
-  {n:"Tachipirina 1000",p:"Paracetamolo",dose:"1g ogni 6-8h max. – analgesico sicuro in gravidanza",cat:"altro",col:"gray",spec:"both",pat:"Dolore / febbre"},
-  {n:"Maalox",p:"Idrossido Mg + Al",dose:"1 bustina al bisogno dopo pasti (pirosi gestazionale)",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
-  {n:"Zofran 4",p:"Ondansetron",dose:"4mg x2/die – nausea/vomito gravidanza (II-III trim.)",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Nausea e vomito"}
+
+  // ═══════════ INTEGRAZIONE E GRAVIDANZA ═══════════
+  {n:"Folidex 400",p:"Acido folico",dose:"1 cp 400mcg/die dal preconcepimento fino alla 12ª settimana",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Prefolic 5mg",p:"Acido folico (5-MTHF)",dose:"1 cp 5mg/die – alto rischio: epilessia, diabete, obesità, pregresso DTN, MTHFR",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Pronatal Forte",p:"Multivitaminico prenatale",dose:"1 cp/die con pasto (DHA + ferro + folati + iodio + vit. D)",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Multicentrum Mamma",p:"Multivitaminico prenatale",dose:"1 cp/die – dal preconcepimento all'allattamento",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Omega3 Polaris",p:"DHA/EPA",dose:"1 cp 500mg DHA/die – dal II trimestre e in allattamento",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"DiBase 25.000",p:"Colecalciferolo (vit. D3)",dose:"1 fiala/mese os se carenza; 800-1000 UI/die di mantenimento",cat:"integ",col:"green",spec:"both",pat:"Gravidanza · Integrazione"},
+  {n:"Ioduro di potassio 150",p:"Iodio",dose:"1 cp 150mcg/die dal preconcepimento (se non iodoprofilassi con sale)",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Polimag Fast",p:"Magnesio pidolato",dose:"1 bustina x2/die – crampi, insonnia e contrazioni gestazionali",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Calcium Sandoz 1000",p:"Calcio",dose:"1 cp effervescente/die se apporto dietetico insufficiente",cat:"integ",col:"green",spec:"both",pat:"Integrazione minerale"},
+
+  // ═══════════ ANEMIA SIDEROPENICA ═══════════
+  {n:"Ferrograd C",p:"Solfato ferroso 325mg + Vit. C",dose:"1 cp/die a stomaco vuoto (se intolleranza: a giorni alterni o con pasto)",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+  {n:"Tardyferon",p:"Solfato ferroso 80mg",dose:"1-2 cp/die – anemia sideropenica lieve-moderata",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+  {n:"Ferplex / Legofer",p:"Ferro gluconato / ferrimannitolo",dose:"1-2 flaconcini/die os – meglio tollerato a livello gastrico",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+  {n:"Ferinject",p:"Ferro carbossimaltosio EV",dose:"Infusione EV in ambiente protetto – anemia severa, intolleranza/inefficacia os, II-III trimestre",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+  {n:"Sideral Folico",p:"Ferro liposomiale + folati",dose:"1 bustina/die – ottima tollerabilità, utile in gravidanza",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+
+  // ═══════════ NAUSEA E VOMITO IN GRAVIDANZA ═══════════
+  {n:"Cariban",p:"Doxilamina 10mg + Piridossina (B6) 10mg",dose:"2 cp la sera, +1 al mattino e +1 al pomeriggio se necessario (max 4/die) – 1ª scelta NVG",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Nausea e vomito"},
+  {n:"Piridossina (B6)",p:"Vitamina B6",dose:"10-25mg ogni 8h – forme lievi, da sola o prima della doxilamina",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Nausea e vomito"},
+  {n:"Plasil",p:"Metoclopramide",dose:"10mg fino a x3/die – 2ª linea, non oltre 5 giorni",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Nausea e vomito"},
+  {n:"Zofran 4",p:"Ondansetron",dose:"4-8mg x2/die – 3ª linea, preferire dopo la 10ª settimana",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Nausea e vomito"},
+  {n:"Zenzero",p:"Zingiber officinale",dose:"250mg x4/die – rimedio non farmacologico, forme lievi",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Nausea e vomito"},
+
+  // ═══════════ DISTURBI COMUNI DELLA GRAVIDANZA ═══════════
+  {n:"Maalox / Gaviscon",p:"Antiacidi / alginato",dose:"1 bustina dopo i pasti e la sera – pirosi gestazionale",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Pantoprazolo 20",p:"Pantoprazolo (IPP)",dose:"20mg/die – reflusso non responsivo agli antiacidi (sicuro in gravidanza)",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Macrogol (Movicol)",p:"Macrogol 3350",dose:"1-2 bustine/die – stipsi gestazionale, 1ª scelta",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Lattulosio (Laevolac)",p:"Lattulosio",dose:"15-30ml/die – stipsi gestazionale",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Proctolyn / Preparazione H",p:"Trattamento topico emorroidario",dose:"1 applicazione x2/die – emorroidi in gravidanza/puerperio",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Daflon 500",p:"Diosmina + esperidina",dose:"2 cp x2/die per 4gg poi 1 cp x2/die – crisi emorroidaria, insufficienza venosa",cat:"altro",col:"gray",spec:"both",pat:"Gravidanza · Disturbi comuni"},
+
+  // ═══════════ SOSTEGNO GRAVIDANZA / MINACCIA D'ABORTO ═══════════
+  {n:"Progeffik 200",p:"Progesterone micronizzato",dose:"200mg ovuli vaginali ore 22 – minaccia d'aborto con sanguinamento, pregressi aborti ripetuti",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / minaccia d'aborto"},
+  {n:"Prontogest 200",p:"Progesterone micronizzato",dose:"200mg vaginali x2/die – sostegno luteale, cervice corta",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / minaccia d'aborto"},
+  {n:"Lentogest 341",p:"Idrossiprogesterone caproato IM",dose:"1 fiala IM/settimana – profilassi parto pretermine ricorrente (dalla 16ª-36ª sett.)",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / minaccia d'aborto"},
+  {n:"Progeffik 100",p:"Progesterone micronizzato",dose:"100mg vaginali x2/die – supporto fase luteale in PMA/FIVET",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / PMA"},
+
+  // ═══════════ MINACCIA DI PARTO PRETERMINE / TOCOLISI ═══════════
+  {n:"Tractocile",p:"Atosiban EV",dose:"Bolo + infusione EV per 48h – tocolitico di 1ª scelta, ottima tollerabilità materna",cat:"altro",col:"gray",spec:"ost",pat:"Minaccia di parto pretermine"},
+  {n:"Nifedipina (Adalat)",p:"Nifedipina",dose:"20mg os poi 10-20mg ogni 4-8h (max 48h) – tocolisi, off-label ma diffusa",cat:"altro",col:"gray",spec:"ost",pat:"Minaccia di parto pretermine"},
+  {n:"Indometacina",p:"Indometacina (FANS)",dose:"50-100mg poi 25mg ogni 6h – tocolisi <32 sett., max 48h (rischio chiusura dotto)",cat:"altro",col:"gray",spec:"ost",pat:"Minaccia di parto pretermine"},
+  {n:"Bentelan 4mg (Betametasone)",p:"Betametasone IM",dose:"12mg IM x2 a 24h di distanza – maturazione polmonare fetale 24-34 sett.",cat:"altro",col:"gray",spec:"ost",pat:"Maturazione polmonare fetale"},
+  {n:"Solfato di Magnesio",p:"Magnesio solfato EV",dose:"Bolo 4g + 1g/h EV – neuroprotezione fetale <32 sett.; anche in preeclampsia severa",cat:"altro",col:"gray",spec:"ost",pat:"Minaccia di parto pretermine"},
+
+  // ═══════════ PROFILASSI PREECLAMPSIA / TROMBOFILIA ═══════════
+  {n:"Cardioaspirina 100",p:"Acido acetilsalicilico 100mg",dose:"1 cp/die la sera dalla 12ª (max 16ª) alla 36ª sett. – alto rischio preeclampsia",cat:"altro",col:"gray",spec:"ost",pat:"Profilassi preeclampsia / trombofilia"},
+  {n:"Clexane 4000",p:"Enoxaparina EBPM",dose:"4000 UI SC/die – profilassi trombofilia/TEV in gravidanza (dose su peso e rischio)",cat:"altro",col:"gray",spec:"ost",pat:"Profilassi preeclampsia / trombofilia"},
+  {n:"Fraxiparina",p:"Nadroparina EBPM",dose:"0,3-0,4ml SC/die – profilassi TEV in gravidanza e puerperio",cat:"altro",col:"gray",spec:"ost",pat:"Profilassi preeclampsia / trombofilia"},
+  {n:"Calcio (profilassi PE)",p:"Calcio carbonato",dose:"1,5-2g/die – profilassi preeclampsia nelle donne a basso apporto di calcio",cat:"integ",col:"green",spec:"ost",pat:"Profilassi preeclampsia / trombofilia"},
+
+  // ═══════════ IMMUNOPROFILASSI ANTI-D ═══════════
+  {n:"Rhophylac 1500",p:"Immunoglobuline anti-D",dose:"1 fiala IM/EV a 28 sett. e entro 72h dal parto se neonato Rh+ (donna Rh- non sensibilizzata)",cat:"altro",col:"gray",spec:"ost",pat:"Immunoprofilassi anti-D (Rh negative)"},
+  {n:"Igamad 1500",p:"Immunoglobuline anti-D",dose:"1 fiala IM dopo eventi sensibilizzanti (aborto, amniocentesi, trauma, metrorragia)",cat:"altro",col:"gray",spec:"ost",pat:"Immunoprofilassi anti-D (Rh negative)"},
+
+  // ═══════════ IPERTENSIONE IN GRAVIDANZA ═══════════
+  {n:"Aldomet 250",p:"Alfa-metildopa",dose:"250mg x2-3/die (max 2g/die) – 1ª scelta ipertensione cronica/gestazionale",cat:"altro",col:"gray",spec:"ost",pat:"Ipertensione in gravidanza"},
+  {n:"Trandate 100",p:"Labetalolo",dose:"100mg x2/die fino a 200mg x3-4 – 1ª-2ª scelta; EV nell'urgenza ipertensiva",cat:"altro",col:"gray",spec:"ost",pat:"Ipertensione in gravidanza"},
+  {n:"Nifedipina RM 20",p:"Nifedipina rilascio modificato",dose:"20-30mg x1-2/die – alternativa; anche 10mg os nell'urgenza",cat:"altro",col:"gray",spec:"ost",pat:"Ipertensione in gravidanza"},
+
+  // ═══════════ DIABETE GESTAZIONALE ═══════════
+  {n:"Insulina (Humalog/Levemir)",p:"Insulina rapida / basale",dose:"Schema personalizzato sui profili glicemici – 1ª scelta se dieta insufficiente",cat:"altro",col:"gray",spec:"ost",pat:"Diabete gestazionale"},
+  {n:"Metformina 500",p:"Metformina",dose:"500mg poi fino a 2000mg/die – alternativa/aggiunta all'insulina (counselling sul passaggio placentare)",cat:"altro",col:"gray",spec:"both",pat:"Diabete gestazionale"},
+
+  // ═══════════ COLESTASI GRAVIDICA ═══════════
+  {n:"Ursobil / Deursil",p:"Acido ursodesossicolico (UDCA)",dose:"10-15 mg/kg/die in 2-3 dosi – colestasi intraepatica gravidica",cat:"altro",col:"gray",spec:"ost",pat:"Colestasi gravidica"},
+
+  // ═══════════ INFEZIONI IN GRAVIDANZA / TRAVAGLIO ═══════════
+  {n:"Ampicillina EV",p:"Ampicillina",dose:"2g EV all'ingresso in travaglio poi 1g ogni 4h – profilassi GBS intrapartum",cat:"anti",col:"red",spec:"ost",pat:"Infezioni in gravidanza (GBS, batteriuria)"},
+  {n:"Cefazolina EV",p:"Cefazolina",dose:"2g EV – profilassi GBS in allergia a penicilline a basso rischio; profilassi taglio cesareo",cat:"anti",col:"red",spec:"ost",pat:"Infezioni in gravidanza (GBS, batteriuria)"},
+  {n:"Amoxicillina 1g",p:"Amoxicillina",dose:"1g x3/die per 7gg – batteriuria asintomatica / cistite in gravidanza (se sensibile)",cat:"anti",col:"red",spec:"ost",pat:"Infezioni in gravidanza (GBS, batteriuria)"},
+  {n:"Nitrofurantoina 100",p:"Nitrofurantoina",dose:"100mg x2/die per 5-7gg – cistite in gravidanza (evitare a termine e G6PD)",cat:"anti",col:"red",spec:"ost",pat:"Infezioni in gravidanza (GBS, batteriuria)"},
+
+  // ═══════════ INDUZIONE DEL TRAVAGLIO / PREPARAZIONE CERVICALE ═══════════
+  {n:"Propess",p:"Dinoprostone (PGE2) dispositivo vaginale",dose:"1 dispositivo a rilascio prolungato (max 24h) – maturazione cervicale, Bishop sfavorevole",cat:"altro",col:"gray",spec:"ost",pat:"Induzione del travaglio"},
+  {n:"Misodel",p:"Misoprostolo 200mcg dispositivo vaginale",dose:"1 dispositivo (max 24h) – maturazione cervicale/induzione",cat:"altro",col:"gray",spec:"ost",pat:"Induzione del travaglio"},
+  {n:"Ossitocina (Syntocinon)",p:"Ossitocina EV",dose:"Infusione EV titolata – induzione/accelerazione del travaglio con cervice matura",cat:"altro",col:"gray",spec:"ost",pat:"Induzione del travaglio"},
+
+  // ═══════════ EMORRAGIA POST-PARTUM / ATONIA UTERINA ═══════════
+  {n:"Ossitocina (Syntocinon)",p:"Ossitocina",dose:"10 UI IM o 5 UI EV lenta + infusione – gestione attiva III stadio, 1ª linea EPP",cat:"altro",col:"gray",spec:"ost",pat:"Emorragia post-partum / atonia uterina"},
+  {n:"Pabal",p:"Carbetocina",dose:"100mcg EV/IM in dose singola – alternativa all'ossitocina, specie dopo cesareo",cat:"altro",col:"gray",spec:"ost",pat:"Emorragia post-partum / atonia uterina"},
+  {n:"Methergin",p:"Metilergometrina",dose:"0,2mg IM (NO EV) – 2ª linea atonia; controindicata in ipertensione/preeclampsia",cat:"altro",col:"gray",spec:"ost",pat:"Emorragia post-partum / atonia uterina"},
+  {n:"Misoprostolo (Cytotec)",p:"Misoprostolo",dose:"600-800mcg sublinguale/rettale – 3ª linea EPP, dove non disponibili uterotonici iniettabili",cat:"altro",col:"gray",spec:"ost",pat:"Emorragia post-partum / atonia uterina"},
+  {n:"Tranex / Ugurol EV",p:"Acido tranexamico",dose:"1g EV entro 3h dall'esordio, ripetibile dopo 30 min – adiuvante in ogni EPP",cat:"altro",col:"gray",spec:"ost",pat:"Emorragia post-partum / atonia uterina"},
+
+  // ═══════════ LATTAZIONE ═══════════
+  {n:"Dostinex",p:"Cabergolina",dose:"1mg dose singola entro 24h dal parto (soppressione) – oppure 0,25mg x2/die per 2gg (ablattazione)",cat:"ormo",col:"blue",spec:"ost",pat:"Soppressione della lattazione"},
+
+  // ═══════════ CONTRACCEZIONE ═══════════
+  {n:"Loette / Effiprev",p:"Etinilestradiolo 20mcg + Levonorgestrel",dose:"1 cp/die 21+7 – estroprogestinico a basso dosaggio, 1ª scelta giovani sane",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Yasminelle / Drospil",p:"Etinilestradiolo 20mcg + Drospirenone 3mg",dose:"1 cp/die 21+7 – utile con ritenzione idrica, acne, SPM",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Klaira",p:"Estradiolo valerato + Dienogest (quadrifasico)",dose:"1 cp/die in continuo (26+2) – estrogeno naturale, buon controllo del sanguinamento",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Zoely",p:"Estradiolo 1,5mg + Nomegestrolo acetato",dose:"1 cp/die 24+4 – estrogeno naturale, ciclo breve di pausa",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Nuvaring",p:"Etonogestrel + Etinilestradiolo (anello vaginale)",dose:"1 anello per 3 settimane, 1 settimana di pausa",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Evra",p:"Norelgestromina + Etinilestradiolo (cerotto)",dose:"1 cerotto/settimana per 3 settimane, 1 di pausa",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Cerazette / Desogestrel",p:"Desogestrel 75mcg (POP)",dose:"1 cp/die in continuo, senza pausa – allattamento, fumatrici >35aa, controindicazioni agli estrogeni",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Slinda",p:"Drospirenone 4mg (POP)",dose:"1 cp/die 24+4 – solo progestinico con miglior tollerabilità, finestra di ritardo ampia",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Nexplanon",p:"Etonogestrel (impianto sottocutaneo)",dose:"1 impianto nel braccio – validità 3 anni, LARC",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Depo Provera",p:"Medrossiprogesterone acetato deposito",dose:"150mg IM ogni 12 settimane – opzione se aderenza difficile (counselling su densità ossea)",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Mirena",p:"Levonorgestrel 52mg (IUD)",dose:"Inserzione intrauterina – validità 8 anni; anche terapeutico su menorragia e iperplasia",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Kyleena",p:"Levonorgestrel 19,5mg (IUD)",dose:"Inserzione intrauterina – validità 5 anni, dispositivo più piccolo, indicato nullipare",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"IUD al rame (TT380)",p:"Dispositivo intrauterino al rame",dose:"Inserzione intrauterina – validità 5-10 anni, contraccezione non ormonale",cat:"altro",col:"gray",spec:"gin",pat:"Contraccezione"},
+
+  // ═══════════ CONTRACCEZIONE D'EMERGENZA ═══════════
+  {n:"Norlevo / Levonelle",p:"Levonorgestrel 1,5mg",dose:"1 cp dose singola entro 72h dal rapporto (efficacia decrescente nel tempo)",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione d'emergenza"},
+  {n:"EllaOne",p:"Ulipristal acetato 30mg",dose:"1 cp dose singola entro 120h (5 giorni) – più efficace, anche in fase periovulatoria",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione d'emergenza"},
+  {n:"IUD al rame (post-coitale)",p:"Dispositivo intrauterino al rame",dose:"Inserzione entro 5 giorni – metodo di emergenza più efficace, prosegue come contraccezione",cat:"altro",col:"gray",spec:"gin",pat:"Contraccezione d'emergenza"},
+
+  // ═══════════ MENOPAUSA · TERAPIA ORMONALE SOSTITUTIVA (sistemica) ═══════════
+  {n:"Estradot / Climara (cerotto)",p:"Estradiolo transdermico",dose:"25-50-75mcg 2 volte/settimana – via transdermica di 1ª scelta (minor rischio TEV)",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"Gelestra / EstroGel",p:"Estradiolo gel transdermico",dose:"0,5-1,5mg/die (1-2 erogazioni) – dose modulabile",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"Progeffik 100/200 (in TOS)",p:"Progesterone micronizzato",dose:"100mg/die continuo o 200mg/die 12-14 gg/mese – protezione endometriale in donna con utero",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"Femoston / Femoston Conti",p:"Estradiolo + Didrogesterone",dose:"1 cp/die – combinazione orale sequenziale o continua",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"Angeliq",p:"Estradiolo 1mg + Drospirenone 2mg",dose:"1 cp/die continuo – anche lieve effetto su ritenzione idrica e pressione",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"Kliogest / Activelle",p:"Estradiolo + Noretisterone acetato",dose:"1 cp/die continuo – combinazione orale in continua",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"Livial",p:"Tibolone",dose:"1 cp 2,5mg/die continuo – solo in post-menopausa (>1 anno di amenorrea)",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+  {n:"IUD-LNG + estrogeno",p:"Levonorgestrel IUD + estradiolo transdermico",dose:"Mirena per la protezione endometriale + estrogeno transdermico – utile se anche contraccezione in perimenopausa",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Terapia ormonale sostitutiva"},
+
+  // ═══════════ MENOPAUSA · ATROFIA VULVO-VAGINALE (terapia locale) ═══════════
+  {n:"Colpotrophine",p:"Promestriene crema/ovuli",dose:"1 applicazione/die per 20 gg poi 2/settimana – atrofia vulvo-vaginale, azione locale",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Atrofia vulvo-vaginale"},
+  {n:"Ovestin crema/ovuli",p:"Estriolo",dose:"0,5mg/die per 2-3 settimane poi 2/settimana – sindrome genito-urinaria della menopausa",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Atrofia vulvo-vaginale"},
+  {n:"Blissel gel",p:"Estriolo 50mcg gel vaginale",dose:"1 applicazione/die per 3 settimane poi 2/settimana – dosaggio ultrabasso",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Atrofia vulvo-vaginale"},
+  {n:"Intrarosa",p:"Prasterone (DHEA) ovuli",dose:"1 ovulo 6,5mg/die – alternativa non estrogenica alla terapia locale",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Atrofia vulvo-vaginale"},
+  {n:"Senshio",p:"Ospemifene 60mg",dose:"1 cp/die con il cibo – SERM orale per dispareunia da atrofia moderata-severa",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa · Atrofia vulvo-vaginale"},
+  {n:"Gel all'acido ialuronico",p:"Acido ialuronico vaginale",dose:"1 applicazione ogni 2-3 giorni – opzione non ormonale, secchezza lieve o controindicazioni agli estrogeni",cat:"altro",col:"gray",spec:"gin",pat:"Menopausa · Atrofia vulvo-vaginale"},
+
+  // ═══════════ INFEZIONI VAGINALI · CANDIDA ═══════════
+  {n:"Gyno-Canesten",p:"Clotrimazolo ovuli/crema",dose:"500mg ovulo dose singola (o 200mg x3 sere) + crema sulla vulva – candidosi non complicata; SICURO in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Candida"},
+  {n:"Gyno-Pevaryl",p:"Econazolo ovuli",dose:"150mg ovulo/sera per 3 sere – alternativa topica",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Candida"},
+  {n:"Gynoxin",p:"Fenticonazolo ovuli",dose:"600mg ovulo dose singola (o 200mg x3)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Candida"},
+  {n:"Diflucan / Fluconazolo 150",p:"Fluconazolo",dose:"150mg os dose singola – candidosi non complicata; CONTROINDICATO in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Candida"},
+  {n:"Fluconazolo (schema recidive)",p:"Fluconazolo",dose:"150mg os giorni 1-4-7 poi 1/settimana per 6 mesi – candidosi ricorrente (≥4 episodi/anno)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Candida"},
+  {n:"Acido borico ovuli",p:"Acido borico 600mg",dose:"1 ovulo/sera per 14 gg – candida non-albicans (glabrata/krusei); NON in gravidanza, uso solo vaginale",cat:"altro",col:"gray",spec:"gin",pat:"Infezioni vaginali · Candida"},
+
+  // ═══════════ INFEZIONI VAGINALI · VAGINOSI BATTERICA / TRICHOMONAS ═══════════
+  {n:"Metronidazolo 500 os",p:"Metronidazolo",dose:"500mg x2/die per 7gg – 1ª scelta VB e Trichomonas (trattare anche il partner nel Trichomonas)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Vaginosi batterica"},
+  {n:"Metronidazolo gel 0,75%",p:"Metronidazolo vaginale",dose:"1 applicatore/sera per 5gg – VB, buona tollerabilità; anche schema di mantenimento 2/sett. per 3-6 mesi nelle recidive",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Vaginosi batterica"},
+  {n:"Clindamicina crema 2%",p:"Clindamicina vaginale",dose:"1 applicatore/sera per 7gg – VB, alternativa al metronidazolo; opzione in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Vaginosi batterica"},
+  {n:"Fluomizin",p:"Dequalinio cloruro 10mg",dose:"1 cp vaginale/sera per 6 gg – VB, antisettico non antibiotico, utilizzabile in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Vaginosi batterica"},
+  {n:"Tinidazolo 2g",p:"Tinidazolo",dose:"2g os dose singola – Trichomonas, alternativa al metronidazolo",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali · Vaginosi batterica"},
+  {n:"Probiotici vaginali (Lattobacilli)",p:"Lactobacillus spp.",dose:"1 ovulo/capsula per 7-10gg dopo la terapia – ripristino del microbiota, prevenzione recidive",cat:"integ",col:"green",spec:"gin",pat:"Infezioni vaginali · Vaginosi batterica"},
+
+  // ═══════════ INFEZIONI SESSUALMENTE TRASMISSIBILI ═══════════
+  {n:"Azitromicina 1g",p:"Azitromicina",dose:"1g os dose singola – Chlamydia (alternativa: doxiciclina). Trattare il/i partner, astensione 7gg",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
+  {n:"Doxiciclina 100",p:"Doxiciclina",dose:"100mg x2/die per 7gg – Chlamydia (1ª scelta CDC); CONTROINDICATA in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
+  {n:"Ceftriaxone 1g IM",p:"Ceftriaxone",dose:"1g IM dose singola – Gonorrea (associare doxiciclina/azitromicina per copertura Chlamydia)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
+  {n:"Benzatina penicillina",p:"Benzilpenicillina benzatinica",dose:"2,4 milioni UI IM dose singola – sifilide primaria/secondaria/latente precoce",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
+  {n:"Metronidazolo 2g",p:"Metronidazolo",dose:"2g os dose singola oppure 500mg x2 per 7gg – Trichomonas (trattare il partner)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
+
+  // ═══════════ HERPES GENITALE ═══════════
+  {n:"Zovirax / Aciclovir 400",p:"Aciclovir",dose:"400mg x3/die per 5-10gg (primo episodio) o 5gg (recidiva) – anche in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Herpes genitale"},
+  {n:"Valaciclovir 500/1000",p:"Valaciclovir",dose:"500mg x2/die per 5-10gg; 500mg/die come soppressione se ≥6 recidive/anno o dalla 36ª sett. in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Herpes genitale"},
+  {n:"Famciclovir 250",p:"Famciclovir",dose:"250mg x3/die per 5-10gg – alternativa",cat:"anti",col:"red",spec:"gin",pat:"Herpes genitale"},
+
+  // ═══════════ INFEZIONI URINARIE (CISTITE) ═══════════
+  {n:"Monuril 3g",p:"Fosfomicina trometamolo",dose:"1 bustina dose singola a stomaco vuoto la sera – cistite non complicata, 1ª scelta; sicuro in gravidanza",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
+  {n:"Nitrofurantoina 100",p:"Nitrofurantoina",dose:"100mg x2/die per 5gg – cistite non complicata (evitare a termine di gravidanza e in G6PD)",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
+  {n:"Trimossazolo 960",p:"Trimetoprim + Sulfametossazolo",dose:"1 cp x2/die per 3gg – solo se resistenze locali <20%; evitare I trim. e a termine",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
+  {n:"Cefixima 400",p:"Cefixima",dose:"400mg/die per 5-7gg – alternativa in gravidanza / pielonefrite lieve ambulatoriale",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
+  {n:"D-Mannosio",p:"D-mannosio",dose:"1-2g/die – prevenzione delle cistiti ricorrenti da E. coli",cat:"integ",col:"green",spec:"both",pat:"Infezioni urinarie (cistite)"},
+
+  // ═══════════ INFEZIONI PELVICHE (MST/PID) ═══════════
+  {n:"Ceftriaxone + Doxiciclina + Metronidazolo",p:"Terapia combinata PID",dose:"Ceftriaxone 1g IM + Doxiciclina 100mg x2 per 14gg + Metronidazolo 500mg x2 per 14gg – malattia infiammatoria pelvica ambulatoriale",cat:"anti",col:"red",spec:"gin",pat:"Malattia infiammatoria pelvica (PID)"},
+  {n:"Augmentin 1g",p:"Amoxicillina + Acido clavulanico",dose:"1g x2-3/die per 5-7gg – ascesso di Bartolini, cellulite vulvare, infezioni polimicrobiche",cat:"anti",col:"red",spec:"gin",pat:"Malattia infiammatoria pelvica (PID)"},
+
+  // ═══════════ SANGUINAMENTO UTERINO ANOMALO / MENORRAGIA ═══════════
+  {n:"Tranex / Ugurol",p:"Acido tranexamico",dose:"1g x3-4/die nei giorni di flusso abbondante (max 5gg) – riduce il flusso del 40-50%, non ormonale",cat:"altro",col:"gray",spec:"gin",pat:"Sanguinamento uterino anomalo / menorragia"},
+  {n:"Primolut Nor",p:"Noretisterone acetato",dose:"5mg x2-3/die dal 5° al 26° giorno (o 5mg x3 per arrestare un sanguinamento acuto per 10gg)",cat:"ormo",col:"blue",spec:"gin",pat:"Sanguinamento uterino anomalo / menorragia"},
+  {n:"Estroprogestinico (AUB)",p:"Etinilestradiolo + progestinico",dose:"1 cp/die in continuo – controllo del ciclo e riduzione del flusso in assenza di controindicazioni",cat:"ormo",col:"blue",spec:"gin",pat:"Sanguinamento uterino anomalo / menorragia"},
+  {n:"Mirena (menorragia)",p:"Levonorgestrel 52mg IUD",dose:"Inserzione intrauterina – 1ª scelta a lungo termine nella menorragia idiopatica",cat:"ormo",col:"blue",spec:"gin",pat:"Sanguinamento uterino anomalo / menorragia"},
+  {n:"FANS (Ac. mefenamico)",p:"Acido mefenamico / naprossene",dose:"500mg x3/die nei giorni di flusso – riduce flusso e dismenorrea associata",cat:"altro",col:"gray",spec:"gin",pat:"Sanguinamento uterino anomalo / menorragia"},
+
+  // ═══════════ DISMENORREA ═══════════
+  {n:"Ibuprofene 600",p:"Ibuprofene",dose:"400-600mg ogni 6-8h dall'esordio del dolore – 1ª scelta dismenorrea primaria",cat:"altro",col:"gray",spec:"gin",pat:"Dismenorrea"},
+  {n:"Naprossene 500",p:"Naprossene sodico",dose:"500mg poi 250mg ogni 6-8h – emivita più lunga",cat:"altro",col:"gray",spec:"gin",pat:"Dismenorrea"},
+  {n:"Estroprogestinico (dismenorrea)",p:"Etinilestradiolo + progestinico",dose:"1 cp/die, utile lo schema continuo – dismenorrea non responsiva ai FANS, o se serve contraccezione",cat:"ormo",col:"blue",spec:"gin",pat:"Dismenorrea"},
+
+  // ═══════════ ENDOMETRIOSI / ADENOMIOSI / DOLORE PELVICO ═══════════
+  {n:"Visanne",p:"Dienogest 2mg",dose:"1 cp/die in continuo – 1ª scelta nel dolore da endometriosi, buon profilo a lungo termine",cat:"ormo",col:"blue",spec:"gin",pat:"Endometriosi / adenomiosi"},
+  {n:"Estroprogestinico continuo",p:"Etinilestradiolo + progestinico",dose:"1 cp/die senza pausa – controllo del dolore, opzione se serve anche contraccezione",cat:"ormo",col:"blue",spec:"gin",pat:"Endometriosi / adenomiosi"},
+  {n:"Enantone / Decapeptyl",p:"Leuprorelina / Triptorelina (analogo GnRH)",dose:"1 fiala depot ogni 1-3 mesi (max 6 mesi) con add-back therapy – forme severe, pre-chirurgia",cat:"ormo",col:"blue",spec:"gin",pat:"Endometriosi / adenomiosi"},
+  {n:"Mirena (endometriosi)",p:"Levonorgestrel 52mg IUD",dose:"Inserzione intrauterina – controllo del dolore e della dismenorrea, specie nell'adenomiosi",cat:"ormo",col:"blue",spec:"gin",pat:"Endometriosi / adenomiosi"},
+
+  // ═══════════ FIBROMATOSI UTERINA ═══════════
+  {n:"Acido tranexamico (fibromi)",p:"Acido tranexamico",dose:"1g x3-4/die nei giorni di flusso – controllo sintomatico della menorragia da fibroma",cat:"altro",col:"gray",spec:"gin",pat:"Fibromatosi uterina"},
+  {n:"Analoghi GnRH (pre-chirurgia)",p:"Leuprorelina / Triptorelina",dose:"1 fiala depot/mese per 3 mesi – riduzione volume e correzione anemia prima della miomectomia",cat:"ormo",col:"blue",spec:"gin",pat:"Fibromatosi uterina"},
+  {n:"IUD-LNG / progestinico",p:"Levonorgestrel IUD o progestinico orale",dose:"Controllo del sanguinamento nei fibromi che non deformano la cavità",cat:"ormo",col:"blue",spec:"gin",pat:"Fibromatosi uterina"},
+
+  // ═══════════ IPERPLASIA ENDOMETRIALE ═══════════
+  {n:"Mirena (iperplasia)",p:"Levonorgestrel 52mg IUD",dose:"Inserzione intrauterina – 1ª scelta nell'iperplasia senza atipie, controllo bioptico a 6 mesi",cat:"ormo",col:"blue",spec:"gin",pat:"Iperplasia endometriale"},
+  {n:"Megestrolo / MAP orale",p:"Medrossiprogesterone acetato",dose:"10-20mg/die in continuo (o megestrolo 40-160mg/die) per 3-6 mesi – iperplasia senza atipie",cat:"ormo",col:"blue",spec:"gin",pat:"Iperplasia endometriale"},
+
+  // ═══════════ SINDROME DELL'OVAIO POLICISTICO (PCOS) / IRSUTISMO ═══════════
+  {n:"Metformina 500-1000",p:"Metformina",dose:"500mg poi fino a 1500-2000mg/die – insulino-resistenza, irregolarità mestruale, supporto al calo ponderale",cat:"altro",col:"gray",spec:"gin",pat:"Sindrome dell'ovaio policistico (PCOS)"},
+  {n:"Inositolo (myo + D-chiro)",p:"Myo-inositolo 2g + D-chiro-inositolo",dose:"2 bustine/die (rapporto 40:1) – regolarizzazione del ciclo e dei parametri metabolici",cat:"integ",col:"green",spec:"gin",pat:"Sindrome dell'ovaio policistico (PCOS)"},
+  {n:"Diane / Visofid (EE + CPA)",p:"Etinilestradiolo + Ciproterone acetato 2mg",dose:"1 cp/die 21+7 – iperandrogenismo clinico (acne, irsutismo) + contraccezione",cat:"ormo",col:"blue",spec:"gin",pat:"Sindrome dell'ovaio policistico (PCOS)"},
+  {n:"Spironolattone 50-100",p:"Spironolattone",dose:"50-100mg/die – irsutismo (sempre con contraccezione efficace, teratogeno)",cat:"altro",col:"gray",spec:"gin",pat:"Sindrome dell'ovaio policistico (PCOS)"},
+  {n:"Dufaston 10 (PCOS)",p:"Didrogesterone",dose:"10mg x2/die per 10-14 gg/mese – regolarizzazione mestruale se non serve contraccezione / desiderio di prole",cat:"ormo",col:"blue",spec:"gin",pat:"Sindrome dell'ovaio policistico (PCOS)"},
+
+  // ═══════════ IPERPROLATTINEMIA ═══════════
+  {n:"Dostinex",p:"Cabergolina",dose:"0,25mg x2/settimana, titolare fino a normalizzazione – 1ª scelta (adenoma o iperprolattinemia funzionale)",cat:"ormo",col:"blue",spec:"gin",pat:"Iperprolattinemia"},
+  {n:"Parlodel",p:"Bromocriptina",dose:"1,25-2,5mg/die a salire – alternativa, preferita se ricerca di gravidanza a breve",cat:"ormo",col:"blue",spec:"gin",pat:"Iperprolattinemia"},
+
+  // ═══════════ INSUFFICIENZA LUTEALE / IRREGOLARITÀ DEL CICLO / AMENORREA ═══════════
+  {n:"Dufaston 10",p:"Didrogesterone",dose:"10mg x2/die dal 16° al 25° giorno – insufficienza luteale, spotting premestruale",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità del ciclo"},
+  {n:"Prometrium / Utrogestan 200",p:"Progesterone micronizzato orale",dose:"200mg/die ore 22 per 10-12 gg/mese – induzione del flusso da sospensione nell'amenorrea",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità del ciclo"},
+  {n:"Progynova + progestinico",p:"Estradiolo valerato + progestinico",dose:"Schema estro-progestinico sequenziale – amenorrea ipoestrogenica, POI, ipogonadismo",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità del ciclo"},
+
+  // ═══════════ INDUZIONE DELL'OVULAZIONE / INFERTILITÀ ═══════════
+  {n:"Clomid 50",p:"Clomifene citrato",dose:"50mg/die dal 3° al 7° giorno (max 150mg) per max 6 cicli – anovulazione, PCOS",cat:"ormo",col:"blue",spec:"gin",pat:"Induzione dell'ovulazione / infertilità"},
+  {n:"Letrozolo 2,5",p:"Letrozolo (off-label)",dose:"2,5mg/die dal 3° al 7° giorno – 1ª scelta nell'anovulazione da PCOS (miglior tasso di nati vivi vs clomifene)",cat:"ormo",col:"blue",spec:"gin",pat:"Induzione dell'ovulazione / infertilità"},
+  {n:"Gonal-F / Puregon",p:"FSH ricombinante",dose:"Dosaggio individualizzato SC con monitoraggio ecografico – stimolazione ovarica controllata",cat:"ormo",col:"blue",spec:"gin",pat:"Induzione dell'ovulazione / infertilità"},
+  {n:"Ovitrelle",p:"hCG ricombinante",dose:"250mcg SC – trigger dell'ovulazione a follicolo maturo",cat:"ormo",col:"blue",spec:"gin",pat:"Induzione dell'ovulazione / infertilità"},
+  {n:"Progeffik 200 (luteale PMA)",p:"Progesterone micronizzato",dose:"200mg x2-3/die vaginali – supporto della fase luteale dopo IUI/FIVET",cat:"ormo",col:"blue",spec:"gin",pat:"Induzione dell'ovulazione / infertilità"},
+
+  // ═══════════ SINDROME PREMESTRUALE (SPM / DDPM) ═══════════
+  {n:"Yaz / Estroprogestinico con drospirenone",p:"Etinilestradiolo + Drospirenone (24+4)",dose:"1 cp/die – disturbo disforico premestruale (DDPM), schema con pausa breve",cat:"ormo",col:"blue",spec:"gin",pat:"Sindrome premestruale"},
+  {n:"Sertralina (fase luteale)",p:"Sertralina (SSRI)",dose:"50mg/die in continuo o solo nella fase luteale – DDPM con sintomi psichici prevalenti",cat:"altro",col:"gray",spec:"gin",pat:"Sindrome premestruale"},
+  {n:"Vitamina B6 / Magnesio / Agnocasto",p:"Piridossina, magnesio, Vitex agnus-castus",dose:"Sintomi lievi – supporto non farmacologico",cat:"integ",col:"green",spec:"gin",pat:"Sindrome premestruale"},
+
+  // ═══════════ OSTEOPOROSI POST-MENOPAUSALE ═══════════
+  {n:"Alendronato 70",p:"Acido alendronico",dose:"70mg/settimana a digiuno con acqua, in posizione eretta per 30 min – 1ª scelta",cat:"altro",col:"gray",spec:"gin",pat:"Osteoporosi post-menopausale"},
+  {n:"Risedronato 35",p:"Acido risedronico",dose:"35mg/settimana – alternativa ai bifosfonati",cat:"altro",col:"gray",spec:"gin",pat:"Osteoporosi post-menopausale"},
+  {n:"Prolia",p:"Denosumab",dose:"60mg SC ogni 6 mesi – alto rischio di frattura, intolleranza/inefficacia dei bifosfonati (non interrompere senza terapia di consolidamento)",cat:"altro",col:"gray",spec:"gin",pat:"Osteoporosi post-menopausale"},
+  {n:"Evista",p:"Raloxifene (SERM)",dose:"60mg/die – osteoporosi vertebrale + riduzione del rischio di carcinoma mammario (non su sintomi vasomotori)",cat:"ormo",col:"blue",spec:"gin",pat:"Osteoporosi post-menopausale"},
+  {n:"Colecalciferolo + Calcio",p:"Vitamina D3 + Calcio",dose:"Vit. D 800-1000 UI/die + calcio a raggiungere 1200mg/die (dieta + supplemento) – base di ogni terapia",cat:"integ",col:"green",spec:"gin",pat:"Osteoporosi post-menopausale"},
+
+  // ═══════════ SINTOMI VASOMOTORI (non-ormonale) ═══════════
+  {n:"Isoflavoni di soia",p:"Fitoestrogeni",dose:"40-80mg/die – vampate lievi, quando la TOS è rifiutata o controindicata",cat:"integ",col:"green",spec:"gin",pat:"Sintomi vasomotori (alternative alla TOS)"},
+  {n:"Venlafaxina / Paroxetina",p:"SNRI / SSRI a basso dosaggio",dose:"Venlafaxina 37,5-75mg/die o paroxetina 10-20mg/die – vampate moderate-severe con controindicazione agli estrogeni (evitare paroxetina se tamoxifene)",cat:"altro",col:"gray",spec:"gin",pat:"Sintomi vasomotori (alternative alla TOS)"},
+  {n:"Gabapentin",p:"Gabapentin",dose:"300mg la sera fino a 900mg/die – vampate notturne prevalenti",cat:"altro",col:"gray",spec:"gin",pat:"Sintomi vasomotori (alternative alla TOS)"},
+
+  // ═══════════ HPV / LESIONI CERVICALI (adiuvanti) ═══════════
+  {n:"Papilocare gel",p:"Gel vaginale (coriolus, ac. ialuronico, β-glucano)",dose:"1 applicatore/sera per 21gg poi a giorni alterni – adiuvante nella clearance dell'HPV e riparazione dell'epitelio (non sostituisce il follow-up)",cat:"integ",col:"green",spec:"gin",pat:"HPV / lesioni cervicali"},
+  {n:"Coriolus / immunomodulanti orali",p:"Coriolus versicolor, EGCG, folati, vit. B12",dose:"Supporto alla risposta immunitaria nelle infezioni HPV persistenti di basso grado",cat:"integ",col:"green",spec:"gin",pat:"HPV / lesioni cervicali"},
+
+  // ═══════════ VACCINAZIONI ═══════════
+  {n:"Gardasil 9",p:"Vaccino HPV 9-valente",dose:"2 dosi (9-14 anni) o 3 dosi (≥15 anni: 0-2-6 mesi) – prevenzione lesioni cervicali/vulvari/vaginali e condilomi",cat:"altro",col:"gray",spec:"gin",pat:"Vaccinazioni"},
+  {n:"Boostrix (dTpa)",p:"Vaccino difterite-tetano-pertosse acellulare",dose:"1 dose tra 27ª e 36ª settimana di OGNI gravidanza – protezione pertosse del neonato",cat:"altro",col:"gray",spec:"ost",pat:"Vaccinazioni"},
+  {n:"Vaccino antinfluenzale",p:"Vaccino influenzale inattivato",dose:"1 dose in qualsiasi trimestre durante la stagione influenzale – raccomandato in gravidanza",cat:"altro",col:"gray",spec:"ost",pat:"Vaccinazioni"},
+
+  // ═══════════ DOLORE / FEBBRE / SPASMO (trasversali) ═══════════
+  {n:"Tachipirina 1000",p:"Paracetamolo",dose:"1g ogni 6-8h (max 3g/die) – analgesico/antipiretico di 1ª scelta, sicuro in gravidanza e allattamento",cat:"altro",col:"gray",spec:"both",pat:"Dolore / febbre"},
+  {n:"Ibuprofene 600",p:"Ibuprofene",dose:"400-600mg ogni 8h – evitare dalla 20ª settimana di gravidanza (rischio oligoidramnios / chiusura dotto); compatibile con l'allattamento",cat:"altro",col:"gray",spec:"both",pat:"Dolore / febbre"},
+  {n:"Ketoprofene 80 / Oki",p:"Ketoprofene / Dexketoprofene",dose:"Al bisogno – dolore moderato; stesse cautele dei FANS in gravidanza",cat:"altro",col:"gray",spec:"both",pat:"Dolore / febbre"},
+  {n:"Buscopan 10",p:"N-butilbromuro di scopolamina",dose:"10mg cp o supposta al bisogno – dolore colico/spastico pelvico o intestinale",cat:"altro",col:"gray",spec:"both",pat:"Dolore / spasmo"},
+  {n:"Buscopan Composto",p:"Scopolamina + Paracetamolo",dose:"1 cp/supposta fino a x3/die – dolore spastico con componente infiammatoria",cat:"altro",col:"gray",spec:"both",pat:"Dolore / spasmo"}
 ];
+
+// Guida clinica alla scelta del farmaco, per patologia. Mostrata in evidenza
+// nel selettore farmaci quando si apre una categoria: aiuta a decidere quale
+// farmaco preferire e in quale situazione. È una guida orientativa e sintetica,
+// non sostituisce il giudizio clinico né le linee guida di riferimento.
+const GUIDA_FARMACI = {
+  "Contraccezione":"1ª scelta nella donna sana <35 anni non fumatrice: estroprogestinico a basso dosaggio (EE 20-30mcg). Preferire il SOLO progestinico (desogestrel, drospirenone) o un metodo non ormonale se: allattamento, età >35 con fumo, emicrania con aura, ipertensione, familiarità/anamnesi di TEV, obesità marcata. Per un metodo a lunga durata e a bassa manutenzione (LARC): IUD-LNG, IUD al rame o impianto. IUD-LNG utile anche quando serve ridurre il flusso mestruale.",
+  "Contraccezione d'emergenza":"Ulipristal (EllaOne) è più efficace del levonorgestrel e copre fino a 120h, specie in fase periovulatoria e con BMI elevato; dopo EllaOne rimandare la contraccezione ormonale di 5 giorni. Levonorgestrel entro 72h è comunque valido e senza ricetta. Lo IUD al rame entro 5 giorni è il metodo più efficace e prosegue come contraccezione.",
+  "Menopausa · Terapia ormonale sostitutiva":"Se sintomi vasomotori con impatto sulla qualità di vita e assenza di controindicazioni: estrogeno per via TRANSDERMICA (cerotto/gel) di 1ª scelta — minor rischio trombotico rispetto all'orale. Nella donna CON utero associare sempre un progestinico (progesterone micronizzato o IUD-LNG) per la protezione endometriale. Iniziare entro i 10 anni dalla menopausa / prima dei 60 anni. Rivalutare annualmente.",
+  "Menopausa · Atrofia vulvo-vaginale":"Se il problema è solo genito-urinario (secchezza, dispareunia, disuria): terapia LOCALE a basse dosi (estriolo o promestriene) — sicura, minimo assorbimento sistemico, si può usare a lungo termine e anche in molte donne con pregresso tumore mammario dopo confronto con l'oncologo. Prasterone (DHEA) e ospemifene sono alternative non estrogeniche. L'acido ialuronico è l'opzione non ormonale per le forme lievi.",
+  "Infezioni vaginali · Candida":"Episodio non complicato: azolo topico (clotrimazolo) OPPURE fluconazolo 150mg orale in dose singola — pari efficacia. In GRAVIDANZA solo terapia topica (fluconazolo controindicato). Forme ricorrenti (≥4/anno): fluconazolo a giorni 1-4-7 poi mantenimento settimanale per 6 mesi. Candida non-albicans (glabrata): acido borico ovuli 14 giorni.",
+  "Infezioni vaginali · Vaginosi batterica":"1ª scelta: metronidazolo (orale 7gg o gel vaginale 5gg) o clindamicina crema. Il gel vaginale ha meno effetti sistemici. In gravidanza è indicato trattare la VB sintomatica (metronidazolo o clindamicina). Recidive frequenti: metronidazolo gel 2 volte/settimana per 3-6 mesi + probiotici. Nel Trichomonas: metronidazolo/tinidazolo sistemici e trattamento del partner.",
+  "Infezioni sessualmente trasmissibili":"Chlamydia: doxiciclina 100mg x2 per 7gg (1ª scelta) o azitromicina 1g singola in gravidanza/scarsa aderenza. Gonorrea: ceftriaxone 1g IM + copertura anti-Chlamydia. Sempre: trattare il/i partner, astensione dai rapporti per 7 giorni, screening delle altre IST, test di guarigione dove indicato.",
+  "Herpes genitale":"Primo episodio: aciclovir o valaciclovir per 7-10 giorni, avviare il prima possibile. Recidive: terapia episodica breve all'esordio dei prodromi. Terapia soppressiva continuativa se ≥6 recidive/anno o forte impatto psicologico. In gravidanza: aciclovir/valaciclovir dalla 36ª settimana per ridurre le lesioni al termine; taglio cesareo se lesioni attive o prodromi in travaglio.",
+  "Infezioni urinarie (cistite)":"Cistite non complicata: fosfomicina in dose singola o nitrofurantoina 5 giorni (1ª scelta, bassa resistenza). Evitare i fluorochinoloni. In GRAVIDANZA: fosfomicina, o amoxicillina/cefixima se antibiogramma disponibile; la nitrofurantoina si evita a termine. Trattare sempre la batteriuria asintomatica in gravidanza. Cistiti ricorrenti: D-mannosio come profilassi.",
+  "Sanguinamento uterino anomalo / menorragia":"Se non c'è desiderio contraccettivo e si vuole un approccio non ormonale al bisogno: acido tranexamico nei giorni di flusso (± FANS per la dismenorrea associata). Se serve anche contraccezione: estroprogestinico. Soluzione a lungo termine più efficace: IUD-LNG (Mirena). Escludere sempre causa organica (ecografia, eventuale isteroscopia/biopsia se >45 anni o fattori di rischio).",
+  "Dismenorrea":"Dismenorrea primaria: FANS (ibuprofene, naprossene) iniziati all'esordio del dolore o poco prima — 1ª scelta. Se inefficaci o se serve contraccezione: estroprogestinico, preferibilmente in schema continuo. Dismenorrea che peggiora nel tempo o dispareunia profonda associata: sospettare endometriosi.",
+  "Endometriosi / adenomiosi":"1ª linea per il dolore: progestinico (dienogest) o estroprogestinico in continuo — efficacia simile, scelta su tollerabilità e necessità contraccettiva. IUD-LNG utile soprattutto nell'adenomiosi. Analoghi del GnRH (con add-back therapy) riservati alle forme severe o in preparazione alla chirurgia, per non oltre 6 mesi. La terapia medica controlla i sintomi ma non le aderenze/endometriomi.",
+  "Fibromatosi uterina":"Fibromi sintomatici che NON deformano la cavità: controllo del sanguinamento con IUD-LNG o progestinico; acido tranexamico al bisogno. Analoghi del GnRH per 3 mesi prima della miomectomia (riducono volume e correggono l'anemia). La terapia medica non elimina il fibroma: valutare chirurgia/embolizzazione se sintomi importanti o desiderio di prole.",
+  "Iperplasia endometriale":"Senza atipie: 1ª scelta IUD-LNG (Mirena) — migliori tassi di regressione rispetto al progestinico orale; in alternativa medrossiprogesterone/megestrolo orale continuo 3-6 mesi. Controllo bioptico a 6 mesi. CON atipie: rischio di carcinoma concomitante elevato — indicazione a isterectomia; terapia progestinica conservativa solo in casi selezionati con desiderio di prole e stretta sorveglianza.",
+  "Sindrome dell'ovaio policistico (PCOS)":"L'approccio dipende dall'obiettivo. Regolarità mestruale/iperandrogenismo senza desiderio di prole: estroprogestinico (con antiandrogeno se acne/irsutismo marcati). Insulino-resistenza / supporto al calo ponderale: metformina (± inositolo). Desiderio di prole: letrozolo è 1ª scelta per l'induzione dell'ovulazione. Il calo ponderale del 5-10% è la misura più efficace in tutte le forme.",
+  "Iperprolattinemia":"Cabergolina è il farmaco di 1ª scelta (migliore tollerabilità e aderenza, efficace anche nei macroadenomi). Bromocriptina se si cerca una gravidanza a breve (esperienza più consolidata in gravidanza). Sospendere l'agonista dopaminergico alla conferma di gravidanza salvo macroadenoma. Escludere farmaci iperprolattinemizzanti e ipotiroidismo.",
+  "Insufficienza luteale / irregolarità del ciclo":"Spotting premestruale / difetto di fase luteale senza necessità contraccettiva: progestinico nella seconda fase del ciclo (didrogesterone giorni 16-25). Amenorrea con estrogeni conservati: progestinico ciclico per indurre il flusso da sospensione. Amenorrea ipoestrogenica (POI, ipogonadismo): schema estro-progestinico sostitutivo.",
+  "Induzione dell'ovulazione / infertilità":"Anovulazione da PCOS: letrozolo è preferito al clomifene (migliori tassi di nati vivi, minor rischio di gravidanza multipla). Sempre con monitoraggio ecografico follicolare. Gonadotropine e trigger con hCG nell'ambito di percorsi di PMA di II livello. Supporto della fase luteale con progesterone vaginale dopo IUI/FIVET.",
+  "Sindrome premestruale":"Sintomi fisici e dell'umore: estroprogestinico con drospirenone in schema 24+4. Sintomi psichici prevalenti (DDPM): SSRI (sertralina) in continuo o solo nella fase luteale — spesso efficace già a basse dosi e in pochi giorni. Nelle forme lievi: modifiche dello stile di vita, magnesio, vitamina B6, agnocasto.",
+  "Osteoporosi post-menopausale":"Base di ogni terapia: calcio (dieta + supplemento fino a 1200mg) e vitamina D. Farmaco di 1ª scelta: bifosfonato orale settimanale (alendronato/risedronato). Denosumab se alto rischio o intolleranza ai bifosfonati (NON interrompere senza terapia di consolidamento). Raloxifene se rischio prevalentemente vertebrale e si vuole anche ridurre il rischio di carcinoma mammario.",
+  "Sintomi vasomotori (alternative alla TOS)":"Quando la TOS è rifiutata o controindicata (es. pregresso tumore mammario): SNRI/SSRI a basso dosaggio (venlafaxina, paroxetina) per vampate moderate-severe — evitare la paroxetina se la paziente assume tamoxifene. Gabapentin se prevalgono le vampate notturne. Isoflavoni e fitoterapici per le forme lievi.",
+  "Gravidanza · Nausea e vomito":"Approccio a gradini: 1) piridossina (B6) ± doxilamina (Cariban) — 1ª scelta, sicura; 2) aggiungere metoclopramide o prometazina; 3) ondansetron (preferibilmente dopo la 10ª settimana). Idratazione e correzione elettrolitica se iperemesi. Zenzero e misure dietetiche come supporto nelle forme lievi.",
+  "Sostegno gravidanza / minaccia d'aborto":"Progesterone vaginale indicato nella minaccia d'aborto CON sanguinamento e pregressi aborti spontanei, e nella cervice corta. Non modifica l'esito nell'aborto sporadico senza fattori di rischio. Idrossiprogesterone caproato IM settimanale (16ª-36ª) nella profilassi del parto pretermine ricorrente in donna con pregresso parto pretermine spontaneo.",
+  "Minaccia di parto pretermine":"Obiettivo della tocolisi: guadagnare 48h per betametasone (maturazione polmonare 24-34 sett.) ed eventuale trasferimento in utero. Atosiban è il tocolitico con la miglior tollerabilità materna; nifedipina è un'alternativa efficace e orale. Solfato di magnesio per la neuroprotezione fetale <32 settimane. Non prolungare la tocolisi oltre 48h.",
+  "Ipertensione in gravidanza":"Trattare per valori ≥140/90 persistenti (target ~135/85). 1ª scelta: alfa-metildopa o labetalolo; nifedipina a rilascio modificato come alternativa. Nell'urgenza ipertensiva (≥160/110): labetalolo EV, nifedipina os o idralazina. Solfato di magnesio per la profilassi/terapia dell'eclampsia, non come antipertensivo. ACE-inibitori e sartani CONTROINDICATI.",
+  "Diabete gestazionale":"Se target glicemici non raggiunti con dieta e attività fisica dopo 1-2 settimane: insulina è la 1ª scelta (non attraversa la placenta). Metformina è un'alternativa o un'aggiunta (attraversa la placenta: counselling). Monitoraggio della crescita fetale e del liquido. Rivalutazione con OGTT a 6-12 settimane dal parto.",
+  "Emorragia post-partum / atonia uterina":"Gestione attiva del III stadio con ossitocina in tutte le partorienti. Nell'EPP da atonia: ossitocina (1ª linea) → ergometrina IM se non ipertesa → misoprostolo → acido tranexamico EV precoce (entro 3h) come adiuvante in ogni caso. Carbetocina in dose singola è utile dopo taglio cesareo. In parallelo: massaggio uterino, svuotamento vescicale, ricerca delle altre cause (4 T).",
+  "Immunoprofilassi anti-D (Rh negative)":"Donna Rh negativa non sensibilizzata: immunoglobuline anti-D a 28 settimane e di nuovo entro 72h dal parto se il neonato è Rh positivo. Dose aggiuntiva dopo ogni evento potenzialmente sensibilizzante (aborto, IVG, amniocentesi/villocentesi, versione, trauma addominale, metrorragia). Verificare prima il test di Coombs indiretto.",
+  "Induzione del travaglio":"Con cervice sfavorevole (Bishop basso): maturazione con prostaglandine (dinoprostone o misoprostolo a rilascio controllato) o catetere di Foley. Con cervice favorevole: ossitocina EV titolata ± amnioressi. Monitoraggio cardiotocografico continuo durante prostaglandine e ossitocina. Cautela con le prostaglandine in caso di utero cicatriziale.",
+  "Profilassi preeclampsia / trombofilia":"Aspirina 100-150mg/die la sera dalla 12ª (idealmente entro la 16ª) alla 36ª settimana nelle donne ad alto rischio di preeclampsia (pregressa PE, ipertensione cronica, diabete, malattia renale, autoimmunità, o ≥2 fattori di rischio moderati). Eparina a basso peso molecolare nelle trombofilie ad alto rischio o pregресso TEV: dose profilattica o terapeutica secondo il quadro.",
+  "Infezioni in gravidanza (GBS, batteriuria)":"Screening GBS con tampone vagino-rettale a 36-37 settimane; profilassi intrapartum con penicillina/ampicillina EV se positivo, GBS in urine, o pregresso neonato con malattia da GBS. In allergia alle penicilline: cefazolina (basso rischio) o clindamicina/vancomicina secondo antibiogramma. Trattare sempre la batteriuria asintomatica.",
+  "Anemia sideropenica":"Ferro orale di 1ª scelta (solfato o formulazioni meglio tollerate come ferro liposomiale/gluconato): assunzione a stomaco vuoto o a giorni alterni migliora l'assorbimento e riduce gli effetti gastrointestinali. Ferro endovenoso (carbossimaltosio) se: intolleranza/inefficacia dell'orale, anemia severa, II-III trimestre con poco tempo al parto, malassorbimento.",
+  "Vaccinazioni":"In gravidanza sono raccomandati e sicuri: dTpa (Boostrix) tra 27ª e 36ª settimana di OGNI gravidanza, e antinfluenzale in qualsiasi trimestre nella stagione. Controindicati i vaccini vivi attenuati (MPR, varicella): eventualmente nel post-partum. Il vaccino HPV (Gardasil 9) si offre fino ai 26 anni (e su valutazione fino ai 45), non in gravidanza."
+};
+
 
 // ═══════════════════════════════════════════════════
 //  MACROS
@@ -5181,15 +5465,19 @@ function prescriviFarmaciSelezionati(){
 // indipendente per non interferire con quella della pagina Farmacia.
 let farmaciSelezionatiVisita = new Set();
 let _targetTerapiaFieldId = null;
-let _mfvSpec = 'all'; // filtro specialità: 'all' | 'gin' | 'ost'
+let _mfvSpec = 'all';   // filtro specialità: 'all' | 'gin' | 'ost'
+let _mfvCat = null;     // patologia selezionata (null = schermata categorie)
 
 function apriSelettoreFarmaciVisita(targetFieldId){
   _targetTerapiaFieldId = targetFieldId;
   farmaciSelezionatiVisita.clear();
+  _mfvCat = null;
   const search = document.getElementById('mfv-search');
   if(search) search.value='';
+  const chk = document.getElementById('mfv-anche-ricetta');
+  if(chk) chk.checked = false;
   // Preseleziona la specialità in base al tipo di scheda visita da cui si apre
-  _mfvSpec = targetFieldId==='ob-terapia'||targetFieldId==='ec-terapia' ? 'ost' : (targetFieldId==='gd-terapia' ? 'gin' : 'all');
+  _mfvSpec = (targetFieldId==='ob-terapia'||targetFieldId==='ec-terapia') ? 'ost' : (targetFieldId==='gd-terapia' ? 'gin' : 'all');
   document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===_mfvSpec));
   renderFarmaciModal();
   document.getElementById('modal-farmaci-visita').classList.add('show');
@@ -5197,9 +5485,13 @@ function apriSelettoreFarmaciVisita(targetFieldId){
 
 function setMfvSpec(spec){
   _mfvSpec = spec;
+  _mfvCat = null; // tornando al filtro specialità si riparte dalle categorie
   document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===spec));
   renderFarmaciModal();
 }
+
+function mfvApriCategoria(pat){ _mfvCat = pat; renderFarmaciModal(); document.getElementById('mfv-body').scrollTop=0; }
+function mfvTornaCategorie(){ _mfvCat = null; const s=document.getElementById('mfv-search'); if(s) s.value=''; renderFarmaciModal(); }
 
 function toggleFarmacoSelezionatoVisita(idx){
   if(farmaciSelezionatiVisita.has(idx)) farmaciSelezionatiVisita.delete(idx);
@@ -5207,42 +5499,63 @@ function toggleFarmacoSelezionatoVisita(idx){
   renderFarmaciModal();
 }
 
-// Il selettore mostra i farmaci raggruppati per PATOLOGIA/indicazione, con
-// un filtro per SPECIALITÀ (ginecologia / ostetricia / tutte). I farmaci
-// "both" compaiono in entrambi i filtri.
+const _MFV_CAT_COLOR={integ:'badge-green',anti:'badge-red',ormo:'badge-blue',altro:'badge-gray'};
+const _MFV_CAT_LABEL={integ:'Integratore',anti:'Antibiotico',ormo:'Ormonale',altro:'Sintomatico'};
+
+function _mfvCardFarmaco(f){
+  const sel=farmaciSelezionatiVisita.has(f.idx);
+  const specTxt=f.spec==='both'?'gin. + ost.':f.spec==='ost'?'ostetricia':'ginecologia';
+  return `<div class="pharma-card ${sel?'sel':''}" onclick="toggleFarmacoSelezionatoVisita(${f.idx})" style="cursor:pointer;${sel?'border-color:var(--primary);background:var(--primary-dim)':''}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionatoVisita(${f.idx})" style="margin-top:3px;width:auto">
+        <div class="pharma-name">${f.n}</div>
+      </div>
+      <span class="badge ${_MFV_CAT_COLOR[f.cat]||'badge-gray'}">${_MFV_CAT_LABEL[f.cat]||f.cat}</span>
+    </div>
+    <div class="pharma-active">${f.p} · <span style="color:var(--label4)">${specTxt}</span></div>
+    <div class="pharma-dose">💊 ${f.dose}</div>
+  </div>`;
+}
+
+// 3 modalità di scelta:
+//  - RICERCA: se c'è testo nel campo cerca → lista piatta dei risultati
+//  - CATEGORIA: se è stata scelta una patologia → guida clinica + farmaci di quella patologia
+//  - CATEGORIE: schermata iniziale con le patologie (filtrate per specialità)
 function renderFarmaciModal(){
-  const q=(document.getElementById('mfv-search')?.value||'').toLowerCase();
-  const c=document.getElementById('mfv-grid'); if(!c)return;
-  const catColor={integ:'badge-green',anti:'badge-red',ormo:'badge-blue',altro:'badge-gray'};
-  const catLabel={integ:'Integratore',anti:'Antibiotico',ormo:'Ormonale',altro:'Sintomatico'};
+  const q=(document.getElementById('mfv-search')?.value||'').trim().toLowerCase();
+  const body=document.getElementById('mfv-body'); if(!body)return;
+  const inSpec=f=> _mfvSpec==='all' || f.spec===_mfvSpec || f.spec==='both';
+  const all=FARMACI.map((f,idx)=>({...f,idx}));
 
-  let filtered=FARMACI.map((f,idx)=>({...f,idx}))
-    .filter(f=> _mfvSpec==='all' || f.spec===_mfvSpec || f.spec==='both')
-    .filter(f=> f.n.toLowerCase().includes(q) || f.p.toLowerCase().includes(q) || (f.pat||'').toLowerCase().includes(q));
-
-  if(!filtered.length){
-    c.innerHTML='<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
-  }else{
-    // Raggruppa per patologia, in ordine alfabetico
-    const gruppi={};
-    filtered.forEach(f=>{ const k=f.pat||'Altro'; (gruppi[k]=gruppi[k]||[]).push(f); });
-    c.innerHTML=Object.keys(gruppi).sort((a,b)=>a.localeCompare(b,'it')).map(pat=>`
-      <div style="margin-bottom:16px">
-        <div style="font-size:0.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🩺 ${pat}</div>
-        <div class="pharma-grid">
-          ${gruppi[pat].map(f=>`<div class="pharma-card ${farmaciSelezionatiVisita.has(f.idx)?'sel':''}" onclick="toggleFarmacoSelezionatoVisita(${f.idx})" style="cursor:pointer;${farmaciSelezionatiVisita.has(f.idx)?'border-color:var(--primary);background:var(--primary-dim)':''}">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
-              <div style="display:flex;align-items:flex-start;gap:8px">
-                <input type="checkbox" ${farmaciSelezionatiVisita.has(f.idx)?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionatoVisita(${f.idx})" style="margin-top:3px;width:auto">
-                <div class="pharma-name">${f.n}</div>
-              </div>
-              <span class="badge ${catColor[f.cat]||'badge-gray'}">${catLabel[f.cat]||f.cat}</span>
-            </div>
-            <div class="pharma-active">${f.p}${f.spec==='both'?' · <span style="color:var(--label4)">gin. + ost.</span>':f.spec==='ost'?' · <span style="color:var(--label4)">ostetricia</span>':' · <span style="color:var(--label4)">ginecologia</span>'}</div>
-            <div class="pharma-dose">💊 ${f.dose}</div>
-          </div>`).join('')}
-        </div>
-      </div>`).join('');
+  if(q){
+    // La ricerca ignora il filtro specialità: se cerchi un nome lo trovi comunque
+    const res=all.filter(f=> f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q)||(f.pat||'').toLowerCase().includes(q));
+    body.innerHTML = res.length
+      ? `<div class="mfv-sez-tit">${res.length} risultat${res.length===1?'o':'i'} per "${q}"</div><div class="pharma-grid">${res.map(_mfvCardFarmaco).join('')}</div>`
+      : '<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
+  }
+  else if(_mfvCat){
+    const items=all.filter(inSpec).filter(f=>f.pat===_mfvCat);
+    const guida=(typeof GUIDA_FARMACI!=='undefined' && GUIDA_FARMACI[_mfvCat]) ? GUIDA_FARMACI[_mfvCat] : '';
+    body.innerHTML = `
+      <button class="mfv-back" onclick="mfvTornaCategorie()">← Tutte le patologie</button>
+      <div class="mfv-sez-tit" style="font-size:0.95rem;color:var(--label);text-transform:none;letter-spacing:0;">🩺 ${_mfvCat}</div>
+      ${guida?`<div class="mfv-guida"><b>💡 Guida alla scelta</b>${guida}<div style="margin-top:6px;font-size:0.72rem;color:var(--label4)">Guida orientativa — la decisione resta clinica.</div></div>`:''}
+      <div class="pharma-grid">${items.map(_mfvCardFarmaco).join('')}</div>`;
+  }
+  else{
+    // Schermata categorie: patologie filtrate per specialità, ordine alfabetico
+    const pats={};
+    all.filter(inSpec).forEach(f=>{ const k=f.pat||'Altro'; pats[k]=(pats[k]||0)+1; });
+    const ordine=Object.keys(pats).sort((a,b)=>a.localeCompare(b,'it'));
+    body.innerHTML = `
+      <div style="font-size:0.8rem;color:var(--label4);margin-bottom:10px;">Scegli una patologia, oppure usa la ricerca qui sopra.</div>
+      <div class="mfv-cat-grid">
+        ${ordine.map(p=>`<button class="mfv-cat-tile" onclick="mfvApriCategoria(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+          <div class="t">${p}</div><div class="n">${pats[p]} farmac${pats[p]===1?'o':'i'}</div>
+        </button>`).join('')}
+      </div>`;
   }
   const countEl=document.getElementById('mfv-count');
   if(countEl) countEl.textContent=farmaciSelezionatiVisita.size;
