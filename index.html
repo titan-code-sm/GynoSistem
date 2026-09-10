@@ -308,6 +308,11 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 /* ─── EDITOR / MODAL ─── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
 .overlay.show{display:flex;}
+/* Modali aperte DA DENTRO l'editor visita: devono stare sopra l'editor stesso (z-index 2000) */
+#modal-farmaci-visita.overlay,#modal-post-visita.overlay{z-index:2600;}
+.mfv-spec-btn{flex:1;padding:7px 8px;font-size:0.78rem;font-weight:600;border:1px solid var(--separator);background:var(--surface);color:var(--label3);border-radius:9px;cursor:pointer;transition:0.15s;}
+.mfv-spec-btn:hover{border-color:var(--primary);}
+.mfv-spec-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
 .modal-sm{background:var(--surface);border-radius:var(--radius-lg);padding:32px;width:520px;box-shadow:var(--shadow-lg);}
 .modal-sm h3{font-family:var(--font-serif);font-size:1.5rem;margin-bottom:8px;}
 .modal-sm p{color:var(--label4);font-size:0.875rem;margin-bottom:24px;}
@@ -1350,6 +1355,11 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   <div class="modal-sm" style="width:640px;max-height:85vh;display:flex;flex-direction:column;">
     <h3>💊 Aggiungi Farmaci alla Terapia</h3>
     <p style="color:var(--label4);font-size:.85rem;margin-bottom:12px">Seleziona uno o più farmaci: vengono scritti nel campo Terapia e puoi generare subito la ricetta.</p>
+    <div style="display:flex;gap:6px;margin-bottom:10px;">
+      <button type="button" class="mfv-spec-btn active" data-spec="all" onclick="setMfvSpec('all')">Tutte le specialità</button>
+      <button type="button" class="mfv-spec-btn" data-spec="gin" onclick="setMfvSpec('gin')">🌸 Ginecologia</button>
+      <button type="button" class="mfv-spec-btn" data-spec="ost" onclick="setMfvSpec('ost')">🤰 Ostetricia</button>
+    </div>
     <input id="mfv-search" placeholder="🔍 Cerca farmaco o principio attivo..." style="margin-bottom:14px" oninput="renderFarmaciModal()">
     <div id="mfv-grid" style="overflow-y:auto;flex:1;min-height:200px;padding-right:4px;"></div>
     <div style="display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--separator);">
@@ -1358,6 +1368,17 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="confermaFarmaciSelezionatiVisita(false)">✅ Inserisci in Terapia</button>
       <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="confermaFarmaciSelezionatiVisita(true)">🖨️ Inserisci e Stampa Ricetta</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal post-salvataggio visita: stampa referto e/o ricetta -->
+<div id="modal-post-visita" class="overlay">
+  <div class="modal-sm" style="width:440px">
+    <h3>✅ Visita salvata</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:18px">Cosa vuoi stampare?</p>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="stampaRefertoPostVisita()">🖨️ Stampa Referto</button>
+    <button class="btn btn-primary" id="post-visita-ricetta-btn" style="width:100%;justify-content:center;margin-bottom:10px;display:none;" onclick="stampaRicettaPostVisita()">🖨️ Stampa Ricetta</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModal('modal-post-visita')">Chiudi</button>
   </div>
 </div>
 
@@ -3412,41 +3433,44 @@ let curGravidanzaId = null; // gravidanza assegnata alla visita ostetrica/eco in
 // ═══════════════════════════════════════════════════
 //  FARMACI
 // ═══════════════════════════════════════════════════
+// Ogni farmaco è classificato per: cat (categoria farmacologica, usata nella
+// pagina Farmacia), spec ('gin' | 'ost' | 'both' — specialità) e pat
+// (patologia/indicazione, usata nel selettore farmaci della scheda visita).
 const FARMACI = [
   // INTEGR.
-  {n:"Folidex 400",p:"Acido Folico",dose:"1 cp 400mcg/die dal preconcezionale fino alla 12a settimana",cat:"integ",col:"green"},
-  {n:"Prefolic 5mg",p:"Acido Folico",dose:"1 cp 5mg/die (alto rischio: epilessia, DM, obesità)",cat:"integ",col:"green"},
-  {n:"Polimag Fast",p:"Magnesio pidolato",dose:"1 bustina x2/die in acqua – utile nei crampi e insonnia gestazionale",cat:"integ",col:"green"},
-  {n:"Ferrograd C",p:"Solfato ferroso 325mg + Vit C",dose:"1 cp/die a stomaco vuoto – se intolleranza: con pasto",cat:"integ",col:"green"},
-  {n:"Tardyferon",p:"Solfato ferroso 80mg",dose:"1-2 cp/die in caso di anemia sideropenica",cat:"integ",col:"green"},
-  {n:"Pronatal Forte",p:"Multivitaminico prenatal",dose:"1 cp/die con pasto (DHA + Fe + Folati)",cat:"integ",col:"green"},
-  {n:"Omega3 Polaris",p:"DHA/EPA",dose:"1 cp/die 500mg – III trimestre e allattamento",cat:"integ",col:"green"},
-  {n:"Calcium Sandoz",p:"Calcio gluconato 1g",dose:"2 cp/die se apporto dietetico insufficiente",cat:"integ",col:"green"},
+  {n:"Folidex 400",p:"Acido Folico",dose:"1 cp 400mcg/die dal preconcezionale fino alla 12a settimana",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Prefolic 5mg",p:"Acido Folico",dose:"1 cp 5mg/die (alto rischio: epilessia, DM, obesità)",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Polimag Fast",p:"Magnesio pidolato",dose:"1 bustina x2/die in acqua – utile nei crampi e insonnia gestazionale",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Ferrograd C",p:"Solfato ferroso 325mg + Vit C",dose:"1 cp/die a stomaco vuoto – se intolleranza: con pasto",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+  {n:"Tardyferon",p:"Solfato ferroso 80mg",dose:"1-2 cp/die in caso di anemia sideropenica",cat:"integ",col:"green",spec:"both",pat:"Anemia sideropenica"},
+  {n:"Pronatal Forte",p:"Multivitaminico prenatal",dose:"1 cp/die con pasto (DHA + Fe + Folati)",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Omega3 Polaris",p:"DHA/EPA",dose:"1 cp/die 500mg – III trimestre e allattamento",cat:"integ",col:"green",spec:"ost",pat:"Gravidanza · Integrazione"},
+  {n:"Calcium Sandoz",p:"Calcio gluconato 1g",dose:"2 cp/die se apporto dietetico insufficiente",cat:"integ",col:"green",spec:"both",pat:"Integrazione minerale"},
   // ANTIBIOTICI
-  {n:"Augmentin 1g",p:"Amoxicillina + Acido Clavulanico",dose:"1 cp x2/die per 6gg. In gravidanza: sicuro (cat. B)",cat:"anti",col:"red"},
-  {n:"Zitromax 500",p:"Azitromicina",dose:"500mg 1cp/die per 3gg (chlamydia: 1g singola dose)",cat:"anti",col:"red"},
-  {n:"Monuril 3g",p:"Fosfomicina",dose:"1 bustina singola (cistite non complicata) – sicuro in gravidanza",cat:"anti",col:"red"},
-  {n:"Trimossazolo 960",p:"Trimetoprim+Sulfametossazolo",dose:"1 cp x2/die per 7gg – evitare in I trim e vicino al termine",cat:"anti",col:"red"},
-  {n:"Metronidazolo 500",p:"Metronidazolo",dose:"500mg x2/die per 7gg (BV/Trichomonas) – evitare I trim.",cat:"anti",col:"red"},
-  {n:"Fluconazolo 150",p:"Fluconazolo",dose:"150mg singola dose (candida) – CONTROINDICATO in gravidanza",cat:"anti",col:"red"},
-  {n:"Clindamicina Vaginal",p:"Clindamicina 2%",dose:"1 applicatore vaginale/sera per 7gg (BV in gravidanza)",cat:"anti",col:"red"},
+  {n:"Augmentin 1g",p:"Amoxicillina + Acido Clavulanico",dose:"1 cp x2/die per 6gg. In gravidanza: sicuro (cat. B)",cat:"anti",col:"red",spec:"both",pat:"Infezioni batteriche generali"},
+  {n:"Zitromax 500",p:"Azitromicina",dose:"500mg 1cp/die per 3gg (chlamydia: 1g singola dose)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni sessualmente trasmissibili"},
+  {n:"Monuril 3g",p:"Fosfomicina",dose:"1 bustina singola (cistite non complicata) – sicuro in gravidanza",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
+  {n:"Trimossazolo 960",p:"Trimetoprim+Sulfametossazolo",dose:"1 cp x2/die per 7gg – evitare in I trim e vicino al termine",cat:"anti",col:"red",spec:"both",pat:"Infezioni urinarie (cistite)"},
+  {n:"Metronidazolo 500",p:"Metronidazolo",dose:"500mg x2/die per 7gg (BV/Trichomonas) – evitare I trim.",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali (BV / Trichomonas)"},
+  {n:"Fluconazolo 150",p:"Fluconazolo",dose:"150mg singola dose (candida) – CONTROINDICATO in gravidanza",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali (Candida)"},
+  {n:"Clindamicina Vaginal",p:"Clindamicina 2%",dose:"1 applicatore vaginale/sera per 7gg (BV in gravidanza)",cat:"anti",col:"red",spec:"gin",pat:"Infezioni vaginali (BV / Trichomonas)"},
   // ORMONI
-  {n:"Progeffik 200",p:"Progesterone micronizzato",dose:"200mg ovuli vaginali ore 22 (I trim., minaccia aborto, cervicoinsuff.)",cat:"ormo",col:"blue"},
-  {n:"Progeffik 100",p:"Progesterone micronizzato",dose:"100mg vaginali x2 – luteal support in IVF",cat:"ormo",col:"blue"},
-  {n:"Dufaston 10",p:"Didrogesterone",dose:"10mg x2/die giorni 16-25 (insufficienza luteale)",cat:"ormo",col:"blue"},
-  {n:"Nuvaring",p:"Etonogestrel 120µg + Etinilestradiolo 15µg",dose:"1 anello vaginale per 3 settimane, rimozione 1 sett.",cat:"ormo",col:"blue"},
-  {n:"Slinda",p:"Drospirenone 4mg",dose:"1 cp/die in continuo (POP) – utile in allattamento",cat:"ormo",col:"blue"},
-  {n:"Yasmin",p:"Drospirenone 3mg + EE 30µg",dose:"1 cp/die per 21gg, pausa 7gg",cat:"ormo",col:"blue"},
-  {n:"Mirena",p:"Levonorgestrel 52mg IUD",dose:"Inserzione intrauterina – validità 5-8 anni",cat:"ormo",col:"blue"},
-  {n:"Kyleena",p:"Levonorgestrel 19.5mg IUD",dose:"Inserzione intrauterina – validità 5 anni (indicata nullipare)",cat:"ormo",col:"blue"},
-  {n:"Tibolone Libbs 2.5",p:"Tibolone",dose:"1 cp/die in continuo – menopausa (solo post-menopausali)",cat:"ormo",col:"blue"},
-  {n:"Estrofem 2mg",p:"Estradiolo orale",dose:"1 cp/die (HRT – ciclica o continua)",cat:"ormo",col:"blue"},
+  {n:"Progeffik 200",p:"Progesterone micronizzato",dose:"200mg ovuli vaginali ore 22 (I trim., minaccia aborto, cervicoinsuff.)",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / minaccia aborto"},
+  {n:"Progeffik 100",p:"Progesterone micronizzato",dose:"100mg vaginali x2 – luteal support in IVF",cat:"ormo",col:"blue",spec:"ost",pat:"Sostegno gravidanza / PMA"},
+  {n:"Dufaston 10",p:"Didrogesterone",dose:"10mg x2/die giorni 16-25 (insufficienza luteale)",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità ciclo"},
+  {n:"Nuvaring",p:"Etonogestrel 120µg + Etinilestradiolo 15µg",dose:"1 anello vaginale per 3 settimane, rimozione 1 sett.",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Slinda",p:"Drospirenone 4mg",dose:"1 cp/die in continuo (POP) – utile in allattamento",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Yasmin",p:"Drospirenone 3mg + EE 30µg",dose:"1 cp/die per 21gg, pausa 7gg",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Mirena",p:"Levonorgestrel 52mg IUD",dose:"Inserzione intrauterina – validità 5-8 anni",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Kyleena",p:"Levonorgestrel 19.5mg IUD",dose:"Inserzione intrauterina – validità 5 anni (indicata nullipare)",cat:"ormo",col:"blue",spec:"gin",pat:"Contraccezione"},
+  {n:"Tibolone Libbs 2.5",p:"Tibolone",dose:"1 cp/die in continuo – menopausa (solo post-menopausali)",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa / Terapia ormonale sostitutiva"},
+  {n:"Estrofem 2mg",p:"Estradiolo orale",dose:"1 cp/die (HRT – ciclica o continua)",cat:"ormo",col:"blue",spec:"gin",pat:"Menopausa / Terapia ormonale sostitutiva"},
+  {n:"Utrogestan 100",p:"Progesterone micronizzato orale",dose:"200-300mg/die ore 22 (deficit luteale, amenorrea)",cat:"ormo",col:"blue",spec:"gin",pat:"Insufficienza luteale / irregolarità ciclo"},
   // ALTRO
-  {n:"Buscopan 10",p:"N-butilbromuro scopolamina",dose:"10mg 1 cp o supp. al bisogno per dolore/spasmo",cat:"altro",col:"gray"},
-  {n:"Tachipirina 1000",p:"Paracetamolo",dose:"1g ogni 6-8h max. – analgesico sicuro in gravidanza",cat:"altro",col:"gray"},
-  {n:"Maalox",p:"Idrossido Mg + Al",dose:"1 bustina al bisogno dopo pasti (pirosi gestazionale)",cat:"altro",col:"gray"},
-  {n:"Zofran 4",p:"Ondansetron",dose:"4mg x2/die – nausea/vomito gravidanza (II-III trim.)",cat:"altro",col:"gray"},
-  {n:"Utrogestan 100",p:"Progesterone micronizzato orale",dose:"200-300mg/die ore 22 (deficit luteale, amenorrea)",cat:"ormo",col:"blue"}
+  {n:"Buscopan 10",p:"N-butilbromuro scopolamina",dose:"10mg 1 cp o supp. al bisogno per dolore/spasmo",cat:"altro",col:"gray",spec:"both",pat:"Dolore / spasmo"},
+  {n:"Tachipirina 1000",p:"Paracetamolo",dose:"1g ogni 6-8h max. – analgesico sicuro in gravidanza",cat:"altro",col:"gray",spec:"both",pat:"Dolore / febbre"},
+  {n:"Maalox",p:"Idrossido Mg + Al",dose:"1 bustina al bisogno dopo pasti (pirosi gestazionale)",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Disturbi comuni"},
+  {n:"Zofran 4",p:"Ondansetron",dose:"4mg x2/die – nausea/vomito gravidanza (II-III trim.)",cat:"altro",col:"gray",spec:"ost",pat:"Gravidanza · Nausea e vomito"}
 ];
 
 // ═══════════════════════════════════════════════════
@@ -3973,21 +3997,12 @@ async function submitForcePasswordChange(){
 // Sequenza post-login "normale" (nessun cambio password in sospeso)
 async function proceedAfterLogin(){
   document.getElementById('login-overlay').style.display='none';
-  const isAdmin = gsCurrentUser && gsCurrentUser.email === ADMIN_EMAIL;
   const navPrincipale = document.getElementById('nav-group-principale');
   const navStrumenti = document.getElementById('nav-group-strumenti');
-
-  if(isAdmin){
-    // L'amministratore gestisce SOLO gli account: nessun dato clinico viene
-    // caricato né mostrato, la parte clinica dell'app resta completamente
-    // nascosta e irraggiungibile dal menu.
-    if(navPrincipale) navPrincipale.style.display='none';
-    if(navStrumenti) navStrumenti.style.display='none';
-    scaricaDatiLocaliUtente();
-    naviga('amministrazione');
-    return;
-  }
-
+  // L'amministratore vede il programma per intero (come ogni altro account),
+  // in più ha la sezione "Account e Accessi". I dati clinici restano comunque
+  // isolati per uid: l'admin ha il proprio archivio separato, non vede quello
+  // dei medici (regole Firestore + chiave localStorage per utente).
   if(navPrincipale) navPrincipale.style.display='';
   if(navStrumenti) navStrumenti.style.display='';
 
@@ -4093,9 +4108,9 @@ async function renderAdminUtenti(){
             ${!isSelf ? (u.attivo===false
               ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', true)">Riattiva</button>`
               : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', false)">Sospendi</button>`) : ''}
-            ${!isSelf ? (u.demoMode
+            ${u.demoMode
               ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', false)">🎭 Disattiva demo</button>`
-              : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', true)">🎭 Attiva demo</button>`) : ''}
+              : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', true)">🎭 Attiva demo${isSelf?' (per me)':''}</button>`}
             <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminRichiediReset('${u.email}')">Richiedi cambio password</button>
             ${!isSelf && !u.eliminato ? `<button class="btn" style="padding:6px 12px;font-size:0.8rem;background:var(--red-dim);color:var(--red);" onclick="adminEliminaUtente('${uid}','${u.email}')">Elimina</button>` : ''}
           </div>
@@ -5166,14 +5181,24 @@ function prescriviFarmaciSelezionati(){
 // indipendente per non interferire con quella della pagina Farmacia.
 let farmaciSelezionatiVisita = new Set();
 let _targetTerapiaFieldId = null;
+let _mfvSpec = 'all'; // filtro specialità: 'all' | 'gin' | 'ost'
 
 function apriSelettoreFarmaciVisita(targetFieldId){
   _targetTerapiaFieldId = targetFieldId;
   farmaciSelezionatiVisita.clear();
   const search = document.getElementById('mfv-search');
   if(search) search.value='';
+  // Preseleziona la specialità in base al tipo di scheda visita da cui si apre
+  _mfvSpec = targetFieldId==='ob-terapia'||targetFieldId==='ec-terapia' ? 'ost' : (targetFieldId==='gd-terapia' ? 'gin' : 'all');
+  document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===_mfvSpec));
   renderFarmaciModal();
   document.getElementById('modal-farmaci-visita').classList.add('show');
+}
+
+function setMfvSpec(spec){
+  _mfvSpec = spec;
+  document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===spec));
+  renderFarmaciModal();
 }
 
 function toggleFarmacoSelezionatoVisita(idx){
@@ -5182,40 +5207,42 @@ function toggleFarmacoSelezionatoVisita(idx){
   renderFarmaciModal();
 }
 
+// Il selettore mostra i farmaci raggruppati per PATOLOGIA/indicazione, con
+// un filtro per SPECIALITÀ (ginecologia / ostetricia / tutte). I farmaci
+// "both" compaiono in entrambi i filtri.
 function renderFarmaciModal(){
   const q=(document.getElementById('mfv-search')?.value||'').toLowerCase();
   const c=document.getElementById('mfv-grid'); if(!c)return;
   const catColor={integ:'badge-green',anti:'badge-red',ormo:'badge-blue',altro:'badge-gray'};
-  const catInfo={
-    integ:{label:'Integratori',icon:'🌿'}, ormo:{label:'Ormonali',icon:'💊'},
-    anti:{label:'Antibiotici & Antinfiammatori',icon:'🦠'}, altro:{label:'Altri Farmaci',icon:'📦'}
-  };
-  const order=['integ','ormo','anti','altro'];
-  const filtered=FARMACI.map((f,idx)=>({...f,idx})).filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q));
+  const catLabel={integ:'Integratore',anti:'Antibiotico',ormo:'Ormonale',altro:'Sintomatico'};
+
+  let filtered=FARMACI.map((f,idx)=>({...f,idx}))
+    .filter(f=> _mfvSpec==='all' || f.spec===_mfvSpec || f.spec==='both')
+    .filter(f=> f.n.toLowerCase().includes(q) || f.p.toLowerCase().includes(q) || (f.pat||'').toLowerCase().includes(q));
+
   if(!filtered.length){
     c.innerHTML='<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
   }else{
-    c.innerHTML=order.map(cat=>{
-      const items=filtered.filter(f=>f.cat===cat);
-      if(!items.length)return '';
-      const info=catInfo[cat]||{label:cat,icon:'💊'};
-      return `<div style="margin-bottom:16px">
-        <div style="font-size:0.78rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">${info.icon} ${info.label}</div>
+    // Raggruppa per patologia, in ordine alfabetico
+    const gruppi={};
+    filtered.forEach(f=>{ const k=f.pat||'Altro'; (gruppi[k]=gruppi[k]||[]).push(f); });
+    c.innerHTML=Object.keys(gruppi).sort((a,b)=>a.localeCompare(b,'it')).map(pat=>`
+      <div style="margin-bottom:16px">
+        <div style="font-size:0.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">🩺 ${pat}</div>
         <div class="pharma-grid">
-          ${items.map(f=>`<div class="pharma-card ${farmaciSelezionatiVisita.has(f.idx)?'sel':''}" onclick="toggleFarmacoSelezionatoVisita(${f.idx})" style="cursor:pointer;${farmaciSelezionatiVisita.has(f.idx)?'border-color:var(--primary);background:var(--primary-dim)':''}">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          ${gruppi[pat].map(f=>`<div class="pharma-card ${farmaciSelezionatiVisita.has(f.idx)?'sel':''}" onclick="toggleFarmacoSelezionatoVisita(${f.idx})" style="cursor:pointer;${farmaciSelezionatiVisita.has(f.idx)?'border-color:var(--primary);background:var(--primary-dim)':''}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
               <div style="display:flex;align-items:flex-start;gap:8px">
                 <input type="checkbox" ${farmaciSelezionatiVisita.has(f.idx)?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionatoVisita(${f.idx})" style="margin-top:3px;width:auto">
                 <div class="pharma-name">${f.n}</div>
               </div>
-              <span class="badge ${catColor[f.cat]||'badge-gray'}">${info.label.split(' ')[0]}</span>
+              <span class="badge ${catColor[f.cat]||'badge-gray'}">${catLabel[f.cat]||f.cat}</span>
             </div>
-            <div class="pharma-active">${f.p}</div>
+            <div class="pharma-active">${f.p}${f.spec==='both'?' · <span style="color:var(--label4)">gin. + ost.</span>':f.spec==='ost'?' · <span style="color:var(--label4)">ostetricia</span>':' · <span style="color:var(--label4)">ginecologia</span>'}</div>
             <div class="pharma-dose">💊 ${f.dose}</div>
           </div>`).join('')}
         </div>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   }
   const countEl=document.getElementById('mfv-count');
   if(countEl) countEl.textContent=farmaciSelezionatiVisita.size;
@@ -5560,6 +5587,30 @@ function salvaVisita(){
   renderAlertsPaz(p);
   scaricaVisitaJSON(p, v); // download automatico JSON
   completaAppuntamentoFirebase(p, v.data); // segna come completato l'eventuale prenotazione GynoBook collegata
+  apriPostVisita(p, v); // chiede se stampare referto e/o ricetta
+}
+
+// Alla chiusura della refertazione propone la stampa del referto e — se è
+// stata inserita una terapia — anche la stampa della ricetta.
+let _postVisitaPazId=null, _postVisitaVid=null;
+function apriPostVisita(p, v){
+  _postVisitaPazId=p.id; _postVisitaVid=v.id;
+  const btnRic=document.getElementById('post-visita-ricetta-btn');
+  const haTerapia=!!(terapiaDiVisita(v)||'').trim();
+  if(btnRic) btnRic.style.display = haTerapia ? 'flex' : 'none';
+  document.getElementById('modal-post-visita').classList.add('show');
+}
+function stampaRefertoPostVisita(){
+  // NON chiude il modal: così, dopo la stampa del referto, resta disponibile
+  // anche il pulsante per stampare la ricetta (i due si usano in sequenza).
+  if(_postVisitaPazId!=null && _postVisitaVid!=null){ curPaz=_postVisitaPazId; stampa(_postVisitaVid); }
+}
+function stampaRicettaPostVisita(){
+  const p=DB.pazienti.find(x=>x.id===_postVisitaPazId);
+  const v=p?.visite.find(x=>x.id===_postVisitaVid);
+  if(!p||!v) return;
+  const dataStr=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  stampaRicettaConTesto(`${p.cognome} ${p.nome}`, dataStr, formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`, terapiaDiVisita(v)));
 }
 
 // Quando una visita viene registrata su GynoSystem, l'appuntamento corrispondente
@@ -7286,7 +7337,10 @@ async function eliminaStudio(id){
 // Nessun dato clinico coinvolto: solo nomi studi, luoghi, fasce orarie, durata slot.
 // orariLimitati e durataSlot sono proprietà di OGNI studio (dentro l'array studi).
 async function syncDisponibilitaFirebase(){
-  if(!gsFirebaseReady||!gsDb)return;
+  // Solo se c'è davvero una configurazione studi da pubblicare: evita che un
+  // account senza studi (es. l'amministratore) o una sessione demo
+  // sovrascrivano con un elenco vuoto la disponibilità condivisa.
+  if(!gsFirebaseReady||!gsDb||gsDemoMode||!Array.isArray(DB.studi)||!DB.studi.length)return;
   try{
     await gsDb.collection('config').doc('disponibilita').set({
       studi: DB.studi,
