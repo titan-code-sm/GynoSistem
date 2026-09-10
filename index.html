@@ -353,7 +353,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .editor-wrap{position:relative;background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 
 /* ── Assistente AI: robottino, fumetto, chat ── */
-#ai-robot{position:absolute;right:24px;bottom:22px;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+#ai-robot{position:fixed;right:24px;bottom:22px;z-index:1250;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
 .ai-robot-btn{position:relative;width:56px;height:56px;border-radius:50%;border:none;background:linear-gradient(135deg,#7c4dff,#5b8def);box-shadow:0 8px 24px rgba(91,141,239,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;animation:ai-bob 3s ease-in-out infinite;}
 .ai-robot-btn:hover{transform:scale(1.08);}
 .ai-robot-face{font-size:1.7rem;line-height:1;}
@@ -363,7 +363,10 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 @keyframes ai-pop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
 .ai-fumetto-x{position:absolute;top:6px;right:8px;border:none;background:none;color:var(--label4);cursor:pointer;font-size:0.75rem;}
 #ai-fumetto-testo{padding-right:14px;white-space:pre-wrap;}
-.ai-chat{position:absolute;right:24px;bottom:22px;z-index:31;width:min(380px,90%);height:min(480px,80%);background:var(--surface);border:1px solid var(--separator);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.28);display:flex;flex-direction:column;overflow:hidden;animation:ai-pop .2s ease;}
+.ai-fumetto-azioni{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
+.ai-fumetto-azioni button{font:inherit;font-size:0.78rem;font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--separator);border-radius:9px;background:var(--surface2);color:var(--label);cursor:pointer;transition:0.15s;}
+.ai-fumetto-azioni button:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
+.ai-chat{position:fixed;right:24px;bottom:22px;z-index:1251;width:min(380px,90vw);height:min(520px,80vh);background:var(--surface);border:1px solid var(--separator);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.28);display:flex;flex-direction:column;overflow:hidden;animation:ai-pop .2s ease;}
 .ai-chat-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--separator);font-weight:700;font-size:0.9rem;}
 .ai-chat-head button{border:none;background:var(--surface2);width:26px;height:26px;border-radius:50%;cursor:pointer;color:var(--label4);}
 .ai-chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
@@ -445,7 +448,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   #print-area,#print-area *{visibility:visible;}
   #print-area{display:block!important;position:absolute;left:0;top:0;width:100%;font-family:'Times New Roman',serif;color:black;background:white;padding:0;}
   .no-print{display:none!important;}
-  aside,main,.mob-bar,.overlay,.sid-backdrop,#login-overlay,.editor-min-bar{display:none!important;}
+  aside,main,.mob-bar,.overlay,.sid-backdrop,#login-overlay,.editor-min-bar,#ai-robot,#ai-chat{display:none!important;}
 }
 #print-area{display:none;padding:25px;}
 /* Barra editor minimizzato */
@@ -1621,7 +1624,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </div>
 
   <div class="card" style="max-width:720px;">
-    <div class="card-header"><div><div class="card-title">🤖 Assistente durante le visite</div><div class="card-subtitle">Un aiutante che ti segnala i passi giusti mentre compili la visita e a cui puoi chiedere consigli</div></div></div>
+    <div class="card-header"><div><div class="card-title">🤖 Assistente clinico</div><div class="card-subtitle">Sempre disponibile: durante la visita ti segnala i passi giusti; sulla dashboard ti fa il punto della giornata, ti ricorda le cose importanti e ti propone di ripassare i casi in arrivo</div></div></div>
     <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 0;">
       <input type="checkbox" id="set-ai-enabled" onchange="toggleAiAssistente(this.checked)" style="width:20px;height:20px;flex-shrink:0;">
       <span style="font-weight:600;">Attiva l'assistente</span>
@@ -2733,29 +2736,30 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
       </div>
     </div>
 
-    <!-- Assistente AI: robottino + fumetto + chat (visibile solo se attivo in Impostazioni) -->
-    <div id="ai-robot" style="display:none">
-      <div id="ai-fumetto" class="ai-fumetto">
-        <button class="ai-fumetto-x" onclick="aiChiudiFumetto()" title="Chiudi">✕</button>
-        <div id="ai-fumetto-testo"></div>
-      </div>
-      <button id="ai-robot-btn" class="ai-robot-btn" onclick="aiToggleChat()" title="Assistente">
-        <span class="ai-robot-face">🤖</span>
-        <span id="ai-robot-dot" class="ai-robot-dot" style="display:none"></span>
-      </button>
-    </div>
+  </div>
+</div>
 
-    <div id="ai-chat" class="ai-chat" style="display:none">
-      <div class="ai-chat-head">
-        <span>🤖 Assistente</span>
-        <button onclick="aiToggleChat()" title="Chiudi">✕</button>
-      </div>
-      <div id="ai-chat-msgs" class="ai-chat-msgs"></div>
-      <div class="ai-chat-input">
-        <input id="ai-chat-txt" placeholder="Chiedi un consiglio…" onkeydown="if(event.key==='Enter')aiInviaChat()">
-        <button class="btn btn-primary btn-sm" onclick="aiInviaChat()">Invia</button>
-      </div>
-    </div>
+<!-- Assistente AI: robottino + fumetto + chat — sempre disponibile (dashboard e visita), se attivo in Impostazioni -->
+<div id="ai-robot" style="display:none">
+  <div id="ai-fumetto" class="ai-fumetto">
+    <button class="ai-fumetto-x" onclick="aiChiudiFumetto()" title="Chiudi">✕</button>
+    <div id="ai-fumetto-testo"></div>
+  </div>
+  <button id="ai-robot-btn" class="ai-robot-btn" onclick="aiToggleChat()" title="Assistente">
+    <span class="ai-robot-face">🤖</span>
+    <span id="ai-robot-dot" class="ai-robot-dot" style="display:none"></span>
+  </button>
+</div>
+
+<div id="ai-chat" class="ai-chat" style="display:none">
+  <div class="ai-chat-head">
+    <span>🤖 Assistente</span>
+    <button onclick="aiToggleChat()" title="Chiudi">✕</button>
+  </div>
+  <div id="ai-chat-msgs" class="ai-chat-msgs"></div>
+  <div class="ai-chat-input">
+    <input id="ai-chat-txt" placeholder="Chiedi un consiglio…" onkeydown="if(event.key==='Enter')aiInviaChat()">
+    <button class="btn btn-primary btn-sm" onclick="aiInviaChat()">Invia</button>
   </div>
 </div>
 
@@ -4727,7 +4731,7 @@ async function proceedAfterLogin(){
 
   mostraBannerDemo(false);
   caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
-  if(typeof aiCaricaPreferenza==='function') aiCaricaPreferenza();
+  if(typeof aiAvvia==='function') aiAvvia();
   naviga('home');
   controllaBackupAutomatico();
 
@@ -4943,7 +4947,11 @@ function naviga(id){
   const b=document.getElementById('nav-'+id);
   if(b) b.classList.add('active');
   // Render sezione
-  if(id==='home'){renderCalendar();renderDashboard();}
+  if(id==='home'){
+    renderCalendar();renderDashboard();
+    if(typeof aiSyncVisibilita==='function') aiSyncVisibilita();
+    if(typeof aiBriefingDashboard==='function' && !aiInVisita) setTimeout(()=>aiBriefingDashboard(false), 1200);
+  }
   if(id==='archivio') renderPazienti();
   if(id==='storico-date') renderStorico();
   if(id==='farmacia') renderFarmaci();
@@ -5047,6 +5055,7 @@ function caricaFileDemoPersonalizzato(input){
 }
 
 async function proseguiDopoCaricamentoDemo(){
+  if(typeof aiAvvia==='function') aiAvvia();
   naviga('home');
   loadAdminConfig(); // solo contenuti di servizio condivisi (farmaci, linee guida), nessun dato paziente
 }
@@ -6393,6 +6402,10 @@ let aiPending = false;
 let aiUltimoContesto = '';      // per non richiamare l'AI se non è cambiato nulla
 let aiTimerProattivo = null;
 let aiUltimoProattivoTs = 0;
+let aiInVisita = false;         // true quando l'editor visita è aperto
+let aiBriefingTimer = null;     // loop periodico del "punto della giornata"
+let aiUltimoBriefingTs = 0;
+let _aiCasiImminenti = [];      // [{pazId,label,et}] pazienti in arrivo/da rivedere
 
 function aiKey(){ return 'gs_ai_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function aiCaricaPreferenza(){
@@ -6405,7 +6418,7 @@ function renderImpostazioni(){
   const riga = document.getElementById('ai-stato-riga');
   if(riga){
     riga.textContent = aiAbilitato
-      ? '🟢 Assistente attivo — comparirà il robottino durante le visite.'
+      ? '🟢 Assistente attivo — il robottino è sempre disponibile (dashboard e visite) e ogni tanto ti fa il punto della giornata.'
       : '⚪ Assistente spento.';
   }
   // ── Personalizzazione stampe ──
@@ -6519,7 +6532,7 @@ function toggleAiAssistente(on){
   aiAbilitato = !!on;
   try{ localStorage.setItem(aiKey(), aiAbilitato ? '1' : '0'); }catch(e){}
   renderImpostazioni();
-  if(!aiAbilitato) aiNascondiRobot();
+  if(aiAbilitato) aiAvvia(); else aiFerma();
 }
 
 // ── Chiamata alla Cloud Function ──
@@ -6549,55 +6562,291 @@ function aiContestoVisita(){
 }
 
 const AI_SYSTEM_BASE =
-  "Sei l'assistente di GynoSystem: un collega ginecologo/ostetrico esperto, cordiale e diretto, che dà del tu. " +
-  "Aiuti la dottoressa MENTRE compila una visita: segnali i passi mancanti, le incoerenze nei dati, e gli spunti clinici utili (diagnosi differenziali da considerare, esami o terapie appropriati). " +
-  "Sei uno strumento di supporto: la decisione finale è sempre della dottoressa. Non inventare dati; se qualcosa non è chiaro, dillo. " +
-  "Scrivi in italiano, in modo conciso e concreto. Non ripetere i dati già scritti nella visita.";
+  "Sei l'assistente clinico di GynoSystem: un collega ginecologo e ostetrico esperto e aggiornato alle linee guida (SIGO/AOGOI, AIPE, SIEOG, ISUOG, NICE, ACOG), che dà del tu alla dottoressa. " +
+  "Ragiona da specialista: collega i dati fra loro, evidenzia incoerenze e red flag, proponi diagnosi differenziali pertinenti, esami mirati e terapie con posologia quando serve, indicando sempre il perché e il quando. " +
+  "Sii specifico e concreto, mai generico o burocratico; niente disclaimer inutili. " +
+  "Sei un supporto: la decisione finale è della dottoressa. Non inventare dati: se un dato manca o è ambiguo, chiedilo o segnalalo. " +
+  "Rispondi in italiano, breve e denso. Non ripetere pari pari ciò che è già scritto.";
 
 function aiSystemPrompt(mode){
   const flussi = {
-    gyno: "Flusso ideale di una visita ginecologica: anamnesi (dati generali, ciclo, sintomi, screening, familiarità) → motivo della visita → esame obiettivo (generale, speculum, prelievi, bimanuale) → ecografia → eventuale colposcopia/HPV → conclusioni (diagnosi, esami richiesti, terapia, prossimo controllo).",
-    ob: "Flusso ideale di una visita ostetrica: anamnesi (età, PARA, emogruppo, tipo gravidanza, datazione UM/EPP, dati pregravidici, screening, stile di vita, familiarità) → visita ed eco (settimane, PA, peso/incremento, referto) → biometria fetale con percentili → note eco → counselling → prescrizioni esami → conclusioni (diagnosi, terapia, prossimo controllo).",
-    eco: "Flusso ideale di un'ecografia ostetrica: tipo di esame e vitalità → età gestazionale → biometria fetale → anatomia fetale → liquido e placenta → cordone → flussimetria Doppler → referto conclusivo, terapia, prossimo controllo."
+    gyno: "Contesto: visita ginecologica in compilazione. Flusso ideale: anamnesi (dati generali, ciclo, sintomi, screening, familiarità) → motivo della visita → esame obiettivo (generale, speculum, prelievi, bimanuale) → ecografia → eventuale colposcopia/HPV → conclusioni (diagnosi, esami richiesti, terapia, prossimo controllo).",
+    ob: "Contesto: visita ostetrica in compilazione. Flusso ideale: anamnesi (età, PARA, emogruppo, tipo gravidanza, datazione UM/EPP, dati pregravidici, screening, stile di vita, familiarità) → visita ed eco (settimane, PA, peso/incremento, referto) → biometria fetale con percentili → note eco → counselling → prescrizioni esami → conclusioni (diagnosi, terapia, prossimo controllo).",
+    eco: "Contesto: ecografia ostetrica in compilazione. Flusso ideale: tipo di esame e vitalità → età gestazionale → biometria fetale → anatomia fetale → liquido e placenta → cordone → flussimetria Doppler → referto conclusivo, terapia, prossimo controllo.",
+    dashboard: "Contesto: nessuna visita aperta — stai affiancando la dottoressa nella gestione della giornata. Aiutala a prepararsi agli appuntamenti, a non dimenticare promemoria e controlli scaduti o imminenti, e a ripassare la storia clinica delle pazienti che vedrà a breve (red flag, cosa chiedere, quali esami controllare). Parla in modo naturale, come un collega che dà una mano."
   };
   return AI_SYSTEM_BASE + "\n\n" + (flussi[mode] || flussi.gyno);
 }
 
-// ── Robottino: mostra/nasconde nell'editor ──
-function aiMostraRobot(){
-  if(!aiAbilitato) return;
+// ── Robottino: visibilità e ciclo di vita ──────────────────────────
+// Il robottino è SEMPRE disponibile quando l'assistente è attivo (dashboard
+// e visita). aiAvvia/aiFerma gestiscono il ciclo di vita globale; aiEntraVisita
+// e aiEsciVisita cambiano solo il "contesto" (visita ↔ giornata).
+function aiSyncVisibilita(){
   const r = document.getElementById('ai-robot');
-  if(r) r.style.display = 'flex';
+  if(r) r.style.display = aiAbilitato ? 'flex' : 'none';
+  if(!aiAbilitato){ const c=document.getElementById('ai-chat'); if(c) c.style.display='none'; }
+}
+function aiAvvia(){
+  aiCaricaPreferenza();
+  if(!aiAbilitato){ aiFerma(); return; }
+  aiInVisita = false;
+  aiChatStoria = [];
+  aiUltimoBriefingTs = 0;
+  aiSyncVisibilita();
   aiChiudiFumetto();
+  aiLoopBriefing();
+  clearTimeout(aiTimerProattivo);
+  aiTimerProattivo = setTimeout(()=>aiBriefingDashboard(true), 3500); // primo "saluto della giornata"
+}
+function aiFerma(){
+  aiInVisita = false;
+  aiChatAperta = false;
+  clearTimeout(aiBriefingTimer);
+  clearTimeout(aiTimerProattivo);
+  ['ai-robot','ai-chat'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+}
+// Compat: vecchi nomi usati altrove
+function aiMostraRobot(){ aiEntraVisita(); }
+function aiNascondiRobot(){ aiEsciVisita(); }
+
+function aiEntraVisita(){
+  if(!aiAbilitato) return;
+  aiInVisita = true;
   aiChatAperta = false;
   const c = document.getElementById('ai-chat'); if(c) c.style.display = 'none';
   aiChatStoria = [];
   aiUltimoContesto = '';
   aiUltimoProattivoTs = 0;
+  aiSyncVisibilita();
+  aiChiudiFumetto();
 }
-function aiNascondiRobot(){
-  ['ai-robot','ai-chat'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+function aiEsciVisita(){
+  aiInVisita = false;
+  aiChatAperta = false;
+  const c = document.getElementById('ai-chat'); if(c) c.style.display = 'none';
+  aiChatStoria = [];
+  aiChiudiFumetto();
+  if(!aiAbilitato){ aiFerma(); return; }
+  aiSyncVisibilita();
+  aiUltimoBriefingTs = 0; // permetti subito un nuovo punto della giornata
   clearTimeout(aiTimerProattivo);
+  aiTimerProattivo = setTimeout(()=>aiBriefingDashboard(true), 2500);
 }
 function aiChiudiFumetto(){
   const f = document.getElementById('ai-fumetto'); if(f) f.style.display='none';
+  const box = document.getElementById('ai-fumetto-azioni'); if(box) box.remove();
   const d = document.getElementById('ai-robot-dot'); if(d) d.style.display='none';
 }
-function aiMostraFumetto(testo){
+function aiMostraFumetto(testo, azioni){
   const f = document.getElementById('ai-fumetto');
   const t = document.getElementById('ai-fumetto-testo');
   if(!f || !t) return;
   t.textContent = testo;
+  const vecchio = document.getElementById('ai-fumetto-azioni');
+  if(vecchio) vecchio.remove();
+  if(azioni && azioni.length){
+    const box = document.createElement('div');
+    box.id = 'ai-fumetto-azioni';
+    box.className = 'ai-fumetto-azioni';
+    azioni.forEach(a=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = a.label;
+      b.addEventListener('click', ()=>{ try{ a.fn(); }catch(e){ console.warn(e); } });
+      box.appendChild(b);
+    });
+    t.after(box);
+  }
   f.style.display = 'block';
   if(!aiChatAperta){ const d=document.getElementById('ai-robot-dot'); if(d) d.style.display='block'; }
 }
 
+// ── Contesto de-identificato: agenda della giornata + prossimi giorni ──
+function _aiDataRel(dstr){
+  if(!dstr) return '';
+  const oggi = new Date(); oggi.setHours(0,0,0,0);
+  const d = new Date(dstr + 'T12:00:00'); d.setHours(0,0,0,0);
+  const gg = Math.round((d - oggi)/86400000);
+  if(gg===0) return 'oggi';
+  if(gg===1) return 'domani';
+  if(gg===-1) return 'ieri';
+  if(gg>1 && gg<=10) return 'tra ' + gg + ' giorni';
+  if(gg<0) return Math.abs(gg) + ' giorni fa';
+  return new Date(dstr + 'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+}
+function _aiEtichettaCaso(pazId, label){
+  const gia = _aiCasiImminenti.find(c=>c.pazId===pazId);
+  if(gia) return gia.et; // stessa paziente già elencata: riusa l'etichetta
+  const et = 'paziente ' + String.fromCharCode(65 + _aiCasiImminenti.length); // A, B, C…
+  _aiCasiImminenti.push({ pazId, label, et });
+  return et;
+}
+function aiRiassuntoBreveCartella(pazId){
+  const p = DB.pazienti.find(x=>x.id===pazId);
+  if(!p) return '';
+  const bits = [];
+  if(p.nascita){ const e = new Date().getFullYear() - new Date(p.nascita).getFullYear(); if(e>0 && e<120) bits.push(e + ' anni'); }
+  const vis = (p.visite||[]).slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+  if(vis.length){
+    const u = vis[0];
+    const TL = {gyno:'gin.', ob:'ost.', eco:'eco'};
+    bits.push('ultima visita ' + (TL[u.tipo]||u.tipo) + ' ' + _aiDataRel(u.data));
+  } else bits.push('nessuna visita in archivio');
+  const na = (p.alerts||[]).length;
+  if(na) bits.push(na + ' promemoria attiv' + (na===1?'o':'i'));
+  return bits.join(', ');
+}
+function aiAgendaContesto(){
+  const oggi = new Date().toISOString().split('T')[0];
+  const fra = n => new Date(Date.now() + n*86400000).toISOString().split('T')[0];
+  _aiCasiImminenti = [];
+  let txt = '';
+
+  const appts = (typeof GS_APPTS!=='undefined' ? GS_APPTS : [])
+    .filter(a=>a.data>=oggi && a.data<=fra(4) && a.stato!=='cancellato')
+    .sort((x,y)=>((x.data||'')+(x.ora||'')).localeCompare((y.data||'')+(y.ora||'')));
+  if(appts.length){
+    txt += 'APPUNTAMENTI IN PROGRAMMA (oggi e prossimi giorni):\n';
+    appts.forEach(a=>{
+      const localId = (typeof trovaPazienteLocaleId==='function') ? trovaPazienteLocaleId(a.pazienteId) : null;
+      let riga = `- ${_aiDataRel(a.data)}${a.ora?' '+a.ora:''} · ${a.tipo||'visita'}`;
+      if(localId){
+        const et = _aiEtichettaCaso(localId, `${a.ora||''} ${a.tipo||'visita'}`.trim());
+        riga += ` · ${et} — ${aiRiassuntoBreveCartella(localId)}`;
+      } else {
+        riga += ' · (paziente non ancora in archivio)';
+      }
+      txt += riga + '\n';
+    });
+  }
+
+  const ag = (DB.agenda||[]).filter(e=>e.data>=oggi && e.data<=fra(4));
+  if(ag.length){
+    txt += '\nAGENDA / NOTE PERSONALI:\n';
+    ag.forEach(e=> txt += `- ${_aiDataRel(e.data)} · ${e.tipo||'nota'}: ${e.testo||e.text||''}\n`);
+  }
+
+  const scaduti = [], arrivo = [];
+  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
+    if(!a.data) return;
+    if(a.data < oggi) scaduti.push({p,a});
+    else if(a.data <= fra(7)) arrivo.push({p,a});
+  }));
+  if(scaduti.length){
+    scaduti.sort((x,y)=>x.a.data.localeCompare(y.a.data));
+    txt += `\nPROMEMORIA SCADUTI (${scaduti.length}) — nessun controllo registrato da allora:\n`;
+    scaduti.slice(0,10).forEach(({p,a})=>{
+      const et = _aiEtichettaCaso(p.id, 'promemoria scaduto');
+      txt += `- ${_aiDataRel(a.data)} · ${et}: ${a.testo}\n`;
+    });
+  }
+  if(arrivo.length){
+    arrivo.sort((x,y)=>x.a.data.localeCompare(y.a.data));
+    txt += `\nCONTROLLI / PROMEMORIA IN ARRIVO (7 giorni):\n`;
+    arrivo.slice(0,10).forEach(({p,a})=> txt += `- ${_aiDataRel(a.data)}: ${a.testo}\n`);
+  }
+  return txt.trim();
+}
+
+// Storia clinica de-identificata di una paziente (per il "ripasso del caso").
+// Nessun nome, cognome, data di nascita, codice fiscale o contatto: solo età e clinica.
+function aiContestoPaziente(pazId){
+  const p = DB.pazienti.find(x=>x.id===pazId);
+  if(!p) return '';
+  const boiler = (typeof GD!=='undefined' && GD.informativa) ? GD.informativa : '__n__';
+  let txt = '';
+  if(p.nascita){ const e = new Date().getFullYear() - new Date(p.nascita).getFullYear(); if(e>0 && e<120) txt += `Donna di ${e} anni.\n`; }
+  const alerts = (p.alerts||[]).map(a=>`${a.data?_aiDataRel(a.data)+': ':''}${a.testo}`).filter(Boolean);
+  if(alerts.length) txt += 'Promemoria / note attive:\n' + alerts.map(a=>'- '+a).join('\n') + '\n';
+  const vis = (p.visite||[]).slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,4);
+  if(!vis.length){ return (txt + 'Nessuna visita registrata in archivio.').trim(); }
+  const TL = {gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica'};
+  vis.forEach(v=>{
+    txt += `\n— ${TL[v.tipo]||v.tipo} (${_aiDataRel(v.data)}):\n`;
+    (getRefertoSezioni(v)||[]).forEach(s=>{
+      const righe = s.rows.filter(r=>r[1] && String(r[1]).trim() && String(r[1])!==boiler);
+      if(!righe.length) return;
+      txt += ` [${s.title}] ` + righe.map(r=>`${r[0]}: ${String(r[1]).replace(/\s+/g,' ').trim()}`).join('; ') + '\n';
+    });
+  });
+  return txt.trim();
+}
+
+// ── "Punto della giornata": messaggio proattivo sulla dashboard ──
+async function aiBriefingDashboard(forzato){
+  if(!aiAbilitato || aiInVisita || aiPending || aiChatAperta) return;
+  if(!gsFunctions) return;
+  if(!forzato && Date.now() - aiUltimoBriefingTs < 18*60000) return;
+  const ctx = aiAgendaContesto();
+  aiUltimoBriefingTs = Date.now();
+  if(!ctx){
+    if(forzato) aiMostraFumetto('Per oggi non vedo appuntamenti in agenda né promemoria in scadenza. 👍 Se ti serve un parere clinico o vuoi ripassare una paziente, aprimi pure.');
+    return;
+  }
+  aiPending = true;
+  try{
+    const testo = await aiChiama('chat',
+      [{ role:'user', content:
+        "Sei il mio assistente. Guarda la mia agenda qui sotto e parlami come un collega: 3-5 righe al massimo. " +
+        "Dimmi cosa ho in programma oggi e a breve, e ricordami le cose davvero importanti (promemoria scaduti, controlli urgenti, gravidanze da monitorare). " +
+        "Chiudi con UNA domanda: se voglio ripassare insieme uno dei casi in arrivo (cita la sua etichetta 'paziente X'). Vai al sodo, niente elenco pedante.\n\n" + ctx }],
+      aiSystemPrompt('dashboard'));
+    if(testo){
+      const azioni = _aiCasiImminenti.slice(0,4).map(c=>({
+        label: `📖 Ripassa ${c.et}${c.label?' · '+c.label:''}`,
+        fn: ()=>aiRipassaCaso(c.pazId, c.et + (c.label?' · '+c.label:''))
+      }));
+      aiMostraFumetto(testo, azioni);
+    }
+  }catch(e){
+    console.warn('AI briefing:', e.message || e);
+  }finally{
+    aiPending = false;
+  }
+}
+function aiLoopBriefing(){
+  clearTimeout(aiBriefingTimer);
+  const INTERVALLO = 12*60000;
+  aiBriefingTimer = setTimeout(function tick(){
+    const suHome = document.getElementById('sec-home')?.classList.contains('active');
+    if(aiAbilitato && !aiInVisita && !aiChatAperta && suHome) aiBriefingDashboard(false);
+    aiBriefingTimer = setTimeout(tick, INTERVALLO);
+  }, INTERVALLO);
+}
+async function aiRipassaCaso(pazId, label){
+  if(aiPending) return;
+  if(!aiChatAperta) aiToggleChat();
+  const ctx = aiContestoPaziente(pazId);
+  aiChatAggiungiMsg('user', 'Ripassiamo il caso: ' + label);
+  const attesa = aiChatAggiungiMsg('bot', 'sto rivedendo la cartella…', true);
+  aiPending = true;
+  try{
+    const sys = aiSystemPrompt('dashboard') +
+      "\n\nStoria clinica della paziente (dati de-identificati, nessun nome):\n" + ctx;
+    const testo = await aiChiama('chat',
+      [{ role:'user', content:
+        "Ripassa questo caso con me: (1) riassumi in 3-4 punti la storia clinica rilevante; (2) elenca in 2-3 punti cosa controllare o chiedere alla prossima visita; (3) segnala eventuali red flag o esami da non dimenticare." }],
+      sys);
+    if(attesa) attesa.remove();
+    const risp = testo || 'Non sono riuscito a rivedere il caso, riprova tra un attimo.';
+    aiChatAggiungiMsg('bot', risp);
+    aiChatStoria.push({ role:'user', content:'Ripasso del caso ' + label });
+    aiChatStoria.push({ role:'assistant', content:risp });
+  }catch(e){
+    if(attesa) attesa.remove();
+    aiChatAggiungiMsg('bot', 'Assistente non raggiungibile al momento. Riprova tra poco.');
+  }finally{
+    aiPending = false;
+  }
+}
+
 // ── Suggerimento proattivo (al cambio scheda / pausa) ──
 function aiSuggerimentoProattivo(){
-  if(!aiAbilitato || aiPending || aiChatAperta) return;
+  if(!aiAbilitato || !aiInVisita || aiPending || aiChatAperta) return;
   clearTimeout(aiTimerProattivo);
   aiTimerProattivo = setTimeout(async ()=>{
-    if(!aiAbilitato || aiPending || aiChatAperta) return;
+    if(!aiAbilitato || !aiInVisita || aiPending || aiChatAperta) return;
     const ctx = aiContestoVisita();
     if(ctx.length < 40) return;                                  // troppo poco compilato
     if(Math.abs(ctx.length - aiUltimoContesto.length) < 80) return; // niente di nuovo di rilievo
@@ -6629,7 +6878,9 @@ function aiToggleChat(){
     aiChiudiFumetto();
     c.style.display = 'flex';
     r.style.display = 'none';
-    if(!aiChatStoria.length) aiChatAggiungiMsg('bot', 'Ciao! 👋 Sono qui per darti una mano con la visita. Chiedimi pure quello che vuoi, o continua a compilare e ti segnalo se noto qualcosa.');
+    if(!aiChatStoria.length) aiChatAggiungiMsg('bot', aiInVisita
+      ? 'Ciao! 👋 Sono qui per la visita. Chiedimi quello che vuoi o continua a compilare: ti segnalo se noto qualcosa.'
+      : 'Ciao! 👋 Posso darti una mano con la giornata: prova con "cosa ho in programma oggi", "ripassa la prossima paziente", oppure chiedimi un parere clinico.');
     setTimeout(()=>document.getElementById('ai-chat-txt')?.focus(), 50);
   }else{
     c.style.display = 'none';
@@ -6656,9 +6907,11 @@ async function aiInviaChat(){
   const attesa = aiChatAggiungiMsg('bot', 'sto pensando…', true);
   aiPending = true;
   try{
-    const ctx = aiContestoVisita();
-    const sys = aiSystemPrompt(curMode) +
-      (ctx ? "\n\nDati della visita che la dottoressa sta compilando in questo momento (usali come contesto, non ripeterli):\n" + ctx : "");
+    const ctx = aiInVisita ? aiContestoVisita() : aiAgendaContesto();
+    const sys = aiSystemPrompt(aiInVisita ? curMode : 'dashboard') +
+      (ctx ? "\n\n" + (aiInVisita
+        ? "Dati della visita che la dottoressa sta compilando in questo momento (usali come contesto, non ripeterli):"
+        : "Agenda e situazione attuale della dottoressa (contesto, dati de-identificati):") + "\n" + ctx : "");
     const testo = await aiChiama('chat', aiChatStoria.slice(-10), sys);
     if(attesa) attesa.remove();
     const risp = testo || 'Scusa, non sono riuscito a rispondere. Riprova tra un attimo.';
@@ -8638,6 +8891,7 @@ function initFirebase() {
 
 async function logoutGynoSystem(){
   if(!confirm('Vuoi davvero uscire da GynoSystem?'))return;
+  if(typeof aiFerma==='function') aiFerma();
   try{ await gsAuth.signOut(); }catch(e){}
   location.reload();
 }
