@@ -89,7 +89,8 @@ exports.assistenteAI = onCall(
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-api-key": ANTHROPIC_API_KEY.value(),
+          // .trim(): protegge da spazi o "a capo" finiti nel secret al momento di impostarlo
+          "x-api-key": ANTHROPIC_API_KEY.value().trim(),
           "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
