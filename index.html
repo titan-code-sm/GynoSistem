@@ -1631,6 +1631,59 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
     </div>
     <div id="ai-stato-riga" style="font-size:0.8rem;color:var(--label4);margin-top:10px;"></div>
   </div>
+
+  <div class="card" style="max-width:720px;margin-top:18px;">
+    <div class="card-header"><div><div class="card-title">🖨️ Personalizzazione stampe</div><div class="card-subtitle">Intestazione, firma e impaginazione di ricetta, referto e informativa/consenso — valide solo per questo account</div></div></div>
+
+    <div style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin:6px 0 10px;">Intestazione</div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Nome medico</label><input type="text" id="set-print-nome" placeholder="Dr.ssa Cristina Guidi"></div>
+      <div class="form-group"><label class="form-label">Specializzazione / titolo</label><input type="text" id="set-print-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
+    </div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Indirizzo studio</label><input type="text" id="set-print-indirizzo" placeholder="Via Roma 12, San Marino"></div>
+      <div class="form-group"><label class="form-label">Telefono / email</label><input type="text" id="set-print-contatti" placeholder="Tel. 0549 000000 · info@studioguidi.sm"></div>
+    </div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Testo della firma</label><input type="text" id="set-print-firma" placeholder="Dr.ssa Cristina Guidi"></div>
+      <div class="form-group">
+        <label class="form-label">Logo (immagine)</label>
+        <input type="file" id="set-print-logo" accept="image/*" onchange="caricaLogoImpostazioni(this)">
+        <div id="set-print-logo-preview" style="margin-top:6px"></div>
+      </div>
+    </div>
+
+    <div style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin:16px 0 10px;">Impaginazione</div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Carattere</label>
+        <select id="set-print-font">
+          <option value="Georgia">Georgia (serif classico)</option>
+          <option value="Times New Roman">Times New Roman</option>
+          <option value="Cambria">Cambria</option>
+          <option value="Helvetica">Helvetica / Arial (senza grazie)</option>
+          <option value="Verdana">Verdana</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Formato foglio</label>
+        <select id="set-print-formato"><option value="A4">A4</option><option value="Letter">Letter</option></select>
+      </div>
+    </div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Corpo del testo (pt)</label><input type="number" id="set-print-corpo" min="9" max="16" step="0.5" placeholder="11"></div>
+      <div class="form-group"><label class="form-label">Margini pagina (mm)</label><input type="number" id="set-print-margine" min="8" max="30" step="1" placeholder="15"></div>
+    </div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Colore accento (intestazione)</label><input type="color" id="set-print-colore" style="height:40px;padding:2px;width:100%"></div>
+      <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:24px"><input type="checkbox" id="set-print-mostralogo" style="width:18px;height:18px"> Mostra il logo nelle stampe</label></div>
+    </div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Piè di pagina (facoltativo)</label><input type="text" id="set-print-piepagina" placeholder="es. P.IVA 12345 · www.studioguidi.sm"></div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
+      <button class="btn btn-primary" onclick="salvaImpostazioniStampa()">💾 Salva impostazioni</button>
+      <button class="btn btn-ghost" onclick="anteprimaStampa()">👁️ Anteprima referto</button>
+    </div>
+    <div id="set-print-stato" style="font-size:0.8rem;color:var(--label4);margin-top:10px;"></div>
+  </div>
 </div>
 
 </main>
@@ -3109,7 +3162,7 @@ function renderInformativeTesti(){
 // Apre una pagina stampabile e modificabile con l'informativa e il consenso
 // informato, intestata come la ricetta. tipoEsame = descrizione dell'indagine.
 function stampaInformativaConsenso(tipoEsame){
-  const cfg = (typeof getIntestazioneRicetta==='function') ? getIntestazioneRicetta() : {};
+  const c = getPrintCfg(); const l = c.layout;
   const p = DB.pazienti.find(x=>x.id===curPaz);
   const nome = p ? `${p.cognome} ${p.nome}` : '________________________';
   const nascita = p && p.nascita ? new Date(p.nascita).toLocaleDateString('it-IT') : '____________';
@@ -3117,37 +3170,31 @@ function stampaInformativaConsenso(tipoEsame){
   const w = window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informativa e Consenso</title>
   <style>
-    body{font-family:Georgia,serif;color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
-    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid #c2185b;padding-bottom:16px;margin-bottom:24px}
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
+    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:24px}
     .ic-header img{max-height:60px}
-    .ic-header h1{font-size:1.2rem;margin:0;color:#c2185b}
-    .ic-header .spec{font-size:.82rem;color:#555;margin-top:2px}
-    .ic-header .contatti{font-size:.76rem;color:#777;margin-top:3px}
+    .ic-header h1{font-size:1.2rem;margin:0;color:${l.colore}}
+    .ic-header .sp{font-size:.82rem;color:#555;margin-top:2px}
+    .ic-header .ct{font-size:.76rem;color:#777;margin-top:3px}
     h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
     .ic-meta{font-size:.9rem;margin-bottom:20px}
     .ic-meta div{margin-bottom:3px}
-    .ic-body{font-size:.98rem;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:24px;outline:none}
+    .ic-body{font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:24px;outline:none}
     .ic-body:focus{background:#fffdf5}
-    .ic-consenso{font-size:.98rem;margin-bottom:34px}
+    .ic-consenso{font-size:.98em;margin-bottom:34px}
     .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
     .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
     .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
-    .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:#c2185b;color:#fff;cursor:pointer}
+    .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0;padding:26px}.ic-toolbar{display:none}}
+    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
   </style></head><body>
     <div class="ic-toolbar">✏️ Puoi modificare il testo prima di stampare.
       <button onclick="window.print()">🖨️ Stampa</button>
       <button class="sec" onclick="window.close()">Chiudi</button>
     </div>
-    <div class="ic-header">
-      ${cfg.logo?`<img src="${cfg.logo}">`:''}
-      <div>
-        <h1>${cfg.nome||'Dr.ssa Cristina Guidi'}</h1>
-        <div class="spec">${cfg.spec||''}</div>
-        <div class="contatti">${[cfg.indirizzo,cfg.contatti].filter(Boolean).join(' · ')}</div>
-      </div>
-    </div>
+    <div class="ic-header">${printHeaderHtml()}</div>
     <h2>INFORMATIVA E CONSENSO INFORMATO</h2>
     <div class="ic-meta">
       <div><strong>Esame:</strong> ${tipoEsame||'Esame ecografico'}</div>
@@ -3160,8 +3207,9 @@ function stampaInformativaConsenso(tipoEsame){
     </div>
     <div class="firme">
       <div class="l">Firma della persona assistita</div>
-      <div class="l">Firma del medico</div>
+      <div class="l">${_escHtml(getPrintCfg().firma)||'Firma del medico'}</div>
     </div>
+    ${printFooterHtml()}
   </body></html>`);
   w.document.close();
 }
@@ -6360,6 +6408,111 @@ function renderImpostazioni(){
       ? '🟢 Assistente attivo — comparirà il robottino durante le visite.'
       : '⚪ Assistente spento.';
   }
+  // ── Personalizzazione stampe ──
+  if(document.getElementById('set-print-nome')){
+    const c = getPrintCfg(), i = c.intestazione, l = c.layout;
+    const V = (id,val)=>{ const e=document.getElementById(id); if(e) e.value = (val==null?'':val); };
+    V('set-print-nome', i.nome); V('set-print-spec', i.spec);
+    V('set-print-indirizzo', i.indirizzo); V('set-print-contatti', i.contatti);
+    V('set-print-firma', c.firma);
+    V('set-print-font', l.font); V('set-print-formato', l.formato);
+    V('set-print-corpo', l.corpo); V('set-print-margine', l.margine);
+    V('set-print-colore', l.colore); V('set-print-piepagina', l.piePagina);
+    const mostra=document.getElementById('set-print-mostralogo'); if(mostra) mostra.checked = !!l.logo;
+    const prev=document.getElementById('set-print-logo-preview');
+    if(prev) prev.innerHTML = i.logo ? `<img src="${i.logo}" style="max-height:46px;border-radius:6px">` : '<span style="font-size:.78rem;color:var(--label4)">nessun logo</span>';
+    const lg=document.getElementById('set-print-logo'); if(lg) delete lg.dataset.base64;
+  }
+}
+
+function caricaLogoImpostazioni(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    input.dataset.base64=e.target.result;
+    const prev=document.getElementById('set-print-logo-preview');
+    if(prev) prev.innerHTML=`<img src="${e.target.result}" style="max-height:46px;border-radius:6px">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _leggiImpostazioniStampa(){
+  const c = getPrintCfg();
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const n = (id,def)=>{ const x=parseFloat(document.getElementById(id)?.value); return isNaN(x)?def:x; };
+  c.intestazione.nome = g('set-print-nome') || c.intestazione.nome;
+  c.intestazione.spec = g('set-print-spec');
+  c.intestazione.indirizzo = g('set-print-indirizzo');
+  c.intestazione.contatti = g('set-print-contatti');
+  c.firma = g('set-print-firma') || c.intestazione.nome;
+  const lg = document.getElementById('set-print-logo');
+  if(lg && lg.dataset.base64) c.intestazione.logo = lg.dataset.base64;
+  c.layout.font = g('set-print-font') || 'Georgia';
+  c.layout.formato = g('set-print-formato') || 'A4';
+  c.layout.corpo = Math.min(16, Math.max(9, n('set-print-corpo', 11)));
+  c.layout.margine = Math.min(30, Math.max(8, n('set-print-margine', 15)));
+  c.layout.colore = g('set-print-colore') || '#c2185b';
+  c.layout.piePagina = g('set-print-piepagina');
+  c.layout.logo = !!document.getElementById('set-print-mostralogo')?.checked;
+  return c;
+}
+
+function salvaImpostazioniStampa(){
+  const c = _leggiImpostazioniStampa();
+  const stato = document.getElementById('set-print-stato');
+  if(savePrintCfg(c)){
+    if(typeof gsToast==='function') gsToast('✅ Impostazioni di stampa salvate','gs-success');
+    if(stato) stato.textContent = '✅ Salvate. Valgono da subito su ricetta, referto e informativa.';
+    renderImpostazioni();
+  } else {
+    if(typeof gsToast==='function') gsToast('Errore nel salvataggio','gs-error');
+    if(stato) stato.textContent = '⚠️ Impossibile salvare (spazio locale non disponibile).';
+  }
+}
+
+// Anteprima: apre un referto ostetrico di esempio con la configurazione CORRENTE
+// dei campi (anche non ancora salvata), così si vede subito l'effetto.
+function anteprimaStampa(){
+  const c = _leggiImpostazioniStampa(), i = c.intestazione, l = c.layout;
+  const w = window.open('','_blank');
+  const logo = (l.logo && i.logo) ? `<img src="${i.logo}" style="max-height:64px">` : '';
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Anteprima stampa</title><style>
+    @page{margin:${l.margine}mm;size:${l.formato};}
+    body{font-family:'${l.font}',Georgia,serif;font-size:${l.corpo}pt;color:#1a1a1a;max-width:720px;margin:36px auto;padding:0 20px;line-height:1.6}
+    .ap-bar{position:fixed;top:0;left:0;right:0;background:#fce4ec;padding:10px 16px;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f;display:flex;gap:10px;align-items:center}
+    .ap-bar button{font:inherit;font-weight:600;padding:6px 14px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
+    body{padding-top:64px}
+    .ph{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:22px}
+    .ph h1{font-size:1.3rem;margin:0;color:${l.colore}}
+    .ph .sp{font-size:.85rem;color:#555;margin-top:2px}
+    .ph .ct{font-size:.78rem;color:#777;margin-top:3px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8f8f8;border-radius:8px;padding:14px;margin-bottom:18px;font-size:.9em}
+    .lbl{font-size:.72rem;text-transform:uppercase;color:#777;font-weight:bold}
+    h2{font-size:1.05rem;margin:16px 0 6px}
+    .foot{margin-top:40px;display:flex;justify-content:space-between;align-items:flex-end;font-size:.85rem;color:#555}
+    .pp{margin-top:24px;padding-top:8px;border-top:1px solid #ccc;font-size:.7rem;color:#888;text-align:center}
+    @media print{.ap-bar{display:none}body{padding-top:0;margin:0}}
+  </style></head><body>
+    <div class="ap-bar no-print">👁️ Anteprima con le impostazioni attuali (non ancora salvate).
+      <button onclick="window.print()">🖨️ Prova stampa</button>
+      <button onclick="window.close()" style="background:#fff;color:#880e4f;border:1px solid #f48fb1">Chiudi</button>
+    </div>
+    <div class="ph">${logo}<div><h1>${_escHtml(i.nome)}</h1><div class="sp">${_escHtml(i.spec)}</div><div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div></div></div>
+    <div class="grid">
+      <div><div class="lbl">Paziente</div><div>Mario Rossi (esempio)</div></div>
+      <div style="text-align:right"><div class="lbl">Data visita</div><div>${new Date().toLocaleDateString('it-IT')}</div></div>
+      <div><div class="lbl">Data di nascita</div><div>01/01/1990</div></div>
+      <div style="text-align:right"><div class="lbl">Codice fiscale</div><div>—</div></div>
+    </div>
+    <h2>ANAMNESI</h2>
+    <p>Testo di esempio del referto. Qui compaiono soltanto i campi effettivamente compilati durante la visita, con questo carattere e questo corpo.</p>
+    <h2>CONCLUSIONI</h2>
+    <p>Quadro nella norma. Si consiglia controllo tra 12 mesi.</p>
+    <div class="foot"><div></div><div style="text-align:center"><div style="font-style:italic;margin-bottom:8px">${_escHtml(c.firma)}</div><div>______________________________</div><div style="font-size:.75rem;margin-top:4px">Timbro e Firma</div></div></div>
+    ${l.piePagina?`<div class="pp">${_escHtml(l.piePagina)}</div>`:''}
+  </body></html>`);
+  w.document.close();
 }
 
 function toggleAiAssistente(on){
@@ -6816,17 +6969,88 @@ function eliminaFarmacoManuale(id){
 }
 
 // ═══════════════════════════════════════════════════
-//  RICETTA VERGINE (layout classico, personalizzabile, stampabile)
+//  PERSONALIZZAZIONE STAMPE (per operatore)
 // ═══════════════════════════════════════════════════
-// L'intestazione (nome, specializzazione, indirizzo, contatti, logo) si
-// configura una sola volta e resta salvata in locale (localStorage), così
-// non va riscritta ad ogni ricetta.
-function getIntestazioneRicetta(){
+// Intestazione + firma + impaginazione (margini, carattere, corpo, colore,
+// formato foglio, logo sì/no, piè di pagina). La configurazione è salvata in
+// locale per singolo account. Vale per ricetta, referto, informativa/consenso
+// e per le pagine delle curve di crescita / riepilogo gravidanza.
+// Priorità: preferenze personali (localStorage) > valori admin (Firestore
+// config/print, window._printCfg) > default.
+const PRINT_CFG_DEFAULT = {
+  intestazione:{ nome:'Dr.ssa Cristina Guidi', spec:'Specialista in Ginecologia e Ostetricia', indirizzo:'', contatti:'', logo:'' },
+  firma:'Dr.ssa Cristina Guidi',
+  layout:{ margine:15, font:'Georgia', corpo:11, colore:'#c2185b', formato:'A4', logo:true, piePagina:'' }
+};
+function printCfgKey(){
+  return 'gs_print_cfg_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon');
+}
+function getPrintCfg(){
+  const cfg = JSON.parse(JSON.stringify(PRINT_CFG_DEFAULT));
+  // 1) valori impostati dall'admin (Firestore config/print)
   try{
-    const saved=localStorage.getItem('gs_ricetta_intestazione');
-    if(saved) return JSON.parse(saved);
+    const a = window._printCfg;
+    if(a && a.header){
+      const h=a.header;
+      if(h.name) cfg.intestazione.nome=h.name;
+      if(h.spec) cfg.intestazione.spec=h.spec;
+      if(h.addr) cfg.intestazione.indirizzo=h.addr;
+      if(h.tel||h.email) cfg.intestazione.contatti=[h.tel,h.email].filter(Boolean).join(' · ');
+      if(h.logoUrl) cfg.intestazione.logo=h.logoUrl;
+      if(h.showLogo===false) cfg.layout.logo=false;
+    }
   }catch(e){}
-  return {nome:'Dr.ssa Cristina Guidi',spec:'Specialista in Ginecologia e Ostetricia',indirizzo:'',contatti:'',logo:''};
+  // 2) preferenze personali dell'operatore
+  try{
+    const saved = localStorage.getItem(printCfgKey());
+    if(saved){
+      const s = JSON.parse(saved)||{};
+      Object.assign(cfg.intestazione, s.intestazione||{});
+      Object.assign(cfg.layout, s.layout||{});
+      if(s.firma) cfg.firma = s.firma;
+    } else {
+      const old = localStorage.getItem('gs_ricetta_intestazione'); // migrazione vecchia chiave
+      if(old) Object.assign(cfg.intestazione, JSON.parse(old)||{});
+    }
+  }catch(e){}
+  if(!cfg.firma) cfg.firma = cfg.intestazione.nome;
+  return cfg;
+}
+function savePrintCfg(cfg){
+  try{
+    localStorage.setItem(printCfgKey(), JSON.stringify({
+      intestazione:cfg.intestazione, firma:cfg.firma, layout:cfg.layout
+    }));
+    return true;
+  }catch(e){ return false; }
+}
+function _escHtml(s){ return String(s==null?'':s).replace(/[<>&]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[x])); }
+// Blocco CSS comune per le pagine di stampa aperte in nuova finestra.
+function printStyleComune(extra){
+  const l=getPrintCfg().layout;
+  return `@page{margin:${l.margine}mm;size:${l.formato};}
+    :root{--print-acc:${l.colore};}
+    body{font-family:'${l.font}',Georgia,'Times New Roman',serif;font-size:${l.corpo}pt;}
+    .print-foot{margin-top:26px;padding-top:8px;border-top:1px solid #ddd;font-size:.7rem;color:#999;text-align:center;}
+    ${extra||''}`;
+}
+function printHeaderHtml(){
+  const c=getPrintCfg(), i=c.intestazione;
+  const logo=(c.layout.logo && i.logo)?`<img src="${i.logo}" alt="">`:'';
+  return `${logo}<div><h1>${_escHtml(i.nome)}</h1>
+    <div class="sp">${_escHtml(i.spec)}</div>
+    <div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div></div>`;
+}
+function printFooterHtml(){
+  const c=getPrintCfg();
+  return c.layout.piePagina ? `<div class="print-foot">${_escHtml(c.layout.piePagina)}</div>` : '';
+}
+// Retro-compatibilità: alcune funzioni usano ancora getIntestazioneRicetta().
+function getIntestazioneRicetta(){
+  const c=getPrintCfg();
+  return { nome:c.intestazione.nome, spec:c.intestazione.spec, indirizzo:c.intestazione.indirizzo,
+           contatti:c.intestazione.contatti, logo:(c.layout.logo?c.intestazione.logo:''),
+           colore:c.layout.colore, font:c.layout.font, firma:c.firma };
 }
 
 function apriRicettaVergine(){
@@ -6855,19 +7079,16 @@ function caricaLogoRicetta(input){
 }
 
 function salvaIntestazioneRicetta(){
-  const cfg={
-    nome:document.getElementById('rxv-cfg-nome').value.trim(),
-    spec:document.getElementById('rxv-cfg-spec').value.trim(),
-    indirizzo:document.getElementById('rxv-cfg-indirizzo').value.trim(),
-    contatti:document.getElementById('rxv-cfg-contatti').value.trim(),
-    logo:document.getElementById('rxv-cfg-logo').dataset.base64 || getIntestazioneRicetta().logo || ''
-  };
-  try{
-    localStorage.setItem('gs_ricetta_intestazione', JSON.stringify(cfg));
+  const c=getPrintCfg();
+  c.intestazione.nome=document.getElementById('rxv-cfg-nome').value.trim()||c.intestazione.nome;
+  c.intestazione.spec=document.getElementById('rxv-cfg-spec').value.trim();
+  c.intestazione.indirizzo=document.getElementById('rxv-cfg-indirizzo').value.trim();
+  c.intestazione.contatti=document.getElementById('rxv-cfg-contatti').value.trim();
+  c.intestazione.logo=document.getElementById('rxv-cfg-logo').dataset.base64 || c.intestazione.logo || '';
+  if(savePrintCfg(c)){
     if(typeof gsToast==='function')gsToast('✅ Intestazione salvata','gs-success');
-  }catch(e){
-    if(typeof gsToast==='function')gsToast('Errore nel salvare l\'intestazione','gs-error');
-  }
+    if(typeof renderImpostazioni==='function' && document.getElementById('set-print-nome')) renderImpostazioni();
+  } else if(typeof gsToast==='function')gsToast('Errore nel salvare l\'intestazione','gs-error');
 }
 
 function stampaRicettaVergine(){
@@ -6882,46 +7103,40 @@ function stampaRicettaVergine(){
 // Funzione condivisa: genera e stampa il layout classico della ricetta,
 // usato sia dalla Ricetta Vergine sia dal ricettario di una visita registrata.
 function stampaRicettaConTesto(paziente,dataStr,testo){
-  const cfg=getIntestazioneRicetta();
+  const c=getPrintCfg(); const l=c.layout;
   const w=window.open('','_blank');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ricetta</title>
   <style>
-    body{font-family:Georgia,serif;color:#1a1a1a;max-width:680px;margin:40px auto;padding:0 20px;line-height:1.6}
-    .rx-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid #c2185b;padding-bottom:18px;margin-bottom:30px}
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:680px;margin:40px auto;padding:70px 20px 0;line-height:1.6}
+    .rx-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:18px;margin-bottom:30px}
     .rx-header img{max-height:64px}
-    .rx-header h1{font-size:1.3rem;margin:0;color:#c2185b}
-    .rx-header .spec{font-size:.85rem;color:#555;margin-top:2px}
-    .rx-header .contatti{font-size:.78rem;color:#777;margin-top:4px}
+    .rx-header h1{font-size:1.3rem;margin:0;color:${l.colore}}
+    .rx-header .sp{font-size:.85rem;color:#555;margin-top:2px}
+    .rx-header .ct{font-size:.78rem;color:#777;margin-top:4px}
     .rx-meta{display:flex;justify-content:space-between;margin-bottom:30px;font-size:.92rem}
-    .rx-body{white-space:pre-wrap;font-size:1.05rem;min-height:300px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:24px 0;outline:none}
+    .rx-body{white-space:pre-wrap;font-size:1.05em;min-height:300px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:24px 0;outline:none}
     .rx-body:focus{background:#fffdf5}
     .rx-footer{margin-top:40px;text-align:right}
-    .rx-footer .firma-line{display:inline-block;border-top:1px solid #1a1a1a;width:220px;margin-top:50px;padding-top:6px;font-size:.82rem;color:#555}
+    .rx-footer .firma-line{display:inline-block;border-top:1px solid #1a1a1a;width:240px;margin-top:50px;padding-top:6px;font-size:.82rem;color:#555;text-align:center}
     .rx-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
-    .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:#c2185b;color:#fff;cursor:pointer}
+    .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     .rx-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    body{padding-top:70px}
-    @media print{body{margin:0;padding:30px}.rx-toolbar{display:none}}
+    @media print{body{margin:0;padding:0}.rx-toolbar{display:none}}
   </style></head><body>
     <div class="rx-toolbar no-print">
       ✏️ Puoi modificare il testo qui sotto prima di stampare.
       <button onclick="window.print()">🖨️ Stampa</button>
       <button class="sec" onclick="window.close()">Chiudi</button>
     </div>
-    <div class="rx-header">
-      ${cfg.logo?`<img src="${cfg.logo}">`:''}
-      <div>
-        <h1>${cfg.nome||'Dr.ssa Cristina Guidi'}</h1>
-        <div class="spec">${cfg.spec||''}</div>
-        <div class="contatti">${[cfg.indirizzo,cfg.contatti].filter(Boolean).join(' · ')}</div>
-      </div>
-    </div>
+    <div class="rx-header">${printHeaderHtml()}</div>
     <div class="rx-meta">
-      <div><strong>Paziente:</strong> ${paziente||'________________________'}</div>
-      <div><strong>Data:</strong> ${dataStr||'__________________'}</div>
+      <div><strong>Paziente:</strong> ${_escHtml(paziente)||'________________________'}</div>
+      <div><strong>Data:</strong> ${_escHtml(dataStr)||'__________________'}</div>
     </div>
     <div class="rx-body" contenteditable="true" spellcheck="false">${(testo||'').replace(/</g,'&lt;')}</div>
-    <div class="rx-footer"><div class="firma-line">Firma del medico</div></div>
+    <div class="rx-footer"><div class="firma-line">${_escHtml(c.firma)||'Firma del medico'}</div></div>
+    ${printFooterHtml()}
   </body></html>`);
   w.document.close();
 }
@@ -7014,8 +7229,8 @@ function buildRefertoBody(v){
 function stampa(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p.visite.find(x=>x.id===vid);
-  // Applica intestazione configurata (logo B/N, dati medico)
-  if(window._printCfg) applyPrintConfig(window._printCfg);
+  // Applica intestazione + impaginazione personalizzate (per operatore)
+  applyPrintCfgReferto();
   document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
   document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
   document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'\u2013';
@@ -7243,8 +7458,9 @@ function generaPaginaCurve(p, punti){
   const w=window.open('','_blank');
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
   <style>
-    body{font-family:Georgia,serif;color:#1a1a1a;max-width:1000px;margin:30px auto;padding:0 20px}
-    h1{font-size:1.3rem;color:#c2185b;border-bottom:3px solid #c2185b;padding-bottom:14px;margin-bottom:6px}
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:1000px;margin:30px auto;padding:0 20px}
+    h1{font-size:1.3rem;color:var(--print-acc);border-bottom:3px solid var(--print-acc);padding-bottom:14px;margin-bottom:6px}
     .sub{color:#666;font-size:.85rem;margin-bottom:24px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
     .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px}
@@ -7351,9 +7567,10 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   const nomeFile=`Riepilogo_Gravidanza_${p.cognome}_${p.nome}`.replace(/\s+/g,'_');
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${nomeFile}</title>
   <style>
-    :root{--primary:#c2185b;--primary-dim:#fbe9ef;--label:#1a1a1a;--label3:#777}
-    body{font-family:Georgia,serif;color:#1a1a1a;max-width:800px;margin:30px auto;padding:0 20px;line-height:1.6}
-    h1{font-size:1.4rem;color:#c2185b;border-bottom:3px solid #c2185b;padding-bottom:14px;margin-bottom:6px}
+    ${printStyleComune()}
+    :root{--primary:var(--print-acc);--primary-dim:#fbe9ef;--label:#1a1a1a;--label3:#777}
+    body{color:#1a1a1a;max-width:800px;margin:30px auto;padding:0 20px;line-height:1.6}
+    h1{font-size:1.4rem;color:var(--print-acc);border-bottom:3px solid var(--print-acc);padding-bottom:14px;margin-bottom:6px}
     .sub{color:#666;font-size:.9rem;margin-bottom:30px}
     .pdf-banner{background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.85rem;color:#664d03;display:flex;align-items:center;gap:10px}
     .visita-block{margin-bottom:36px;page-break-inside:avoid}
@@ -7411,8 +7628,9 @@ function apriCurveCrescita(pazId, vid){
   const w=window.open('','_blank');
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
   <style>
-    body{font-family:Georgia,serif;color:#1a1a1a;max-width:1000px;margin:30px auto;padding:0 20px}
-    h1{font-size:1.3rem;color:#c2185b;border-bottom:3px solid #c2185b;padding-bottom:14px;margin-bottom:6px}
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:1000px;margin:30px auto;padding:0 20px}
+    h1{font-size:1.3rem;color:var(--print-acc);border-bottom:3px solid var(--print-acc);padding-bottom:14px;margin-bottom:6px}
     .sub{color:#666;font-size:.85rem;margin-bottom:24px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
     .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px}
@@ -8573,8 +8791,7 @@ function openAdmin() {
   }
 }
 
-// Override stampa per applicare config print da Firebase
-// Configurazione stampa applicata direttamente in stampa()
+// Config stampa admin da Firebase — mantenuta per retro-compatibilità.
 function applyPrintConfig(cfg) {
   if(!cfg) return;
   const h = cfg.header || {};
@@ -8587,6 +8804,39 @@ function applyPrintConfig(cfg) {
     const logoEl = document.getElementById('ph-logo');
     if (logoEl) logoEl.innerHTML = `<img src="${h.logoUrl}" style="width:65px;height:65px;border-radius:10px;object-fit:contain;filter:grayscale(100%)">`;
   }
+}
+
+// Applica al referto (#print-area) l'intestazione e l'impaginazione personalizzate
+// dell'operatore. Chiamata da stampa() subito prima di window.print().
+function applyPrintCfgReferto(){
+  const c = getPrintCfg(), i = c.intestazione, l = c.layout;
+  const setTxt = (id,val) => { const el=document.getElementById(id); if(el) el.textContent=(val||''); };
+  setTxt('ph-name', i.nome);
+  setTxt('ph-spec', i.spec);
+  setTxt('ph-addr', i.indirizzo);
+  setTxt('ph-tel-email', i.contatti);
+  setTxt('ph-firma-nome', c.firma || i.nome);
+  const logoEl = document.getElementById('ph-logo');
+  if (logoEl){
+    if (l.logo && i.logo){
+      logoEl.style.display='';
+      logoEl.innerHTML = `<img src="${i.logo}" style="width:65px;height:65px;border-radius:10px;object-fit:contain;filter:grayscale(100%)">`;
+    } else if (l.logo){
+      logoEl.style.display='';
+    } else {
+      logoEl.style.display='none';
+    }
+  }
+  let st = document.getElementById('print-dyn');
+  if(!st){ st = document.createElement('style'); st.id = 'print-dyn'; document.head.appendChild(st); }
+  st.textContent = `@media print{
+    @page{margin:${l.margine}mm;size:${l.formato};}
+    #print-area{font-family:'${l.font}','Times New Roman',serif !important;font-size:${l.corpo}pt !important;}
+    #print-area .ph{border-bottom-color:${l.colore} !important;}
+    #print-area .ph-info h1{color:${l.colore} !important;}
+    #print-area .ph-logo{background:${l.colore} !important;}
+    ${l.piePagina ? `#print-area::after{content:${JSON.stringify(l.piePagina)};display:block;margin-top:24px;padding-top:8px;border-top:1px solid #ccc;font-size:.7rem;color:#888;text-align:center;}` : ''}
+  }`;
 }
 
 // Toast interno
