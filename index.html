@@ -727,11 +727,11 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   </button>
   <div class="mob-bar-left">
     <div id="mob-logo-wrap">
-      <img src="logo.png" class="mob-logo" onerror="this.parentElement.innerHTML='<div class=mob-logo-fb>CG</div>'">
+      <img src="logo.png" class="mob-logo" onerror="this.parentElement.innerHTML='<div class=mob-logo-fb>🩺</div>'">
     </div>
     <div>
       <div class="mob-bar-title">GynoSystem</div>
-      <div class="mob-bar-sub">Dr.ssa Cristina Guidi</div>
+      <div class="mob-bar-sub" id="mob-bar-sub-nome"></div>
     </div>
   </div>
   <div class="mob-fb-dot" id="mob-fb-dot" title="Firebase"></div>
@@ -787,9 +787,9 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 <!-- SIDEBAR -->
 <aside>
   <div class="brand-area">
-    <div class="brand-avatar">CG</div>
+    <div class="brand-avatar" id="sidebar-brand-avatar">🩺</div>
     <div>
-      <div class="brand-name">Dr.ssa Guidi</div>
+      <div class="brand-name" id="sidebar-brand-name"></div>
       <div class="brand-role">Ginecologia · Ostetricia</div>
     </div>
   </div>
@@ -874,7 +874,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
   <div class="page-header">
     <div>
       <div class="page-title">Dashboard</div>
-      <div class="page-subtitle">Benvenuta, Dr.ssa Guidi</div>
+      <div class="page-subtitle" id="dash-welcome">Benvenuta</div>
     </div>
     <div style="text-align:right">
       <div id="clock-time" style="font-family:var(--font-serif);font-size:2rem;color:var(--primary);line-height:1;">--:--</div>
@@ -3687,6 +3687,22 @@ const ADMIN_EMAIL = 'titancodesm@gmail.com';
 
 let gsUnsubUtente = null;   // listener live sul proprio profilo (sospensione durante la sessione)
 let gsSuspensionMsg = null; // messaggio da mostrare al prossimo onAuthStateChanged(null)
+let gsUserNome = '';        // nome del medico/operatrice loggata, da mostrare al posto di un nome fisso
+
+// Mostra ovunque nell'app il nome di chi ha fatto login, al posto di un
+// nome fisso nel codice — coerente con un accesso multi-utente.
+function applyNomeMedico(nome){
+  gsUserNome = nome || '';
+  if(!gsUserNome) return;
+  document.title = `GynoSystem · ${gsUserNome}`;
+  const iniziali = gsUserNome.split(/\s+/).filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+  set('mob-bar-sub-nome', gsUserNome);
+  set('sidebar-brand-name', gsUserNome);
+  set('dash-welcome', `Ciao, ${gsUserNome}`);
+  const avatar = document.getElementById('sidebar-brand-avatar');
+  if(avatar && iniziali) avatar.textContent = iniziali;
+}
 
 // Chiamata dopo ogni login riuscito. Crea/legge il "profilo applicativo"
 // dell'utente in Firestore (utenti/{uid}): serve a sapere chi esiste, se è
@@ -3705,6 +3721,7 @@ async function handleUserProfile(user){
   }
 
   let mustChange = false;
+  let nome = user.displayName || user.email.split('@')[0];
 
   if(!snap.exists){
     // Nessun profilo ancora: account creato prima di questo sistema (o a mano
@@ -3712,7 +3729,7 @@ async function handleUserProfile(user){
     try{
       await ref.set({
         email: user.email,
-        nome: user.displayName || user.email.split('@')[0],
+        nome,
         attivo: true,
         mustChangePassword: false,
         createdAt: new Date().toISOString(),
@@ -3727,15 +3744,22 @@ async function handleUserProfile(user){
       return {ok:false, mustChange:false};
     }
     mustChange = data.mustChangePassword === true;
+    nome = data.nome || nome;
     try{ await ref.update({ ultimoAccesso: new Date().toISOString(), email: user.email }); }catch(e){}
   }
+  applyNomeMedico(nome);
 
-  // Se l'amministratore sospende l'account mentre è già collegato, lo scollega subito
+  // Se l'amministratore sospende l'account mentre è già collegato, lo scollega subito;
+  // se cambia solo il nome, lo aggiorna live in tutta l'interfaccia.
   if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
   gsUnsubUtente = ref.onSnapshot(docSnap=>{
-    if(docSnap.exists && docSnap.data().attivo === false && gsCurrentUser){
+    if(!docSnap.exists || !gsCurrentUser) return;
+    const d = docSnap.data();
+    if(d.attivo === false){
       gsSuspensionMsg = 'Il tuo accesso è stato sospeso dall\'amministratore.';
       gsAuth.signOut();
+    }else if(d.nome){
+      applyNomeMedico(d.nome);
     }
   });
 
