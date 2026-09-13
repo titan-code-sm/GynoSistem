@@ -1431,6 +1431,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div id="mfv-body"></div>
     <div class="mfv-foot">
       <label class="mfv-ric-chk"><input type="checkbox" id="mfv-anche-ricetta"> Genera anche la ricetta</label>
+      <label class="mfv-ric-chk" id="mfv-terapia-visite-wrap" style="display:none"><input type="checkbox" id="mfv-anche-terapia-visite"> Riporta nella terapia delle nuove visite</label>
       <div class="mfv-foot-actions">
         <span class="mfv-count-lbl"><span id="mfv-count">0</span> selezionati</span>
         <button class="btn btn-ghost" onclick="closeModal('modal-farmaci-visita')">Annulla</button>
@@ -1469,6 +1470,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <label class="form-label">Note / Motivo</label>
       <textarea id="fm-note" rows="3" placeholder="es. prescritto da endocrinologo per ipotiroidismo"></textarea>
     </div>
+    <label class="mfv-ric-chk" style="margin-bottom:18px;display:flex"><input type="checkbox" id="fm-in-terapia" checked> Riporta nella terapia delle nuove visite</label>
 
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button class="btn btn-ghost" onclick="closeModal('m-farmaco-manuale')">Annulla</button>
@@ -1901,11 +1903,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <button class="editor-nav-btn active" onclick="setEditorTab(this,'ec-dati')">📋 Tipo & Datazione</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-1')"><span class="step-num">1</span>Biometria Fetale</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-referti')">🖥️ Referti Ecografici</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-anatomia')">🧠 Anatomia Fetale</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-2')"><span class="step-num">2</span>Annessi & Liquido</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-doppler')">〜 Doppler</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-note')">📝 Note Ecografiche</button>
-        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">3</span>Referto</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">2</span>Referto</button>
       </div>
       <div class="editor-content">
         <div id="gyno-panels" style="display:block">
@@ -2630,14 +2630,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                 <div class="form-group"><label class="form-label">Tipo Ecografia (selezionabile e modificabile)</label><input id="ec-tipo-esame" list="dl-tipo-eco" placeholder="scegli o scrivi..."></div>
                 <div class="form-group"><label class="form-label">Indicazione (selezionabile e modificabile)</label><input id="ec-indicazione" list="dl-indicazione-eco" placeholder="Datazione / Ecografia I trimestre / Accrescimento fetale"></div>
               </div>
-              <div class="field-row r2">
-                <div class="form-group"><label class="form-label">Vitalità Fetale</label><select id="ec-vitalita">
-                  <option value="">-- Seleziona --</option><option value="presente">Presente</option><option value="assente">Assente</option>
-                </select></div>
-                <div class="form-group"><label class="form-label">Numero Feti</label><select id="ec-num-feti">
-                  <option value="singola">Gravidanza singola</option><option value="gemellare_bi">Gemellare bicoriale</option><option value="gemellare_mono">Gemellare monocoriale</option>
-                </select></div>
-              </div>
+              <div class="form-group"><label class="form-label">Numero Feti</label><select id="ec-num-feti">
+                <option value="singola">Gravidanza singola</option><option value="gemellare_bi">Gemellare bicoriale</option><option value="gemellare_mono">Gemellare monocoriale</option>
+              </select></div>
             </div>
 
             <div class="section-card">
@@ -2729,10 +2724,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
               </div>
               <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="apriCurveCrescitaEco()">📈 Vedi Curve di Crescita + peso fetale (stampabili)</button>
             </div>
-            <div class="section-card">
-              <h4 data-icon="❤️">Battito Cardiaco Fetale</h4>
-              <div class="form-group"><input id="ec-bcf" placeholder="es. 150 bpm, ritmo regolare"></div>
-            </div>
           </div>
 
           <!-- ════════ ECO PANEL: REFERTI ECOGRAFICI ════════ -->
@@ -2764,73 +2755,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                 <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
               </select>
               <textarea id="ec-eco3" rows="3" style="margin-top:6px"></textarea>
-            </div>
-          </div>
-
-          <!-- ════════ ECO PANEL: ANATOMIA FETALE ════════ -->
-          <div id="ec-anatomia" class="edit-panel">
-            <div class="section-card">
-              <h4 data-icon="🧠">Cranio / Encefalo</h4>
-              <div class="field-row r2" style="margin-bottom:8px">
-                <div class="form-group"><select id="ec-anat-cranio-esito"><option value="">-- Esito --</option><option value="normale">Normale</option><option value="anomalo">Anomalo</option></select></div>
-                <div class="form-group"><input id="ec-anat-cranio-note" placeholder="note (ventricoli, cervelletto, cisterna magna...)"></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🦴">Colonna Vertebrale</h4>
-              <div class="field-row r2">
-                <div class="form-group"><select id="ec-anat-colonna-esito"><option value="">-- Esito --</option><option value="normale">Normale</option><option value="anomalo">Anomalo</option></select></div>
-                <div class="form-group"><input id="ec-anat-colonna-note" placeholder="note"></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="❤️">Cuore (4 Camere)</h4>
-              <div class="field-row r2">
-                <div class="form-group"><select id="ec-anat-cuore-esito"><option value="">-- Esito --</option><option value="normale">Normale, situs e 4 camere regolari</option><option value="anomalo">Anomalo</option></select></div>
-                <div class="form-group"><input id="ec-anat-cuore-note" placeholder="note (assi cardiaci, grossi vasi...)"></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🫃">Addome / Reni / Vescica</h4>
-              <div class="field-row r2">
-                <div class="form-group"><select id="ec-anat-addome-esito"><option value="">-- Esito --</option><option value="normale">Normale</option><option value="anomalo">Anomalo</option></select></div>
-                <div class="form-group"><input id="ec-anat-addome-note" placeholder="note (stomaco, reni, vescica, parete addominale...)"></div>
-              </div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🦵">Arti</h4>
-              <div class="field-row r2">
-                <div class="form-group"><select id="ec-anat-arti-esito"><option value="">-- Esito --</option><option value="normale">4 arti normoconformati</option><option value="anomalo">Anomalo</option></select></div>
-                <div class="form-group"><input id="ec-anat-arti-note" placeholder="note"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ════════ ECO PANEL 2: ANNESSI & LIQUIDO ════════ -->
-          <div id="ec-2" class="edit-panel">
-            <div class="section-card">
-              <h4 data-icon="💧">Liquido Amniotico</h4>
-              <div class="form-group"><textarea id="ec-liquido" rows="3" placeholder="es. Quantità normale, falda massima..."></textarea></div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🟣">Placenta</h4>
-              <div class="field-row r3" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">Sede</label><input id="ec-placenta-sede" placeholder="es. fundica anteriore"></div>
-                <div class="form-group"><label class="form-label">Grado di Maturità</label><select id="ec-placenta-grado">
-                  <option value="">-- Seleziona --</option><option value="0">Grado 0</option><option value="I">Grado I</option><option value="II">Grado II</option><option value="III">Grado III</option>
-                </select></div>
-                <div class="form-group"><label class="form-label">Distanza dall'OUI (mm)</label><input id="ec-placenta-oui" placeholder="es. >20 / 15 (bassa) / previa"></div>
-              </div>
-              <div class="form-group"><textarea id="ec-placenta" rows="2" placeholder="Altre note sulla placenta..."></textarea></div>
-            </div>
-            <div class="section-card">
-              <h4 data-icon="🔗">Cordone Ombelicale</h4>
-              <div class="field-row r2">
-                <div class="form-group"><label class="form-label">Inserzione</label><input id="ec-cordone-inserzione" placeholder="es. centrale, paracentrale, marginale, velamentosa"></div>
-                <div class="form-group"><label class="form-label">Numero Vasi</label><select id="ec-cordone-vasi">
-                  <option value="">-- Seleziona --</option><option value="3">3 vasi (normale)</option><option value="2">2 vasi (arteria ombelicale unica)</option>
-                </select></div>
-              </div>
             </div>
           </div>
 
@@ -3389,7 +3313,7 @@ function stampaInformativaConsenso(tipoEsame){
   const nome = p ? `${p.cognome} ${p.nome}` : '________________________';
   const nascita = p && p.nascita ? new Date(p.nascita).toLocaleDateString('it-IT') : '____________';
   const oggi = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
-  const w = window.open('','_blank');
+  const w = apriFinestraStampa(); if(!w) return;
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informativa e Consenso</title>
   <style>
     ${printStyleComune()}
@@ -3917,9 +3841,9 @@ function apriCurveCrescitaOb(){
 }
 
 // ── ECOGRAFIA OSTETRICA ──
-const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','bcf','liquido','placenta','diagnosi','terapia','prossimo',
+const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','diagnosi','terapia','prossimo',
   // Tipo esame & datazione
-  'tipo-esame','indicazione','vitalita','num-feti',
+  'tipo-esame','indicazione','num-feti',
   'um','epp','epoca-um','epoca-eco',
   // Testi preformati datazione
   'test-screening','eco-morfologica','dati-clinici',
@@ -3929,11 +3853,6 @@ const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','bcf','liquido','
   'eco1','eco23','eco3',
   // Note ecografiche
   'note-eco',
-  // Anatomia fetale
-  'anat-cranio-esito','anat-cranio-note','anat-colonna-esito','anat-colonna-note',
-  'anat-cuore-esito','anat-cuore-note','anat-addome-esito','anat-addome-note','anat-arti-esito','anat-arti-note',
-  // Placenta & cordone
-  'placenta-sede','placenta-grado','placenta-oui','cordone-inserzione','cordone-vasi',
   // Doppler (PI = pulsatility index secondo Fetal Medicine Foundation / Medfetal Barcelona)
   'doppler-ua-pi','doppler-ua-flusso','doppler-mca-pi','doppler-mca-vmax','doppler-cpr',
   'doppler-utsx-pi','doppler-utdx-pi','doppler-dv-pi','doppler-note'];
@@ -6354,6 +6273,8 @@ function apriSelettoreFarmaciVisita(targetFieldId){
   if(search) search.value='';
   const chk = document.getElementById('mfv-anche-ricetta');
   if(chk) chk.checked = false;
+  const wrapTerapiaVisite = document.getElementById('mfv-terapia-visite-wrap');
+  if(wrapTerapiaVisite) wrapTerapiaVisite.style.display = 'none';
   // Preseleziona la specialità in base al tipo di scheda visita da cui si apre
   _mfvSpec = (targetFieldId==='ob-terapia'||targetFieldId==='ec-terapia') ? 'ost' : (targetFieldId==='gd-terapia' ? 'gin' : 'all');
   document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===_mfvSpec));
@@ -6381,6 +6302,10 @@ function apriSelettoreFarmaciPaziente(){
   _mfvSpec = 'all';
   const search = document.getElementById('mfv-search'); if(search) search.value='';
   const chk = document.getElementById('mfv-anche-ricetta'); if(chk) chk.checked = true;
+  const wrapTerapiaVisite = document.getElementById('mfv-terapia-visite-wrap');
+  if(wrapTerapiaVisite) wrapTerapiaVisite.style.display = 'flex';
+  const chkTerapiaVisite = document.getElementById('mfv-anche-terapia-visite');
+  if(chkTerapiaVisite) chkTerapiaVisite.checked = true;
   document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===_mfvSpec));
   const titolo = document.getElementById('mfv-titolo');
   if(titolo) titolo.textContent = `💊 Prescrivi a ${p.cognome} ${p.nome}`;
@@ -6475,10 +6400,11 @@ function confermaFarmaciSelezionatiVisita(ancheStampa){
     if(p){
       if(!p.farmaciManuali) p.farmaciManuali=[];
       const oggiIso=new Date().toISOString().split('T')[0];
+      const inTerapiaVisite=document.getElementById('mfv-anche-terapia-visite')?.checked||false;
       scelti.forEach((f,i)=>{
         p.farmaciManuali.push({
           id:'fm'+Date.now().toString(36)+i,
-          farmaco:f.n, dosaggio:f.p, note:f.dose, daQuando:oggiIso
+          farmaco:f.n, dosaggio:f.p, note:f.dose, daQuando:oggiIso, inTerapiaVisite
         });
       });
       salvaDB();
@@ -6705,6 +6631,7 @@ function startEditor(tipo, vid=null){
   setEditorTab(firstBtn,meta.firstTab);
 
   if(typeof renderInformativeTesti==='function') renderInformativeTesti();
+  if(!vid) riportaFarmaciAttualiInTerapia(tipo);
   if(vid) loadVisita(vid);
   // Settimane di gravidanza: precompila in automatico (senza sovrascrivere un
   // valore già registrato), poi resta modificabile a mano.
@@ -6965,7 +6892,7 @@ function salvaImpostazioniStampa(){
 // dei campi (anche non ancora salvata), così si vede subito l'effetto.
 function anteprimaStampa(){
   const c = _leggiImpostazioniStampa(), i = c.intestazione, l = c.layout;
-  const w = window.open('','_blank');
+  const w = apriFinestraStampa(); if(!w) return;
   const logo = (l.logo && i.logo) ? `<img src="${i.logo}" style="max-height:64px">` : '';
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Anteprima stampa</title><style>
     @page{margin:${l.margine}mm;size:${l.formato};}
@@ -7049,7 +6976,7 @@ function aiSystemPrompt(mode){
   const flussi = {
     gyno: "Contesto: visita ginecologica in compilazione. Flusso ideale: anamnesi (dati generali, ciclo, sintomi, screening, familiarità) → motivo della visita → esame obiettivo (generale, speculum, prelievi, bimanuale) → ecografia → eventuale colposcopia/HPV → conclusioni (diagnosi, esami richiesti, terapia, prossimo controllo).",
     ob: "Contesto: visita ostetrica in compilazione. Flusso ideale: anamnesi (età, PARA, emogruppo, tipo gravidanza, datazione UM/EPP, dati pregravidici, screening, stile di vita, familiarità) → visita ed eco (settimane, PA, peso/incremento, referto) → biometria fetale con percentili → note eco → counselling → prescrizioni esami → conclusioni (diagnosi, terapia, prossimo controllo).",
-    eco: "Contesto: ecografia ostetrica in compilazione. Flusso ideale: tipo di esame e vitalità → età gestazionale → biometria fetale → anatomia fetale → liquido e placenta → cordone → flussimetria Doppler → referto conclusivo, terapia, prossimo controllo.",
+    eco: "Contesto: ecografia ostetrica in compilazione. Flusso ideale: tipo di esame → età gestazionale → biometria fetale (con flussimetria Doppler) → referto conclusivo, terapia, prossimo controllo.",
     dashboard: "Contesto: nessuna visita aperta — stai affiancando la dottoressa nella gestione della giornata. Aiutala a prepararsi agli appuntamenti, a non dimenticare promemoria e controlli scaduti o imminenti, e a ripassare la storia clinica delle pazienti che vedrà a breve (red flag, cosa chiedere, quali esami controllare). Parla in modo naturale, come un collega che dà una mano."
   };
   return AI_SYSTEM_BASE + "\n\n" + (flussi[mode] || flussi.gyno);
@@ -7668,6 +7595,12 @@ function renderFarmaciAttuali(p){
         <div style="font-size:.7rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">🔵 ${f.farmaco}${f.dosaggio?' · '+f.dosaggio:''}</div>
         ${f.daQuando?`<div style="font-size:.74rem;color:var(--label4);margin-bottom:4px">Da ${new Date(f.daQuando).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>`:''}
         ${f.note?`<div style="font-size:.8rem;color:var(--label3);white-space:pre-wrap">${f.note}</div>`:''}
+        <div style="margin-top:6px;padding-right:20px">
+          <label style="display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--label3);cursor:pointer">
+            <input type="checkbox" style="width:auto" ${f.inTerapiaVisite?'checked':''} onchange="toggleFarmacoInTerapiaVisite('${f.id}',this.checked)">
+            Riporta nella terapia delle nuove visite
+          </label>
+        </div>
       </div>`).join('');
   }
 
@@ -7703,6 +7636,7 @@ function apriNuovoFarmacoManuale(){
   document.getElementById('fm-dosaggio').value='';
   document.getElementById('fm-da-quando').value=new Date().toISOString().split('T')[0];
   document.getElementById('fm-note').value='';
+  document.getElementById('fm-in-terapia').checked=true;
   document.getElementById('m-farmaco-manuale').classList.add('show');
 }
 
@@ -7717,7 +7651,8 @@ function salvaFarmacoManuale(){
     farmaco,
     dosaggio:document.getElementById('fm-dosaggio').value.trim(),
     daQuando:document.getElementById('fm-da-quando').value,
-    note:document.getElementById('fm-note').value.trim()
+    note:document.getElementById('fm-note').value.trim(),
+    inTerapiaVisite:document.getElementById('fm-in-terapia').checked
   });
   salvaDB();
   closeModal('m-farmaco-manuale');
@@ -7732,6 +7667,28 @@ function eliminaFarmacoManuale(id){
   p.farmaciManuali=p.farmaciManuali.filter(f=>f.id!==id);
   salvaDB();
   renderFarmaciAttuali(p);
+}
+
+function toggleFarmacoInTerapiaVisite(id,checked){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const f=p?.farmaciManuali?.find(x=>x.id===id);
+  if(!f)return;
+  f.inTerapiaVisite=checked;
+  salvaDB();
+}
+
+// Precompila il campo Terapia di una NUOVA visita (ob/eco/gyno) con i farmaci
+// attuali della paziente marcati "Riporta nella terapia delle nuove visite",
+// così non serve riscriverli ogni volta. Resta comunque modificabile a mano.
+function riportaFarmaciAttualiInTerapia(tipo){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p || !p.farmaciManuali)return;
+  const daRiportare=p.farmaciManuali.filter(f=>f.inTerapiaVisite);
+  if(!daRiportare.length)return;
+  const campo={ob:'ob-terapia',eco:'ec-terapia',gyno:'gd-terapia'}[tipo];
+  const el=campo && document.getElementById(campo);
+  if(!el || el.value.trim())return; // non sovrascrive se già valorizzato
+  el.value=daRiportare.map(f=>`${f.farmaco}${f.dosaggio?' ('+f.dosaggio+')':''}${f.note?' — '+f.note:''}`).join('\n');
 }
 
 // ═══════════════════════════════════════════════════
@@ -7791,6 +7748,17 @@ function savePrintCfg(cfg){
   }catch(e){ return false; }
 }
 function _escHtml(s){ return String(s==null?'':s).replace(/[<>&]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[x])); }
+// Apre la finestra per una pagina di stampa, gestendo il caso in cui il browser
+// blocchi il popup (altrimenti window.open restituisce null e il successivo
+// w.document.write manda in errore silenzioso, senza che la stampa avvenga).
+function apriFinestraStampa(){
+  const w = window.open('','_blank');
+  if(!w){
+    if(typeof gsToast==='function') gsToast('⚠️ Popup bloccato dal browser: abilita i popup per questo sito per poter stampare', 'gs-error');
+    return null;
+  }
+  return w;
+}
 // Blocco CSS comune per le pagine di stampa aperte in nuova finestra.
 function printStyleComune(extra){
   const l=getPrintCfg().layout;
@@ -7870,7 +7838,7 @@ function stampaRicettaVergine(){
 // usato sia dalla Ricetta Vergine sia dal ricettario di una visita registrata.
 function stampaRicettaConTesto(paziente,dataStr,testo){
   const c=getPrintCfg(); const l=c.layout;
-  const w=window.open('','_blank');
+  const w=apriFinestraStampa(); if(!w) return;
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ricetta</title>
   <style>
     ${printStyleComune()}
@@ -7915,12 +7883,71 @@ function stampaRicettaConTesto(paziente,dataStr,testo){
 // stampabile. Gli schemi personali sono salvati per operatore; quelli predefiniti
 // riprendono i protocolli visita per visita.
 const SCHEMI_PRESCRIZIONI_DEFAULT = [
-  { titolo:'1ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (1ª visita):\n- esami ematici 1° trimestre (entro le 13 settimane);\n- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;\n- prelievo per NIPT Regionale (con impegnativa; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento).' },
-  { titolo:'2ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (2ª visita):\n- esami ematici 14-18 settimane;\n- ecografia morfologica (19-21+6 settimane) da prenotare tramite CUP con impegnativa del MMG (esenzione M20).' },
-  { titolo:'3ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (3ª visita):\n- esami ematici 19-23 settimane.' },
-  { titolo:'4ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (4ª visita):\n- esami ematici 24-27 settimane;\n- immunoprofilassi anti-D a 28 settimane (contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per prenotare appuntamento c/o ambulatorio GAR Ospedale di Rimini, Scala C piano 1);\n- TCI da eseguire entro 7 giorni dalla data dell\'appuntamento per immunoprofilassi.' },
-  { titolo:'5ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (5ª visita):\n- esami ematici 28-32 settimane;\n- contattare il centro vaccinale tramite email vaccinazioni.rn@auslromagna.it per programmare vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.' },
-  { titolo:'6ª Visita', testo:'ESAMI E CONTROLLI DA ESEGUIRE (6ª visita):\n- esami ematici 36 settimane;\n- contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento AMB. Gravidanza a termine / AMB. Prechirurgico.' }
+  { titolo:'1ª Visita (entro 13 sett. · 3° mese)', testo:`ESAMI DA ESEGUIRE ENTRO LE 13 SETTIMANE (1° controllo/3° mese) — RICETTA con esenzione M11 per gli esami con *:
+- Emocromo*
+- Screening Hb anomale (HbF, HbA2, Hb varianti)*
+- Emogruppo + Rh*
+- TCI*
+- Glicemia*
+- GOT/AST*
+- GPT/ALT*
+- LDH
+- Rubeo IgG-IgM*
+- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
+- CMV IgG-IgM* (da eseguire entro le 16 settimane)
+- VDRL + TPHA*
+- HIV 1-2* (se non eseguito nei 3 mesi precedenti)
+- HBsAg*
+- Ab anti-HCV
+- Esame urine*
+- TSHR
+- Pap test (entro le 12+6 sett. se non eseguito nei 3 anni precedenti)
+
+ECOGRAFIE/SCREENING:
+- Ecografia I trimestre con NT* (11+0 - 13+6 settimane)
+- NIPT Regionale (prelievo dalle 10 settimane) oppure G-Test` },
+  { titolo:'2ª Visita (entro 18 sett. · 4° mese)', testo:`ESAMI DA ESEGUIRE ENTRO LE 18 SETTIMANE (4° mese) — RICETTA con esenzione M16 per gli esami con *:
+- Rubeo IgG-IgM*
+- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
+- CMV IgG-IgM*
+- TCI (se negativo)*
+- OGTT 75 gr — curva da carico glucosio tra 16 e 18 settimane*
+
+ECOGRAFIE/SCREENING:
+- Ecografia morfologica (esenzione M20) tra le 19+0 e 21+6 settimane` },
+  { titolo:'3ª Visita (entro 23 sett. · 5° mese)', testo:`ESAMI DA ESEGUIRE ENTRO LE 23 SETTIMANE (5° mese) — RICETTA con esenzione M20 per gli esami con *:
+- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
+- CMV IgG-IgM*
+- TCI (se negativo)*` },
+  { titolo:'4ª Visita (entro 27 sett. · 6° mese)', testo:`ESAMI DA ESEGUIRE ENTRO LE 27 SETTIMANE (6° mese) — RICETTA con esenzione M24 per gli esami con *:
+- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
+- Esame urine*
+- CMV IgG-IgM* (entro le 24 settimane)
+- OGTT* a 24-28 settimane
+- TCI (se negativo)*` },
+  { titolo:'5ª Visita (entro 32 sett. · 7° mese)', testo:`ESAMI DA ESEGUIRE ENTRO LE 32 SETTIMANE (7° mese) — RICETTA con esenzione M30 per gli esami con *:
+- Emocromo*
+- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
+- TCI*
+
+Contattare il centro vaccinale (vaccinazioni.rn@auslromagna.it) per programmare la vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.` },
+  { titolo:'6ª Visita (a 36 sett. · 8° mese)', testo:`ESAMI DA ESEGUIRE A 36 SETTIMANE (8° mese) — RICETTA con esenzione M36 per gli esami con *:
+- Emocromo*
+- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
+- HBsAg*
+- VDRL + TPHA*
+- HIV 1-2*
+- Esame urine*
+- TVR* (tampone vagino-rettale)
+- HCV
+- PT
+- PTT
+- Fibrinogeno
+- ECG (elettrocardiogramma)
+- TCI (se negativo)*
+- Urinocoltura
+
+Contattare il numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per prenotare l'appuntamento presso l'ambulatorio Gravidanza a Termine (Ospedale di Rimini, Scala C piano 1) per l'apertura della cartella clinica e la presa in carico dalla 38ª settimana.` }
 ];
 function _schemiKey(){ return 'gs_schemi_presc_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function getSchemiPrescrizioni(){
@@ -8176,7 +8203,7 @@ function getRefertoSezioni(v){
     const strumEc=[e.ecografo,e.sonda].filter(Boolean).join(' · ');
     return [
       {icon:'📋',title:'Tipo di Esame',rows:[
-        ['Tipo ecografia',TIPO_ESAME_LABEL[e['tipo-esame']]||e['tipo-esame']],['Indicazione',e.indicazione],['Vitalità fetale',e.vitalita],['Numero feti',NUM_FETI_LABEL[e['num-feti']]||'']
+        ['Tipo ecografia',TIPO_ESAME_LABEL[e['tipo-esame']]||e['tipo-esame']],['Indicazione',e.indicazione],['Numero feti',NUM_FETI_LABEL[e['num-feti']]||'']
       ]},
       {icon:'📅',title:'Datazione',rows:[
         ['UM',e.um?new Date(e.um).toLocaleDateString('it-IT'):''],['EPP',e.epp],
@@ -8189,37 +8216,32 @@ function getRefertoSezioni(v){
       {icon:'🖥️',title:'Referti Ecografici'+(strumEc?' ('+strumEc+')':''),rows:[
         ['Fattori limitanti',e['fattori-limitanti']],['Eco I trimestre',e.eco1],['Eco II-III trimestre',e.eco23],['Eco III trimestre',e.eco3]
       ]},
-      {icon:'👶',title:'Biometria Fetale',rows:[
-        ['CRL',e.crl?e.crl+' mm':''],
-        ['BPD',fmtEc(e.bpd,pEc('bpd',INTERGROWTH_BPD),'mm')],['CC (HC)',fmtEc(e.hc,pEc('hc',INTERGROWTH_HC),'mm')],
-        ['FL',fmtEc(e.fl,pEc('fl',INTERGROWTH_FL),'mm')],['AC',fmtEc(e.ac,pEc('ac',INTERGROWTH_AC),'mm')],
-        ['Peso Fetale Stimato (EFW)',(()=>{
-          if(!e.efw)return '';
-          const g=parseFloat(String(e.efw).replace(/[^\d.]/g,''));
-          const pp=(epocaEc!==null&&!isNaN(g)&&typeof efwPercentile==='function')?efwPercentile(epocaEc,g):null;
-          return e.efw+(pp?` — ≈ ${pp} percentile INTERGROWTH-21st (orientativo)`:'');
-        })()],
-        ['BCF',e.bcf]
-      ]},
-      {icon:'🧠',title:'Anatomia Fetale',rows:[
-        ['Cranio/Encefalo',[e['anat-cranio-esito'],e['anat-cranio-note']].filter(Boolean).join(' · ')],
-        ['Colonna vertebrale',[e['anat-colonna-esito'],e['anat-colonna-note']].filter(Boolean).join(' · ')],
-        ['Cuore (4 camere)',[e['anat-cuore-esito'],e['anat-cuore-note']].filter(Boolean).join(' · ')],
-        ['Addome/Reni/Vescica',[e['anat-addome-esito'],e['anat-addome-note']].filter(Boolean).join(' · ')],
-        ['Arti',[e['anat-arti-esito'],e['anat-arti-note']].filter(Boolean).join(' · ')]
-      ]},
-      {icon:'💧',title:'Liquido Amniotico',rows:[['Liquido',e.liquido]]},
-      {icon:'🟣',title:'Placenta',rows:[
-        ['Sede',e['placenta-sede']],['Grado di maturità',e['placenta-grado']],['Distanza dall\'OUI',e['placenta-oui']],['Altre note',e.placenta]
-      ]},
-      {icon:'🔗',title:'Cordone Ombelicale',rows:[['Inserzione',e['cordone-inserzione']],['Numero vasi',e['cordone-vasi']]]},
-      {icon:'〜',title:'Flussimetria Doppler',rows:[
-        ['Arteria Ombelicale — PI',e['doppler-ua-pi']],['Arteria Ombelicale — Flusso',e['doppler-ua-flusso']],
-        ['Arteria Cerebrale Media — PI',e['doppler-mca-pi']],['MCA — Velocità Massima',e['doppler-mca-vmax']?e['doppler-mca-vmax']+' cm/s':''],
-        ['Cerebroplacental Ratio (CPR)',e['doppler-cpr']],
-        ['Arteria Uterina Sinistra — PI',e['doppler-utsx-pi']],['Arteria Uterina Destra — PI',e['doppler-utdx-pi']],
-        ['Dotto Venoso — PI',e['doppler-dv-pi']],['Note',e['doppler-note']]
-      ]},
+      {icon:'👶',title:'Biometria Fetale',rows:(()=>{
+        const dv=(tab,val,verso)=>{
+          const r=(epocaEc!==null&&val)?dopplerValuta(tab,epocaEc,parseFloat(val),verso):null;
+          return r?` — ${r.perc}, ${r.esito}`:'';
+        };
+        return [
+          ['CRL',e.crl?e.crl+' mm':''],
+          ['BPD',fmtEc(e.bpd,pEc('bpd',INTERGROWTH_BPD),'mm')],['CC (HC)',fmtEc(e.hc,pEc('hc',INTERGROWTH_HC),'mm')],
+          ['FL',fmtEc(e.fl,pEc('fl',INTERGROWTH_FL),'mm')],['AC',fmtEc(e.ac,pEc('ac',INTERGROWTH_AC),'mm')],
+          ['Peso Fetale Stimato (EFW)',(()=>{
+            if(!e.efw)return '';
+            const g=parseFloat(String(e.efw).replace(/[^\d.]/g,''));
+            const pp=(epocaEc!==null&&!isNaN(g)&&typeof efwPercentile==='function')?efwPercentile(epocaEc,g):null;
+            return e.efw+(pp?` — ≈ ${pp} percentile INTERGROWTH-21st (orientativo)`:'');
+          })()],
+          ['Arteria Ombelicale (AO) — PI', e['doppler-ua-pi']?e['doppler-ua-pi']+dv(DOPPLER_UA_PI,e['doppler-ua-pi'],'alto'):''],
+          ['Arteria Ombelicale — Flusso diastolico', e['doppler-ua-flusso']],
+          ['Arteria Cerebrale Media (ACM) — PI', e['doppler-mca-pi']?e['doppler-mca-pi']+dv(DOPPLER_MCA_PI,e['doppler-mca-pi'],'basso'):''],
+          ['MCA — Velocità Massima', e['doppler-mca-vmax']?e['doppler-mca-vmax']+' cm/s':''],
+          ['CPR (ACM-PI / AO-PI)', e['doppler-cpr']?e['doppler-cpr']+dv(DOPPLER_CPR,e['doppler-cpr'],'basso'):''],
+          ['Arteria Uterina Sinistra — PI', e['doppler-utsx-pi']],
+          ['Arteria Uterina Destra — PI', e['doppler-utdx-pi']],
+          ['Dotto Venoso — PI', e['doppler-dv-pi']],
+          ['Note Doppler', e['doppler-note']]
+        ];
+      })()},
       {icon:'📝',title:'Note Ecografiche',rows:[['Note',e['note-eco']]]},
       {icon:'✅',title:'Conclusioni / Referto',rows:[['Conclusioni',e.diagnosi]]},
       {icon:'💊',title:'Terapia',rows:[['Terapia',e.terapia]]},
@@ -8337,7 +8359,7 @@ function generaPaginaCurve(p, punti){
     {key:'bpd',dataset:INTERGROWTH_BPD},{key:'hc',dataset:INTERGROWTH_HC},
     {key:'ac',dataset:INTERGROWTH_AC},{key:'fl',dataset:INTERGROWTH_FL}
   ];
-  const w=window.open('','_blank');
+  const w=apriFinestraStampa(); if(!w) return;
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
   <style>
     ${printStyleComune()}
@@ -8445,7 +8467,7 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   const grav=p.gravidanze?.find(g=>g.id===gravidanzaId);
   const dataInizio=grav?.dataInizio?new Date(grav.dataInizio).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
 
-  const w=window.open('','_blank');
+  const w=apriFinestraStampa(); if(!w) return;
   const nomeFile=`Riepilogo_Gravidanza_${p.cognome}_${p.nome}`.replace(/\s+/g,'_');
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${nomeFile}</title>
   <style>
@@ -8507,7 +8529,7 @@ function apriCurveCrescita(pazId, vid){
     {key:'fl',campo:'fl',dataset:INTERGROWTH_FL}
   ];
 
-  const w=window.open('','_blank');
+  const w=apriFinestraStampa(); if(!w) return;
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
   <style>
     ${printStyleComune()}
