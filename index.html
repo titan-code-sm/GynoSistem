@@ -5067,7 +5067,12 @@ async function mostraLogAttivita(){
     }).join('');
   }catch(e){
     console.warn('Lettura log attività:',e);
-    box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Impossibile caricare il registro attività</p></div>';
+    // Firestore richiede un indice composito per where+orderBy insieme: se manca,
+    // l'errore contiene un link che lo crea in automatico con un clic.
+    const urlMatch = /(https:\/\/console\.firebase\.google\.com\S+)/.exec(e.message||'');
+    box.innerHTML = urlMatch
+      ? `<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Manca un indice del database, necessario una sola volta.</p><a href="${urlMatch[1]}" target="_blank" class="btn btn-primary btn-sm" style="margin-top:8px;display:inline-flex">Crea l'indice ↗</a><p style="font-size:.74rem;color:var(--label4);margin-top:8px">Dopo aver cliccato "Crea indice" nella pagina che si apre, attendi un minuto e riprova ad aprire il registro.</p></div>`
+      : '<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Impossibile caricare il registro attività</p></div>';
   }
 }
 
