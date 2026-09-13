@@ -919,6 +919,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <span class="oi">🏥</span>Disponibilità Studi
       </button>
       <div class="opts-divider"></div>
+      <button class="opts-item" onclick="mostraLogAttivita();closeOpts()">
+        <span class="oi">📜</span>Registro Attività
+      </button>
+      <div class="opts-divider"></div>
       <button class="opts-item" onclick="backupData();closeOpts()">
         <span class="oi">💾</span>Esporta Backup
       </button>
@@ -1475,6 +1479,18 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button class="btn btn-ghost" onclick="closeModal('m-farmaco-manuale')">Annulla</button>
       <button class="btn btn-primary" onclick="salvaFarmacoManuale()">💾 Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registro Attività: mostrato dopo il login e riapribile da Opzioni -->
+<div id="modal-log-attivita" class="overlay">
+  <div class="modal-sm" style="width:520px;max-height:80vh;overflow-y:auto;">
+    <h3>📜 Registro Attività</h3>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:14px">Ultime azioni sul tuo account, con data e ora. Clicca su una voce per i dettagli. Non contiene nomi di pazienti né dati clinici, che restano solo su questo dispositivo.</p>
+    <div id="log-attivita-lista"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-log-attivita')">Chiudi</button>
     </div>
   </div>
 </div>
@@ -4995,6 +5011,66 @@ async function submitForcePasswordChange(){
   }
 }
 
+// ═══════════════════════════════════════════════════
+//  REGISTRO ATTIVITÀ (log azioni sull'account)
+// ═══════════════════════════════════════════════════
+// Traccia SOLO azioni generiche (login, paziente creata/eliminata, visita
+// salvata, stampe, backup...) con data/ora — MAI nomi di pazienti o dati
+// clinici: quelli restano solo in locale (vedi firestore.rules, regola
+// generale dell'app "dati clinici mai online"). Salvato su Firestore così
+// è consultabile da qualunque dispositivo con cui si accede allo stesso
+// account. Registro append-only: nessuna modifica o cancellazione dei log.
+function registraLog(tipo, descrizione){
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return; // mai in demo
+  gsDb.collection('logAttivita').add({
+    ownerUid: gsCurrentUser.uid,
+    tipo,
+    descrizione,
+    data: new Date().toISOString()
+  }).catch(e=>console.warn('Log attività:',e));
+}
+
+const LOG_TIPO_ICON={login:'🔑',paziente:'👩‍⚕️',visita:'📋',stampa:'🖨️',backup:'💾'};
+
+async function mostraLogAttivita(){
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return;
+  const box=document.getElementById('log-attivita-lista');
+  if(!box)return;
+  box.innerHTML='<div style="padding:16px 0;text-align:center;color:var(--label4);font-size:.85rem">Caricamento…</div>';
+  document.getElementById('modal-log-attivita').classList.add('show');
+  try{
+    const snap=await gsDb.collection('logAttivita')
+      .where('ownerUid','==',gsCurrentUser.uid)
+      .orderBy('data','desc')
+      .limit(30)
+      .get();
+    if(snap.empty){
+      box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📜</div><p style="font-size:.85rem">Nessuna attività registrata</p></div>';
+      return;
+    }
+    box.innerHTML=snap.docs.map(docSnap=>{
+      const d=docSnap.data();
+      const dt=new Date(d.data);
+      const dataStr=dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+      const oraStr=dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      return `<details style="border-bottom:1px solid var(--separator);padding:10px 0">
+        <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
+          <span style="font-size:1.1rem">${LOG_TIPO_ICON[d.tipo]||'•'}</span>
+          <span style="flex:1;font-size:.85rem">${_escHtml(d.descrizione)}</span>
+          <span style="font-size:.74rem;color:var(--label4);white-space:nowrap">${dataStr} · ${oraStr}</span>
+        </summary>
+        <div style="padding:8px 0 0 30px;font-size:.78rem;color:var(--label3)">
+          <strong>Cosa è stato fatto:</strong> ${_escHtml(d.descrizione)}<br>
+          <strong>Quando:</strong> ${dataStr} alle ${oraStr}
+        </div>
+      </details>`;
+    }).join('');
+  }catch(e){
+    console.warn('Lettura log attività:',e);
+    box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Impossibile caricare il registro attività</p></div>';
+  }
+}
+
 // Sequenza post-login "normale" (nessun cambio password in sospeso)
 async function proceedAfterLogin(){
   document.getElementById('login-overlay').style.display='none';
@@ -5019,6 +5095,8 @@ async function proceedAfterLogin(){
   }
 
   mostraBannerDemo(false);
+  registraLog('login','Accesso effettuato');
+  mostraLogAttivita();
   caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
   if(typeof aiAvvia==='function') aiAvvia();
   naviga('home');
@@ -5783,6 +5861,7 @@ function creaPaziente(){
   DB.pazienti.push(p);salvaDB();
   // Sync anagrafica su Firebase (no dati clinici)
   syncPazienteFirebase(p);
+  registraLog('paziente','Nuova paziente creata');
   openPaziente(p.id);
 }
 
@@ -6066,6 +6145,7 @@ async function eliminaPaziente(){
     }
   }
   curPaz=null;
+  registraLog('paziente','Paziente eliminata');
   naviga('archivio');
   if(typeof renderPazienti==='function')renderPazienti();
   if(typeof renderDashboard==='function')renderDashboard();
@@ -6748,8 +6828,12 @@ function salvaVisita(){
   else if(curMode==='eco'){ v.ecoData=getEcoData(); v.gravidanzaId=curGravidanzaId; }
   else v.gynoData=getGynoData();
 
+  const eraNuova=!curVisita;
   if(curVisita) p.visite[p.visite.findIndex(x=>x.id===curVisita)]=v;
   else p.visite.push(v);
+
+  const TIPO_VISITA_LABEL={ob:'ostetrica',eco:'ecografica',gyno:'ginecologica'};
+  registraLog('visita',`Visita ${TIPO_VISITA_LABEL[curMode]||curMode} ${eraNuova?'salvata':'modificata'}`);
 
   // Promemoria automatico dal campo "prossimo controllo", se contiene una data riconoscibile
   const testoProssimo=curMode==='ob'?v.obData.prossimo:curMode==='eco'?v.ecoData.prossimo:v.gynoData.prossimi;
@@ -7839,6 +7923,7 @@ function stampaRicettaVergine(){
 function stampaRicettaConTesto(paziente,dataStr,testo){
   const c=getPrintCfg(); const l=c.layout;
   const w=apriFinestraStampa(); if(!w) return;
+  registraLog('stampa','Ricetta stampata');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Ricetta</title>
   <style>
     ${printStyleComune()}
@@ -8122,6 +8207,7 @@ function stampa(vid){
   document.getElementById('p-cf-print').textContent=p.cf||'\u2013';
   document.getElementById('p-body-print').innerHTML=buildRefertoBody(v);
   window.print();
+  registraLog('stampa','Referto stampato');
 }
 
 // Dati grezzi del referto di una visita, come lista di sezioni {icon,title,rows:[[label,valore],...]}.
@@ -8922,6 +9008,7 @@ function backupData(){
   URL.revokeObjectURL(a.href);
   localStorage.setItem('gyno_ultimo_backup_auto', new Date().toISOString());
   if(typeof renderBackupStats==='function') renderBackupStats();
+  registraLog('backup','Backup esportato');
 }
 
 function exportCSV(){
@@ -8938,13 +9025,13 @@ function exportCSV(){
 
 function restoreData(input){
   const r=new FileReader();
-  r.onload=e=>{try{DB=JSON.parse(e.target.result);salvaDB();location.reload();}catch(x){alert('File non valido.');}};
+  r.onload=e=>{try{DB=JSON.parse(e.target.result);salvaDB();registraLog('backup','Dati ripristinati da file');location.reload();}catch(x){alert('File non valido.');}};
   r.readAsText(input.files[0]);
 }
 
 function resetDB(){
   if(confirm('⚠️ Questa operazione cancellerà TUTTI i dati. È irreversibile.\n\nVuoi continuare?')){
-    DB={pazienti:[],agenda:[]};salvaDB();location.reload();
+    DB={pazienti:[],agenda:[]};salvaDB();registraLog('backup','Tutti i dati cancellati');location.reload();
   }
 }
 

@@ -132,6 +132,26 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.token.email == 'titancodesm@gmail.com';
     }
 
+    // ── REGISTRO ATTIVITÀ (log azioni sull'account, no dati clinici) ──
+    // Ogni utente vede e scrive solo i propri log (ownerUid == proprio uid).
+    // Contenuto volutamente generico (tipo + breve descrizione, mai nomi di
+    // pazienti o dati clinici): la separazione "dati clinici mai online"
+    // vale anche qui. Registro append-only: nessun update né delete, per
+    // preservare l'integrità dello storico.
+    match /logAttivita/{doc} {
+      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.keys().hasAll(['ownerUid','tipo','descrizione','data'])
+        && request.resource.data.tipo is string
+        && request.resource.data.descrizione is string
+        && request.resource.data.descrizione.size() < 200
+        && request.resource.data.data is string;
+
+      allow update, delete: if false;
+    }
+
     // ── DEFAULT: blocca tutto il resto ─────────────────────────
     match /{document=**} {
       allow read, write: if false;
