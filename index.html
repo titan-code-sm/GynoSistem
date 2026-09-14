@@ -181,6 +181,24 @@ input,select,textarea{width:100%;padding:10px 14px;background:var(--surface2);bo
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px rgba(0,122,255,0.1);}
 textarea{resize:vertical;min-height:80px;line-height:1.6;}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238e8e93' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+/* Checkbox: la regola generica sopra toglie lo stile nativo del sistema
+   (-webkit-appearance:none) per uniformare l'aspetto, ma senza uno stato
+   ":checked" disegnato esplicitamente il quadratino risultava identico
+   spuntato o no — invisibile quando selezionato. Spunta bene visibile,
+   uguale per ogni checkbox dell'app (assistente, informativa, funzionalità...). */
+input[type="checkbox"]{
+  width:20px;height:20px;min-width:20px;padding:0;flex-shrink:0;
+  border:1.5px solid var(--separator);background:var(--surface2);
+  cursor:pointer;position:relative;display:inline-block;vertical-align:middle;
+}
+input[type="checkbox"]:hover{border-color:var(--primary);}
+input[type="checkbox"]:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(0,122,255,0.1);background:var(--surface2);}
+input[type="checkbox"]:checked{background:var(--primary);border-color:var(--primary);}
+input[type="checkbox"]:checked::after{
+  content:'';position:absolute;left:50%;top:46%;width:5px;height:10px;
+  border:solid #fff;border-width:0 2px 2px 0;
+  transform:translate(-50%,-50%) rotate(45deg);
+}
 .form-hint{font-size:0.75rem;color:var(--label4);}
 .field-row{display:grid;gap:14px;}
 .field-row.r2{grid-template-columns:1fr 1fr;}
@@ -385,7 +403,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .editor-wrap{position:relative;background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 
 /* ── Assistente AI: robottino, fumetto, chat ── */
-#ai-robot{position:fixed;right:24px;bottom:22px;z-index:1250;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
+#ai-robot{position:fixed;right:24px;bottom:22px;z-index:5000;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
 .ai-robot-btn{position:relative;width:56px;height:56px;border-radius:50%;border:none;background:linear-gradient(135deg,#7c4dff,#5b8def);box-shadow:0 8px 24px rgba(91,141,239,0.45);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;animation:ai-bob 3s ease-in-out infinite;}
 .ai-robot-btn:hover{transform:scale(1.08);}
 .ai-robot-face{font-size:1.7rem;line-height:1;}
@@ -398,7 +416,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .ai-fumetto-azioni{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
 .ai-fumetto-azioni button{font:inherit;font-size:0.78rem;font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--separator);border-radius:9px;background:var(--surface2);color:var(--label);cursor:pointer;transition:0.15s;}
 .ai-fumetto-azioni button:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
-.ai-chat{position:fixed;right:24px;bottom:22px;z-index:1251;width:min(380px,90vw);height:min(520px,80vh);background:var(--surface);border:1px solid var(--separator);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.28);display:flex;flex-direction:column;overflow:hidden;animation:ai-pop .2s ease;}
+.ai-chat{position:fixed;right:24px;bottom:22px;z-index:5001;width:min(380px,90vw);height:min(520px,80vh);background:var(--surface);border:1px solid var(--separator);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.28);display:flex;flex-direction:column;overflow:hidden;animation:ai-pop .2s ease;}
 .ai-chat-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--separator);font-weight:700;font-size:0.9rem;}
 .ai-chat-head button{border:none;background:var(--surface2);width:26px;height:26px;border-radius:50%;cursor:pointer;color:var(--label4);}
 .ai-chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
@@ -8757,7 +8775,7 @@ function apriRicettarioVisitaGlobale(pazId,vid){
 // veniva stampata solo la visita ginecologica) e SOLO i campi compilati.
 function buildRefertoBody(v){
   const nl=s=>(s||'').replace(/\n/g,'<br>');
-  const TITOLI={ob:'🤰 Visita Ostetrica', eco:'🖥️ Ecografia Ostetrica', gyno:'🌸 Visita Ginecologica'};
+  const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica'};
   let body=`<h2 style="margin-bottom:16px;font-family:Georgia,serif;">Referto ${TITOLI[v.tipo]||TITOLI.gyno}</h2>`;
   getRefertoSezioni(v).forEach(s=>{
     const valid=s.rows.filter(r=>r[1]&&String(r[1]).trim());
@@ -8811,20 +8829,27 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   if(h1El) h1El.style.color=l.colore;
   if(logoEl && !logoEl.querySelector('img')) logoEl.style.background=l.colore;
 
-  // position:absolute, non fixed: html2canvas clona il documento per catturarlo
-  // e negli elementi position:fixed la clonazione può risultare in un'altezza
-  // misurata pari a 0 (limite noto della libreria).
+  // NOTA IMPORTANTE (bug corretto): html2canvas NON riesce a catturare un
+  // elemento posizionato fuori dall'area visibile con coordinate negative
+  // (es. left:-9999px) — restituisce un'immagine bianca o alta 0px, quindi
+  // un PDF vuoto. Per restare invisibile all'operatore senza usare coordinate
+  // negative, l'area viene tenuta a left:0/top:0 (dentro il documento) ma
+  // portata dietro a tutto il resto con z-index negativo e pointer-events:none.
+  // position:absolute, non fixed: la clonazione interna di html2canvas può
+  // risultare in un'altezza misurata pari a 0 con elementi position:fixed.
   area.style.display='block';
   area.style.position='absolute';
-  area.style.left='-9999px';
+  area.style.left='0';
   area.style.top='0';
+  area.style.zIndex='-1';
+  area.style.pointerEvents='none';
   area.style.background='#fff';
 
   if(typeof gsToast==='function') gsToast('📄 Generazione PDF in corso…','gs-info');
 
   const ripristina=()=>{
     area.style.display='none';
-    area.style.position=''; area.style.left=''; area.style.top=''; area.style.background='';
+    area.style.position=''; area.style.left=''; area.style.top=''; area.style.zIndex=''; area.style.pointerEvents=''; area.style.background='';
     area.style.fontFamily=''; area.style.fontSize='';
     if(phEl) phEl.style.borderBottomColor='';
     if(h1El) h1El.style.color='';
@@ -8835,11 +8860,15 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   // browser non ha ancora calcolato il nuovo layout, e html2canvas misurerebbe
   // l'elemento con altezza 0 (era display:none un istante prima).
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    // html2canvas non rileva sempre da solo le dimensioni reali dell'elemento
+    // (può restituire un'altezza di 0px): le passiamo esplicitamente, misurate
+    // ORA che il layout è stabile.
+    const larghezza=area.scrollWidth, altezza=area.scrollHeight;
     html2pdf().set({
       margin: l.margine||15,
       filename: nomeFile+'.pdf',
       image: {type:'jpeg', quality:0.98},
-      html2canvas: {scale:2, useCORS:true},
+      html2canvas: {scale:2, useCORS:true, width:larghezza, height:altezza, windowWidth:larghezza, windowHeight:altezza},
       jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'},
       pagebreak: {mode:['css','legacy']}
     }).from(area).save().then(()=>{
@@ -8891,7 +8920,7 @@ function getRefertoSezioni(v){
     const fmt=(val,perc,unit)=>val?`${val} ${unit}${perc?' ('+perc+' pc)':''}`:'';
     const strum=[o.ecografo,o.sonda].filter(Boolean).join(' · ');
     return [
-      {icon:'📋',title:'Anamnesi',rows:[
+      {icon:'',title:'Anamnesi',rows:[
         ['Età',o.eta],['PARA',o.para],['Emogruppo',o.gruppo],['Tipo gravidanza',o['tipo-grav']],
         ['UM',o.um?new Date(o.um).toLocaleDateString('it-IT'):''],['Durata ciclo',o['durata-ciclo']?o['durata-ciclo']+' gg':''],['EPP',o.epp],
         ['UM ecografica',o['um-eco']?new Date(o['um-eco']).toLocaleDateString('it-IT'):''],['EPP ecografica',o['epp-eco']],
@@ -8900,15 +8929,15 @@ function getRefertoSezioni(v){
         ['Patologie',o.patologie],['Terapie in atto',o['terapie-atto']],['Allergie',o.allergie],
         ['Fumo',o.fumo],['Familiarità',o.familiarita],['Anamnesi partner',o.partner]
       ]},
-      {icon:'🩺',title:'Visita Ostetrica',rows:[
+      {icon:'',title:'Visita Ostetrica',rows:[
         ['Settimane',o.settimane],['PA',o.pressione],['Score TEV',o['score-tev']],
         ['Peso attuale',o.peso?o.peso+' kg':''],['Incremento ponderale',o.incremento],
         ['Referto anamnestico',o.referto],['Esami · visite/consulenze',o['esami-visite']],['Esami · ecografie',o['esami-eco']],['Visita ostetrica (VO)',o.vo]
       ]},
-      {icon:'📡',title:'Ecografia'+(strum?' ('+strum+')':''),rows:[
+      {icon:'',title:'Ecografia'+(strum?' ('+strum+')':''),rows:[
         ['Fattori limitanti',o['fattori-limitanti']],['Eco I trimestre',o.eco1],['Eco II-III trimestre',o.eco23],['Eco III trimestre',o.eco3]
       ]},
-      {icon:'👶',title:'Biometria Fetale',rows:[
+      {icon:'',title:'Biometria Fetale',rows:[
         ['Epoca',o['bio-epoca']],
         ['DBP',fmt(o['bio-bpd'],pBpd,'mm')],['CC',fmt(o['bio-hc'],pHc,'mm')],
         ['CA',fmt(o['bio-ac'],pAc,'mm')],['LF',fmt(o['bio-fl'],pFl,'mm')],
@@ -8919,7 +8948,7 @@ function getRefertoSezioni(v){
           return o['bio-peso']+' gr'+man+(pp?` — ≈ ${pp} percentile INTERGROWTH-21st (orientativo)`:'');
         })()]
       ]},
-      {icon:'〜',title:'Velocimetria Doppler',rows:(()=>{
+      {icon:'',title:'Velocimetria Doppler',rows:(()=>{
         const dv=(tab,val,verso)=>{
           const r=(epoca!==null&&val)?dopplerValuta(tab,epoca,parseFloat(val),verso):null;
           return r?` — ${r.perc}, ${r.esito}`:'';
@@ -8934,13 +8963,13 @@ function getRefertoSezioni(v){
           ['Note Doppler', o['doppler-note']]
         ];
       })()},
-      {icon:'📝',title:'Note Ecografiche',rows:[['Note',o['note-eco']]]},
-      {icon:'💬',title:'Counselling',rows:[['Counselling',o['counselling-txt']]]},
-      {icon:'🧾',title:'Prescrizioni Esami',rows:[['Prescrizioni',o['prescrizioni-txt']]]},
-      {icon:'💊',title:'Terapia',rows:[['Terapia',o.terapia]]},
-      {icon:'✅',title:'Conclusioni',rows:[['Conclusioni',o.diagnosi]]},
-      {icon:'🔄',title:'Controlli',rows:[['Prossimo controllo',o.prossimo]]},
-      {icon:'📋',title:'Informativa',rows:[['Nota',o.informativa?GD.informativa:'']]}
+      {icon:'',title:'Note Ecografiche',rows:[['Note',o['note-eco']]]},
+      {icon:'',title:'Counselling',rows:[['Counselling',o['counselling-txt']]]},
+      {icon:'',title:'Prescrizioni Esami',rows:[['Prescrizioni',o['prescrizioni-txt']]]},
+      {icon:'',title:'Terapia',rows:[['Terapia',o.terapia]]},
+      {icon:'',title:'Conclusioni',rows:[['Conclusioni',o.diagnosi]]},
+      {icon:'',title:'Controlli',rows:[['Prossimo controllo',o.prossimo]]},
+      {icon:'',title:'Informativa',rows:[['Nota',o.informativa?GD.informativa:'']]}
     ];
   }
 
@@ -8953,21 +8982,21 @@ function getRefertoSezioni(v){
     const fmtEc=(val,perc,u)=>val?`${val} ${u}${perc?' ('+perc+' pc)':''}`:'';
     const strumEc=[e.ecografo,e.sonda].filter(Boolean).join(' · ');
     return [
-      {icon:'📋',title:'Tipo di Esame',rows:[
+      {icon:'',title:'Tipo di Esame',rows:[
         ['Tipo ecografia',TIPO_ESAME_LABEL[e['tipo-esame']]||e['tipo-esame']],['Indicazione',e.indicazione],['Numero feti',NUM_FETI_LABEL[e['num-feti']]||'']
       ]},
-      {icon:'📅',title:'Datazione',rows:[
+      {icon:'',title:'Datazione',rows:[
         ['UM',e.um?new Date(e.um).toLocaleDateString('it-IT'):''],['EPP',e.epp],
         ['Epoca gestazionale da UM',e['epoca-um']],['Epoca gestazionale ecografica',e['epoca-eco']]
       ]},
-      {icon:'🧪',title:'Screening / Dati Clinici',rows:[
+      {icon:'',title:'Screening / Dati Clinici',rows:[
         ['Test di screening I trimestre',e['test-screening']],['Ecografia morfologica',e['eco-morfologica']],['Dati clinici',e['dati-clinici']]
       ]},
-      {icon:'📏',title:'Età Gestazionale',rows:[['Settimane',e.settimane]]},
-      {icon:'🖥️',title:'Referti Ecografici'+(strumEc?' ('+strumEc+')':''),rows:[
+      {icon:'',title:'Età Gestazionale',rows:[['Settimane',e.settimane]]},
+      {icon:'',title:'Referti Ecografici'+(strumEc?' ('+strumEc+')':''),rows:[
         ['Fattori limitanti',e['fattori-limitanti']],['Eco I trimestre',e.eco1],['Eco II-III trimestre',e.eco23],['Eco III trimestre',e.eco3]
       ]},
-      {icon:'👶',title:'Biometria Fetale',rows:(()=>{
+      {icon:'',title:'Biometria Fetale',rows:(()=>{
         const dv=(tab,val,verso)=>{
           const r=(epocaEc!==null&&val)?dopplerValuta(tab,epocaEc,parseFloat(val),verso):null;
           return r?` — ${r.perc}, ${r.esito}`:'';
@@ -8993,11 +9022,11 @@ function getRefertoSezioni(v){
           ['Note Doppler', e['doppler-note']]
         ];
       })()},
-      {icon:'📝',title:'Note Ecografiche',rows:[['Note',e['note-eco']]]},
-      {icon:'✅',title:'Conclusioni / Referto',rows:[['Conclusioni',e.diagnosi]]},
-      {icon:'💊',title:'Terapia',rows:[['Terapia',e.terapia]]},
-      {icon:'🔄',title:'Prossimo Controllo',rows:[['Prossimo controllo',e.prossimo]]},
-      {icon:'📋',title:'Informativa',rows:[['Nota',e.informativa?GD.informativaEco:'']]}
+      {icon:'',title:'Note Ecografiche',rows:[['Note',e['note-eco']]]},
+      {icon:'',title:'Conclusioni / Referto',rows:[['Conclusioni',e.diagnosi]]},
+      {icon:'',title:'Terapia',rows:[['Terapia',e.terapia]]},
+      {icon:'',title:'Prossimo Controllo',rows:[['Prossimo controllo',e.prossimo]]},
+      {icon:'',title:'Informativa',rows:[['Nota',e.informativa?GD.informativaEco:'']]}
     ];
   }
 
@@ -9007,50 +9036,50 @@ function getRefertoSezioni(v){
   if(g.altezza&&g.peso){bmi=(parseFloat(g.peso)/Math.pow(parseFloat(g.altezza)/100,2)).toFixed(1)+' kg/m²';}
   const ecoStrum=[g.ecografo,g.sonda].filter(Boolean).join(' · ');
   return [
-    {icon:'📋',title:'Dati Generali',rows:[
+    {icon:'',title:'Dati Generali',rows:[
       ['Età',g.eta],['Altezza',g.altezza?g.altezza+' cm':''],['Peso',g.peso?g.peso+' kg':''],
       ['BMI',bmi],['PARA',g.para],['Menarca',g.menarca],
       ['UM',g.um?new Date(g.um).toLocaleDateString('it-IT'):''],['PA',g.pa?g.pa+' mmHg':''],['Menopausa',g.menopausa]
     ]},
-    {icon:'🩸',title:'Ciclo & Sintomi',rows:[
+    {icon:'',title:'Ciclo & Sintomi',rows:[
       ['Ciclo ritmo',g['ciclo-ritmo']],['Ciclo durata',g['ciclo-durata']],['Ciclo quantità',g['ciclo-quantita']],
       ['Terapia ormonale',g['terapia-orm']],['Dispareunia',g.dispareunia],['Dismenorrea',g.dismenorrea],
       ['Cefalea',g.cefalea],['Emicrania',g.emicrania],['Fumo',g.fumo]
     ]},
-    {icon:'🔬',title:'Screening & Anamnesi',rows:[
+    {icon:'',title:'Screening & Anamnesi',rows:[
       ['Screening cervicale',g['screening-cervicale']],['Screening mammo',g['screening-mammo']],
       ['Allergie',g.allergie],['Terapie in atto',g['terapie-atto']],['Interventi',g.chirurgia],
       ['Patologie',g.patologie],['Familiarità',g.familiarita]
     ]},
-    {icon:'🌙',title:'Climaterio',rows:[
+    {icon:'',title:'Climaterio',rows:[
       ['Sintomi vasomotori',g['meno-vampate']],['Sintomi urogenitali',g['meno-secchezza']],
       ['Densitometria (MOC) - data',g['meno-moc-data']?new Date(g['meno-moc-data']).toLocaleDateString('it-IT'):''],['Densitometria - T-score',g['meno-moc-tscore']],
       ['TOS - tipo/dosaggio',g['meno-tos-tipo']],['TOS - in terapia da',g['meno-tos-da']?new Date(g['meno-tos-da']).toLocaleDateString('it-IT'):'']
     ]},
-    {icon:'🎯',title:'Motivo Visita',rows:[['Motivo',g.motivo]]},
-    {icon:'🩺',title:'Sintomi Riferiti',rows:[
+    {icon:'',title:'Motivo Visita',rows:[['Motivo',g.motivo]]},
+    {icon:'',title:'Sintomi Riferiti',rows:[
       ['Dolore pelvico',g['sint-dolore']],['Sanguinamenti anomali',g['sint-sangu']],
       ['Perdite vaginali',g['sint-perdite']],['Prurito/Bruciore',g['sint-prurito']],['Dispareunia',g['sint-dispareunia']]
     ]},
-    {icon:'🔍',title:'Esame Obiettivo',rows:[
+    {icon:'',title:'Esame Obiettivo',rows:[
       ['Generale',g['esame-generale']],['Speculum',g.speculum],['Prelievi',g.prelievi],['Bimanuale',g.bimanuale]
     ]},
-    {icon:'🖥️',title:'Ecografia'+(ecoStrum?' ('+ecoStrum+')':''),rows:[
+    {icon:'',title:'Ecografia'+(ecoStrum?' ('+ecoStrum+')':''),rows:[
       ['Referto',g.ecografia],['Nota',g.informativa?GD.informativa:'']
     ]},
-    {icon:'🧫',title:'Citologia (Pap-Test)',rows:[
+    {icon:'',title:'Citologia (Pap-Test)',rows:[
       ['Data',g['pap-data']?new Date(g['pap-data']).toLocaleDateString('it-IT'):''],['Risultato',g['pap-esito']]
     ]},
-    {icon:'🦠',title:'Test HPV',rows:[
+    {icon:'',title:'Test HPV',rows:[
       ['Data',g['hpv-data']?new Date(g['hpv-data']).toLocaleDateString('it-IT'):''],['Esito',g['hpv-esito']],['Genotipizzazione',g['hpv-genotipo']]
     ]},
-    {icon:'🔬',title:'Colposcopia',rows:[
+    {icon:'',title:'Colposcopia',rows:[
       ['Visione',g['colpo-visione']],['Giunzione squamo-colonnare',g['colpo-gsc']],
       ['Aree atipiche',g['colpo-aree']],['Test Schiller/Acido Acetico',g['colpo-test']]
     ]},
-    {icon:'🩸',title:'Biopsia',rows:[['Sede',g['bio-sede']],['Esito istologico',g['bio-esito']]]},
-    {icon:'🔄',title:'Follow-up Colposcopia',rows:[['Follow-up',g['colpo-followup']]]},
-    {icon:'✅',title:'Conclusioni',rows:[
+    {icon:'',title:'Biopsia',rows:[['Sede',g['bio-sede']],['Esito istologico',g['bio-esito']]]},
+    {icon:'',title:'Follow-up Colposcopia',rows:[['Follow-up',g['colpo-followup']]]},
+    {icon:'',title:'Conclusioni',rows:[
       ['Conclusioni',g.conclusioni],['Esami richiesti',g['esami-richiesti']],
       ['Terapia',g.terapia],['Prossimi controlli',g.prossimi]
     ]}
@@ -9065,7 +9094,6 @@ function buildRefertoView(v){
     if(!valid.length)return;
     html+=`<div style="margin-bottom:18px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--primary-dim)">
-        <span style="font-size:1.1rem">${s.icon}</span>
         <span style="font-weight:700;font-size:0.92rem;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px">${s.title}</span>
       </div>
       ${valid.map(r=>`<div style="display:flex;gap:10px;margin-bottom:6px;font-size:0.86rem;line-height:1.55">
@@ -9260,7 +9288,6 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   }
 
   const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica'};
-  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️'};
   const grav=p.gravidanze?.find(g=>g.id===gravidanzaId);
   const dataInizio=grav?.dataInizio?new Date(grav.dataInizio).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
 
@@ -9285,21 +9312,21 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     @media print{.visita-block{page-break-after:auto} .pdf-banner{display:none} .grid{grid-template-columns:1fr 1fr}}
   </style></head><body>
     <div class="pdf-banner">💡 <div><strong>Per salvare come PDF:</strong> nella finestra di stampa che si apre, scegli "Salva come PDF" (o "Microsoft Print to PDF") invece della stampante, poi conferma. Questo banner non comparirà nella stampa/PDF.</div></div>
-    <h1>📑 Riepilogo Completo Gravidanza</h1>
+    <h1>Riepilogo Completo Gravidanza</h1>
     <div class="sub"><strong>${p.cognome} ${p.nome}</strong>${dataInizio?' · Gravidanza iniziata il '+dataInizio:''} · ${visiteGravidanza.length} visit${visiteGravidanza.length>1?'e':'a'} registrat${visiteGravidanza.length>1?'e':'a'}</div>`;
 
   const {pesoPunti, sistolicaPunti, diastolicaPunti}=_serieAndamentoMaterno(visiteGravidanza);
   if(pesoPunti.length || sistolicaPunti.length){
     html+=`<div class="grid">
-      ${pesoPunti.length?`<div class="chart-box"><h3>⚖️ Andamento Peso (kg)</h3>${svgTrendSemplice([{colore:'#c2185b',punti:pesoPunti}])}</div>`:''}
-      ${sistolicaPunti.length?`<div class="chart-box"><h3>❤️ Pressione Arteriosa (mmHg)</h3>${svgTrendSemplice([{colore:'#e53935',punti:sistolicaPunti},{colore:'#1e88e5',punti:diastolicaPunti}])}<div style="font-size:.68rem;color:#999;margin-top:4px">🔴 Sistolica &nbsp; 🔵 Diastolica</div></div>`:''}
+      ${pesoPunti.length?`<div class="chart-box"><h3>Andamento Peso (kg)</h3>${svgTrendSemplice([{colore:'#c2185b',punti:pesoPunti}])}</div>`:''}
+      ${sistolicaPunti.length?`<div class="chart-box"><h3>Pressione Arteriosa (mmHg)</h3>${svgTrendSemplice([{colore:'#e53935',punti:sistolicaPunti},{colore:'#1e88e5',punti:diastolicaPunti}])}<div style="font-size:.68rem;color:#999;margin-top:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e53935;margin-right:4px"></span>Sistolica &nbsp; <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1e88e5;margin-right:4px"></span>Diastolica</div></div>`:''}
     </div>`;
   }
 
   visiteGravidanza.forEach(v=>{
     const dataStr=new Date(v.data).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
     html+=`<div class="visita-block">
-      <div class="visita-header"><span>${TIPO_ICON[v.tipo]||'📋'}</span><span class="data">${dataStr}</span><span class="tipo">${TIPO_LABEL[v.tipo]||v.tipo}</span></div>
+      <div class="visita-header"><span class="data">${dataStr}</span><span class="tipo">${TIPO_LABEL[v.tipo]||v.tipo}</span></div>
       ${buildRefertoView(v)}
     </div>`;
   });
