@@ -944,6 +944,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button onclick="naviga('appuntamenti')" id="nav-appuntamenti"><span class="nav-icon">📅</span>Appuntamenti</button>
       <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
       <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">📋</span>Ricettario</button>
+      <button onclick="naviga('consensi')" id="nav-consensi"><span class="nav-icon">✍️</span>Consensi</button>
     </div>
     <div class="nav-group" id="nav-group-strumenti">
       <div class="nav-group-label">Strumenti</div>
@@ -1470,6 +1471,45 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
+<!-- CONSENSI -->
+<div id="sec-consensi" class="section">
+  <div class="page-header">
+    <div><div class="page-title">Consensi</div><div class="page-subtitle">Moduli di consenso informato pronti da stampare o far firmare su schermo</div></div>
+    <button class="btn btn-ghost" onclick="_mostraFormNuovoConsenso()">➕ Nuovo modulo</button>
+  </div>
+  <div id="consenso-paziente-riga" style="display:none;margin-bottom:16px;background:var(--primary-dim);border-radius:12px;padding:12px 16px;font-size:.85rem;color:var(--primary);font-weight:600;"></div>
+  <div id="consenso-nuovo-form" style="display:none;margin-bottom:20px;" class="card">
+    <input type="hidden" id="consenso-edit-idx" value="">
+    <div class="form-group" style="margin-bottom:10px"><label class="form-label">Titolo</label><input id="consenso-titolo" placeholder="es. Consenso per..."></div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Testo del consenso</label><textarea id="consenso-testo" rows="6" placeholder="Testo del modulo, modificabile anche al momento della stampa..."></textarea></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary btn-sm" onclick="salvaConsenso()">💾 Salva modulo</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('consenso-nuovo-form').style.display='none'">Annulla</button>
+    </div>
+  </div>
+  <div id="consensi-lista" class="pharma-grid"></div>
+</div>
+
+<!-- Modal Firma Elettronica: la persona assistita firma nel riquadro, il tratto viene
+     incorporato nel documento stampato. La firma resta salvata solo in locale. -->
+<div id="modal-firma" class="overlay">
+  <div class="modal-sm" style="width:520px;">
+    <h3>✍️ Firma elettronica</h3>
+    <p id="firma-sottotitolo" style="color:var(--label4);font-size:.85rem;margin-bottom:14px;"></p>
+    <div style="border:2px dashed var(--separator);border-radius:12px;overflow:hidden;background:#fff;">
+      <canvas id="firma-canvas" style="width:100%;height:200px;display:block;cursor:crosshair;touch-action:none;"></canvas>
+    </div>
+    <p style="font-size:.72rem;color:var(--label4);margin-top:8px;">Firma nel riquadro con mouse, dito o penna. Il tratto resta solo su questo dispositivo, non viene mai inviato online.</p>
+    <div style="display:flex;gap:10px;justify-content:space-between;margin-top:16px;flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="_firmaCancella()">🗑️ Cancella</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="closeModal('modal-firma')">Annulla</button>
+        <button class="btn btn-primary" onclick="_firmaConferma()">✓ Conferma firma</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Modal Ricetta Vergine: layout classico, stampabile, con intestazione personalizzabile -->
 <div id="m-ricetta-vergine" class="overlay">
   <div class="modal-sm" style="width:640px;max-height:90vh;overflow-y:auto">
@@ -1528,6 +1568,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div class="mfv-head">
       <h3 style="margin-bottom:2px" id="mfv-titolo">💊 Farmaci per la Terapia</h3>
       <button class="mfv-x" onclick="closeModal('modal-farmaci-visita')" title="Chiudi">✕</button>
+    </div>
+    <div id="mfv-allergie-banner" style="display:none;background:var(--red-dim);border:1.5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0 0;font-size:.85rem;color:var(--red);font-weight:700;">
+      ⚠️ Allergie note: <span id="mfv-allergie-testo" style="font-weight:600;"></span>
     </div>
     <input id="mfv-search" placeholder="🔍 Cerca farmaco, principio attivo o patologia..." style="margin:10px 0" oninput="renderFarmaciModal()">
     <div class="mfv-spec-row">
@@ -1660,6 +1703,15 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
   </div>
 
+  <!-- Banner allergie: sempre visibile in cima alla cartella se sono note allergie, mai nascondibile -->
+  <div id="allergie-banner" style="display:none;background:var(--red-dim);border:2px solid var(--red);border-radius:14px;padding:14px 18px;margin-bottom:20px;align-items:center;gap:14px;">
+    <span style="font-size:1.6rem;flex-shrink:0;">⚠️</span>
+    <div>
+      <div style="font-weight:800;color:var(--red);font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;">Allergie note</div>
+      <div id="allergie-banner-testo" style="font-weight:700;color:var(--red);font-size:1rem;margin-top:2px;white-space:pre-wrap;"></div>
+    </div>
+  </div>
+
   <div id="edit-anagrafica" style="display:none;" class="card" style="margin-bottom:20px;">
     <h4 style="margin-bottom:16px;">✏️ Modifica Dati Anagrafici</h4>
     <div class="field-row r3">
@@ -1669,6 +1721,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <div class="form-group"><label class="form-label">Tel</label><input id="e-tel"></div>
       <div class="form-group"><label class="form-label">Email</label><input id="e-email"></div>
       <div class="form-group"><label class="form-label">CF</label><input id="e-cf"></div>
+    </div>
+    <div class="form-group" style="margin-top:14px;">
+      <label class="form-label" style="color:var(--red);">⚠️ Allergie (farmaci, lattice, mezzi di contrasto...)</label>
+      <textarea id="e-allergie" rows="2" placeholder="es. Penicillina, lattice — lasciare vuoto se nessuna nota"></textarea>
     </div>
     <div style="display:flex;gap:10px;margin-top:16px;justify-content:space-between;">
       <div style="display:flex;gap:10px;">
@@ -1717,6 +1773,12 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
           </div>
         </div>
         <div id="farmaci-attuali-box"></div>
+      </div>
+      <div class="card" id="consensi-firmati-box" style="display:none;margin-bottom:16px;">
+        <div class="card-header"><div><div class="card-title">✍️ Consensi Firmati</div><div class="card-subtitle">Moduli firmati su schermo, salvati in questa cartella</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="naviga('consensi')" title="Vai alla libreria dei consensi">📋 Libreria</button>
+        </div>
+        <div id="consensi-firmati-lista"></div>
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title">Promemoria</div></div>
@@ -5479,6 +5541,7 @@ function naviga(id){
   if(id==='appuntamenti') loadFBAppuntamenti();
   if(id==='disponibilita') renderDisponibilita();
   if(id==='ricettario') renderRicettario();
+  if(id==='consensi') renderConsensi();
   if(id==='utility') caricaDiarioPersonale();
   if(id==='amministrazione') renderAdminUtenti();
   if(id==='impostazioni') renderImpostazioni();
@@ -6383,13 +6446,24 @@ function openPaziente(id){
   document.getElementById('e-tel').value=p.tel||'';
   document.getElementById('e-email').value=p.email||'';
   document.getElementById('e-cf').value=p.cf||'';
+  document.getElementById('e-allergie').value=p.allergie||'';
   document.getElementById('p-note').value=p.note||'';
   document.getElementById('edit-anagrafica').style.display='none';
+  const allBanner=document.getElementById('allergie-banner');
+  if(allBanner){
+    if(p.allergie && p.allergie.trim()){
+      document.getElementById('allergie-banner-testo').textContent=p.allergie.trim();
+      allBanner.style.display='flex';
+    } else {
+      allBanner.style.display='none';
+    }
+  }
   renderVisiteList(p);
   renderAlertsPaz(p);
   renderFarmaciAttuali(p);
   renderScreeningPaziente(p);
   renderAllegatiPaziente(p.id);
+  if(typeof renderConsensiFirmati==='function') renderConsensiFirmati();
   mostraAllertaPromemoriaScaduti(p);
 }
 
@@ -6409,6 +6483,7 @@ function updateAnagrafica(){
   p.tel=tel;
   p.email=document.getElementById('e-email').value;
   p.cf=document.getElementById('e-cf').value.toUpperCase();
+  p.allergie=document.getElementById('e-allergie').value.trim();
   salvaDB();
   syncPazienteFirebase(p); // sync su Firebase
   openPaziente(curPaz);
@@ -6558,6 +6633,21 @@ let farmaciSelezionati=new Set();
 let _pharmaVista='categoria';
 let _pharmaCat=null;
 
+// ── Farmaci preferiti (stellati) — per accesso rapido ai farmaci usati più spesso ──
+function _farmaciPrefKey(){ return 'gs_farmaci_pref_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getFarmaciPreferiti(){
+  try{ return JSON.parse(localStorage.getItem(_farmaciPrefKey())||'[]'); }catch(e){ return []; }
+}
+function isFarmacoPreferito(idx){ return getFarmaciPreferiti().includes(idx); }
+function toggleFarmacoPreferito(idx){
+  let arr=getFarmaciPreferiti();
+  if(arr.includes(idx)) arr=arr.filter(x=>x!==idx);
+  else arr.push(idx);
+  localStorage.setItem(_farmaciPrefKey(), JSON.stringify(arr));
+  if(typeof renderFarmaci==='function' && document.getElementById('pharma-grid-container')) renderFarmaci();
+  if(typeof renderFarmaciModal==='function' && document.getElementById('mfv-body')) renderFarmaciModal();
+}
+
 function setPharmaVista(v){
   _pharmaVista=v;
   _pharmaCat=null;
@@ -6577,13 +6667,17 @@ const _PHARMA_CAT_LABEL={integ:'Integratore',ormo:'Ormonale',anti:'Antibiotico',
 // (la vista "Per categoria" ha il proprio template più sotto, invariato).
 function _pharmaCardPatologia(f){
   const sel=farmaciSelezionati.has(f.idx);
+  const pref=isFarmacoPreferito(f.idx);
   return `<div class="pharma-card ${sel?'sel':''}" onclick="toggleFarmacoSelezionato(${f.idx})" style="cursor:pointer;${sel?'border-color:var(--primary);background:var(--primary-dim)':''}">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div style="display:flex;align-items:flex-start;gap:8px">
         <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionato(${f.idx})" style="margin-top:3px;width:auto">
         <div class="pharma-name">${f.n}</div>
       </div>
-      <span class="badge ${_PHARMA_CAT_COLOR[f.cat]||'badge-gray'}">${_PHARMA_CAT_LABEL[f.cat]||f.cat}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="badge ${_PHARMA_CAT_COLOR[f.cat]||'badge-gray'}">${_PHARMA_CAT_LABEL[f.cat]||f.cat}</span>
+        <span onclick="event.stopPropagation();toggleFarmacoPreferito(${f.idx})" title="${pref?'Togli dai preferiti':'Aggiungi ai preferiti'}" style="cursor:pointer;font-size:1.05rem;color:${pref?'#f5a623':'var(--label4)'}">${pref?'★':'☆'}</span>
+      </div>
     </div>
     <div class="pharma-active">${f.p}${f.pat?' · <span style="color:var(--label4)">'+_escHtml(f.pat)+'</span>':''}</div>
     <div class="pharma-dose">💊 ${f.dose}</div>
@@ -6621,7 +6715,10 @@ function renderFarmaci(){
       const pats={};
       all.forEach(f=>{ const k=f.pat||'Altro'; pats[k]=(pats[k]||0)+1; });
       const ordine=Object.keys(pats).sort((a,b)=>a.localeCompare(b,'it'));
+      const prefIdx=getFarmaciPreferiti();
+      const prefItems=all.filter(f=>prefIdx.includes(f.idx));
       c.innerHTML = `
+        ${prefItems.length?`<div class="mfv-sez-tit" style="font-size:0.95rem;color:var(--label);text-transform:none;letter-spacing:0;">★ Preferiti</div><div class="pharma-grid" style="margin-bottom:22px;">${prefItems.map(_pharmaCardPatologia).join('')}</div>`:''}
         <div style="font-size:0.82rem;color:var(--label4);margin-bottom:14px;">${ordine.length} patologie/indicazioni cliniche · ${FARMACI.length} farmaci in totale. Scegli una voce, oppure cerca sopra.</div>
         <div class="mfv-cat-grid">
           ${ordine.map(p=>`<button class="mfv-cat-tile" onclick="pharmaApriPatologia(${JSON.stringify(p).replace(/"/g,'&quot;')})">
@@ -6661,7 +6758,10 @@ function renderFarmaci(){
               <input type="checkbox" ${farmaciSelezionati.has(f.idx)?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionato(${f.idx})" style="margin-top:3px;width:auto">
               <div class="pharma-name">${f.n}</div>
             </div>
-            <span class="badge ${catColor[f.cat]||'badge-gray'}">${info.label.split(' ')[0]}</span>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="badge ${catColor[f.cat]||'badge-gray'}">${info.label.split(' ')[0]}</span>
+              <span onclick="event.stopPropagation();toggleFarmacoPreferito(${f.idx})" title="${isFarmacoPreferito(f.idx)?'Togli dai preferiti':'Aggiungi ai preferiti'}" style="cursor:pointer;font-size:1.05rem;color:${isFarmacoPreferito(f.idx)?'#f5a623':'var(--label4)'}">${isFarmacoPreferito(f.idx)?'★':'☆'}</span>
+            </div>
           </div>
           <div class="pharma-active">${f.p}</div>
           <div class="pharma-dose">💊 ${f.dose}</div>
@@ -6714,6 +6814,21 @@ let _mfvSpec = 'all';   // filtro specialità: 'all' | 'gin' | 'ost'
 let _mfvCat = null;     // patologia selezionata (null = schermata categorie)
 let _mfvModoPaziente = false; // true = aperto dalla cartella paziente (non da una visita)
 
+// Promemoria (non un controllo automatico farmaco-per-farmaco: solo un
+// avviso sempre visibile se la paziente ha allergie annotate in anagrafica)
+// mostrato ogni volta che si apre il selettore farmaci per prescrivere.
+function _mfvAggiornaBannerAllergie(){
+  const banner=document.getElementById('mfv-allergie-banner');
+  if(!banner) return;
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(p && p.allergie && p.allergie.trim()){
+    document.getElementById('mfv-allergie-testo').textContent=p.allergie.trim();
+    banner.style.display='block';
+  } else {
+    banner.style.display='none';
+  }
+}
+
 function apriSelettoreFarmaciVisita(targetFieldId){
   _mfvModoPaziente = false;
   _targetTerapiaFieldId = targetFieldId;
@@ -6732,6 +6847,7 @@ function apriSelettoreFarmaciVisita(targetFieldId){
   // Preseleziona la specialità in base al tipo di scheda visita da cui si apre
   _mfvSpec = (targetFieldId==='ob-terapia'||targetFieldId==='ec-terapia') ? 'ost' : (targetFieldId==='gd-terapia' ? 'gin' : 'all');
   document.querySelectorAll('.mfv-spec-btn').forEach(b=>b.classList.toggle('active', b.dataset.spec===_mfvSpec));
+  _mfvAggiornaBannerAllergie();
   renderFarmaciModal();
   document.getElementById('modal-farmaci-visita').classList.add('show');
 }
@@ -6765,6 +6881,7 @@ function apriSelettoreFarmaciPaziente(){
   if(titolo) titolo.textContent = `💊 Prescrivi a ${p.cognome} ${p.nome}`;
   const btnConf = document.getElementById('mfv-btn-conferma');
   if(btnConf) btnConf.textContent = 'Aggiungi alla terapia';
+  _mfvAggiornaBannerAllergie();
   renderFarmaciModal();
   document.getElementById('modal-farmaci-visita').classList.add('show');
 }
@@ -6783,6 +6900,7 @@ const _MFV_CAT_LABEL={integ:'Integratore',anti:'Antibiotico',ormo:'Ormonale',alt
 
 function _mfvCardFarmaco(f){
   const sel=farmaciSelezionatiVisita.has(f.idx);
+  const pref=isFarmacoPreferito(f.idx);
   const specTxt=f.spec==='both'?'gin. + ost.':f.spec==='ost'?'ostetricia':'ginecologia';
   return `<div class="pharma-card ${sel?'sel':''}" onclick="toggleFarmacoSelezionatoVisita(${f.idx})" style="cursor:pointer;${sel?'border-color:var(--primary);background:var(--primary-dim)':''}">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
@@ -6790,7 +6908,10 @@ function _mfvCardFarmaco(f){
         <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionatoVisita(${f.idx})" style="margin-top:3px;width:auto">
         <div class="pharma-name">${f.n}</div>
       </div>
-      <span class="badge ${_MFV_CAT_COLOR[f.cat]||'badge-gray'}">${_MFV_CAT_LABEL[f.cat]||f.cat}</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="badge ${_MFV_CAT_COLOR[f.cat]||'badge-gray'}">${_MFV_CAT_LABEL[f.cat]||f.cat}</span>
+        <span onclick="event.stopPropagation();toggleFarmacoPreferito(${f.idx})" title="${pref?'Togli dai preferiti':'Aggiungi ai preferiti'}" style="cursor:pointer;font-size:1.05rem;color:${pref?'#f5a623':'var(--label4)'}">${pref?'★':'☆'}</span>
+      </div>
     </div>
     <div class="pharma-active">${f.p} · <span style="color:var(--label4)">${specTxt}</span></div>
     <div class="pharma-dose">💊 ${f.dose}</div>
@@ -6828,7 +6949,10 @@ function renderFarmaciModal(){
     const pats={};
     all.filter(inSpec).forEach(f=>{ const k=f.pat||'Altro'; pats[k]=(pats[k]||0)+1; });
     const ordine=Object.keys(pats).sort((a,b)=>a.localeCompare(b,'it'));
+    const prefIdx=getFarmaciPreferiti();
+    const prefItems=all.filter(inSpec).filter(f=>prefIdx.includes(f.idx));
     body.innerHTML = `
+      ${prefItems.length?`<div class="mfv-sez-tit">★ Preferiti</div><div class="pharma-grid" style="margin-bottom:18px;">${prefItems.map(_mfvCardFarmaco).join('')}</div>`:''}
       <div style="font-size:0.8rem;color:var(--label4);margin-bottom:10px;">Scegli una patologia, oppure usa la ricerca qui sopra.</div>
       <div class="mfv-cat-grid">
         ${ordine.map(p=>`<button class="mfv-cat-tile" onclick="mfvApriCategoria(${JSON.stringify(p).replace(/"/g,'&quot;')})">
@@ -7513,6 +7637,7 @@ const FEATURE_TOGGLES=[
   {key:'storico', label:'Storico Visite', desc:'Archivio di tutte le giornate lavorative', navId:'nav-storico-date'},
   {key:'appuntamenti', label:'Appuntamenti', desc:'Prenotazioni GynoBook e promemoria', navId:'nav-appuntamenti'},
   {key:'ricettario', label:'Ricettario', desc:'Elenco di tutte le ricette emesse', navId:'nav-ricettario'},
+  {key:'consensi', label:'Consensi', desc:'Moduli di consenso informato pronti da far firmare', navId:'nav-consensi'},
   {key:'guide', label:'Linee Guida', desc:'Protocolli ACOG · SIGO · FIGO · ISUOG', navId:'nav-guide'},
   {key:'farmacia', label:'Farmacia', desc:'Prontuario farmaci per patologia', navId:'nav-farmacia'},
   {key:'utility', label:'Utility', desc:'Calcolatrici e strumenti vari', navId:'nav-utility'}
@@ -7948,6 +8073,7 @@ function aiContestoPaziente(pazId){
   let txt = '';
   const eta = p.nascita ? (new Date().getFullYear() - new Date(p.nascita).getFullYear()) : null;
   txt += `Paziente: ${p.cognome||''} ${p.nome||''}`.trim() + (eta && eta>0 && eta<120 ? `, ${eta} anni` : '') + '.\n';
+  if(p.allergie && p.allergie.trim()) txt += `⚠️ ALLERGIE NOTE: ${p.allergie.trim()}\n`;
   const alerts = (p.alerts||[]).map(a=>`${a.data?_aiDataRel(a.data)+': ':''}${a.testo}`).filter(Boolean);
   if(alerts.length) txt += 'Promemoria / note attive:\n' + alerts.map(a=>'- '+a).join('\n') + '\n';
   const vis = (p.visite||[]).slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,4);
@@ -8781,6 +8907,282 @@ function eliminaSchema(i){
   arr.splice(i,1);
   saveSchemiPrescrizioni(arr);
   renderSchemiPrescrizioni();
+}
+
+// ═══════════════════════════════════════════════════
+//  CONSENSI INFORMATI — libreria di moduli pronti da stampare o far
+//  firmare su schermo (firma elettronica). Stessa architettura degli
+//  "Schemi di prescrizione": elenco predefinito + personalizzazioni
+//  salvate in locale per operatore. I moduli firmati restano SOLO nel
+//  dispositivo, dentro la cartella della paziente (mai su Firestore).
+// ═══════════════════════════════════════════════════
+const CONSENSI_DEFAULT = [
+  { titolo:'Visita ginecologica generale', testo:"La sottoscritta dichiara di essere stata adeguatamente informata dal proprio Ginecologo sulle finalità, le modalità di esecuzione e gli eventuali fastidi della visita ginecologica (anamnesi, esame obiettivo generale, esame con speculum, esplorazione bimanuale, eventuali prelievi citologici/microbiologici). Ha avuto la possibilità di porre domande e ha ricevuto risposte esaurienti. Acconsente liberamente all'esecuzione della visita nelle modalità proposte." },
+  { titolo:'Ecografia (ginecologica/ostetrica)', testo:"La persona assistita acconsente all'effettuazione dell'indagine ecografica, adeguatamente informata su scopi e limiti dell'esame attraverso il colloquio con il proprio Ginecologo (al quale ha avuto la possibilità di porre eventuali quesiti) e attraverso la lettura di un supporto informativo che si allega al referto. Firma consenso informato in allegato." },
+  { titolo:'Pap-test e Test HPV', testo:"La sottoscritta è stata informata che il Pap-test e/o il Test HPV sono esami di screening per la prevenzione del tumore del collo dell'utero, eseguiti mediante prelievo di cellule dal collo uterino con spatola/spazzolino durante l'esame con speculum. È stata informata su finalità, modalità di esecuzione, limiti del test (possibili falsi negativi/positivi) e sulla necessità di eventuali approfondimenti in caso di esito alterato. Acconsente all'esecuzione del prelievo." },
+  { titolo:'Colposcopia (± biopsia)', testo:"La sottoscritta è stata informata che la colposcopia è un esame di secondo livello che permette di visualizzare in modo ingrandito il collo dell'utero, la vagina e la vulva, con applicazione di soluzioni (acido acetico, lugol) per evidenziare eventuali aree sospette. È stata informata che, qualora necessario, potrà essere eseguita contestualmente una biopsia mirata (prelievo di un piccolo frammento di tessuto), con possibile lieve sanguinamento/fastidio. Ha avuto la possibilità di porre domande e acconsente all'esecuzione dell'esame e, se indicato, della biopsia." },
+  { titolo:"Posizionamento / rimozione IUD (spirale)", testo:"La sottoscritta è stata informata sulle caratteristiche, l'efficacia contraccettiva, i benefici e i possibili rischi/complicanze (dolore, sanguinamento, raro rischio di perforazione uterina o espulsione, rischio infettivo nelle prime settimane) legati al posizionamento/rimozione del dispositivo intrauterino (IUD). Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente liberamente alla procedura." },
+  { titolo:'Isteroscopia diagnostica', testo:"La sottoscritta è stata informata che l'isteroscopia diagnostica consente la visione diretta della cavità uterina mediante uno strumento sottile inserito attraverso il canale cervicale, generalmente senza necessità di anestesia generale. È stata informata su indicazioni, modalità di esecuzione, possibili fastidi (crampi simil-mestruali) e rari rischi (perforazione uterina, sanguinamento, infezione). Acconsente all'esecuzione dell'esame ed a eventuali prelievi bioptici mirati se indicati." },
+  { titolo:'Trattamento farmacologico', testo:"La sottoscritta dichiara di essere stata informata dal proprio Ginecologo sulla terapia farmacologica prescritta, sulle indicazioni, sulla posologia, sui possibili effetti indesiderati e sulle eventuali alternative terapeutiche. Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente all'assunzione della terapia proposta secondo le modalità indicate." },
+  { titolo:'Diagnosi prenatale invasiva (villocentesi / amniocentesi)', testo:"La sottoscritta è stata informata sulle finalità della diagnosi prenatale invasiva proposta (villocentesi/amniocentesi), sulla tecnica di esecuzione, sull'accuratezza diagnostica e sui rischi correlati alla procedura, incluso il rischio di aborto legato alla metodica. Ha avuto la possibilità di un colloquio dedicato e di porre ogni domanda. Acconsente liberamente all'esecuzione della procedura, consapevole della possibilità di rifiutarla in qualsiasi momento." },
+  { titolo:'Vaccinazione / immunoprofilassi in gravidanza', testo:"La sottoscritta è stata informata sulle finalità, le modalità di somministrazione e i possibili effetti indesiderati della vaccinazione/immunoprofilassi proposta (anti-D / DTP / antinfluenzale — specificare). Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente alla somministrazione." },
+  { titolo:'Trattamento dei dati personali (privacy)', testo:"La sottoscritta dichiara di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. La sottoscritta ha diritto di accedere, rettificare e cancellare i propri dati e di opporsi al trattamento, rivolgendosi allo studio. Presta il consenso al trattamento dei dati per le finalità sopra descritte." }
+];
+function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getConsensi(){
+  try{
+    const s = localStorage.getItem(_consensiKey());
+    if(s){ const arr = JSON.parse(s); if(Array.isArray(arr)) return arr; }
+  }catch(e){}
+  return CONSENSI_DEFAULT.map(x=>({...x}));
+}
+function saveConsensi(arr){
+  try{ localStorage.setItem(_consensiKey(), JSON.stringify(arr)); return true; }catch(e){ return false; }
+}
+function renderConsensi(){
+  const riga=document.getElementById('consenso-paziente-riga');
+  const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
+  if(riga){
+    if(p){ riga.textContent = `Paziente selezionata: ${p.cognome} ${p.nome} — i moduli firmati qui sotto verranno salvati nella sua cartella.`; riga.style.display='block'; }
+    else { riga.style.display='none'; }
+  }
+  const box=document.getElementById('consensi-lista');
+  const consensi=getConsensi();
+  box.innerHTML = consensi.map((s,i)=>`
+    <div class="pharma-card">
+      <div class="pharma-name" style="margin-bottom:8px;">${_escHtml(s.titolo)}</div>
+      <div style="font-size:.78rem;color:var(--label4);line-height:1.5;margin-bottom:12px;max-height:64px;overflow:hidden;">${_escHtml(s.testo).slice(0,180)}${s.testo.length>180?'…':''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="apriConsensoStampa(${i})">🖨️ Stampa</button>
+        <button class="btn btn-primary btn-sm" onclick="apriConsensoConFirma(${i})">✍️ Firma su schermo</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="modificaConsenso(${i})" title="Modifica">✏️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaConsenso(${i})" title="Elimina">🗑️</button>
+      </div>
+    </div>`).join('');
+  renderConsensiFirmati();
+}
+function _mostraFormNuovoConsenso(){
+  const f=document.getElementById('consenso-nuovo-form');
+  f.style.display = f.style.display==='none'?'block':'none';
+  document.getElementById('consenso-edit-idx').value='';
+  document.getElementById('consenso-titolo').value='';
+  document.getElementById('consenso-testo').value='';
+}
+function modificaConsenso(i){
+  const s=getConsensi()[i]; if(!s) return;
+  document.getElementById('consenso-nuovo-form').style.display='block';
+  document.getElementById('consenso-edit-idx').value=String(i);
+  document.getElementById('consenso-titolo').value=s.titolo;
+  document.getElementById('consenso-testo').value=s.testo;
+  document.getElementById('consenso-nuovo-form').scrollIntoView({block:'center',behavior:'smooth'});
+}
+function salvaConsenso(){
+  const titolo=document.getElementById('consenso-titolo').value.trim();
+  const testo=document.getElementById('consenso-testo').value.trim();
+  if(!titolo||!testo){ if(typeof gsToast==='function') gsToast('Titolo e testo obbligatori','gs-error'); return; }
+  const arr=getConsensi();
+  const idx=document.getElementById('consenso-edit-idx').value;
+  if(idx!=='' && arr[+idx]) arr[+idx]={titolo,testo};
+  else arr.push({titolo,testo});
+  saveConsensi(arr);
+  document.getElementById('consenso-nuovo-form').style.display='none';
+  renderConsensi();
+  if(typeof gsToast==='function') gsToast('✅ Modulo salvato','gs-success');
+}
+function eliminaConsenso(i){
+  if(!confirm('Eliminare questo modulo di consenso?')) return;
+  const arr=getConsensi(); arr.splice(i,1); saveConsensi(arr); renderConsensi();
+}
+
+// Genera la pagina stampabile/modificabile di un consenso. Se firmaDataUrl è
+// passata, la firma viene incorporata al posto della riga da firmare a mano.
+function apriConsensoStampa(i, firmaDataUrl){
+  const s=getConsensi()[i]; if(!s) return;
+  const c=getPrintCfg(); const l=c.layout;
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const nome=p?`${p.cognome} ${p.nome}`:'________________________';
+  const nascita=p&&p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'____________';
+  const oggi=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  const w=apriFinestraStampa(); if(!w) return;
+  registraLog('stampa','Consenso: '+s.titolo);
+  const firmaAssistitaHtml = firmaDataUrl
+    ? `<img src="${firmaDataUrl}" style="max-height:56px;display:block;margin:0 auto 4px;">Firma della persona assistita <span style="color:#2e7d32;font-size:.68rem;">(firma elettronica, ${oggi})</span>`
+    : 'Firma della persona assistita';
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${_escHtml(s.titolo)}</title>
+  <style>
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
+    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:24px}
+    .ic-header img{max-height:60px}
+    .ic-header h1{font-size:1.2rem;margin:0;color:${l.colore}}
+    .ic-header .sp{font-size:.82rem;color:#555;margin-top:2px}
+    .ic-header .ct{font-size:.76rem;color:#777;margin-top:3px}
+    h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
+    .ic-meta{font-size:.9rem;margin-bottom:20px}
+    .ic-meta div{margin-bottom:3px}
+    .ic-body{font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:34px;outline:none}
+    .ic-body:focus{background:#fffdf5}
+    .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
+    .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
+    .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
+    .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
+    .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
+  </style></head><body>
+    <div class="ic-toolbar no-print">✏️ Puoi modificare il testo prima di stampare.
+      <button onclick="window.print()">🖨️ Stampa</button>
+      <button class="sec" onclick="window.close()">Chiudi</button>
+    </div>
+    <div class="ic-header">${printHeaderHtml()}</div>
+    <h2>${_escHtml(s.titolo.toUpperCase())}</h2>
+    <div class="ic-meta">
+      <div><strong>Persona assistita:</strong> ${nome} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
+      <div><strong>Data:</strong> ${oggi}</div>
+    </div>
+    <div class="ic-body" contenteditable="true" spellcheck="false">${s.testo}</div>
+    <div class="firme">
+      <div class="l">${firmaAssistitaHtml}</div>
+      <div class="l">${_escHtml(c.firma)||'Firma del medico'}</div>
+    </div>
+    ${printFooterHtml()}
+  </body></html>`);
+  w.document.close();
+}
+
+// Firma su schermo: apre il pad, poi genera la stampa con la firma incorporata
+// e salva una copia (testo + immagine firma) nella cartella della paziente aperta.
+function apriConsensoConFirma(i){
+  const s=getConsensi()[i]; if(!s) return;
+  if(!curPaz){ if(typeof gsToast==='function') gsToast('Apri prima una paziente, per associarle il consenso firmato','gs-error'); return; }
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  apriFirmaElettronica(`${s.titolo} — ${p?p.cognome+' '+p.nome:''}`, (firmaDataUrl)=>{
+    apriConsensoStampa(i, firmaDataUrl);
+    if(p){
+      if(!p.consensiFirmati) p.consensiFirmati=[];
+      p.consensiFirmati.push({ titolo:s.titolo, testo:s.testo, firma:firmaDataUrl, data:new Date().toISOString() });
+      salvaDB();
+      renderConsensiFirmati();
+      if(typeof gsToast==='function') gsToast('✅ Consenso firmato e salvato nella cartella','gs-success');
+    }
+  });
+}
+function renderConsensiFirmati(){
+  const box=document.getElementById('consensi-firmati-box');
+  const lista=document.getElementById('consensi-firmati-lista');
+  const nomeEl=document.getElementById('consensi-firmati-nome');
+  if(!box||!lista) return;
+  const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
+  const firmati = p?.consensiFirmati||[];
+  if(!p || !firmati.length){ box.style.display='none'; return; }
+  box.style.display='block';
+  if(nomeEl) nomeEl.textContent = `${p.cognome} ${p.nome}`;
+  const ordinati=[...firmati].map((f,i)=>({...f,_i:i})).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  lista.innerHTML = ordinati.map(f=>{
+    const dStr=new Date(f.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    return `<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--separator);border-radius:10px;padding:10px 14px;margin-bottom:8px;">
+      <img src="${f.firma}" style="height:32px;background:#fff;border-radius:4px;flex-shrink:0;">
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.86rem;">${_escHtml(f.titolo)}</div>
+        <div style="font-size:.74rem;color:var(--label4);">Firmato il ${dStr}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="_riapriConsensoFirmato(${f._i})">🖨️ Riapri</button>
+    </div>`;
+  }).join('');
+}
+function _riapriConsensoFirmato(idx){
+  const p=DB.pazienti.find(x=>x.id===curPaz); if(!p) return;
+  const f=(p.consensiFirmati||[])[idx]; if(!f) return;
+  const c=getPrintCfg(); const l=c.layout;
+  const nome=`${p.cognome} ${p.nome}`;
+  const nascita=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'____________';
+  const dStr=new Date(f.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  const w=apriFinestraStampa(); if(!w) return;
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${_escHtml(f.titolo)}</title>
+  <style>
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:20px 20px 0;line-height:1.65}
+    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:24px}
+    .ic-header h1{font-size:1.2rem;margin:0;color:${l.colore}}
+    .ic-header .sp{font-size:.82rem;color:#555;margin-top:2px}
+    .ic-header .ct{font-size:.76rem;color:#777;margin-top:3px}
+    h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
+    .ic-meta{font-size:.9rem;margin-bottom:20px}
+    .ic-body{font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:34px;white-space:pre-wrap;}
+    .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
+    .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
+  </style></head><body>
+    <div class="ic-header">${printHeaderHtml()}</div>
+    <h2>${_escHtml(f.titolo.toUpperCase())} <span style="font-size:.7rem;color:#999;">(copia del consenso firmato)</span></h2>
+    <div class="ic-meta"><div><strong>Persona assistita:</strong> ${nome} · <strong>Data di nascita:</strong> ${nascita}</div><div><strong>Firmato il:</strong> ${dStr}</div></div>
+    <div class="ic-body">${_escHtml(f.testo)}</div>
+    <div class="firme">
+      <div class="l"><img src="${f.firma}" style="max-height:56px;display:block;margin:0 auto 4px;">Firma della persona assistita</div>
+      <div class="l">${_escHtml(c.firma)||'Firma del medico'}</div>
+    </div>
+  </body></html>`);
+  w.document.close();
+}
+
+// ═══════════════════════════════════════════════════
+//  FIRMA ELETTRONICA — pad di firma su canvas (mouse/dito/penna)
+// ═══════════════════════════════════════════════════
+let _firmaCallback=null, _firmaCtx=null, _firmaDisegnando=false, _firmaHaTratti=false;
+
+function apriFirmaElettronica(sottotitolo, callback){
+  _firmaCallback = callback;
+  const sub=document.getElementById('firma-sottotitolo');
+  if(sub) sub.textContent = sottotitolo || 'Fai firmare la persona assistita nel riquadro qui sotto.';
+  document.getElementById('modal-firma').classList.add('show');
+  // Il canvas va dimensionato DOPO che il modal è visibile (altrimenti la sua
+  // larghezza CSS non è ancora risolta e la risoluzione del disegno sarebbe 0).
+  requestAnimationFrame(()=>requestAnimationFrame(_firmaInizializzaCanvas));
+}
+function _firmaInizializzaCanvas(){
+  const canvas=document.getElementById('firma-canvas');
+  if(!canvas) return;
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=Math.max(1,rect.width)*dpr;
+  canvas.height=Math.max(1,rect.height)*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  ctx.lineWidth=2.4;
+  ctx.lineCap='round';
+  ctx.lineJoin='round';
+  ctx.strokeStyle='#1a1a1a';
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,rect.width,rect.height);
+  _firmaCtx=ctx;
+  _firmaHaTratti=false;
+
+  const posizione=(e)=>{
+    const r=canvas.getBoundingClientRect();
+    const t=e.touches&&e.touches.length?e.touches[0]:e;
+    return {x:t.clientX-r.left, y:t.clientY-r.top};
+  };
+  const inizia=(e)=>{ e.preventDefault(); _firmaDisegnando=true; const pt=posizione(e); ctx.beginPath(); ctx.moveTo(pt.x,pt.y); };
+  const disegna=(e)=>{ if(!_firmaDisegnando)return; e.preventDefault(); const pt=posizione(e); ctx.lineTo(pt.x,pt.y); ctx.stroke(); _firmaHaTratti=true; };
+  const fine=()=>{ _firmaDisegnando=false; };
+
+  canvas.onmousedown=inizia; canvas.onmousemove=disegna; canvas.onmouseup=fine; canvas.onmouseleave=fine;
+  canvas.ontouchstart=inizia; canvas.ontouchmove=disegna; canvas.ontouchend=fine;
+}
+function _firmaCancella(){
+  const canvas=document.getElementById('firma-canvas');
+  if(!canvas||!_firmaCtx) return;
+  const rect=canvas.getBoundingClientRect();
+  _firmaCtx.fillStyle='#fff';
+  _firmaCtx.fillRect(0,0,rect.width,rect.height);
+  _firmaHaTratti=false;
+}
+function _firmaConferma(){
+  if(!_firmaHaTratti){ if(typeof gsToast==='function') gsToast('Traccia prima una firma nel riquadro','gs-error'); return; }
+  const canvas=document.getElementById('firma-canvas');
+  const dataUrl=canvas.toDataURL('image/png');
+  closeModal('modal-firma');
+  const cb=_firmaCallback; _firmaCallback=null;
+  if(cb) cb(dataUrl);
 }
 
 // Mostra la terapia di UNA visita specifica (icona 💊📋 nella lista visite della cartella).
