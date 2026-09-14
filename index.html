@@ -2106,20 +2106,30 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <h3>Nuova Visita</h3>
     <p>Seleziona la tipologia di visita da registrare</p>
     <div class="visit-type-grid">
-      <div class="visit-type-card" onclick="startEditor('gyno')">
+      <div class="visit-type-card" onclick="pazChiediConsensoPrimaVisita('gyno')">
         <div class="vt-emoji">🌸</div>
         <div class="vt-name">Ginecologica</div>
       </div>
-      <div class="visit-type-card" onclick="startEditor('ob')">
+      <div class="visit-type-card" onclick="pazChiediConsensoPrimaVisita('ob')">
         <div class="vt-emoji">🤰</div>
         <div class="vt-name">Ostetrica</div>
       </div>
-      <div class="visit-type-card" onclick="startEditor('eco')">
+      <div class="visit-type-card" onclick="pazChiediConsensoPrimaVisita('eco')">
         <div class="vt-emoji">🖥️</div>
         <div class="vt-name">Ecografia</div>
       </div>
     </div>
     <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModal('modal-type')">Annulla</button>
+  </div>
+</div>
+
+<!-- Proposta di firma del consenso informato prima di iniziare la visita -->
+<div id="modal-consenso-visita" class="overlay">
+  <div class="modal-sm" style="width:560px;">
+    <h3>✍️ Consenso informato</h3>
+    <p id="cv-sottotitolo" style="color:var(--label4);font-size:.85rem;margin-bottom:16px;"></p>
+    <div id="consenso-visita-lista" style="display:flex;flex-direction:column;gap:10px;max-height:50vh;overflow-y:auto;margin-bottom:14px;"></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="pazSaltaConsensoEProsegui()">Salta, prosegui senza firmare</button>
   </div>
 </div>
 
@@ -8984,6 +8994,14 @@ const CONSENSI_DEFAULT = [
   { titolo:'Vaccinazione / immunoprofilassi in gravidanza', testo:"La sottoscritta è stata informata sulle finalità, le modalità di somministrazione e i possibili effetti indesiderati della vaccinazione/immunoprofilassi proposta (anti-D / DTP / antinfluenzale — specificare). Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente alla somministrazione." },
   { titolo:'Trattamento dei dati personali (privacy)', testo:"La sottoscritta dichiara di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. La sottoscritta ha diritto di accedere, rettificare e cancellare i propri dati e di opporsi al trattamento, rivolgendosi allo studio. Presta il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
+// Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
+// così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
+// non riconosciuti restano comunque selezionabili, solo non in evidenza).
+const CONSENSO_TIPI_VISITA = {
+  gyno: ['Visita ginecologica generale','Pap-test e Test HPV','Colposcopia (± biopsia)',"Posizionamento / rimozione IUD (spirale)",'Isteroscopia diagnostica'],
+  ob: ['Ecografia (ginecologica/ostetrica)','Diagnosi prenatale invasiva (villocentesi / amniocentesi)','Vaccinazione / immunoprofilassi in gravidanza'],
+  eco: ['Ecografia (ginecologica/ostetrica)']
+};
 function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function getConsensi(){
   try{
@@ -9107,7 +9125,7 @@ function apriConsensoStampa(i, firmaDataUrl){
 
 // Firma su schermo: apre il pad, poi genera la stampa con la firma incorporata
 // e salva una copia (testo + immagine firma) nella cartella della paziente aperta.
-function apriConsensoConFirma(i){
+function apriConsensoConFirma(i, onDone){
   const s=getConsensi()[i]; if(!s) return;
   if(!curPaz){ if(typeof gsToast==='function') gsToast('Apri prima una paziente, per associarle il consenso firmato','gs-error'); return; }
   const p=DB.pazienti.find(x=>x.id===curPaz);
@@ -9120,7 +9138,47 @@ function apriConsensoConFirma(i){
       renderConsensiFirmati();
       if(typeof gsToast==='function') gsToast('✅ Consenso firmato e salvato nella cartella','gs-success');
     }
+    if(typeof onDone==='function') onDone();
   });
+}
+
+// ── Proposta del consenso informato al momento di iniziare una nuova visita ──
+// Cliccando un tipo di visita in "Nuova Visita" si passa da qui prima di
+// aprire davvero l'editor: mostra la libreria dei consensi con quelli più
+// pertinenti a quel tipo di visita in evidenza, così l'operatore può farlo
+// firmare subito sullo schermo (o saltare e proseguire senza).
+let _consensoVisitaTipoPending = null;
+const _META_TIPO_VISITA = {gyno:'visita ginecologica', ob:'visita ostetrica', eco:'ecografia ostetrica'};
+function pazChiediConsensoPrimaVisita(tipo){
+  _consensoVisitaTipoPending = tipo;
+  const sub=document.getElementById('cv-sottotitolo');
+  if(sub) sub.textContent = `Vuoi far firmare un consenso informato prima di questa ${_META_TIPO_VISITA[tipo]||'visita'}? In evidenza i moduli più pertinenti — puoi comunque sceglierne un altro, o saltare.`;
+  const rilevanti = new Set(CONSENSO_TIPI_VISITA[tipo]||[]);
+  const consensi = getConsensi().map((c,i)=>({...c,_i:i,_match:rilevanti.has(c.titolo)}));
+  consensi.sort((a,b)=>(b._match-a._match));
+  const lista=document.getElementById('consenso-visita-lista');
+  if(lista){
+    lista.innerHTML = consensi.map(c=>`
+      <div class="pharma-card" style="${c._match?'border-color:var(--primary);background:var(--primary-dim);':''}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <div class="pharma-name">${_escHtml(c.titolo)}</div>
+          ${c._match?'<span class="badge badge-blue">Consigliato</span>':''}
+        </div>
+        <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" onclick="pazFirmaConsensoEProsegui(${c._i})">✍️ Firma ora e prosegui</button>
+      </div>`).join('');
+  }
+  closeModal('modal-type');
+  document.getElementById('modal-consenso-visita').classList.add('show');
+}
+function pazSaltaConsensoEProsegui(){
+  closeModal('modal-consenso-visita');
+  const tipo=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
+  if(tipo) startEditor(tipo);
+}
+function pazFirmaConsensoEProsegui(i){
+  closeModal('modal-consenso-visita');
+  const tipo=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
+  apriConsensoConFirma(i, ()=>{ if(tipo) startEditor(tipo); });
 }
 function renderConsensiFirmati(){
   const box=document.getElementById('consensi-firmati-box');
