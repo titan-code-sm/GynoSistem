@@ -5039,16 +5039,20 @@ async function mostraLogAttivita(){
   box.innerHTML='<div style="padding:16px 0;text-align:center;color:var(--label4);font-size:.85rem">Caricamento…</div>';
   document.getElementById('modal-log-attivita').classList.add('show');
   try{
+    // Query con un solo filtro di uguaglianza (ownerUid): non richiede alcun
+    // indice composito su Firestore. Ordine e limite ai 30 più recenti si
+    // applicano qui nel codice, dopo aver scaricato i risultati.
     const snap=await gsDb.collection('logAttivita')
       .where('ownerUid','==',gsCurrentUser.uid)
-      .orderBy('data','desc')
-      .limit(30)
       .get();
     if(snap.empty){
       box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📜</div><p style="font-size:.85rem">Nessuna attività registrata</p></div>';
       return;
     }
-    box.innerHTML=snap.docs.map(docSnap=>{
+    const recenti=snap.docs
+      .sort((a,b)=>new Date(b.data().data)-new Date(a.data().data))
+      .slice(0,30);
+    box.innerHTML=recenti.map(docSnap=>{
       const d=docSnap.data();
       const dt=new Date(d.data);
       const dataStr=dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
