@@ -9177,6 +9177,52 @@ function svgCurva5(dataset, punti){
 // ═══════════════════════════════════════════════════
 //  RIEPILOGO COMPLETO GRAVIDANZA — tutte le visite in un unico documento
 // ═══════════════════════════════════════════════════
+// Grafico SVG di andamento semplice (una o più serie nel tempo), senza fasce
+// percentili di riferimento: usato per peso e pressione arteriosa materna,
+// a differenza di svgCurva5 che confronta con le curve INTERGROWTH-21st.
+function svgTrendSemplice(serie){
+  const W=460, H=220, padL=40, padR=14, padT=14, padB=28;
+  const tuttiPunti=serie.flatMap(s=>s.punti);
+  if(tuttiPunti.length<1) return '<div style="color:#999;font-size:.8rem;padding:30px 0;text-align:center">Dati insufficienti</div>';
+  const xs=tuttiPunti.map(p=>p.x), ys=tuttiPunti.map(p=>p.y);
+  const xMin=Math.min(...xs), xMax=Math.max(...xs);
+  const yMin=Math.min(...ys), yMax=Math.max(...ys);
+  const yPad=((yMax-yMin)||2)*0.15;
+  const xRange=(xMax-xMin)||1;
+  const yLo=yMin-yPad, yHi=yMax+yPad;
+  const xFn=v=>padL+((v-xMin)/xRange)*(W-padL-padR);
+  const yFn=v=>H-padB-((v-yLo)/((yHi-yLo)||1))*(H-padT-padB);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#fff">`;
+  for(let i=0;i<=2;i++){
+    const val=yLo+(yHi-yLo)*i/2, yy=yFn(val);
+    svg+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#f0f0f0" stroke-width="1"/>`;
+    svg+=`<text x="${padL-6}" y="${yy+3}" font-size="8" fill="#888" text-anchor="end">${Math.round(val)}</text>`;
+  }
+  serie.forEach(s=>{
+    if(!s.punti.length)return;
+    const ordinati=[...s.punti].sort((a,b)=>a.x-b.x);
+    const coords=ordinati.map(p=>`${xFn(p.x)},${yFn(p.y)}`).join(' ');
+    svg+=`<polyline points="${coords}" fill="none" stroke="${s.colore}" stroke-width="2"/>`;
+    ordinati.forEach(p=>{ svg+=`<circle cx="${xFn(p.x)}" cy="${yFn(p.y)}" r="3.5" fill="${s.colore}" stroke="#fff" stroke-width="1"/>`; });
+  });
+  const dFmt=t=>new Date(t).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+  svg+=`<text x="${padL}" y="${H-6}" font-size="8" fill="#888" text-anchor="start">${dFmt(xMin)}</text>`;
+  svg+=`<text x="${W-padR}" y="${H-6}" font-size="8" fill="#888" text-anchor="end">${dFmt(xMax)}</text>`;
+  svg+=`</svg>`;
+  return svg;
+}
+// Estrae dalle visite ostetriche di una gravidanza le serie peso/PA per i grafici.
+function _serieAndamentoMaterno(visiteGravidanza){
+  const pesoPunti=[], sistolicaPunti=[], diastolicaPunti=[];
+  visiteGravidanza.filter(v=>v.tipo==='ob' && v.obData).forEach(v=>{
+    const d=v.obData, x=new Date(v.data).getTime();
+    if(d.peso && !isNaN(parseFloat(d.peso))) pesoPunti.push({x, y:parseFloat(d.peso)});
+    const m=/^\s*(\d{2,3})\s*\/\s*(\d{2,3})\s*$/.exec(d.pressione||'');
+    if(m){ sistolicaPunti.push({x, y:parseInt(m[1],10)}); diastolicaPunti.push({x, y:parseInt(m[2],10)}); }
+  });
+  return {pesoPunti, sistolicaPunti, diastolicaPunti};
+}
+
 function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   const p=DB.pazienti.find(x=>x.id===pazId);
   if(!p){ if(typeof gsToast==='function')gsToast('Paziente non trovata','gs-error'); return; }
@@ -9210,11 +9256,22 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     .visita-header .data{font-weight:700;font-size:1.05rem}
     .visita-header .tipo{color:#c2185b;font-size:.85rem;font-weight:600}
     .fonte{margin-top:30px;font-size:.72rem;color:#999;border-top:1px solid #eee;padding-top:10px}
-    @media print{.visita-block{page-break-after:auto} .pdf-banner{display:none}}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
+    .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px}
+    .chart-box h3{font-size:.9rem;margin:0 0 8px;color:#333}
+    @media print{.visita-block{page-break-after:auto} .pdf-banner{display:none} .grid{grid-template-columns:1fr 1fr}}
   </style></head><body>
     <div class="pdf-banner">💡 <div><strong>Per salvare come PDF:</strong> nella finestra di stampa che si apre, scegli "Salva come PDF" (o "Microsoft Print to PDF") invece della stampante, poi conferma. Questo banner non comparirà nella stampa/PDF.</div></div>
     <h1>📑 Riepilogo Completo Gravidanza</h1>
     <div class="sub"><strong>${p.cognome} ${p.nome}</strong>${dataInizio?' · Gravidanza iniziata il '+dataInizio:''} · ${visiteGravidanza.length} visit${visiteGravidanza.length>1?'e':'a'} registrat${visiteGravidanza.length>1?'e':'a'}</div>`;
+
+  const {pesoPunti, sistolicaPunti, diastolicaPunti}=_serieAndamentoMaterno(visiteGravidanza);
+  if(pesoPunti.length || sistolicaPunti.length){
+    html+=`<div class="grid">
+      ${pesoPunti.length?`<div class="chart-box"><h3>⚖️ Andamento Peso (kg)</h3>${svgTrendSemplice([{colore:'#c2185b',punti:pesoPunti}])}</div>`:''}
+      ${sistolicaPunti.length?`<div class="chart-box"><h3>❤️ Pressione Arteriosa (mmHg)</h3>${svgTrendSemplice([{colore:'#e53935',punti:sistolicaPunti},{colore:'#1e88e5',punti:diastolicaPunti}])}<div style="font-size:.68rem;color:#999;margin-top:4px">🔴 Sistolica &nbsp; 🔵 Diastolica</div></div>`:''}
+    </div>`;
+  }
 
   visiteGravidanza.forEach(v=>{
     const dataStr=new Date(v.data).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
