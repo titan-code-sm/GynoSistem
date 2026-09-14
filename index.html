@@ -6276,13 +6276,32 @@ function renderPazienti(){
     const last=p.visite?.length?new Date(p.visite[p.visite.length-1].data).toLocaleDateString('it-IT'):'-';
     const eta=p.nascita?(new Date().getFullYear()-new Date(p.nascita).getFullYear())+'a':'–';
     tb.innerHTML+=`<tr onclick="openPaziente(${p.id})">
-      <td class="td-name">${p.cognome} ${p.nome}</td>
+      <td class="td-name">${indicatoriPaziente(p)}${p.cognome} ${p.nome}</td>
       <td>${p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'–'} <span style="color:var(--label4);font-size:0.8rem;">(${eta})</span></td>
       <td>${p.tel||'–'}</td>
       <td>${last}</td>
       <td><span class="badge badge-blue">${p.visite?.length||0} visite</span></td>
     </tr>`;
   });
+}
+
+// Indicatori visivi rapidi per l'elenco pazienti: pallino colorato per il
+// trimestre di gravidanza (se attiva) e icona se c'è un promemoria scaduto.
+// Solo un colpo d'occhio, non sostituiscono l'apertura della cartella.
+function indicatoriPaziente(p){
+  let html='';
+  const ga=gravidanzaAttiva(p);
+  if(ga){
+    const sett=calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date());
+    const w=sett?parseInt(sett.split('+')[0],10):null;
+    const colore = w===null ? 'var(--label4)' : w<14 ? 'var(--green)' : w<28 ? 'var(--primary)' : 'var(--purple)';
+    const trimLbl = w===null ? 'gravidanza in corso' : w<14 ? '1° trimestre' : w<28 ? '2° trimestre' : '3° trimestre';
+    html+=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${colore};margin-right:7px;" title="🤰 ${trimLbl}"></span>`;
+  }
+  if((p.alerts||[]).some(a=>new Date(a.data)<new Date())){
+    html+=`<span style="margin-right:5px;" title="⚠️ Promemoria scaduto">⚠️</span>`;
+  }
+  return html;
 }
 
 function openPaziente(id){
