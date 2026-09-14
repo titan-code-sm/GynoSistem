@@ -384,8 +384,11 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .mfv-back{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--primary);font-weight:600;font-size:0.84rem;cursor:pointer;padding:0;margin-bottom:12px;}
 .mfv-guida{background:#eef4ff;border:1px solid #cfe0ff;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:0.82rem;line-height:1.55;color:#1e3a5f;}
 .mfv-guida b{display:block;margin-bottom:4px;color:#0d2a4d;}
-:root:not([data-theme="light"]) .mfv-guida{background:rgba(80,130,220,0.12);border-color:rgba(120,160,230,0.3);color:var(--label);}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .mfv-guida{background:rgba(80,130,220,0.12);border-color:rgba(120,160,230,0.3);color:var(--label);}}
+/* La regola sopra è pensata per un tema chiaro; qui l'equivalente per la modalità
+   scura DAVVERO usata dall'app (classe body.dark-mode, non [data-theme] che
+   questa app non imposta mai). */
+body.dark-mode .mfv-guida{background:rgba(80,130,220,0.12);border-color:rgba(120,160,230,0.3);color:var(--label);}
+body.dark-mode .mfv-guida b{color:var(--label);}
 .mfv-sez-tit{font-size:0.78rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;}
 .mfv-sez-tit:first-child{margin-top:0;}
 .informativa-card .informativa-testo{font-size:0.82rem;line-height:1.55;color:var(--label3);}
@@ -1202,7 +1205,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <button class="btn btn-primary" id="pharma-prescrivi-btn" style="display:none" onclick="prescriviFarmaciSelezionati()">📋 Prescrivi Selezionati (<span id="pharma-sel-count">0</span>)</button>
   </div>
   <div class="card" style="margin-bottom:20px;">
-    <input type="text" id="search-pharma" onkeyup="renderFarmaci()" placeholder="💊  Cerca per nome commerciale o principio attivo...">
+    <input type="text" id="search-pharma" onkeyup="renderFarmaci()" placeholder="💊  Cerca per nome commerciale, principio attivo o patologia...">
+    <div class="tipo-pills" id="pharma-vista-toggle" style="margin-top:12px;">
+      <button type="button" class="tipo-pill active" data-vista="categoria" onclick="setPharmaVista('categoria')">Per categoria</button>
+      <button type="button" class="tipo-pill" data-vista="patologia" onclick="setPharmaVista('patologia')">Per patologia</button>
+    </div>
   </div>
   <div id="pharma-grid-container" class="pharma-grid"></div>
 </div>
@@ -6544,12 +6551,89 @@ function toggleGuideItem(id){
 // ═══════════════════════════════════════════════════
 // Farmaci selezionati nel Prontuario per la prescrizione multipla (Set di indici nell'array FARMACI)
 let farmaciSelezionati=new Set();
+// Vista del Prontuario: 'categoria' (farmacologica, come sempre) oppure
+// 'patologia' (indicazione clinica) — quest'ultima con l'elenco completo
+// delle patologie coperte dal prontuario, la stessa logica già usata nel
+// selettore rapido delle visite (mfvApriCategoria/renderFarmaciModal).
+let _pharmaVista='categoria';
+let _pharmaCat=null;
+
+function setPharmaVista(v){
+  _pharmaVista=v;
+  _pharmaCat=null;
+  document.querySelectorAll('#pharma-vista-toggle .tipo-pill').forEach(b=>b.classList.toggle('active', b.dataset.vista===v));
+  renderFarmaci();
+}
+function pharmaApriPatologia(pat){
+  _pharmaCat=pat;
+  renderFarmaci();
+  document.getElementById('pharma-grid-container')?.scrollIntoView({block:'start',behavior:'smooth'});
+}
+function pharmaTornaPatologie(){ _pharmaCat=null; renderFarmaci(); }
+
+const _PHARMA_CAT_COLOR={integ:'badge-green',anti:'badge-red',ormo:'badge-blue',altro:'badge-gray'};
+const _PHARMA_CAT_LABEL={integ:'Integratore',ormo:'Ormonale',anti:'Antibiotico',altro:'Altro'};
+// Card di un farmaco per la vista "Per patologia" e per i risultati di ricerca
+// (la vista "Per categoria" ha il proprio template più sotto, invariato).
+function _pharmaCardPatologia(f){
+  const sel=farmaciSelezionati.has(f.idx);
+  return `<div class="pharma-card ${sel?'sel':''}" onclick="toggleFarmacoSelezionato(${f.idx})" style="cursor:pointer;${sel?'border-color:var(--primary);background:var(--primary-dim)':''}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div style="display:flex;align-items:flex-start;gap:8px">
+        <input type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation();toggleFarmacoSelezionato(${f.idx})" style="margin-top:3px;width:auto">
+        <div class="pharma-name">${f.n}</div>
+      </div>
+      <span class="badge ${_PHARMA_CAT_COLOR[f.cat]||'badge-gray'}">${_PHARMA_CAT_LABEL[f.cat]||f.cat}</span>
+    </div>
+    <div class="pharma-active">${f.p}${f.pat?' · <span style="color:var(--label4)">'+_escHtml(f.pat)+'</span>':''}</div>
+    <div class="pharma-dose">💊 ${f.dose}</div>
+  </div>`;
+}
 
 function renderFarmaci(){
-  const q=(document.getElementById('search-pharma')?.value||'').toLowerCase();
+  const q=(document.getElementById('search-pharma')?.value||'').toLowerCase().trim();
   const c=document.getElementById('pharma-grid-container'); if(!c)return;
   c.innerHTML='';
   c.style.display='block'; // override grid per usare sezioni
+  const all=FARMACI.map((f,idx)=>({...f,idx}));
+
+  // La ricerca (per nome, principio attivo O patologia) vale in entrambe le
+  // viste e mostra sempre un elenco piatto dei risultati.
+  if(q){
+    const res=all.filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q)||(f.pat||'').toLowerCase().includes(q));
+    c.innerHTML = res.length
+      ? `<div class="mfv-sez-tit">${res.length} risultat${res.length===1?'o':'i'} per "${_escHtml(q)}"</div><div class="pharma-grid">${res.map(_pharmaCardPatologia).join('')}</div>`
+      : '<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
+    aggiornaBottonePrescrivi();
+    return;
+  }
+
+  if(_pharmaVista==='patologia'){
+    if(_pharmaCat){
+      const items=all.filter(f=>f.pat===_pharmaCat);
+      const guida=(typeof GUIDA_FARMACI!=='undefined' && GUIDA_FARMACI[_pharmaCat]) ? GUIDA_FARMACI[_pharmaCat] : '';
+      c.innerHTML = `
+        <button class="mfv-back" onclick="pharmaTornaPatologie()">← Tutte le patologie</button>
+        <div class="mfv-sez-tit" style="font-size:0.95rem;color:var(--label);text-transform:none;letter-spacing:0;">${_escHtml(_pharmaCat)}</div>
+        ${guida?`<div class="mfv-guida"><b>Guida alla scelta</b>${guida}<div style="margin-top:6px;font-size:0.72rem;color:var(--label4)">Guida orientativa — la decisione resta clinica.</div></div>`:''}
+        <div class="pharma-grid">${items.map(_pharmaCardPatologia).join('')}</div>`;
+    } else {
+      const pats={};
+      all.forEach(f=>{ const k=f.pat||'Altro'; pats[k]=(pats[k]||0)+1; });
+      const ordine=Object.keys(pats).sort((a,b)=>a.localeCompare(b,'it'));
+      c.innerHTML = `
+        <div style="font-size:0.82rem;color:var(--label4);margin-bottom:14px;">${ordine.length} patologie/indicazioni cliniche · ${FARMACI.length} farmaci in totale. Scegli una voce, oppure cerca sopra.</div>
+        <div class="mfv-cat-grid">
+          ${ordine.map(p=>`<button class="mfv-cat-tile" onclick="pharmaApriPatologia(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+            <div class="t">${_escHtml(p)}</div><div class="n">${pats[p]} farmac${pats[p]===1?'o':'i'}</div>
+          </button>`).join('')}
+        </div>`;
+    }
+    aggiornaBottonePrescrivi();
+    return;
+  }
+
+  // ── Vista "Per categoria" (comportamento originale) ──
   const catColor={integ:'badge-green',anti:'badge-red',ormo:'badge-blue',altro:'badge-gray'};
   const catInfo={
     integ:{label:'Integratori',icon:'🌿',desc:'Acido folico, vitamine, supplementi'},
@@ -6558,15 +6642,8 @@ function renderFarmaci(){
     altro:{label:'Altri Farmaci',icon:'📦',desc:'Antiemorragici, vari'}
   };
   const order=['integ','ormo','anti','altro'];
-  // Filtra mantenendo l'indice originale nell'array FARMACI, necessario per la selezione persistente
-  const filtered=FARMACI.map((f,idx)=>({...f,idx})).filter(f=>f.n.toLowerCase().includes(q)||f.p.toLowerCase().includes(q));
-  if(!filtered.length){
-    c.innerHTML='<div class="empty-state"><div class="es-icon">💊</div><p>Nessun farmaco trovato</p></div>';
-    aggiornaBottonePrescrivi();
-    return;
-  }
   order.forEach(cat=>{
-    const items=filtered.filter(f=>f.cat===cat);
+    const items=all.filter(f=>f.cat===cat);
     if(!items.length)return;
     const info=catInfo[cat]||{label:cat,icon:'💊',desc:''};
     c.innerHTML+=`<div style="margin-bottom:24px">
