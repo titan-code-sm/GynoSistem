@@ -8438,7 +8438,12 @@ function printStyleComune(extra){
   const l=getPrintCfg().layout;
   return `@page{margin:${l.margine}mm;size:${l.formato};}
     :root{--print-acc:${l.colore};}
-    body{font-family:'${l.font}',Georgia,'Times New Roman',serif;font-size:${l.corpo}pt;}
+    /* Sfondo bianco esplicito: senza, alcuni browser/estensioni con "tema scuro
+       forzato per i siti" attivo rendono la pagina con testo scuro su sfondo
+       scuro/trasparente, illeggibile. Un documento stampabile deve restare
+       bianco a prescindere dal tema del sistema. */
+    html{background:#fff;}
+    body{background:#fff;font-family:'${l.font}',Georgia,'Times New Roman',serif;font-size:${l.corpo}pt;}
     .print-foot{margin-top:26px;padding-top:8px;border-top:1px solid #ddd;font-size:.7rem;color:#999;text-align:center;}
     ${extra||''}`;
 }
@@ -9092,7 +9097,7 @@ function buildRefertoView(v){
   sezioni.forEach(s=>{
     const valid=s.rows.filter(r=>r[1]&&String(r[1]).trim());
     if(!valid.length)return;
-    html+=`<div style="margin-bottom:18px">
+    html+=`<div style="margin-bottom:18px;break-inside:avoid-page;page-break-inside:avoid">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--primary-dim)">
         <span style="font-weight:700;font-size:0.92rem;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px">${s.title}</span>
       </div>
@@ -9274,6 +9279,26 @@ function _serieAndamentoMaterno(visiteGravidanza){
   return {pesoPunti, sistolicaPunti, diastolicaPunti};
 }
 
+// Serie di crescita fetale (peso stimato) per il riepilogo gravidanza: prende
+// il peso fetale dalla biometria di OGNI visita che ne ha uno (ostetrica con
+// biometria compilata, o ecografia con EFW), non solo dalle ecografie dedicate.
+function _serieCrescitaFetale(visiteGravidanza){
+  const punti=[];
+  visiteGravidanza.forEach(v=>{
+    if(v.tipo==='ob' && v.obData){
+      const sett=parseSettimaneEsatte(v.obData['bio-epoca']);
+      const peso=parseFloat(v.obData['bio-peso']);
+      if(sett!==null && sett>=14 && sett<=40 && !isNaN(peso)) punti.push({settimane:sett, valore:peso});
+    } else if(v.tipo==='eco' && v.ecoData){
+      const sett=parseSettimaneEsatte(v.ecoData.settimane);
+      const peso=parseFloat(String(v.ecoData.efw||'').replace(/[^\d.]/g,''));
+      if(sett!==null && sett>=14 && sett<=40 && !isNaN(peso)) punti.push({settimane:sett, valore:peso});
+    }
+  });
+  punti.sort((a,b)=>a.settimane-b.settimane);
+  return punti;
+}
+
 function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   const p=DB.pazienti.find(x=>x.id===pazId);
   if(!p){ if(typeof gsToast==='function')gsToast('Paziente non trovata','gs-error'); return; }
@@ -9290,36 +9315,85 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica'};
   const grav=p.gravidanze?.find(g=>g.id===gravidanzaId);
   const dataInizio=grav?.dataInizio?new Date(grav.dataInizio).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
+  const conclusa=!!grav?.conclusa;
+  const ultimaSettimane=(()=>{
+    const s=calcolaSettimaneGravidanza(p, gravidanzaId, new Date());
+    return s?s+' settimane':'';
+  })();
 
   const w=apriFinestraStampa(); if(!w) return;
   const nomeFile=`Riepilogo_Gravidanza_${p.cognome}_${p.nome}`.replace(/\s+/g,'_');
+
+  // Tabella riepilogativa rapida: una riga per visita, solo i valori chiave.
+  const righeTabella=visiteGravidanza.map(v=>{
+    const d=v.obData||v.ecoData||{};
+    const dataBreve=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'});
+    const eg=v.tipo==='ob'?(d.settimane||d['bio-epoca']||'–'):(v.tipo==='eco'?(d.settimane||'–'):'–');
+    const pesoMat=v.tipo==='ob'&&d.peso?d.peso+' kg':'–';
+    const pa=v.tipo==='ob'&&d.pressione?d.pressione:'–';
+    const efw=v.tipo==='ob'&&d['bio-peso']?d['bio-peso']+' g':(v.tipo==='eco'&&d.efw?d.efw:'–');
+    return `<tr><td>${dataBreve}</td><td>${TIPO_LABEL[v.tipo]||v.tipo}</td><td>${eg}</td><td>${pesoMat}</td><td>${pa}</td><td>${efw}</td></tr>`;
+  }).join('');
+
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${nomeFile}</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
   <style>
     ${printStyleComune()}
     :root{--primary:var(--print-acc);--primary-dim:#fbe9ef;--label:#1a1a1a;--label3:#777}
-    body{color:#1a1a1a;max-width:800px;margin:30px auto;padding:0 20px;line-height:1.6}
-    h1{font-size:1.4rem;color:var(--print-acc);border-bottom:3px solid var(--print-acc);padding-bottom:14px;margin-bottom:6px}
-    .sub{color:#666;font-size:.9rem;margin-bottom:30px}
+    html{background:#fff}
+    body{background:#fff;color:#1a1a1a;max-width:800px;margin:40px auto;padding:70px 20px 0;line-height:1.6}
+    .riep-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid var(--print-acc);padding-bottom:16px;margin-bottom:22px}
+    .riep-header img{max-height:60px}
+    .riep-header h2{font-size:1.15rem;margin:0;color:var(--print-acc)}
+    .riep-header .sp{font-size:.8rem;color:#555;margin-top:2px}
+    .riep-header .ct{font-size:.74rem;color:#777;margin-top:2px}
+    h1{font-size:1.4rem;color:var(--print-acc);margin-bottom:6px}
+    .sub{color:#666;font-size:.9rem;margin-bottom:6px}
+    .stato-pill{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:10px;margin-left:8px;vertical-align:middle}
+    .stato-pill.attiva{background:#e8f5e9;color:#2e7d32}
+    .stato-pill.conclusa{background:#eceff1;color:#546e7a}
+    .riep-table{width:100%;border-collapse:collapse;margin:20px 0 28px;font-size:.82rem;break-inside:avoid-page;page-break-inside:avoid}
+    .riep-table th{text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.4px;color:#888;border-bottom:2px solid #eee;padding:6px 10px}
+    .riep-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0}
+    .riep-table tr:last-child td{border-bottom:none}
     .pdf-banner{background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.85rem;color:#664d03;display:flex;align-items:center;gap:10px}
-    .visita-block{margin-bottom:36px;page-break-inside:avoid}
-    .visita-header{display:flex;align-items:center;gap:10px;background:#fbe9ef;border-radius:8px;padding:10px 16px;margin-bottom:14px}
+    .visita-block{margin-bottom:36px}
+    .visita-header{display:flex;align-items:center;gap:10px;background:#fbe9ef;border-radius:8px;padding:10px 16px;margin-bottom:14px;break-after:avoid-page;page-break-after:avoid}
     .visita-header .data{font-weight:700;font-size:1.05rem}
     .visita-header .tipo{color:#c2185b;font-size:.85rem;font-weight:600}
     .fonte{margin-top:30px;font-size:.72rem;color:#999;border-top:1px solid #eee;padding-top:10px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
-    .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px}
+    .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px;break-inside:avoid-page;page-break-inside:avoid}
     .chart-box h3{font-size:.9rem;margin:0 0 8px;color:#333}
-    @media print{.visita-block{page-break-after:auto} .pdf-banner{display:none} .grid{grid-template-columns:1fr 1fr}}
+    .riep-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f;z-index:10}
+    .riep-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:var(--print-acc);color:#fff;cursor:pointer}
+    .riep-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+    .riep-toolbar .stato{margin-left:auto;font-size:.76rem;opacity:.8}
+    @media print{body{margin:0;padding:0}.riep-toolbar{display:none}.pdf-banner{display:none}.grid{grid-template-columns:1fr 1fr}}
   </style></head><body>
-    <div class="pdf-banner">💡 <div><strong>Per salvare come PDF:</strong> nella finestra di stampa che si apre, scegli "Salva come PDF" (o "Microsoft Print to PDF") invece della stampante, poi conferma. Questo banner non comparirà nella stampa/PDF.</div></div>
-    <h1>Riepilogo Completo Gravidanza</h1>
-    <div class="sub"><strong>${p.cognome} ${p.nome}</strong>${dataInizio?' · Gravidanza iniziata il '+dataInizio:''} · ${visiteGravidanza.length} visit${visiteGravidanza.length>1?'e':'a'} registrat${visiteGravidanza.length>1?'e':'a'}</div>`;
+    <div class="riep-toolbar no-print">
+      <button onclick="window.print()">Stampa</button>
+      <button onclick="scaricaPdfRiepilogo(this)">Scarica PDF</button>
+      <button class="sec" onclick="window.close()">Chiudi</button>
+      <span class="stato" id="riep-pdf-stato"></span>
+    </div>
+    <div class="riep-header">${printHeaderHtml()}</div>
+    <div class="pdf-banner no-print">Il pulsante <strong>Scarica PDF</strong> qui sopra salva subito il file. In alternativa, da <strong>Stampa</strong> puoi scegliere "Salva come PDF" nella finestra di stampa.</div>
+    <h1>Riepilogo Completo Gravidanza<span class="stato-pill ${conclusa?'conclusa':'attiva'}">${conclusa?'Conclusa':'In corso'}</span></h1>
+    <div class="sub"><strong>${p.cognome} ${p.nome}</strong>${dataInizio?' · Iniziata il '+dataInizio:''}${(!conclusa&&ultimaSettimane)?' · Epoca attuale: '+ultimaSettimane:''} · ${visiteGravidanza.length} visit${visiteGravidanza.length>1?'e':'a'} registrat${visiteGravidanza.length>1?'e':'a'}</div>
+
+    <table class="riep-table">
+      <thead><tr><th>Data</th><th>Tipo</th><th>Epoca</th><th>Peso materno</th><th>PA</th><th>Peso fetale (EFW)</th></tr></thead>
+      <tbody>${righeTabella}</tbody>
+    </table>`;
 
   const {pesoPunti, sistolicaPunti, diastolicaPunti}=_serieAndamentoMaterno(visiteGravidanza);
-  if(pesoPunti.length || sistolicaPunti.length){
+  const puntiCrescita=_serieCrescitaFetale(visiteGravidanza);
+  if(pesoPunti.length || sistolicaPunti.length || puntiCrescita.length){
     html+=`<div class="grid">
-      ${pesoPunti.length?`<div class="chart-box"><h3>Andamento Peso (kg)</h3>${svgTrendSemplice([{colore:'#c2185b',punti:pesoPunti}])}</div>`:''}
+      ${pesoPunti.length?`<div class="chart-box"><h3>Andamento Peso Materno (kg)</h3>${svgTrendSemplice([{colore:'#c2185b',punti:pesoPunti}])}</div>`:''}
       ${sistolicaPunti.length?`<div class="chart-box"><h3>Pressione Arteriosa (mmHg)</h3>${svgTrendSemplice([{colore:'#e53935',punti:sistolicaPunti},{colore:'#1e88e5',punti:diastolicaPunti}])}<div style="font-size:.68rem;color:#999;margin-top:4px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#e53935;margin-right:4px"></span>Sistolica &nbsp; <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#1e88e5;margin-right:4px"></span>Diastolica</div></div>`:''}
+      ${puntiCrescita.length?`<div class="chart-box"><h3>Crescita Fetale — Peso Stimato (g)</h3>${svgCurva5(INTERGROWTH_EFW,puntiCrescita)}<div style="font-size:.66rem;color:#999;margin-top:4px">Percentili INTERGROWTH-21st, orientativi. Banda 3°-97°, linea blu = mediana.</div></div>`:''}
     </div>`;
   }
 
@@ -9331,12 +9405,41 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     </div>`;
   });
 
-  html+=`<div class="fonte">Documento generato da GynoSystem il ${new Date().toLocaleDateString('it-IT')}. Riepilogo a uso clinico/informativo della paziente.</div>
+  html+=`<div class="fonte">Documento generato da GynoSystem il ${new Date().toLocaleDateString('it-IT')}. Riepilogo a uso clinico/informativo della paziente. Percentili di crescita fetale orientativi (INTERGROWTH-21st) — verificare con il calcolatore ufficiale prima dell'uso clinico.</div>
+    <script>
+      function scaricaPdfRiepilogo(btn){
+        if(typeof html2pdf==='undefined'){ alert('Libreria PDF non disponibile: verifica la connessione internet e riprova.'); return; }
+        var stato=document.getElementById('riep-pdf-stato');
+        if(stato) stato.textContent='Generazione PDF in corso…';
+        if(btn) btn.disabled=true;
+        // La barra in alto è fissa e riserva spazio col padding del body: per il
+        // PDF (dove la barra non compare, esclusa da ignoreElements) lo riduciamo
+        // temporaneamente per non lasciare uno spazio vuoto in cima alla pagina.
+        var vecchioPadding=document.body.style.paddingTop;
+        document.body.style.paddingTop='10px';
+        html2pdf().set({
+          margin:[12,10,12,10],
+          filename:${JSON.stringify(nomeFile+'.pdf')},
+          image:{type:'jpeg',quality:0.98},
+          html2canvas:{scale:2, useCORS:true, ignoreElements:function(el){ return el.classList && el.classList.contains('no-print'); }},
+          jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
+          pagebreak:{mode:['css','legacy']}
+        }).from(document.body).save().then(function(){
+          if(stato) stato.textContent='PDF scaricato ✓';
+          if(btn) btn.disabled=false;
+          document.body.style.paddingTop=vecchioPadding;
+        }).catch(function(e){
+          console.warn('Generazione PDF:', e);
+          if(stato) stato.textContent='Errore nella generazione del PDF';
+          if(btn) btn.disabled=false;
+          document.body.style.paddingTop=vecchioPadding;
+        });
+      }
+    <\/script>
   </body></html>`;
 
   w.document.write(html);
   w.document.close();
-  setTimeout(()=>w.print(),400);
 }
 
 function apriCurveCrescita(pazId, vid){
