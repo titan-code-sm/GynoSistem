@@ -1068,7 +1068,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
   <div class="card">
     <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-      <input type="text" id="search-bar" onkeyup="renderPazienti()" placeholder="🔍  Cerca per nome, cognome..." style="flex:1;min-width:200px;margin-bottom:0;">
+      <input type="text" id="search-bar" onkeyup="renderPazienti()" placeholder="🔍  Cerca per nome, cognome, diagnosi, note..." style="flex:1;min-width:200px;margin-bottom:0;">
       <button class="btn btn-ghost" id="filtro-gravidanze-btn" onclick="toggleFiltroGravidanze()">🤰 Solo gravidanze attive</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
@@ -6187,12 +6187,26 @@ function resetFiltriAvanzati(){
   renderPazienti();
 }
 
+// Testo di una visita su cui cercare (diagnosi/conclusioni, terapia, note),
+// indipendentemente dal tipo di visita (ognuno usa nomi di campo diversi).
+function testoRicercabileVisita(v){
+  const d=v.obData||v.ecoData||v.gynoData||{};
+  return [d.diagnosi, d.conclusioni, d.terapia, d['note-eco'], d['counselling-txt']].filter(Boolean).join(' ');
+}
+
 function renderPazienti(){
   const q=document.getElementById('search-bar').value.toLowerCase();
   const tb=document.getElementById('pazienti-tbody'); tb.innerHTML='';
   const thead=document.querySelector('#sec-archivio table thead tr');
 
-  let filtered=DB.pazienti.filter(p=>(p.nome+' '+p.cognome).toLowerCase().includes(q));
+  // La ricerca controlla nome/cognome, le note della paziente e diagnosi/
+  // terapia/conclusioni di tutte le sue visite (non solo il nome).
+  let filtered=DB.pazienti.filter(p=>{
+    if(!q) return true;
+    if((p.nome+' '+p.cognome).toLowerCase().includes(q)) return true;
+    if((p.note||'').toLowerCase().includes(q)) return true;
+    return (p.visite||[]).some(v=>testoRicercabileVisita(v).toLowerCase().includes(q));
+  });
 
   // Filtro per categoria di visita eseguita (ginecologiche / ostetriche / ecografie)
   if(filtroCategoriaPaz!=='all'){
