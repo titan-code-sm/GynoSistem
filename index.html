@@ -1640,6 +1640,14 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <textarea id="p-note" rows="8" placeholder="Anamnesi patologica remota, allergie, familiarità, note cliniche..." onblur="salvaNote()"></textarea>
       </div>
       <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div><div class="card-title">🔬 Screening</div><div class="card-subtitle">Scadenzario: genera in automatico un promemoria quando è ora di ripetere il controllo</div></div></div>
+        <div class="field-row r2" style="margin-bottom:6px;">
+          <div class="form-group"><label class="form-label">Ultimo Pap test / HPV</label><input type="date" id="scr-pap" onchange="salvaScreeningData('pap',this.value)"></div>
+          <div class="form-group"><label class="form-label">Ultima Mammografia</label><input type="date" id="scr-mammo" onchange="salvaScreeningData('mammo',this.value)"></div>
+        </div>
+        <div id="scr-stato" style="display:flex;flex-direction:column;gap:6px;font-size:.8rem;"></div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
         <div class="card-header"><div><div class="card-title">💊 Farmaci Attuali</div><div class="card-subtitle">Ultima terapia prescritta e storico nel tempo</div></div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button class="btn btn-ghost btn-sm" onclick="apriSelettoreFarmaciPaziente()" title="Prescrivi farmaci dal prontuario e/o crea la ricetta">💊 Prescrivi</button>
@@ -5589,6 +5597,10 @@ function animaStatValue(id, target){
 
 function renderDashboard(){
   applyDashLayout();
+  // Ricalcola le scadenze di screening per tutte le pazienti: così un
+  // promemoria compare in dashboard anche se nessuno ha ancora riaperto
+  // quella specifica cartella dopo la scadenza.
+  DB.pazienti.forEach(p=>verificaScadenzeScreening(p));
   let totalVisite=0, totalAlert=0;
   DB.pazienti.forEach(p=>{totalVisite+=(p.visite||[]).length; totalAlert+=(p.alerts||[]).length;});
   animaStatValue('stat-paz', DB.pazienti.length);
@@ -6281,6 +6293,7 @@ function openPaziente(id){
   renderVisiteList(p);
   renderAlertsPaz(p);
   renderFarmaciAttuali(p);
+  renderScreeningPaziente(p);
   mostraAllertaPromemoriaScaduti(p);
 }
 
@@ -6992,6 +7005,72 @@ function parseDataProssimoControllo(testo){
   }
 
   return null;
+}
+
+// ═══════════════════════════════════════════════════
+//  SCADENZARIO SCREENING (Pap test/HPV, Mammografia)
+// ═══════════════════════════════════════════════════
+// Intervalli standard orientativi (screening di popolazione italiano):
+// Pap test/HPV ogni 3 anni, Mammografia ogni 2 anni. Sono indicazioni
+// generali: l'intervallo esatto dipende da età e tipo di test eseguito,
+// da valutare caso per caso.
+const SCREENING_TIPI=[
+  {key:'pap', label:'Pap test / HPV', intervalloGiorni:3*365},
+  {key:'mammo', label:'Mammografia', intervalloGiorni:2*365}
+];
+function salvaScreeningData(campo,valore){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p)return;
+  if(!p.screening)p.screening={};
+  p.screening[campo]=valore;
+  salvaDB();
+  verificaScadenzeScreening(p);
+  renderScreeningPaziente(p);
+  renderAlertsPaz(p);
+}
+// Controlla le scadenze di screening di UNA paziente e crea/aggiorna/rimuove
+// il relativo promemoria automatico. Va richiamata per tutte le pazienti ad
+// ogni apertura della dashboard (non solo quando si apre la singola cartella),
+// altrimenti uno screening scaduto non comparirebbe mai tra i promemoria finché
+// qualcuno non apre quella specifica cartella.
+function verificaScadenzeScreening(p){
+  if(!p.screening)return;
+  if(!p.alerts)p.alerts=[];
+  SCREENING_TIPI.forEach(t=>{
+    const dataUltimo=p.screening[t.key];
+    p.alerts=p.alerts.filter(a=>a.screeningTipo!==t.key);
+    if(!dataUltimo)return;
+    const scadenza=new Date(dataUltimo);
+    scadenza.setDate(scadenza.getDate()+t.intervalloGiorni);
+    if(new Date()>=scadenza){
+      p.alerts.push({
+        id:'scr_'+t.key+'_'+Date.now(),
+        data:scadenza.toISOString().split('T')[0],
+        testo:`Scadenza screening: ${t.label}`,
+        screeningTipo:t.key,
+        automatico:true
+      });
+    }
+  });
+}
+function renderScreeningPaziente(p){
+  const box=document.getElementById('scr-stato');
+  if(!box)return;
+  if(!p.screening)p.screening={};
+  document.getElementById('scr-pap').value=p.screening.pap||'';
+  document.getElementById('scr-mammo').value=p.screening.mammo||'';
+  box.innerHTML=SCREENING_TIPI.map(t=>{
+    const dataUltimo=p.screening[t.key];
+    if(!dataUltimo)return `<div style="color:var(--label4)">– ${t.label}: nessun dato registrato</div>`;
+    const scadenza=new Date(dataUltimo);
+    scadenza.setDate(scadenza.getDate()+t.intervalloGiorni);
+    const scadenzaStr=scadenza.toLocaleDateString('it-IT');
+    if(new Date()>=scadenza){
+      const mesi=Math.floor((new Date()-scadenza)/(30*86400000));
+      return `<div style="color:var(--red)">⚠️ ${t.label} scaduto da ${mesi<1?'meno di un mese':mesi+' mes'+(mesi===1?'e':'i')} (previsto per il ${scadenzaStr})</div>`;
+    }
+    return `<div style="color:var(--green)">✅ ${t.label} in regola — prossimo entro il ${scadenzaStr}</div>`;
+  }).join('');
 }
 
 // Crea (o aggiorna) un promemoria collegato a questa visita, se il testo del
