@@ -172,14 +172,33 @@ main{flex:1;overflow-y:auto;background:var(--bg);}
 /* ─── GRIDS ─── */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-/* ── Cartella paziente: colonna principale (clinica) + sidebar (anagrafica/scadenze), bilanciate ── */
-.paz-grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:22px;align-items:start;}
-.paz-main{display:flex;flex-direction:column;gap:20px;min-width:0;}
-.paz-side{display:flex;flex-direction:column;gap:18px;min-width:0;}
-.paz-side .card,.paz-side .note-card{padding:20px 22px;}
-@media (max-width:960px){ .paz-grid{grid-template-columns:1fr;} }
-.paz-card{border-left:4px solid var(--accent,var(--primary));}
-.paz-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--label4);margin-bottom:10px;}
+/* ── Cartella paziente: un unico pannello con indice laterale a schede ──
+   Prima ogni sezione era una card indipendente impilata in due colonne di
+   altezza diversa (sempre sfasate, a seconda di quanti dati aveva quella
+   paziente). Ora è un solo contenitore "unito": una scheda alla volta, un
+   indice a sinistra sempre uguale. */
+.paz-shell{display:flex;background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--separator);overflow:hidden;align-items:stretch;min-height:480px;}
+.paz-index{width:230px;flex-shrink:0;background:var(--surface2);border-right:1px solid var(--separator);padding:16px 10px;display:flex;flex-direction:column;gap:3px;}
+.paz-tab{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 12px;border-radius:10px;border:none;background:transparent;color:var(--label3);font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s,color .15s;font-family:var(--font);}
+.paz-tab:hover{background:var(--separator);}
+.paz-tab.active{background:var(--primary);color:#fff;}
+.paz-tab .pt-ic{font-size:1.05rem;width:20px;text-align:center;flex-shrink:0;}
+.paz-tab .pt-badge{margin-left:auto;background:rgba(0,0,0,.1);border-radius:20px;padding:1px 7px;font-size:.68rem;font-weight:700;min-width:10px;text-align:center;}
+.paz-tab.active .pt-badge{background:rgba(255,255,255,.25);}
+.paz-panel{flex:1;min-width:0;padding:26px 30px;}
+.paz-pane{display:none;}
+.paz-pane.active{display:block;animation:pazFade .18s ease;}
+@keyframes pazFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.paz-pane-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
+.paz-pane-title{font-size:1.05rem;font-weight:700;color:var(--label);}
+.paz-pane-sub{font-size:.8rem;color:var(--label4);margin-top:3px;}
+#paz-pane-note textarea{width:100%;border-radius:var(--radius-sm);border:1px solid var(--separator);padding:14px;font-family:var(--font);font-size:.88rem;resize:vertical;}
+@media (max-width:900px){
+  .paz-shell{flex-direction:column;min-height:0;}
+  .paz-index{width:100%;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--separator);padding:8px;gap:6px;}
+  .paz-tab{white-space:nowrap;width:auto;}
+  .paz-panel{padding:18px;}
+}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
 .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
 
@@ -1744,15 +1763,27 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
   </div>
 
-  <div class="paz-grid">
-    <!-- Colonna principale: attività clinica (visite, terapie, consensi) -->
-    <div class="paz-main">
-      <div class="card paz-card" style="--accent:var(--primary);">
-        <div class="card-header"><div class="card-title">📋 Cartella Clinica</div><span id="visite-count-badge" class="badge badge-blue"></span></div>
+  <div class="paz-shell">
+    <!-- Indice laterale: un unico pannello, niente più card sfasate di altezze diverse -->
+    <div class="paz-index">
+      <button class="paz-tab active" data-tab="clinica" onclick="pazSwitchTab('clinica')"><span class="pt-ic">📋</span>Cartella Clinica<span class="pt-badge" id="pt-badge-clinica"></span></button>
+      <button class="paz-tab" data-tab="farmaci" onclick="pazSwitchTab('farmaci')"><span class="pt-ic">💊</span>Farmaci Attuali</button>
+      <button class="paz-tab" id="paz-tab-consensi" style="display:none;" data-tab="consensi" onclick="pazSwitchTab('consensi')"><span class="pt-ic">✍️</span>Consensi Firmati<span class="pt-badge" id="pt-badge-consensi"></span></button>
+      <button class="paz-tab" data-tab="note" onclick="pazSwitchTab('note')"><span class="pt-ic">📝</span>Note & Anamnesi</button>
+      <button class="paz-tab" data-tab="screening" onclick="pazSwitchTab('screening')"><span class="pt-ic">🔬</span>Screening</button>
+      <button class="paz-tab" data-tab="promemoria" onclick="pazSwitchTab('promemoria')"><span class="pt-ic">🔔</span>Promemoria<span class="pt-badge" id="pt-badge-promemoria"></span></button>
+      <button class="paz-tab" data-tab="referti" onclick="pazSwitchTab('referti')"><span class="pt-ic">📎</span>Referti Esterni</button>
+    </div>
+
+    <div class="paz-panel">
+      <div class="paz-pane active" id="paz-pane-clinica">
+        <div class="paz-pane-header"><div class="paz-pane-title">📋 Cartella Clinica</div></div>
         <div id="visite-list"></div>
       </div>
-      <div class="card paz-card" style="--accent:var(--green);">
-        <div class="card-header"><div><div class="card-title">💊 Farmaci Attuali</div><div class="card-subtitle">Ultima terapia prescritta e storico nel tempo</div></div>
+
+      <div class="paz-pane" id="paz-pane-farmaci">
+        <div class="paz-pane-header">
+          <div><div class="paz-pane-title">💊 Farmaci Attuali</div><div class="paz-pane-sub">Ultima terapia prescritta e storico nel tempo</div></div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button class="btn btn-ghost btn-sm" onclick="apriSelettoreFarmaciPaziente()" title="Prescrivi farmaci dal prontuario e/o crea la ricetta">💊 Prescrivi</button>
             <button class="btn btn-ghost btn-sm btn-icon" onclick="apriNuovoFarmacoManuale()" title="Aggiungi farmaco a mano">➕</button>
@@ -1760,39 +1791,42 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         </div>
         <div id="farmaci-attuali-box"></div>
       </div>
-      <div class="card paz-card" id="consensi-firmati-box" style="display:none;--accent:var(--teal);">
-        <div class="card-header"><div><div class="card-title">✍️ Consensi Firmati</div><div class="card-subtitle">Moduli firmati su schermo, salvati in questa cartella</div></div>
+
+      <div class="paz-pane" id="paz-pane-consensi">
+        <div class="paz-pane-header">
+          <div><div class="paz-pane-title">✍️ Consensi Firmati</div><div class="paz-pane-sub">Moduli firmati su schermo, salvati in questa cartella</div></div>
           <button class="btn btn-ghost btn-sm" onclick="naviga('consensi')" title="Vai alla libreria dei consensi">📋 Libreria</button>
         </div>
-        <div id="consensi-firmati-lista"></div>
+        <div id="consensi-firmati-box"><div id="consensi-firmati-lista"></div></div>
       </div>
-    </div>
-    <!-- Sidebar: anagrafica, scadenze e promemoria -->
-    <div class="paz-side">
-      <div class="note-card">
-        <h4>📝 Note & Anamnesi</h4>
-        <textarea id="p-note" rows="6" placeholder="Anamnesi patologica remota, allergie, familiarità, note cliniche..." onblur="salvaNote()"></textarea>
+
+      <div class="paz-pane" id="paz-pane-note">
+        <div class="paz-pane-header"><div class="paz-pane-title">📝 Note & Anamnesi</div></div>
+        <textarea id="p-note" rows="14" style="background:#fffbeb;border-color:#fde68a;" placeholder="Anamnesi patologica remota, allergie, familiarità, note cliniche..." onblur="salvaNote()"></textarea>
       </div>
-      <div class="card paz-card" style="--accent:var(--purple);">
-        <div class="card-header"><div><div class="card-title">🔬 Screening</div><div class="card-subtitle">Genera in automatico un promemoria quando è ora di ripetere il controllo</div></div></div>
-        <div class="field-row r2" style="margin-bottom:6px;">
+
+      <div class="paz-pane" id="paz-pane-screening">
+        <div class="paz-pane-header"><div><div class="paz-pane-title">🔬 Screening</div><div class="paz-pane-sub">Genera in automatico un promemoria quando è ora di ripetere il controllo</div></div></div>
+        <div class="field-row r2" style="margin-bottom:6px;max-width:520px;">
           <div class="form-group"><label class="form-label">Ultimo Pap test / HPV</label><input type="date" id="scr-pap" onchange="salvaScreeningData('pap',this.value)"></div>
           <div class="form-group"><label class="form-label">Ultima Mammografia</label><input type="date" id="scr-mammo" onchange="salvaScreeningData('mammo',this.value)"></div>
         </div>
         <div id="scr-stato" style="display:flex;flex-direction:column;gap:6px;font-size:.8rem;"></div>
       </div>
-      <div class="card paz-card" style="--accent:var(--yellow);">
-        <div class="card-header"><div class="card-title">🔔 Promemoria</div></div>
-        <div class="field-row r2" style="margin-bottom:10px;">
+
+      <div class="paz-pane" id="paz-pane-promemoria">
+        <div class="paz-pane-header"><div class="paz-pane-title">🔔 Promemoria</div></div>
+        <div class="field-row r2" style="margin-bottom:10px;max-width:520px;">
           <div class="form-group"><label class="form-label">Data</label><input type="date" id="alert-date"></div>
           <div class="form-group"><label class="form-label">Scadenza</label><input id="alert-text" placeholder="es. Pap Test annuale"></div>
         </div>
-        <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="addAlert()">+ Aggiungi Promemoria</button>
-        <div id="alert-list-p" style="margin-top:12px;"></div>
+        <button class="btn btn-primary btn-sm" style="max-width:520px;justify-content:center;" onclick="addAlert()">+ Aggiungi Promemoria</button>
+        <div id="alert-list-p" style="margin-top:12px;max-width:520px;"></div>
       </div>
-      <div class="card paz-card" style="--accent:var(--orange);">
-        <div class="card-header"><div><div class="card-title">📎 Referti Esterni</div><div class="card-subtitle">Analisi o referti fatti altrove — salvati solo su questo dispositivo, mai online</div></div></div>
-        <div class="field-row r2" style="margin-bottom:8px;">
+
+      <div class="paz-pane" id="paz-pane-referti">
+        <div class="paz-pane-header"><div><div class="paz-pane-title">📎 Referti Esterni</div><div class="paz-pane-sub">Analisi o referti fatti altrove — salvati solo su questo dispositivo, mai online</div></div></div>
+        <div class="field-row r2" style="margin-bottom:8px;max-width:600px;">
           <div class="form-group"><label class="form-label">Descrizione</label><input id="alg-desc" placeholder="es. Analisi del sangue, 10 sett."></div>
           <div class="form-group"><label class="form-label">File (PDF o immagine)</label><input type="file" id="alg-file" accept="application/pdf,image/*"></div>
         </div>
@@ -6426,6 +6460,13 @@ function indicatoriPaziente(p){
   return html;
 }
 
+// Cartella paziente: indice laterale a schede — un solo pannello alla volta,
+// così non ci sono più card di altezze diverse affiancate in modo sfasato.
+function pazSwitchTab(tab){
+  document.querySelectorAll('.paz-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.paz-pane').forEach(el=>el.classList.toggle('active', el.id==='paz-pane-'+tab));
+}
+
 function openPaziente(id){
   curPaz=id;
   const p=DB.pazienti.find(x=>x.id===id);
@@ -6475,6 +6516,7 @@ function openPaziente(id){
   renderScreeningPaziente(p);
   renderAllegatiPaziente(p.id);
   if(typeof renderConsensiFirmati==='function') renderConsensiFirmati();
+  pazSwitchTab('clinica'); // riparte sempre dalla Cartella Clinica quando si apre una paziente
   mostraAllertaPromemoriaScaduti(p);
 }
 
@@ -7083,6 +7125,8 @@ function renderAlertsPaz(p){
       <span class="alert-del" onclick="delAlert(${a.id})">✕</span>
     </div>`;
   });
+  const badge=document.getElementById('pt-badge-promemoria');
+  if(badge) badge.textContent=(p.alerts||[]).length||'';
 }
 
 function delAlert(id){const p=DB.pazienti.find(x=>x.id===curPaz);p.alerts=p.alerts.filter(a=>a.id!==id);salvaDB();renderAlertsPaz(p);}
@@ -8391,7 +8435,8 @@ function loadVisita(vid){
 
 function renderVisiteList(p){
   const c=document.getElementById('visite-list'); c.innerHTML='';
-  document.getElementById('visite-count-badge').textContent=`${p.visite?.length||0} visite`;
+  const badge=document.getElementById('pt-badge-clinica');
+  if(badge) badge.textContent=p.visite?.length||0;
   if(!p.visite?.length){c.innerHTML='<div class="empty-state"><div class="es-icon">🩺</div><p>Nessuna visita registrata</p></div>';return;}
 
   const TIPO_META={
@@ -9081,11 +9126,16 @@ function renderConsensiFirmati(){
   const box=document.getElementById('consensi-firmati-box');
   const lista=document.getElementById('consensi-firmati-lista');
   const nomeEl=document.getElementById('consensi-firmati-nome');
+  const tab=document.getElementById('paz-tab-consensi');
+  const badge=document.getElementById('pt-badge-consensi');
   if(!box||!lista) return;
   const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
   const firmati = p?.consensiFirmati||[];
-  if(!p || !firmati.length){ box.style.display='none'; return; }
-  box.style.display='block';
+  if(tab) tab.style.display=(p && firmati.length)?'flex':'none';
+  // se la scheda "Consensi Firmati" era attiva e non ha più contenuto (es. cambio paziente), torna alla Cartella Clinica
+  if(tab && tab.style.display==='none' && tab.classList.contains('active') && typeof pazSwitchTab==='function') pazSwitchTab('clinica');
+  if(!p || !firmati.length) return;
+  if(badge) badge.textContent=firmati.length;
   if(nomeEl) nomeEl.textContent = `${p.cognome} ${p.nome}`;
   const ordinati=[...firmati].map((f,i)=>({...f,_i:i})).sort((a,b)=>new Date(b.data)-new Date(a.data));
   lista.innerHTML = ordinati.map(f=>{
