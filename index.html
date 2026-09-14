@@ -1707,6 +1707,13 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div><div class="page-title">Impostazioni</div><div class="page-subtitle">Preferenze personali di questo account</div></div>
   </div>
 
+  <div class="tipo-pills" style="margin-bottom:20px;">
+    <button class="tipo-pill active" onclick="setSettingsTab(this,'set-tab-ai')">🤖 Assistente AI</button>
+    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-stampa')">🖨️ Stampe</button>
+    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-funzioni')">🧩 Funzionalità</button>
+  </div>
+
+  <div id="set-tab-ai" class="edit-panel active">
   <div class="card" style="max-width:720px;">
     <div class="card-header"><div><div class="card-title">🤖 Assistente clinico</div><div class="card-subtitle">Sempre disponibile: durante la visita ti segnala i passi giusti; sulla dashboard ti fa il punto della giornata, ti ricorda le cose importanti e ti propone di ripassare i casi in arrivo</div></div></div>
     <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 0;">
@@ -1721,8 +1728,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
     <div id="ai-stato-riga" style="font-size:0.8rem;color:var(--label4);margin-top:10px;"></div>
   </div>
+  </div>
 
-  <div class="card" style="max-width:720px;margin-top:18px;">
+  <div id="set-tab-stampa" class="edit-panel">
+  <div class="card" style="max-width:720px;">
     <div class="card-header"><div><div class="card-title">🖨️ Personalizzazione stampe</div><div class="card-subtitle">Intestazione, firma e impaginazione di ricetta, referto e informativa/consenso — valide solo per questo account</div></div></div>
 
     <div style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin:6px 0 10px;">Intestazione</div>
@@ -1773,6 +1782,17 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button class="btn btn-ghost" onclick="anteprimaStampa()">👁️ Anteprima referto</button>
     </div>
     <div id="set-print-stato" style="font-size:0.8rem;color:var(--label4);margin-top:10px;"></div>
+  </div>
+  </div>
+
+  <div id="set-tab-funzioni" class="edit-panel">
+  <div class="card" style="max-width:720px;">
+    <div class="card-header"><div><div class="card-title">🧩 Funzionalità</div><div class="card-subtitle">Nascondi dal menu laterale le sezioni che non usi, per un'app più snella. Nessun dato viene cancellato: si può riattivare tutto in qualsiasi momento da qui.</div></div></div>
+    <div id="set-funzioni-lista" style="display:flex;flex-direction:column;gap:2px;"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+      <button class="btn btn-ghost btn-sm" onclick="riattivaTutteFunzioni()">↺ Riattiva tutte</button>
+    </div>
+  </div>
   </div>
 </div>
 
@@ -5111,6 +5131,7 @@ async function proceedAfterLogin(){
   // dei medici (regole Firestore + chiave localStorage per utente).
   if(navPrincipale) navPrincipale.style.display='';
   if(navStrumenti) navStrumenti.style.display='';
+  applyFeatureFlags(); // nasconde le voci di menu disattivate da Impostazioni → Funzionalità
 
   if(gsDemoMode){
     // Modalità dimostrativa: pazienti di esempio, sandbox completamente
@@ -6981,7 +7002,80 @@ function aiCaricaPreferenza(){
   try{ aiAbilitato = localStorage.getItem(aiKey()) === '1'; }catch(e){ aiAbilitato = false; }
 }
 
+// Cambia scheda nella pagina Impostazioni (Assistente AI / Stampe / Funzionalità)
+function setSettingsTab(btn,id){
+  document.querySelectorAll('#sec-impostazioni .edit-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('#sec-impostazioni .tipo-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  FUNZIONALITÀ ATTIVABILI/DISATTIVABILI (nascondono voci di menu)
+// ═══════════════════════════════════════════════════
+// Nasconde solo la voce di menu: non tocca né cancella alcun dato, quindi
+// riattivare una funzionalità la ripristina esattamente come prima.
+// Dashboard, Pazienti, Nuova Paziente, Archiviazione e Impostazioni non sono
+// disattivabili: sono l'accesso ai dati clinici e alle funzioni di sicurezza
+// (backup) e alla pagina che permette di riattivare tutto il resto.
+const FEATURE_TOGGLES=[
+  {key:'storico', label:'Storico Visite', desc:'Archivio di tutte le giornate lavorative', navId:'nav-storico-date'},
+  {key:'appuntamenti', label:'Appuntamenti', desc:'Prenotazioni GynoBook e promemoria', navId:'nav-appuntamenti'},
+  {key:'ricettario', label:'Ricettario', desc:'Elenco di tutte le ricette emesse', navId:'nav-ricettario'},
+  {key:'guide', label:'Linee Guida', desc:'Protocolli ACOG · SIGO · FIGO · ISUOG', navId:'nav-guide'},
+  {key:'farmacia', label:'Farmacia', desc:'Prontuario farmaci per patologia', navId:'nav-farmacia'},
+  {key:'utility', label:'Utility', desc:'Calcolatrici e strumenti vari', navId:'nav-utility'}
+];
+function featureFlagsKey(){ return 'gs_feature_flags_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getFeatureFlags(){
+  try{
+    const s=JSON.parse(localStorage.getItem(featureFlagsKey()));
+    if(s && typeof s==='object') return s;
+  }catch(e){}
+  return {};
+}
+function setFeatureFlag(key,enabled){
+  const flags=getFeatureFlags();
+  flags[key]=enabled;
+  try{ localStorage.setItem(featureFlagsKey(), JSON.stringify(flags)); }catch(e){}
+  applyFeatureFlags();
+  // Se si disattiva la sezione in cui ci si trova, torna alla dashboard
+  const t=FEATURE_TOGGLES.find(f=>f.key===key);
+  const secId='sec-'+(t?.navId||'').replace('nav-','');
+  if(t && !enabled && document.getElementById(secId)?.classList.contains('active')) naviga('home');
+}
+function applyFeatureFlags(){
+  const flags=getFeatureFlags();
+  FEATURE_TOGGLES.forEach(f=>{
+    const nav=document.getElementById(f.navId);
+    const enabled=flags[f.key]!==false; // default: attiva
+    if(nav) nav.style.display=enabled?'':'none';
+  });
+}
+function riattivaTutteFunzioni(){
+  try{ localStorage.removeItem(featureFlagsKey()); }catch(e){}
+  applyFeatureFlags();
+  renderFeatureToggles();
+  if(typeof gsToast==='function') gsToast('✅ Tutte le funzionalità riattivate','gs-success');
+}
+function renderFeatureToggles(){
+  const box=document.getElementById('set-funzioni-lista');
+  if(!box)return;
+  const flags=getFeatureFlags();
+  box.innerHTML=FEATURE_TOGGLES.map(f=>{
+    const enabled=flags[f.key]!==false;
+    return `<label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 0;border-bottom:1px solid var(--separator);">
+      <input type="checkbox" ${enabled?'checked':''} onchange="setFeatureFlag('${f.key}',this.checked)" style="width:20px;height:20px;flex-shrink:0;">
+      <span style="flex:1;">
+        <span style="font-weight:600;display:block;">${f.label}</span>
+        <span style="font-size:.78rem;color:var(--label4);">${f.desc}</span>
+      </span>
+    </label>`;
+  }).join('');
+}
+
 function renderImpostazioni(){
+  renderFeatureToggles();
   const chk = document.getElementById('set-ai-enabled');
   if(chk) chk.checked = aiAbilitato;
   const riga = document.getElementById('ai-stato-riga');
