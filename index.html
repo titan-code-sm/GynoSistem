@@ -182,13 +182,21 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .btn-orange{background:var(--orange);color:#fff;}
 
 /* ─── STAT CARDS ─── */
-.stat-card{background:var(--surface);border-radius:var(--radius);padding:22px;border:1px solid var(--separator);display:flex;flex-direction:column;gap:8px;}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:22px;border:1px solid var(--separator);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--primary);}
 .stat-card .stat-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
 .stat-card .stat-value{font-size:2rem;font-weight:700;color:var(--label);line-height:1;}
 .stat-card .stat-label{font-size:0.8rem;color:var(--label4);font-weight:500;}
 .stat-card .stat-trend{font-size:0.75rem;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-weight:600;margin-top:4px;}
 .trend-up{background:var(--green-dim);color:var(--green);}
 .trend-neutral{background:var(--primary-dim);color:var(--primary);}
+
+/* ─── DASHBOARD: widget riordinabili (drag & drop dalla maniglia ⠿) ─── */
+.dash-widget.dash-dragging{opacity:.4;}
+.dash-widget.dash-dragover{outline:2px dashed var(--primary);outline-offset:4px;border-radius:var(--radius);}
+.dash-grip{cursor:grab;color:var(--label4);font-size:1.2rem;line-height:1;padding:2px 6px;user-select:none;flex-shrink:0;}
+.dash-grip:active{cursor:grabbing;}
+.dash-grip-stats{display:flex;justify-content:center;margin-bottom:4px;}
 
 /* ─── BADGE / TAG ─── */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
@@ -978,57 +986,69 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div id="overdue-alert-list" style="display:flex;flex-direction:column;gap:6px;"></div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">Calendario</div>
-        <div class="card-subtitle">Clicca un giorno per aggiungere note, appuntamenti o promemoria</div>
+  <div id="dash-widgets">
+    <div class="dash-widget" data-widget-id="calendario" draggable="true" ondragstart="dashDragStart(event)" ondragover="dashDragOver(event)" ondragend="dashDragEnd(event)">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Calendario</div>
+            <div class="card-subtitle">Clicca un giorno per aggiungere note, appuntamenti o promemoria</div>
+          </div>
+          <span class="dash-grip" title="Trascina per spostare">⠿</span>
+        </div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <span id="cal-title" class="cal-nav-title"></span>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="cal-grid" id="cal-days-header">
+          <div class="cal-day-name">Lun</div><div class="cal-day-name">Mar</div><div class="cal-day-name">Mer</div>
+          <div class="cal-day-name">Gio</div><div class="cal-day-name">Ven</div>
+          <div class="cal-day-name" style="color:var(--red)">Sab</div>
+          <div class="cal-day-name" style="color:var(--red)">Dom</div>
+        </div>
+        <div class="cal-grid" id="calendar-body"></div>
       </div>
     </div>
-    <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-      <span id="cal-title" class="cal-nav-title"></span>
-      <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
-    </div>
-    <div class="cal-grid" id="cal-days-header">
-      <div class="cal-day-name">Lun</div><div class="cal-day-name">Mar</div><div class="cal-day-name">Mer</div>
-      <div class="cal-day-name">Gio</div><div class="cal-day-name">Ven</div>
-      <div class="cal-day-name" style="color:var(--red)">Sab</div>
-      <div class="cal-day-name" style="color:var(--red)">Dom</div>
-    </div>
-    <div class="cal-grid" id="calendar-body"></div>
-  </div>
-  <div class="card" style="margin-top:24px;">
-    <div class="card-header">
-      <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Prenotazioni GynoBook e promemoria, in ordine di data</div></div>
-    </div>
-    <div id="dashboard-alerts" style="max-height:480px;overflow-y:auto;"></div>
-  </div>
 
-  <div class="g4" style="margin-top:24px;">
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--primary-dim);">👩‍⚕️</div>
-      <div class="stat-value" id="stat-paz">0</div>
-      <div class="stat-label">Pazienti Totali</div>
-      <div class="stat-trend trend-neutral">📊 Archivio Attivo</div>
+    <div class="dash-widget" data-widget-id="appuntamenti" draggable="true" ondragstart="dashDragStart(event)" ondragover="dashDragOver(event)" ondragend="dashDragEnd(event)" style="margin-top:24px;">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Prenotazioni GynoBook e promemoria, in ordine di data</div></div>
+          <span class="dash-grip" title="Trascina per spostare">⠿</span>
+        </div>
+        <div id="dashboard-alerts" style="max-height:480px;overflow-y:auto;"></div>
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--green-dim);">🏥</div>
-      <div class="stat-value" id="stat-visite">0</div>
-      <div class="stat-label">Visite Totali</div>
-      <div class="stat-trend trend-up">↑ Tutte le visite</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:var(--orange-dim);">⚠️</div>
-      <div class="stat-value" id="stat-alert">0</div>
-      <div class="stat-label">Promemoria Attivi</div>
-      <div class="stat-trend trend-neutral">📌 Da verificare</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:rgba(175,82,222,0.12);">📆</div>
-      <div class="stat-value" id="stat-oggi">0</div>
-      <div class="stat-label">Visite Oggi</div>
-      <div class="stat-trend trend-up">✅ Giornata</div>
+
+    <div class="dash-widget" data-widget-id="statistiche" draggable="true" ondragstart="dashDragStart(event)" ondragover="dashDragOver(event)" ondragend="dashDragEnd(event)" style="margin-top:24px;">
+      <div class="dash-grip dash-grip-stats" title="Trascina per spostare">⠿</div>
+      <div class="g4">
+        <div class="stat-card" onclick="naviga('archivio')" title="Vai all'archivio pazienti">
+          <div class="stat-icon" style="background:var(--primary-dim);">👩‍⚕️</div>
+          <div class="stat-value" id="stat-paz">0</div>
+          <div class="stat-label">Pazienti Totali</div>
+          <div class="stat-trend trend-neutral">📊 Archivio Attivo</div>
+        </div>
+        <div class="stat-card" onclick="naviga('storico-date')" title="Vai allo storico visite">
+          <div class="stat-icon" style="background:var(--green-dim);">🏥</div>
+          <div class="stat-value" id="stat-visite">0</div>
+          <div class="stat-label">Visite Totali</div>
+          <div class="stat-trend trend-up">↑ Tutte le visite</div>
+        </div>
+        <div class="stat-card" onclick="naviga('appuntamenti')" title="Vai agli appuntamenti e promemoria">
+          <div class="stat-icon" style="background:var(--orange-dim);">⚠️</div>
+          <div class="stat-value" id="stat-alert">0</div>
+          <div class="stat-label">Promemoria Attivi</div>
+          <div class="stat-trend trend-neutral">📌 Da verificare</div>
+        </div>
+        <div class="stat-card" onclick="naviga('storico-date');apriGiornata(new Date().toISOString().split('T')[0])" title="Vai alle visite di oggi">
+          <div class="stat-icon" style="background:rgba(175,82,222,0.12);">📆</div>
+          <div class="stat-value" id="stat-oggi">0</div>
+          <div class="stat-label">Visite Oggi</div>
+          <div class="stat-trend trend-up">✅ Giornata</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -5444,7 +5464,59 @@ function mostraBannerDemo(mostra){
 // ═══════════════════════════════════════════════════
 //  DASHBOARD
 // ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  DASHBOARD: widget riordinabili (drag & drop dalla maniglia ⠿)
+// ═══════════════════════════════════════════════════
+// L'ordine scelto si salva in locale per singolo account (stessa chiave
+// per dispositivo/browser, come le altre preferenze personali dell'app).
+function dashLayoutKey(){
+  return 'gs_dash_layout_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon');
+}
+function applyDashLayout(){
+  const container=document.getElementById('dash-widgets');
+  if(!container)return;
+  let ordine;
+  try{ ordine=JSON.parse(localStorage.getItem(dashLayoutKey())); }catch(e){ ordine=null; }
+  if(!Array.isArray(ordine))return;
+  ordine.forEach(wid=>{
+    const el=container.querySelector(`[data-widget-id="${wid}"]`);
+    if(el) container.appendChild(el);
+  });
+}
+function saveDashLayout(){
+  const container=document.getElementById('dash-widgets');
+  if(!container)return;
+  const ordine=[...container.children].map(el=>el.dataset.widgetId);
+  try{ localStorage.setItem(dashLayoutKey(), JSON.stringify(ordine)); }catch(e){}
+}
+let _dashDragEl=null;
+function dashDragStart(e){
+  // Il trascinamento parte SOLO dalla maniglia ⠿, mai da un click qualsiasi
+  // sul widget: così calendario, appuntamenti e le card statistiche restano
+  // cliccabili normalmente.
+  if(!e.target.closest('.dash-grip')){ e.preventDefault(); return; }
+  _dashDragEl=e.currentTarget;
+  e.currentTarget.classList.add('dash-dragging');
+  e.dataTransfer.effectAllowed='move';
+  try{ e.dataTransfer.setData('text/plain', e.currentTarget.dataset.widgetId||''); }catch(err){}
+}
+function dashDragOver(e){
+  e.preventDefault();
+  const target=e.currentTarget;
+  if(!_dashDragEl || target===_dashDragEl)return;
+  const container=target.parentElement;
+  const rect=target.getBoundingClientRect();
+  const prima=(e.clientY-rect.top) < rect.height/2;
+  container.insertBefore(_dashDragEl, prima?target:target.nextSibling);
+}
+function dashDragEnd(e){
+  e.currentTarget.classList.remove('dash-dragging');
+  _dashDragEl=null;
+  saveDashLayout();
+}
+
 function renderDashboard(){
+  applyDashLayout();
   let totalVisite=0, totalAlert=0;
   DB.pazienti.forEach(p=>{totalVisite+=(p.visite||[]).length; totalAlert+=(p.alerts||[]).length;});
   document.getElementById('stat-paz').textContent=DB.pazienti.length;
