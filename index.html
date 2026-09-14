@@ -1651,6 +1651,16 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <div id="scr-stato" style="display:flex;flex-direction:column;gap:6px;font-size:.8rem;"></div>
       </div>
       <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div><div class="card-title">📎 Referti Esterni</div><div class="card-subtitle">Analisi o referti fatti altrove — salvati solo su questo dispositivo, mai online</div></div></div>
+        <div class="field-row r2" style="margin-bottom:8px;">
+          <div class="form-group"><label class="form-label">Descrizione</label><input id="alg-desc" placeholder="es. Analisi del sangue, 10 sett."></div>
+          <div class="form-group"><label class="form-label">File (PDF o immagine)</label><input type="file" id="alg-file" accept="application/pdf,image/*"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="caricaAllegato()">➕ Aggiungi allegato</button>
+        <div id="allegati-lista" style="margin-top:12px;"></div>
+        <div id="allegati-spazio" style="font-size:.72rem;color:var(--label4);margin-top:10px;"></div>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
         <div class="card-header"><div><div class="card-title">💊 Farmaci Attuali</div><div class="card-subtitle">Ultima terapia prescritta e storico nel tempo</div></div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button class="btn btn-ghost btn-sm" onclick="apriSelettoreFarmaciPaziente()" title="Prescrivi farmaci dal prontuario e/o crea la ricetta">💊 Prescrivi</button>
@@ -6297,6 +6307,7 @@ function openPaziente(id){
   renderAlertsPaz(p);
   renderFarmaciAttuali(p);
   renderScreeningPaziente(p);
+  renderAllegatiPaziente(p.id);
   mostraAllertaPromemoriaScaduti(p);
 }
 
@@ -6347,6 +6358,7 @@ async function eliminaPaziente(){
   // Rimuove la paziente dal DB locale (dati clinici)
   DB.pazienti=DB.pazienti.filter(x=>x.id!==curPaz);
   salvaDB();
+  eliminaAllegatiPaziente(curPaz); // rimuove anche i referti esterni allegati (IndexedDB)
   // Rimuove anche l'anagrafica corrispondente su Firestore, se presente (mai in demo)
   if(gsFirebaseReady&&gsDb&&!gsDemoMode){
     try{ await gsDb.collection('pazienti').doc(String(curPaz)).delete(); }catch(e){ console.warn('Eliminazione Firebase:',e); }
@@ -7074,6 +7086,154 @@ function renderScreeningPaziente(p){
     }
     return `<div style="color:var(--green)">✅ ${t.label} in regola — prossimo entro il ${scadenzaStr}</div>`;
   }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+//  ALLEGATI (referti esterni) — solo locale, su IndexedDB
+// ═══════════════════════════════════════════════════
+// I file (PDF/immagini) restano SEMPRE e SOLO su questo dispositivo: nessun
+// upload, nessuna sincronizzazione, coerente con la regola dell'app "dati
+// clinici mai online". Si usa IndexedDB (non localStorage) perché deve
+// contenere file binari e localStorage ha un limite troppo basso (5-10 MB
+// in tutto) per starci comodi con anche pochi PDF/foto.
+let _allegatiDbPromise=null;
+function apriDbAllegati(){
+  if(_allegatiDbPromise) return _allegatiDbPromise;
+  _allegatiDbPromise=new Promise((resolve,reject)=>{
+    const req=indexedDB.open('gyno_allegati_'+(typeof gsCurrentUser!=='undefined'&&gsCurrentUser?gsCurrentUser.uid:'anon'), 1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      if(!db.objectStoreNames.contains('files')){
+        const store=db.createObjectStore('files',{keyPath:'id',autoIncrement:true});
+        store.createIndex('pazienteId','pazienteId',{unique:false});
+      }
+    };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+  return _allegatiDbPromise;
+}
+async function caricaAllegato(){
+  const fileInput=document.getElementById('alg-file');
+  const file=fileInput.files[0];
+  if(!file){ if(typeof gsToast==='function') gsToast('Scegli prima un file','gs-error'); return; }
+  if(file.size>15*1024*1024){ if(typeof gsToast==='function') gsToast('⚠️ File troppo grande (limite 15 MB)','gs-error'); return; }
+  const desc=document.getElementById('alg-desc').value.trim();
+  try{
+    const db=await apriDbAllegati();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      tx.objectStore('files').add({
+        pazienteId:curPaz,
+        nomeFile:file.name,
+        tipo:file.type,
+        dimensione:file.size,
+        descrizione:desc,
+        dataCaricamento:new Date().toISOString(),
+        blob:file
+      });
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    document.getElementById('alg-desc').value='';
+    fileInput.value='';
+    if(typeof gsToast==='function') gsToast('✅ Allegato salvato (solo su questo dispositivo)','gs-success');
+    renderAllegatiPaziente(curPaz);
+  }catch(e){
+    console.warn('Salvataggio allegato:',e);
+    if(typeof gsToast==='function') gsToast('⚠️ Errore nel salvataggio dell\'allegato','gs-error');
+  }
+}
+async function renderAllegatiPaziente(pazId){
+  const box=document.getElementById('allegati-lista');
+  if(!box)return;
+  try{
+    const db=await apriDbAllegati();
+    const items=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readonly');
+      const req=tx.objectStore('files').index('pazienteId').getAll(pazId);
+      req.onsuccess=()=>resolve(req.result||[]);
+      req.onerror=()=>reject(req.error);
+    });
+    if(!items.length){
+      box.innerHTML='<div style="color:var(--label4);font-size:.8rem">Nessun allegato per questa paziente.</div>';
+    } else {
+      items.sort((a,b)=>new Date(b.dataCaricamento)-new Date(a.dataCaricamento));
+      box.innerHTML=items.map(it=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--separator);">
+          <span style="font-size:1.2rem;">${(it.tipo||'').includes('pdf')?'📄':'🖼️'}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_escHtml(it.descrizione||it.nomeFile)}</div>
+            <div style="font-size:.72rem;color:var(--label4);">${_escHtml(it.nomeFile)} · ${(it.dimensione/1024).toFixed(0)} KB · ${new Date(it.dataCaricamento).toLocaleDateString('it-IT')}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="apriAllegato(${it.id})" title="Apri">👁️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaAllegato(${it.id},${pazId})" title="Elimina">🗑️</button>
+        </div>`).join('');
+    }
+  }catch(e){
+    console.warn('Lettura allegati:',e);
+    box.innerHTML='<div style="color:var(--label4);font-size:.8rem">Impossibile leggere gli allegati.</div>';
+  }
+  renderSpazioAllegati();
+}
+async function apriAllegato(id){
+  try{
+    const db=await apriDbAllegati();
+    const item=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readonly');
+      const req=tx.objectStore('files').get(id);
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+    if(!item)return;
+    const url=URL.createObjectURL(item.blob);
+    window.open(url,'_blank');
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+  }catch(e){
+    console.warn('Apertura allegato:',e);
+    if(typeof gsToast==='function') gsToast('⚠️ Errore nell\'apertura dell\'allegato','gs-error');
+  }
+}
+async function eliminaAllegato(id,pazId){
+  if(!confirm('Eliminare questo allegato? L\'operazione non è reversibile.'))return;
+  try{
+    const db=await apriDbAllegati();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      tx.objectStore('files').delete(id);
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    renderAllegatiPaziente(pazId);
+  }catch(e){
+    console.warn('Eliminazione allegato:',e);
+  }
+}
+async function eliminaAllegatiPaziente(pazId){
+  try{
+    const db=await apriDbAllegati();
+    const ids=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readonly');
+      const req=tx.objectStore('files').index('pazienteId').getAllKeys(pazId);
+      req.onsuccess=()=>resolve(req.result||[]);
+      req.onerror=()=>reject(req.error);
+    });
+    if(!ids.length)return;
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      const store=tx.objectStore('files');
+      ids.forEach(id=>store.delete(id));
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+  }catch(e){ console.warn('Eliminazione allegati paziente:',e); }
+}
+async function renderSpazioAllegati(){
+  const el=document.getElementById('allegati-spazio');
+  if(!el)return;
+  if(!navigator.storage || !navigator.storage.estimate){ el.textContent=''; return; }
+  try{
+    const {usage,quota}=await navigator.storage.estimate();
+    const usedMB=(usage/1024/1024).toFixed(1), quotaMB=(quota/1024/1024).toFixed(0);
+    el.textContent=`Spazio usato su questo dispositivo (tutta l'app): ${usedMB} MB di ${quotaMB} MB disponibili.`;
+  }catch(e){ el.textContent=''; }
 }
 
 // Crea (o aggiorna) un promemoria collegato a questa visita, se il testo del
