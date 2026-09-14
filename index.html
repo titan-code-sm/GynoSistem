@@ -1037,6 +1037,20 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </aside>
 
+<!-- Prima di uscire da GynoSystem: propone di scaricare un backup completo -->
+<div id="modal-esci-backup" class="overlay">
+  <div class="modal-sm" style="width:520px;text-align:center;">
+    <div style="font-size:2.4rem;margin-bottom:8px;">💾</div>
+    <h3>Prima di uscire, scarica una copia dei dati</h3>
+    <p style="color:var(--label4);font-size:.88rem;margin:12px 0 22px;line-height:1.55;">Ti consigliamo di scaricare un backup completo di tutte le pazienti prima di chiudere GynoSystem — una copia di sicurezza in più, oltre al salvataggio automatico cifrato (se collegato).</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-primary" style="justify-content:center;" onclick="confermaEsciConBackup()">📥 Scarica backup ed esci</button>
+      <button class="btn btn-ghost" style="justify-content:center;" onclick="confermaEsciSenzaBackup()">Esci senza scaricare</button>
+      <button class="btn btn-ghost" style="justify-content:center;" onclick="closeModal('modal-esci-backup')">Annulla</button>
+    </div>
+  </div>
+</div>
+
 <!-- MAIN -->
 <main>
 
@@ -11570,11 +11584,27 @@ function initFirebase() {
   }
 }
 
-async function logoutGynoSystem(){
-  if(!confirm('Vuoi davvero uscire da GynoSystem?'))return;
+// Uscire da GynoSystem propone sempre, prima, di scaricare un backup
+// completo delle pazienti — una rete di sicurezza in più oltre al
+// salvataggio automatico cifrato (se collegato) e al salvataggio locale
+// continuo che l'app fa già da sola a ogni modifica.
+function logoutGynoSystem(){
+  document.getElementById('modal-esci-backup').classList.add('show');
+}
+async function _eseguiLogoutGynoSystem(){
   if(typeof aiFerma==='function') aiFerma();
   try{ await gsAuth.signOut(); }catch(e){}
   location.reload();
+}
+function confermaEsciConBackup(){
+  if(typeof backupData==='function') backupData();
+  closeModal('modal-esci-backup');
+  // Piccola attesa: lasciare partire il download prima che la pagina cominci a ricaricarsi.
+  setTimeout(_eseguiLogoutGynoSystem, 700);
+}
+function confermaEsciSenzaBackup(){
+  closeModal('modal-esci-backup');
+  _eseguiLogoutGynoSystem();
 }
 
 function setFbStatus(state, msg) {
