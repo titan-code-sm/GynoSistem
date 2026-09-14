@@ -1074,6 +1074,34 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="gyno" onclick="setFiltroCategoriaPaz('gyno')">🌸 Ginecologiche</button>
       <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="ob" onclick="setFiltroCategoriaPaz('ob')">🤰 Ostetriche</button>
       <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="eco" onclick="setFiltroCategoriaPaz('eco')">🖥️ Ecografie</button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleFiltriAvanzati()" id="filtri-avanzati-toggle" style="margin-left:auto;">⚙️ Filtri avanzati</button>
+    </div>
+    <div id="filtri-avanzati-box" style="display:none;background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:16px;">
+      <div class="field-row r3">
+        <div class="form-group"><label class="form-label">Trimestre di gravidanza</label>
+          <select id="filtro-trimestre" onchange="renderPazienti()">
+            <option value="">Tutti</option>
+            <option value="1">1° trimestre (0-13+6)</option>
+            <option value="2">2° trimestre (14-27+6)</option>
+            <option value="3">3° trimestre (28+)</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Nessuna visita da</label>
+          <select id="filtro-inattive" onchange="renderPazienti()">
+            <option value="">Qualsiasi</option>
+            <option value="90">Più di 3 mesi</option>
+            <option value="180">Più di 6 mesi</option>
+            <option value="365">Più di 1 anno</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Promemoria</label>
+          <select id="filtro-promemoria" onchange="renderPazienti()">
+            <option value="">Tutti</option>
+            <option value="scaduto">Con promemoria scaduto</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="resetFiltriAvanzati()" style="margin-top:4px">✕ Azzera filtri avanzati</button>
     </div>
     <div class="table-wrap">
       <table>
@@ -6123,6 +6151,17 @@ function chiudiGravidanzaManualmente(pazId){
   if(curPaz===pazId) openPaziente(pazId); // refresh della cartella se è quella aperta
 }
 
+function toggleFiltriAvanzati(){
+  const box=document.getElementById('filtri-avanzati-box');
+  box.style.display = box.style.display!=='none' ? 'none' : 'block';
+}
+function resetFiltriAvanzati(){
+  document.getElementById('filtro-trimestre').value='';
+  document.getElementById('filtro-inattive').value='';
+  document.getElementById('filtro-promemoria').value='';
+  renderPazienti();
+}
+
 function renderPazienti(){
   const q=document.getElementById('search-bar').value.toLowerCase();
   const tb=document.getElementById('pazienti-tbody'); tb.innerHTML='';
@@ -6133,6 +6172,36 @@ function renderPazienti(){
   // Filtro per categoria di visita eseguita (ginecologiche / ostetriche / ecografie)
   if(filtroCategoriaPaz!=='all'){
     filtered=filtered.filter(p=>(p.visite||[]).some(v=>v.tipo===filtroCategoriaPaz));
+  }
+
+  // ── Filtri avanzati ──
+  const trimSel=document.getElementById('filtro-trimestre')?.value;
+  if(trimSel){
+    filtered=filtered.filter(p=>{
+      const ga=gravidanzaAttiva(p);
+      if(!ga)return false;
+      const sett=calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date());
+      if(!sett)return false;
+      const w=parseInt(sett.split('+')[0],10);
+      if(trimSel==='1')return w<14;
+      if(trimSel==='2')return w>=14&&w<28;
+      if(trimSel==='3')return w>=28;
+      return true;
+    });
+  }
+  const inattivaSel=document.getElementById('filtro-inattive')?.value;
+  if(inattivaSel){
+    const soglia=parseInt(inattivaSel,10);
+    filtered=filtered.filter(p=>{
+      if(!p.visite||!p.visite.length)return true; // mai visitata: sempre "da richiamare"
+      const ultima=p.visite.reduce((max,v)=>new Date(v.data)>new Date(max.data)?v:max);
+      return (new Date()-new Date(ultima.data))/86400000 > soglia;
+    });
+  }
+  const promSel=document.getElementById('filtro-promemoria')?.value;
+  if(promSel==='scaduto'){
+    const oggi=new Date();
+    filtered=filtered.filter(p=>(p.alerts||[]).some(a=>new Date(a.data)<oggi));
   }
 
   if(filtroGravidanzeAttive){
