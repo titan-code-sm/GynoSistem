@@ -1605,6 +1605,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost" id="h-grav-conclusa-btn" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna Gravidanza Conclusa</button>
+        <button class="btn btn-ghost" onclick="esportaCartellaPDF()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" title="Tutte le visite di questa paziente in un unico PDF">📄 Esporta Cartella</button>
         <button class="btn btn-ghost" onclick="toggleEdit()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;">✏️ Modifica</button>
         <button class="btn" style="background:rgba(255,255,255,0.9);color:var(--label);" onclick="openTypeModal()">+ Nuova Visita</button>
       </div>
@@ -8742,19 +8743,19 @@ function stampa(vid){
 // Genera un vero file .pdf del referto e lo scarica direttamente, senza
 // passare dalla finestra di stampa del browser. Riusa lo stesso "print-area"
 // di stampa(), così i due output restano sempre identici tra loro.
-function scaricaPDFReferto(vid){
-  const p=DB.pazienti.find(x=>x.id===curPaz);
-  const v=p?.visite.find(x=>x.id===vid);
-  if(!v){ if(typeof gsToast==='function') gsToast('Visita non trovata','gs-error'); return; }
+// Popola #print-area con l'intestazione/dati paziente e il corpo passato,
+// poi lo cattura con html2pdf e scarica il file. Condivisa da scaricaPDFReferto
+// (una visita) ed esportaCartellaPDF (tutte le visite di una paziente).
+function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   if(typeof html2pdf==='undefined'){ if(typeof gsToast==='function') gsToast('⚠️ Libreria PDF non disponibile: verifica la connessione internet e riprova','gs-error'); return; }
 
   applyPrintCfgReferto();
   const c=getPrintCfg(), l=c.layout;
   document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
-  document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
+  document.getElementById('p-data-print').textContent=dataStr;
   document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'–';
   document.getElementById('p-cf-print').textContent=p.cf||'–';
-  document.getElementById('p-body-print').innerHTML=buildRefertoBody(v);
+  document.getElementById('p-body-print').innerHTML=bodyHtml;
 
   // applyPrintCfgReferto() applica font/colore/logo solo dentro @media print:
   // per catturare l'aspetto corretto nel PDF li applichiamo anche qui, in linea.
@@ -8777,7 +8778,6 @@ function scaricaPDFReferto(vid){
   area.style.top='0';
   area.style.background='#fff';
 
-  const nomeFile=`Referto_${p.cognome}_${p.nome}_${v.data}`.replace(/\s+/g,'_');
   if(typeof gsToast==='function') gsToast('📄 Generazione PDF in corso…','gs-info');
 
   const ripristina=()=>{
@@ -8798,16 +8798,39 @@ function scaricaPDFReferto(vid){
       filename: nomeFile+'.pdf',
       image: {type:'jpeg', quality:0.98},
       html2canvas: {scale:2, useCORS:true},
-      jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'}
+      jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'},
+      pagebreak: {mode:['css','legacy']}
     }).from(area).save().then(()=>{
       ripristina();
-      registraLog('stampa','Referto scaricato in PDF');
+      registraLog('stampa', logDescrizione);
     }).catch(e=>{
       console.warn('Generazione PDF:',e);
       ripristina();
       if(typeof gsToast==='function') gsToast('⚠️ Errore nella generazione del PDF','gs-error');
     });
   }));
+}
+
+function scaricaPDFReferto(vid){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const v=p?.visite.find(x=>x.id===vid);
+  if(!v){ if(typeof gsToast==='function') gsToast('Visita non trovata','gs-error'); return; }
+  const nomeFile=`Referto_${p.cognome}_${p.nome}_${v.data}`.replace(/\s+/g,'_');
+  _generaEScaricaPdf(p, new Date(v.data).toLocaleDateString('it-IT'), buildRefertoBody(v), nomeFile, 'Referto scaricato in PDF');
+}
+
+// Tutte le visite di una paziente in un unico PDF, in ordine cronologico,
+// con un'interruzione di pagina tra una visita e l'altra.
+function esportaCartellaPDF(){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
+  if(!p.visite||!p.visite.length){ if(typeof gsToast==='function') gsToast('Nessuna visita da esportare','gs-error'); return; }
+  const visiteOrdinate=[...p.visite].sort((a,b)=>new Date(a.data)-new Date(b.data));
+  const corpo=visiteOrdinate.map((v,i)=>
+    `<div style="${i>0?'page-break-before:always;margin-top:20px;border-top:2px solid #ccc;padding-top:16px;':''}">${buildRefertoBody(v)}</div>`
+  ).join('');
+  const nomeFile=`Cartella_${p.cognome}_${p.nome}`.replace(/\s+/g,'_');
+  _generaEScaricaPdf(p, new Date().toLocaleDateString('it-IT'), corpo, nomeFile, 'Cartella completa scaricata in PDF');
 }
 
 // Dati grezzi del referto di una visita, come lista di sezioni {icon,title,rows:[[label,valore],...]}.
