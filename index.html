@@ -8690,6 +8690,17 @@ async function salvaPrenotazioneGS(){
   }
 }
 
+// Numero progressivo dei salvataggi automatici (uno per operatore, in
+// localStorage — non è un ID di visita, solo un contatore che cresce di 1
+// a ogni file scaricato in automatico dall'app).
+function _prossimoNumeroSalvataggio(){
+  const key='gs_salvataggio_seq_'+(typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon');
+  let n=parseInt(localStorage.getItem(key)||'0',10);
+  if(isNaN(n)) n=0;
+  n+=1;
+  try{ localStorage.setItem(key, String(n)); }catch(e){}
+  return n;
+}
 function scaricaVisitaJSON(p, v){
   const exportData={
     paziente:{id:p.id,nome:p.nome,cognome:p.cognome,nascita:p.nascita,cf:p.cf,tel:p.tel,email:p.email},
@@ -8698,9 +8709,11 @@ function scaricaVisitaJSON(p, v){
   };
   const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
   const a=document.createElement('a');
-  const dateStr=v.data;
   a.href=URL.createObjectURL(blob);
-  a.download=`Visita_${p.cognome}_${p.nome}_${dateStr}.json`.replace(/\s+/g,'');
+  // Nome richiesto per tutti i file che l'app scarica da sola (es. dopo una
+  // visita): "(progressivo) Salvataggio Gynosistem" — un numero che cresce
+  // a ogni salvataggio automatico, sempre lo stesso schema di nome.
+  a.download=`(${_prossimoNumeroSalvataggio()}) Salvataggio Gynosistem.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
