@@ -388,7 +388,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 @keyframes overlayIn{from{background:rgba(0,0,0,0)}to{background:rgba(0,0,0,0.5)}}
 @keyframes modalPop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 /* Modali aperte DA DENTRO l'editor visita: devono stare sopra l'editor stesso (z-index 2000) */
-#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-eco-trim.overlay,#modal-firma.overlay{z-index:2600;}
+#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay{z-index:2600;}
 .mfv-box{width:min(760px,95vw);max-height:90vh;padding:22px 22px 0;display:flex;flex-direction:column;}
 .mfv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .mfv-x{border:none;background:var(--surface2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9rem;color:var(--label4);flex-shrink:0;}
@@ -2162,27 +2162,25 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
-<!-- Proposta di firma del consenso informato prima di iniziare la visita -->
+<!-- Consenso/i informato/i prima di iniziare la visita (o riapribile a
+     visita già in corso): selezione multipla → un foglio unico da firmare,
+     stampare e archiviare CON quella visita (campo consenso-visita nel
+     referto: gd-/ob-/ec-consenso-visita → GD_FIELDS/OB_FIELDS/ECO_FIELDS). -->
 <div id="modal-consenso-visita" class="overlay">
-  <div class="modal-sm" style="width:560px;">
-    <h3>✍️ Consenso informato</h3>
-    <p id="cv-sottotitolo" style="color:var(--label4);font-size:.85rem;margin-bottom:16px;"></p>
-    <div id="consenso-visita-lista" style="display:flex;flex-direction:column;gap:10px;max-height:50vh;overflow-y:auto;margin-bottom:14px;"></div>
-    <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="pazSaltaConsensoEProsegui()">Salta, prosegui senza firmare</button>
-  </div>
-</div>
-
-<!-- Consenso informato per una specifica ecografia della visita ostetrica/eco in corso —
-     resta archiviato con QUESTA visita (campo consenso-eco1/eco23/eco3 nel referto). -->
-<div id="modal-consenso-eco-trim" class="overlay">
   <div class="modal-sm" style="width:600px;">
-    <h3 id="cet-titolo">✍️ Consenso ecografia</h3>
-    <div id="cet-testo" style="max-height:38vh;overflow-y:auto;font-size:.84rem;line-height:1.6;color:var(--label3);background:var(--surface2);border-radius:10px;padding:14px 16px;margin:12px 0 14px;white-space:pre-wrap;"></div>
-    <div id="cet-stato-firmato" style="display:none;font-size:.8rem;color:var(--green);font-weight:600;margin-bottom:14px;">✅ Già firmato il <span id="cet-data-firma"></span> — verrà archiviato con questa visita al salvataggio.</div>
+    <h3>✍️ Consenso/i informato/i</h3>
+    <p id="cv-sottotitolo" style="color:var(--label4);font-size:.85rem;margin-bottom:14px;"></p>
+    <div id="cv-stato-firmato" style="display:none;font-size:.8rem;color:var(--green);font-weight:600;background:var(--green-dim);border-radius:10px;padding:10px 14px;margin-bottom:14px;"></div>
+    <div class="field-row r2" style="margin-bottom:14px;">
+      <div class="form-group"><label class="form-label">Nome di chi firma</label><input id="cv-nome" placeholder="Nome e cognome"></div>
+      <div class="form-group"><label class="form-label">Data</label><input type="date" id="cv-data"></div>
+    </div>
+    <div style="font-size:.72rem;color:var(--label4);margin-bottom:10px;">Il nome è precompilato con quello della paziente — modificalo se a firmare è un genitore (es. visita/ecografia su minorenne).</div>
+    <div id="consenso-visita-lista" style="display:flex;flex-direction:column;gap:8px;max-height:40vh;overflow-y:auto;margin-bottom:16px;"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="_cetFirmaOra()">✍️ Firma ora</button>
-      <button class="btn btn-ghost" id="cet-btn-ristampa" style="display:none;" onclick="_cetRistampa()">🖨️ Ristampa</button>
-      <button class="btn btn-ghost" onclick="closeModal('modal-consenso-eco-trim')">Chiudi</button>
+      <button class="btn btn-primary" onclick="pazFirmaCombinataEProsegui()">✍️ Firma il foglio selezionato e prosegui</button>
+      <button class="btn btn-ghost" id="cv-btn-ristampa" style="display:none;" onclick="pazRistampaConsensoVisita()">🖨️ Ristampa l'ultimo firmato</button>
+      <button class="btn btn-ghost" onclick="pazSaltaConsensoEProsegui()">Salta, prosegui senza firmare</button>
     </div>
   </div>
 </div>
@@ -2206,6 +2204,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <h3 id="editor-title">Compilazione Referto</h3>
       </div>
       <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="apriConsensoVisitaCorrente()" title="Consenso/i informato/i per questa visita">✍️ Consenso</button>
         <button class="btn btn-ghost" onclick="minimizeEditor()" title="Riduci a icona">➖ Riduci</button>
         <button class="btn btn-ghost" onclick="confermaAnnullaVisita()">Annulla</button>
         <button class="btn btn-green" onclick="salvaVisita()">💾 Salva Referto</button>
@@ -2239,6 +2238,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       </div>
       <div class="editor-content">
         <div id="gyno-panels" style="display:block">
+          <input type="hidden" id="gd-consenso-visita">
 
         <!-- ════════ PANEL 1: ANAMNESI ════════ -->
         <div id="ep-1" class="edit-panel active">
@@ -2574,6 +2574,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
              VISITA OSTETRICA
              ═══════════════════════════════════════════════ -->
         <div id="ob-panels" style="display:none">
+          <input type="hidden" id="ob-consenso-visita">
 
           <!-- ════════ OB PANEL: ANAMNESI ════════ -->
           <div id="ob-anamnesi" class="edit-panel active">
@@ -2756,7 +2757,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
             </div>
 
             <div class="section-card">
-              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)<button type="button" class="btn btn-ghost btn-sm" id="ob-btn-consenso-eco1" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriConsensoEcoVisita('eco1')" title="Consenso informato SIEOG per questo esame">✍️ Consenso</button></h4>
+              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)</h4>
               <select onchange="appendOBText('ob-eco1',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">ECO Datazione</option>
@@ -2766,27 +2767,24 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                 <option data-full="NT: Feto singolo, dotato di attività cardiaca e motoria, con CRL corrispondente a ___ settimane gestazionali. L'esplorazione dell'anatomia fetale di base, limitata dall'epoca gestazionale, ha permesso di visualizzare: Estremo cefalico: presenza delle ossa del cranio; linea mediana; plessi coroidei all'interno dei ventricoli. Addome: normale inserzione del cordone ombelicale; stomaco evidenziato ed omolaterale al cuore; arti superiori e inferiori; liquido amniotico nella norma; placenta normale. La misurazione della translucenza nucale (NT) è risultata pari a ___ mm.">NT (translucenza)</option>
               </select>
               <textarea id="ob-eco1" rows="4" style="margin-top:6px"></textarea>
-              <input type="hidden" id="ob-consenso-eco1">
             </div>
 
             <div class="section-card">
-              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office<button type="button" class="btn btn-ghost btn-sm" id="ob-btn-consenso-eco23" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriConsensoEcoVisita('eco23')" title="Consenso informato SIEOG per questo esame">✍️ Consenso</button></h4>
+              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office</h4>
               <select onchange="appendOBText('ob-eco23',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento.">2-3 Trim Office</option>
               </select>
               <textarea id="ob-eco23" rows="3" style="margin-top:6px"></textarea>
-              <input type="hidden" id="ob-consenso-eco23">
             </div>
 
             <div class="section-card">
-              <h4 data-icon="3️⃣">Ecografia III Trimestre<button type="button" class="btn btn-ghost btn-sm" id="ob-btn-consenso-eco3" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriConsensoEcoVisita('eco3')" title="Consenso informato SIEOG per questo esame">✍️ Consenso</button></h4>
+              <h4 data-icon="3️⃣">Ecografia III Trimestre</h4>
               <select onchange="appendOBText('ob-eco3',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
               </select>
               <textarea id="ob-eco3" rows="3" style="margin-top:6px"></textarea>
-              <input type="hidden" id="ob-consenso-eco3">
             </div>
 
             <div class="section-card informativa-card">
@@ -2938,6 +2936,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
              ECOGRAFIA OSTETRICA
              ═══════════════════════════════════════════════ -->
         <div id="eco-panels" style="display:none">
+          <input type="hidden" id="ec-consenso-visita">
 
           <!-- ════════ ECO PANEL: TIPO & DATAZIONE ════════ -->
           <div id="ec-dati" class="edit-panel active">
@@ -3062,7 +3061,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
           <!-- ════════ ECO PANEL: REFERTI ECOGRAFICI ════════ -->
           <div id="ec-referti" class="edit-panel">
             <div class="section-card">
-              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)<button type="button" class="btn btn-ghost btn-sm" id="ec-btn-consenso-eco1" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriConsensoEcoVisita('eco1')" title="Consenso informato SIEOG per questo esame">✍️ Consenso</button></h4>
+              <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)</h4>
               <select onchange="appendComboText('ec-eco1',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">ECO Datazione</option>
@@ -3072,25 +3071,22 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                 <option data-full="NT: Feto singolo, dotato di attività cardiaca e motoria, con CRL corrispondente a ___ settimane gestazionali. L'esplorazione dell'anatomia fetale di base, limitata dall'epoca gestazionale, ha permesso di visualizzare: Estremo cefalico: presenza delle ossa del cranio; linea mediana; plessi coroidei all'interno dei ventricoli. Addome: normale inserzione del cordone ombelicale; stomaco evidenziato ed omolaterale al cuore; arti superiori e inferiori; liquido amniotico nella norma; placenta normale. La misurazione della translucenza nucale (NT) è risultata pari a ___ mm.">NT (translucenza)</option>
               </select>
               <textarea id="ec-eco1" rows="4" style="margin-top:6px"></textarea>
-              <input type="hidden" id="ec-consenso-eco1">
             </div>
             <div class="section-card">
-              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office<button type="button" class="btn btn-ghost btn-sm" id="ec-btn-consenso-eco23" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriConsensoEcoVisita('eco23')" title="Consenso informato SIEOG per questo esame">✍️ Consenso</button></h4>
+              <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office</h4>
               <select onchange="appendComboText('ec-eco23',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento.">2-3 Trim Office</option>
               </select>
               <textarea id="ec-eco23" rows="3" style="margin-top:6px"></textarea>
-              <input type="hidden" id="ec-consenso-eco23">
             </div>
             <div class="section-card">
-              <h4 data-icon="3️⃣">Ecografia III Trimestre<button type="button" class="btn btn-ghost btn-sm" id="ec-btn-consenso-eco3" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriConsensoEcoVisita('eco3')" title="Consenso informato SIEOG per questo esame">✍️ Consenso</button></h4>
+              <h4 data-icon="3️⃣">Ecografia III Trimestre</h4>
               <select onchange="appendComboText('ec-eco3',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
               </select>
               <textarea id="ec-eco3" rows="3" style="margin-top:6px"></textarea>
-              <input type="hidden" id="ec-consenso-eco3">
             </div>
           </div>
 
@@ -3741,7 +3737,9 @@ const GD_FIELDS=['eta','altezza','peso','para','menarca','um','pa','menopausa',
   'pap-data','pap-esito','hpv-data','hpv-esito','hpv-genotipo',
   'colpo-visione','colpo-gsc','colpo-aree','colpo-test','bio-sede','bio-esito','colpo-followup',
   // Menopausa / Climaterio
-  'meno-vampate','meno-secchezza','meno-moc-data','meno-moc-tscore','meno-tos-tipo','meno-tos-da'];
+  'meno-vampate','meno-secchezza','meno-moc-data','meno-moc-tscore','meno-tos-tipo','meno-tos-da',
+  // Consenso/i informato/i selezionato/i e firmato/i per questa visita (JSON: {titoli:[...],testoCombinato,nome,data,firma})
+  'consenso-visita'];
 
 function getGynoData(){
   const d={};
@@ -3773,8 +3771,8 @@ const OB_FIELDS=[
   // Visita & Eco
   'settimane','pressione','score-tev','peso','incremento','referto','esami-visite','esami-eco','vo',
   'ecografo','sonda','fattori-limitanti','eco1','eco23','eco3',
-  // Consensi informati SIEOG firmati per le ecografie di questa visita (JSON: {titolo,testo,firma,data})
-  'consenso-eco1','consenso-eco23','consenso-eco3',
+  // Consenso/i informato/i selezionato/i e firmato/i per questa visita (JSON: {titoli:[...],testoCombinato,nome,data,firma})
+  'consenso-visita',
   // Biometria
   'bio-epoca','bio-bpd','bio-hc','bio-ac','bio-fl','bio-peso','bio-peso-perc',
   // Velocimetria Doppler (visita ostetrica)
@@ -4189,8 +4187,8 @@ const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','diagnosi','terap
   'ecografo','sonda','fattori-limitanti',
   // Referti ecografici (come in visita ostetrica)
   'eco1','eco23','eco3',
-  // Consensi informati SIEOG firmati per le ecografie di questa visita (JSON: {titolo,testo,firma,data})
-  'consenso-eco1','consenso-eco23','consenso-eco3',
+  // Consenso/i informato/i selezionato/i e firmato/i per questa visita (JSON: {titoli:[...],testoCombinato,nome,data,firma})
+  'consenso-visita',
   // Note ecografiche
   'note-eco',
   // Doppler (PI = pulsatility index secondo Fetal Medicine Foundation / Medfetal Barcelona)
@@ -7559,10 +7557,6 @@ function startEditor(tipo, vid=null){
   if(typeof renderInformativeTesti==='function') renderInformativeTesti();
   if(!vid) riportaFarmaciAttualiInTerapia(tipo);
   if(vid) loadVisita(vid);
-  // Badge ✍️/✅ dei consensi eco I/II-III/III trimestre: aggiorna entrambi i
-  // pannelli (ob-* e ec-*) — quello del tipo non in uso resta comunque a
-  // "✍️ Consenso" perché i suoi campi sono stati appena azzerati sopra.
-  if(typeof aggiornaBadgeConsensiEcoPannello==='function'){ aggiornaBadgeConsensiEcoPannello('ob'); aggiornaBadgeConsensiEcoPannello('ec'); }
   // Settimane di gravidanza: precompila in automatico (senza sovrascrivere un
   // valore già registrato), poi resta modificabile a mano.
   if(tipo==='ob' && typeof ricalcolaSettimaneOb==='function') ricalcolaSettimaneOb(!vid);
@@ -9284,25 +9278,37 @@ function eliminaSchema(i){
 //  salvate in locale per operatore. I moduli firmati restano SOLO nel
 //  dispositivo, dentro la cartella della paziente (mai su Firestore).
 // ═══════════════════════════════════════════════════
+// Testi scritti da Claude sui contenuti informativi delle rispettive schede
+// SIEOG (sieog.it/referti-informative-consensi/) — NON una riproduzione
+// letterale dei moduli SIEOG (coperti da copyright della società
+// scientifica): stessa sostanza clinica, parole proprie. Chi vuole il testo
+// ufficiale scaricato dal sito può sostituirlo qui o direttamente da
+// Consensi → modifica modulo. "Inserimento IUD" è invece il documento
+// dello studio (Dr.ssa Cristina Guidi), usato come fornito.
 const CONSENSI_DEFAULT = [
   { titolo:'Visita ginecologica generale', testo:"La sottoscritta dichiara di essere stata adeguatamente informata dal proprio Ginecologo sulle finalità, le modalità di esecuzione e gli eventuali fastidi della visita ginecologica (anamnesi, esame obiettivo generale, esame con speculum, esplorazione bimanuale, eventuali prelievi citologici/microbiologici). Ha avuto la possibilità di porre domande e ha ricevuto risposte esaurienti. Acconsente liberamente all'esecuzione della visita nelle modalità proposte." },
-  { titolo:'Ecografia (ginecologica/ostetrica)', testo:"La persona assistita acconsente all'effettuazione dell'indagine ecografica, adeguatamente informata su scopi e limiti dell'esame attraverso il colloquio con il proprio Ginecologo (al quale ha avuto la possibilità di porre eventuali quesiti) e attraverso la lettura di un supporto informativo che si allega al referto. Firma consenso informato in allegato." },
-  { titolo:'Pap-test e Test HPV', testo:"La sottoscritta è stata informata che il Pap-test e/o il Test HPV sono esami di screening per la prevenzione del tumore del collo dell'utero, eseguiti mediante prelievo di cellule dal collo uterino con spatola/spazzolino durante l'esame con speculum. È stata informata su finalità, modalità di esecuzione, limiti del test (possibili falsi negativi/positivi) e sulla necessità di eventuali approfondimenti in caso di esito alterato. Acconsente all'esecuzione del prelievo." },
-  { titolo:'Colposcopia (± biopsia)', testo:"La sottoscritta è stata informata che la colposcopia è un esame di secondo livello che permette di visualizzare in modo ingrandito il collo dell'utero, la vagina e la vulva, con applicazione di soluzioni (acido acetico, lugol) per evidenziare eventuali aree sospette. È stata informata che, qualora necessario, potrà essere eseguita contestualmente una biopsia mirata (prelievo di un piccolo frammento di tessuto), con possibile lieve sanguinamento/fastidio. Ha avuto la possibilità di porre domande e acconsente all'esecuzione dell'esame e, se indicato, della biopsia." },
-  { titolo:"Posizionamento / rimozione IUD (spirale)", testo:"La sottoscritta è stata informata sulle caratteristiche, l'efficacia contraccettiva, i benefici e i possibili rischi/complicanze (dolore, sanguinamento, raro rischio di perforazione uterina o espulsione, rischio infettivo nelle prime settimane) legati al posizionamento/rimozione del dispositivo intrauterino (IUD). Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente liberamente alla procedura." },
-  { titolo:'Isteroscopia diagnostica', testo:"La sottoscritta è stata informata che l'isteroscopia diagnostica consente la visione diretta della cavità uterina mediante uno strumento sottile inserito attraverso il canale cervicale, generalmente senza necessità di anestesia generale. È stata informata su indicazioni, modalità di esecuzione, possibili fastidi (crampi simil-mestruali) e rari rischi (perforazione uterina, sanguinamento, infezione). Acconsente all'esecuzione dell'esame ed a eventuali prelievi bioptici mirati se indicati." },
-  { titolo:'Trattamento farmacologico', testo:"La sottoscritta dichiara di essere stata informata dal proprio Ginecologo sulla terapia farmacologica prescritta, sulle indicazioni, sulla posologia, sui possibili effetti indesiderati e sulle eventuali alternative terapeutiche. Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente all'assunzione della terapia proposta secondo le modalità indicate." },
-  { titolo:'Diagnosi prenatale invasiva (villocentesi / amniocentesi)', testo:"La sottoscritta è stata informata sulle finalità della diagnosi prenatale invasiva proposta (villocentesi/amniocentesi), sulla tecnica di esecuzione, sull'accuratezza diagnostica e sui rischi correlati alla procedura, incluso il rischio di aborto legato alla metodica. Ha avuto la possibilità di un colloquio dedicato e di porre ogni domanda. Acconsente liberamente all'esecuzione della procedura, consapevole della possibilità di rifiutarla in qualsiasi momento." },
-  { titolo:'Vaccinazione / immunoprofilassi in gravidanza', testo:"La sottoscritta è stata informata sulle finalità, le modalità di somministrazione e i possibili effetti indesiderati della vaccinazione/immunoprofilassi proposta (anti-D / DTP / antinfluenzale — specificare). Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente alla somministrazione." },
+
+  { titolo:'Ecografia ginecologica', testo:"L'ecografia è una metodica diagnostica che utilizza ultrasuoni per visualizzare gli organi interni; non impiega radiazioni e non ha effetti collaterali noti. L'ecografia ginecologica esamina utero, tube e ovaie e può essere eseguita per via trans-vaginale (la modalità più indicata nella maggior parte dei casi, dopo svuotamento della vescica), trans-addominale (a vescica piena, utile ad esempio in pazienti vergini, con stenosi vaginale, o per valutare formazioni di grandi dimensioni) o trans-rettale (alternativa nelle stesse situazioni particolari). È un esame generalmente indolore, al massimo lievemente fastidioso, eseguibile in qualsiasi fase del ciclo o in menopausa, senza preparazione particolare.\n\nServe a individuare condizioni patologiche anatomiche o funzionali dell'apparato genitale femminile, valutare condizioni a rischio oncologico e monitorare pazienti già in cura. Ha dei limiti: in circa il 10% dei casi l'endometrio non è ben visualizzabile, in post-menopausa le ovaie possono non essere identificabili, e l'accuratezza è condizionata da fattori come obesità, meteorismo intestinale o presenza di fibromi voluminosi. Pur essendo accurata nel distinguere formazioni benigne da sospette, l'ecografia non è validata come esame di screening di popolazione per i tumori ginecologici; uno screening specifico è indicato solo nelle donne ad alto rischio ereditario (mutazioni BRCA1-2, sindrome di Lynch) che non possano o non vogliano ricorrere alla chirurgia profilattica. In base ai reperti, il medico potrà proporre un completamento per via trans-addominale, controlli di follow-up nel tempo o ulteriori accertamenti (esami di laboratorio, TC, risonanza).\n\nLa sottoscritta dichiara di essere stata informata in modo dettagliato su finalità, modalità e limiti dell'ecografia ginecologica, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere reperti che richiedono ulteriori accertamenti, acconsente liberamente alla sua esecuzione." },
+
+  { titolo:'Ecografia ostetrica I trimestre precoce', testo:"L'ecografia precoce del I trimestre (prima delle 11 settimane) viene eseguita preferibilmente per via trans-vaginale, come l'ecografia ginecologica; è generalmente indolore e priva di effetti collaterali noti. Gli ultrasuoni sono utilizzati in ostetricia da oltre trent'anni senza effetti dannosi documentati per il feto, anche a lungo termine, per cui l'uso diagnostico è considerato privo di rischi; prima delle 10 settimane non è consigliato l'uso del Doppler per rilevare l'attività cardiaca.\n\nL'esame è indicato in presenza di sintomi come perdite ematiche o dolore pelvico, ma è raccomandato in tutte le gravidanze per accertare che la gravidanza sia intrauterina e valutare numero e vitalità dei feti. In assenza di procreazione medicalmente assistita, l'epoca gestazionale viene stimata dalla lunghezza cranio-caudale (CRL) dell'embrione; una datazione fatta prima delle 11 settimane resta provvisoria e va confermata con l'ecografia del I trimestre tra 11 e 13+6 settimane. L'esame può inoltre rilevare una gravidanza multipla (con relativa valutazione di amnionicità e corionicità), un aborto spontaneo, una gravidanza in sede anomala (es. extrauterina) o anomalie dell'utero e degli annessi — condizioni che in epoca così precoce possono richiedere controlli ravvicinati ed esami di laboratorio per essere confermate. L'ecografia precoce non può comunque escludere altre problematiche della gravidanza oltre a quanto sopra descritto.\n\nLa sottoscritta dichiara di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia precoce del I trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsente liberamente alla sua esecuzione." },
+
+  { titolo:'Ecografia ostetrica I trimestre 11-13+6 settimane', testo:"L'ecografia del I trimestre tra 11+0 e 13+6 settimane viene eseguita nella maggior parte dei casi per via trans-addominale, occasionalmente anche trans-vaginale. Le sue finalità principali sono: verificare la vitalità fetale, datare la gravidanza tramite la misurazione della lunghezza cranio-caudale (CRL), misurare la translucenza nucale (NT) e — se non già fatto — accertare il numero dei feti (con amnionicità e corionicità in caso di gravidanza multipla). Chi lo desidera può inoltre associare questo esame allo screening combinato del rischio delle trisomie più comuni.\n\nLa translucenza nucale è lo spessore del tessuto sottocutaneo dietro la nuca del feto: un valore normale riduce il rischio di anomalie genetiche, mentre un valore aumentato (in particolare ≥3,5 mm) è un indicatore di rischio per trisomie (21, 18, 13) e per alcune anomalie strutturali, e in tal caso viene proposto un approfondimento presso un centro di riferimento. In questa epoca è anche possibile una prima valutazione di base dell'anatomia fetale, utile per sospettare alcune malformazioni maggiori, ma molto più limitata rispetto a quella eseguibile nel II trimestre (che resta l'esame di riferimento per lo screening delle anomalie strutturali) e condizionata da fattori come obesità materna o spessore della parete addominale.\n\nLa sottoscritta dichiara di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia del I trimestre (11-13+6 settimane), di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono consulenze multispecialistiche o ulteriori accertamenti, acconsente liberamente alla sua esecuzione." },
+
+  { titolo:'Ecografia ostetrica II trimestre', testo:"L'ecografia di screening del II trimestre si esegue generalmente tra 19 e 21 settimane compiute, appoggiando la sonda sull'addome (a volte con una certa pressione per ottenere immagini nitide). Le malformazioni fetali interessano circa 2-3 gravidanze su 100: tutte le donne condividono questo rischio generico ('di popolazione'), motivo per cui questo esame viene proposto a tutte le gravide per individuare, tra feti apparentemente sani, quelli a rischio, e indirizzarli a un percorso diagnostico adeguato. L'esame valuta vitalità, anatomia e crescita fetale, quantità di liquido amniotico e sede della placenta, e — se non ancora eseguita — può fornire anche la datazione della gravidanza.\n\nSe la posizione del feto è sfavorevole o alcuni organi non sono ben visualizzabili (es. stomaco o vescica vuoti), può essere necessario ripetere l'esame a distanza di ore o giorni; un reperto sospetto può richiedere un approfondimento presso un centro di riferimento, e non sempre un sospetto iniziale si conferma poi patologico. Non tutte le anomalie fetali sono individuabili con certezza: i dati italiani indicano che solo circa il 32% delle anomalie congenite viene identificato in epoca prenatale nel II e III trimestre. La possibilità di rilevare un'anomalia dipende dalle sue dimensioni e da quanto altera visibilmente l'immagine ecografica, non necessariamente dalla sua gravità, ed è condizionata da posizione fetale, quantità di liquido amniotico, cicatrici addominali, gravidanza gemellare, fibromi o obesità materna. Alcune malformazioni cosiddette 'evolutive' possono manifestarsi solo più avanti nella gravidanza o dopo la nascita, e quindi non essere visibili in questo esame. Questo screening, inoltre, non è mirato a individuare anomalie genetiche, poiché non tutte si associano a malformazioni evidenziabili ecograficamente. Per questi motivi, un esito normale non garantisce con certezza l'assenza di malformazioni congenite alla nascita.\n\nLa sottoscritta dichiara di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del II trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsente liberamente alla sua esecuzione." },
+
+  { titolo:'Ecografia ostetrica III trimestre', testo:"L'ecografia di screening del III trimestre valuta principalmente la crescita fetale, la quantità di liquido amniotico e la localizzazione della placenta. Nelle gravidanze a basso rischio ha una buona capacità di individuare feti piccoli o grandi per l'epoca gestazionale (superiore alla semplice misura della sinfisi-fondo) e può rilevare anomalie strutturali a comparsa tardiva, anche se i dati scientifici non dimostrano ancora con certezza un beneficio sistematico dell'esame di routine in gravidanze senza fattori di rischio. Nelle gravidanze ad alto rischio per problemi di crescita, l'esame permette di individuare alterazioni dell'accrescimento o del liquido amniotico, e può rendersi necessaria anche una valutazione Doppler dei vasi utero-placentari e/o fetali; in caso di sospetta placenta previa o bassa è indicata un'ecografia trans-vaginale, mentre un sospetto accretismo placentare richiede un approfondimento presso centri con esperienza specifica.\n\nL'esame può essere limitato da obesità materna, cicatrici addominali, fibromatosi uterina, scarsità di liquido amniotico, posizione fetale sfavorevole o gravidanza gemellare, e talvolta richiede un secondo tentativo nella stessa seduta o nei giorni successivi. L'individuazione di malformazioni non è l'obiettivo specifico di questo esame: può comunque evidenziare anomalie non diagnosticate in precedenza o a comparsa tardiva (valutando in particolare i ventricoli cerebrali, le quattro camere cardiache, stomaco, reni e vescica), ma alcune malformazioni evolutive restano rilevabili solo dopo la nascita. Analogamente, non tutti i ritardi o eccessi di crescita fetale, né tutte le variazioni del liquido amniotico, sono individuabili con questo esame: un esito normale (la maggioranza dei casi) non garantisce quindi con certezza l'assenza di alterazioni della crescita o una regolare evoluzione della gravidanza fino al parto.\n\nLa sottoscritta dichiara di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del III trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsente liberamente alla sua esecuzione." },
+
+  { titolo:'Inserimento IUD', testo:"La spirale (Intra Uterine Device/IUD o Intra Uterine System/IUS) è un dispositivo a T inserito dal medico nella cavità uterina a scopo contraccettivo o terapeutico.\n\nCOME SI INSERISCE: l'inserimento avviene in ambulatorio, preferibilmente durante il ciclo mestruale. È necessaria una visita di controllo con ecografia dopo 3-6 settimane per verificare il corretto posizionamento.\n\nFUNZIONAMENTO: esistono due categorie di spirale. Quella in rame (IUD-Cu) agisce tramite una reazione locale da corpo estraneo che impedisce l'instaurarsi della gravidanza. Quella a rilascio ormonale (IUS-LNG, con levonorgestrel a 20 o 6 µg/die) agisce anche sul muco cervicale, sull'endometrio e sulla capacità fecondante degli spermatozoi, risultando più efficace e più protettiva verso la malattia infiammatoria pelvica.\n\nEFFICACIA: il tasso di fallimento nel primo anno è dello 0,8% per lo IUD al rame e dello 0,2% per lo IUS al levonorgestrel. In caso di gravidanza nonostante il dispositivo, il rischio di aborto è circa triplo rispetto alla media, con un lieve aumento del rischio di parto pretermine, ma nessun aumento del rischio di malformazioni fetali. La spirale non protegge dalle infezioni sessualmente trasmissibili.\n\nCONTROINDICAZIONI: non ve ne sono per l'uso in donne nullipare o adolescenti. È controindicato in caso di gravidanza, infezioni in atto, tumori dell'utero, fibromi, morbo di Wilson; per la sola IUS-LNG anche in caso di LES, anticorpi antifosfolipidi, tromboembolismo venoso, embolia polmonare o tumore maligno ormono-dipendente.\n\nREVERSIBILITÀ: il ritorno alla fertilità dopo la rimozione è immediato; l'80-95% delle donne concepisce entro 12 mesi. La rimozione può avvenire in qualsiasi momento del ciclo (non necessariamente durante le mestruazioni), tenendo presente il rischio di gravidanza per rapporti avuti nei 7 giorni precedenti o successivi alla rimozione. Al momento della rimozione è possibile inserire un nuovo dispositivo.\n\nCOMPLICANZE possibili: malattia infiammatoria pelvica (rara, circa 1,6 casi su 1000 donne/anno, più frequente nelle prime 3 settimane, ridotta con la spirale medicata, aumentata con più partner sessuali); perforazione uterina all'inserimento (circa 1 caso su 1000); reazione vagale transitoria durante l'inserimento (per cui è consigliabile farsi accompagnare); gravidanza extrauterina (rischio complessivamente ridotto rispetto alla popolazione generale, ma proporzionalmente più probabile se il metodo fallisce); cambiamenti del ciclo mestruale (flusso più abbondante/prolungato con lo IUD al rame; flusso scarso o assente dopo 6-12 mesi con lo IUS al levonorgestrel; spotting irregolare nei primi 3-6 mesi mentre l'endometrio si adatta); espulsione o dislocazione (più frequente nel primo anno, 3-5%, con rischio lievemente aumentato se inserita contestualmente a revisione della cavità uterina; il filo di repere risalito in cavità può richiedere rimozione isteroscopica); attenzione alla termoterapia in regione sacrale/addominale con IUD al rame (nessun rischio di dislocazione con la risonanza magnetica, poiché i materiali utilizzati non sono magnetizzabili).\n\nLa sottoscritta dichiara di essere stata informata dalla dott.ssa Cristina Guidi, dopo un colloquio che ha illustrato anche i vari metodi contraccettivi alternativi (ormonale, meccanico, chirurgico), e dopo valutazione anamnestico-clinica, e richiede l'inserimento del dispositivo intrauterino.\n\nRif.: Linee guida italiane sull'efficacia e l'uso appropriato della contraccezione intrauterina — Arisi, Bruni, Di Spiezio Sardo, Dubini, Gubbini, Parazzini, SIGO 2014.\n\nSe la richiedente è minorenne, i genitori firmano per consenso alla presenza del medico (documento d'identità e firma di entrambi i genitori)." },
+
   { titolo:'Trattamento dei dati personali (privacy)', testo:"La sottoscritta dichiara di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. La sottoscritta ha diritto di accedere, rettificare e cancellare i propri dati e di opporsi al trattamento, rivolgendosi allo studio. Presta il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
 // Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
 // così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
 // non riconosciuti restano comunque selezionabili, solo non in evidenza).
 const CONSENSO_TIPI_VISITA = {
-  gyno: ['Visita ginecologica generale','Pap-test e Test HPV','Colposcopia (± biopsia)',"Posizionamento / rimozione IUD (spirale)",'Isteroscopia diagnostica'],
-  ob: ['Ecografia (ginecologica/ostetrica)','Diagnosi prenatale invasiva (villocentesi / amniocentesi)','Vaccinazione / immunoprofilassi in gravidanza'],
-  eco: ['Ecografia (ginecologica/ostetrica)']
+  gyno: ['Visita ginecologica generale','Ecografia ginecologica','Inserimento IUD'],
+  ob: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre'],
+  eco: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre']
 };
 function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function getConsensi(){
@@ -9444,147 +9450,139 @@ function apriConsensoConFirma(i, onDone){
   });
 }
 
-// ── Proposta del consenso informato al momento di iniziare una nuova visita ──
+// ── Consenso/i informato/i al momento di iniziare (o riaprire) una visita ──
 // Cliccando un tipo di visita in "Nuova Visita" si passa da qui prima di
-// aprire davvero l'editor: mostra la libreria dei consensi con quelli più
-// pertinenti a quel tipo di visita in evidenza, così l'operatore può farlo
-// firmare subito sullo schermo (o saltare e proseguire senza).
-let _consensoVisitaTipoPending = null;
+// aprire davvero l'editor: selezione MULTIPLA fra tutti i moduli, quelli
+// più pertinenti al tipo di visita in evidenza. Chi firma (nome, editabile:
+// la paziente stessa o un genitore per un'ecografia/visita su minorenne) e
+// la data sono precompilati ma modificabili. Tutti i moduli scelti vengono
+// stampati insieme su UN foglio unico con UNA sola firma, e restano
+// ARCHIVIATI CON QUESTA VISITA (campo consenso-visita del referto:
+// gd-/ob-/ec-consenso-visita → GD_FIELDS/OB_FIELDS/ECO_FIELDS), non in un
+// elenco a parte. Lo stesso modal si riapre anche a visita già in corso
+// (bottone "✍️ Consenso" nella barra dell'editor) per rivedere/ristampare
+// quanto già firmato o aggiungere un modulo dimenticato.
+let _consensoVisitaTipoPending = null; // tipo della visita da APRIRE dopo la firma (null quando si sta solo rivedendo una visita già aperta)
+let _consensoVisitaSelezionati = new Set();
 const _META_TIPO_VISITA = {gyno:'visita ginecologica', ob:'visita ostetrica', eco:'ecografia ostetrica'};
+function _consensoVisitaPrefix(tipo){ return tipo==='eco' ? 'ec' : (tipo==='ob' ? 'ob' : 'gd'); }
+
 function pazChiediConsensoPrimaVisita(tipo){
   _consensoVisitaTipoPending = tipo;
+  closeModal('modal-type');
+  _apriModalConsensoVisita(tipo);
+}
+// Riapre la scelta dei consensi per la visita ATTUALMENTE in compilazione (bottone nella barra dell'editor).
+function apriConsensoVisitaCorrente(){
+  _consensoVisitaTipoPending = null;
+  _apriModalConsensoVisita(curMode);
+}
+function _apriModalConsensoVisita(tipo){
+  const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
   const sub=document.getElementById('cv-sottotitolo');
-  if(sub) sub.textContent = `Vuoi far firmare un consenso informato prima di questa ${_META_TIPO_VISITA[tipo]||'visita'}? In evidenza i moduli più pertinenti — puoi comunque sceglierne un altro, o saltare.`;
+  if(sub) sub.textContent = `Scegli uno o più moduli per questa ${_META_TIPO_VISITA[tipo]||'visita'} — verranno stampati insieme su un unico foglio da far firmare. In evidenza i più pertinenti.`;
+  const nomeEl=document.getElementById('cv-nome'), dataEl=document.getElementById('cv-data');
+  if(nomeEl) nomeEl.value = p ? `${p.nome} ${p.cognome}` : '';
+  if(dataEl) dataEl.value = new Date().toISOString().split('T')[0];
+
+  const prefix=_consensoVisitaPrefix(tipo);
+  const hidden=document.getElementById(prefix+'-consenso-visita');
+  let salvato=null;
+  try{ salvato = hidden && hidden.value ? JSON.parse(hidden.value) : null; }catch(e){}
+  const statoBox=document.getElementById('cv-stato-firmato');
+  const btnRistampa=document.getElementById('cv-btn-ristampa');
+  _consensoVisitaSelezionati = new Set(salvato ? salvato.titoli : []);
+  if(salvato && salvato.firma){
+    statoBox.style.display='block';
+    statoBox.textContent = `✅ Già firmato da ${salvato.nome} il ${new Date(salvato.data).toLocaleDateString('it-IT')} (${salvato.titoli.length} modul${salvato.titoli.length===1?'o':'i'}) — verrà archiviato con questa visita al salvataggio.`;
+    btnRistampa.style.display='inline-flex';
+    if(nomeEl) nomeEl.value = salvato.nome;
+    if(dataEl) dataEl.value = (salvato.data||'').split('T')[0];
+  } else {
+    statoBox.style.display='none';
+    btnRistampa.style.display='none';
+  }
+
   const rilevanti = new Set(CONSENSO_TIPI_VISITA[tipo]||[]);
   const consensi = getConsensi().map((c,i)=>({...c,_i:i,_match:rilevanti.has(c.titolo)}));
   consensi.sort((a,b)=>(b._match-a._match));
   const lista=document.getElementById('consenso-visita-lista');
   if(lista){
-    lista.innerHTML = consensi.map(c=>`
-      <div class="pharma-card" style="${c._match?'border-color:var(--primary);background:var(--primary-dim);':''}">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-          <div class="pharma-name">${_escHtml(c.titolo)}</div>
-          ${c._match?'<span class="badge badge-blue">Consigliato</span>':''}
-        </div>
-        <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%;justify-content:center;" onclick="pazFirmaConsensoEProsegui(${c._i})">✍️ Firma ora e prosegui</button>
-      </div>`).join('');
+    lista.innerHTML = consensi.map(c=>{
+      const sel=_consensoVisitaSelezionati.has(c.titolo);
+      const titoloJs=JSON.stringify(c.titolo).replace(/"/g,'&quot;');
+      return `<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${sel?'var(--primary)':'var(--separator)'};background:${sel?'var(--primary-dim)':'var(--surface2)'};">
+        <input type="checkbox" ${sel?'checked':''} onchange="pazToggleConsensoSelezionato(${titoloJs},this.checked)" style="margin-top:2px;width:18px;height:18px;flex-shrink:0;">
+        <span style="flex:1;">
+          <span style="font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${_escHtml(c.titolo)}${c._match?' <span class="badge badge-blue" style="font-size:.6rem;">Consigliato</span>':''}</span>
+          <span style="font-size:.76rem;color:var(--label4);display:block;margin-top:2px;">${_escHtml(c.testo.slice(0,140))}${c.testo.length>140?'…':''}</span>
+        </span>
+      </label>`;
+    }).join('');
   }
-  closeModal('modal-type');
   document.getElementById('modal-consenso-visita').classList.add('show');
+}
+function pazToggleConsensoSelezionato(titolo, checked){
+  if(checked) _consensoVisitaSelezionati.add(titolo);
+  else _consensoVisitaSelezionati.delete(titolo);
 }
 function pazSaltaConsensoEProsegui(){
   closeModal('modal-consenso-visita');
   const tipo=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
   if(tipo) startEditor(tipo);
 }
-function pazFirmaConsensoEProsegui(i){
+function pazFirmaCombinataEProsegui(){
+  if(!_consensoVisitaSelezionati.size){ if(typeof gsToast==='function') gsToast('Seleziona almeno un modulo, oppure usa "Salta"','gs-error'); return; }
+  const nome=(document.getElementById('cv-nome')?.value||'').trim();
+  if(!nome){ if(typeof gsToast==='function') gsToast('Inserisci il nome di chi firma','gs-error'); return; }
+  const dataIso=document.getElementById('cv-data')?.value || new Date().toISOString().split('T')[0];
+  const tipo=_consensoVisitaTipoPending || curMode;
+  const prefix=_consensoVisitaPrefix(tipo);
+  const scelti=getConsensi().filter(c=>_consensoVisitaSelezionati.has(c.titolo));
+  if(!scelti.length) return;
   closeModal('modal-consenso-visita');
-  const tipo=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
-  apriConsensoConFirma(i, ()=>{ if(tipo) startEditor(tipo); });
-}
-
-// ═══════════════════════════════════════════════════
-//  CONSENSO INFORMATO PER LE ECOGRAFIE OSTETRICHE (I / II-III / III trimestre)
-//  Testo redatto sui contenuti informativi tipicamente coperti dai moduli
-//  della SIEOG (Società Italiana di Ecografia Ostetrica e Ginecologica,
-//  sieog.it/referti-informative-consensi) per ciascun tipo di esame — non è
-//  una riproduzione letterale dei moduli SIEOG (coperti da copyright della
-//  società scientifica), ma un testo equivalente nei contenuti, liberamente
-//  modificabile qui sotto se lo studio preferisce una formulazione diversa
-//  o il testo ufficiale scaricato dal sito.
-//  A differenza della libreria "Consensi" (generale, per paziente), questi
-//  restano ARCHIVIATI CON LA VISITA: salvati nel campo consenso-eco1/eco23/
-//  eco3 del referto (ob-*/ec-* → OB_FIELDS/ECO_FIELDS), non in un elenco
-//  separato — coerenti con "una firma per ogni ecografia fatta".
-const SIEOG_ECO_CONSENSI={
-  eco1:{ titolo:'Ecografia Ostetrica del I Trimestre', testo:
-`La sottoscritta dichiara di essere stata informata dal proprio Ginecologo sulle finalità e sui limiti dell'ecografia ostetrica del I trimestre, eseguita generalmente tra 11+0 e 13+6 settimane di gravidanza. L'esame permette di confermare l'epoca gestazionale, verificare la vitalità e il numero dei feti, misurare la translucenza nucale (NT) quale componente dello screening combinato del rischio di trisomie, ed effettuare una prima valutazione dell'anatomia fetale, per quanto compatibile con l'epoca gestazionale.
-
-È stata informata che si tratta di un esame di screening, non diagnostico: alcune anomalie strutturali si rendono evidenti solo più avanti nella gravidanza, e la valutazione del rischio non fornisce una diagnosi di certezza, potendo dare luogo a falsi positivi e falsi negativi.
-
-Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente liberamente all'esecuzione dell'esame nelle modalità proposte (via transaddominale, se necessario transvaginale).` },
-  eco23:{ titolo:'Ecografia Ostetrica del II-III Trimestre (Office)', testo:
-`La sottoscritta dichiara di essere stata informata sulle finalità e sui limiti dell'ecografia ostetrica di controllo del II-III trimestre eseguita in ambulatorio ("office"), volta a valutare l'accrescimento fetale, la quantità di liquido amniotico, la sede e l'aspetto della placenta e la presentazione fetale.
-
-È stata informata che si tratta di un esame di controllo, con finalità e durata diverse rispetto all'ecografia morfologica strutturata (eseguita generalmente tra 19 e 22 settimane secondo protocollo dedicato), e che la visualizzazione di alcuni dettagli anatomici può essere limitata dalla posizione fetale, dalla quantità di liquido amniotico o dalla costituzione materna: non tutte le anomalie sono necessariamente evidenziabili con questo tipo di esame.
-
-Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente liberamente all'esecuzione dell'esame nelle modalità proposte.` },
-  eco3:{ titolo:'Ecografia Ostetrica del III Trimestre', testo:
-`La sottoscritta dichiara di essere stata informata sulle finalità e sui limiti dell'ecografia ostetrica del III trimestre, volta principalmente a valutare l'accrescimento fetale, la quantità di liquido amniotico, la localizzazione della placenta e la presentazione fetale, con eventuale valutazione flussimetrica (Doppler) quando clinicamente indicata.
-
-È stata informata che l'esame fornisce una stima del peso fetale gravata da un margine di errore intrinseco alla metodica, e che alcuni reperti possono richiedere ulteriori controlli nel tempo per essere correttamente interpretati.
-
-Ha avuto la possibilità di porre domande e ricevuto risposte esaurienti. Acconsente liberamente all'esecuzione dell'esame nelle modalità proposte.` }
-};
-let _cetCampoCorrente=null, _cetPrefixCorrente=null;
-function apriConsensoEcoVisita(campo){
-  const def=SIEOG_ECO_CONSENSI[campo]; if(!def) return;
-  const prefix = curMode==='eco' ? 'ec' : 'ob';
-  _cetCampoCorrente=campo; _cetPrefixCorrente=prefix;
-  document.getElementById('cet-titolo').textContent='✍️ Consenso — '+def.titolo;
-  document.getElementById('cet-testo').textContent=def.testo;
-  const hidden=document.getElementById(prefix+'-consenso-'+campo);
-  let salvato=null;
-  try{ salvato = hidden && hidden.value ? JSON.parse(hidden.value) : null; }catch(e){}
-  const statoBox=document.getElementById('cet-stato-firmato');
-  const btnRistampa=document.getElementById('cet-btn-ristampa');
-  if(salvato && salvato.firma){
-    statoBox.style.display='block';
-    document.getElementById('cet-data-firma').textContent=new Date(salvato.data).toLocaleDateString('it-IT');
-    btnRistampa.style.display='inline-flex';
-  } else {
-    statoBox.style.display='none';
-    btnRistampa.style.display='none';
-  }
-  document.getElementById('modal-consenso-eco-trim').classList.add('show');
-}
-function _cetFirmaOra(){
-  const campo=_cetCampoCorrente, prefix=_cetPrefixCorrente;
-  const def=SIEOG_ECO_CONSENSI[campo]; if(!def) return;
-  const p=DB.pazienti.find(x=>x.id===curPaz);
-  closeModal('modal-consenso-eco-trim');
-  apriFirmaElettronica(`${def.titolo} — ${p?p.cognome+' '+p.nome:''}`, (firmaDataUrl)=>{
-    const record={ titolo:def.titolo, testo:def.testo, firma:firmaDataUrl, data:new Date().toISOString() };
-    const hidden=document.getElementById(prefix+'-consenso-'+campo);
+  const titoloFirma = scelti.length===1 ? scelti[0].titolo : `${scelti.length} consensi informati`;
+  apriFirmaElettronica(`${titoloFirma} — ${nome}`, (firmaDataUrl)=>{
+    const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:firmaDataUrl };
+    const hidden=document.getElementById(prefix+'-consenso-visita');
     if(hidden) hidden.value=JSON.stringify(record);
-    _aggiornaBadgeConsensoEco(campo,prefix);
-    _stampaConsensoEcoRecord(record,p);
+    _stampaConsensoVisitaCombinato(record);
     if(typeof gsToast==='function') gsToast('✅ Consenso firmato — verrà archiviato con questa visita al salvataggio','gs-success');
+    const tipoDaAprire=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
+    if(tipoDaAprire) startEditor(tipoDaAprire);
   });
 }
-function _cetRistampa(){
-  const campo=_cetCampoCorrente, prefix=_cetPrefixCorrente;
-  const hidden=document.getElementById(prefix+'-consenso-'+campo);
+function pazRistampaConsensoVisita(){
+  const tipo=_consensoVisitaTipoPending || curMode;
+  const prefix=_consensoVisitaPrefix(tipo);
+  const hidden=document.getElementById(prefix+'-consenso-visita');
   if(!hidden||!hidden.value) return;
   let record=null;
   try{ record=JSON.parse(hidden.value); }catch(e){}
   if(!record) return;
-  const p=DB.pazienti.find(x=>x.id===curPaz);
-  closeModal('modal-consenso-eco-trim');
-  _stampaConsensoEcoRecord(record,p);
+  closeModal('modal-consenso-visita');
+  _stampaConsensoVisitaCombinato(record);
+  const tipoDaAprire=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
+  if(tipoDaAprire) startEditor(tipoDaAprire);
 }
-function _aggiornaBadgeConsensoEco(campo,prefix){
-  const btn=document.getElementById(prefix+'-btn-consenso-'+campo);
-  const hidden=document.getElementById(prefix+'-consenso-'+campo);
-  if(!btn) return;
-  btn.innerHTML = (hidden && hidden.value) ? '✅ Firmato' : '✍️ Consenso';
-}
-// Ricalcola i badge ✍️/✅ dei 3 pulsanti (I / II-III / III trimestre) di un
-// pannello (ob/ec) dopo aver caricato i dati di una visita esistente.
-function aggiornaBadgeConsensiEcoPannello(prefix){
-  ['eco1','eco23','eco3'].forEach(campo=>_aggiornaBadgeConsensoEco(campo,prefix));
-}
-function _stampaConsensoEcoRecord(record,p){
+// Stampa un foglio UNICO con tutti i moduli scelti in sequenza e UNA sola
+// firma in fondo — come un vero modulo cumulativo, non pagine separate.
+function _stampaConsensoVisitaCombinato(record){
   const c=getPrintCfg(); const l=c.layout;
-  const nome=p?`${p.cognome} ${p.nome}`:'________________________';
+  const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
   const nascita=p&&p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'____________';
   const dStr=new Date(record.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   const w=apriFinestraStampa(); if(!w) return;
-  registraLog('stampa','Consenso ecografia: '+record.titolo);
-  const firmaAssistitaHtml = record.firma
-    ? `<img src="${record.firma}" style="max-height:56px;display:block;margin:0 auto 4px;">Firma della persona assistita <span style="color:#2e7d32;font-size:.68rem;">(firma elettronica, ${dStr})</span>`
-    : 'Firma della persona assistita';
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${_escHtml(record.titolo)}</title>
+  registraLog('stampa','Consenso/i: '+record.titoli.join(', '));
+  const firmaHtml = record.firma
+    ? `<img src="${record.firma}" style="max-height:56px;display:block;margin:0 auto 4px;">Firma <span style="color:#2e7d32;font-size:.68rem;">(firma elettronica, ${dStr})</span>`
+    : 'Firma';
+  const corpoModuli = record.titoli.map((tit,i)=>`
+    <div style="${i>0?'margin-top:30px;padding-top:20px;border-top:1px dashed #ccc;':''}">
+      <h2 style="text-align:left;">${_escHtml(tit.toUpperCase())}</h2>
+      <div class="ic-body" contenteditable="true" spellcheck="false">${_escHtml(record.testi[i])}</div>
+    </div>`).join('');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Consenso informato</title>
   <style>
     ${printStyleComune()}
     body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
@@ -9593,12 +9591,12 @@ function _stampaConsensoEcoRecord(record,p){
     .ic-header h1{font-size:1.2rem;margin:0;color:${l.colore}}
     .ic-header .sp{font-size:.82rem;color:#555;margin-top:2px}
     .ic-header .ct{font-size:.76rem;color:#777;margin-top:3px}
-    h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
+    h2{font-size:1.05rem;letter-spacing:.5px;margin:8px 0 14px;color:${l.colore}}
     .ic-meta{font-size:.9rem;margin-bottom:20px}
     .ic-meta div{margin-bottom:3px}
-    .ic-body{white-space:pre-wrap;font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:34px;outline:none}
+    .ic-body{white-space:pre-wrap;font-size:.92em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;outline:none}
     .ic-body:focus{background:#fffdf5}
-    .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
+    .firme{display:flex;justify-content:space-between;margin-top:50px;font-size:.85rem;color:#555}
     .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
     .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
     .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
@@ -9610,14 +9608,13 @@ function _stampaConsensoEcoRecord(record,p){
       <button class="sec" onclick="window.close()">Chiudi</button>
     </div>
     <div class="ic-header">${printHeaderHtml()}</div>
-    <h2>${_escHtml(record.titolo.toUpperCase())}</h2>
     <div class="ic-meta">
-      <div><strong>Persona assistita:</strong> ${nome} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
+      <div><strong>Persona che firma:</strong> ${_escHtml(record.nome)}${p?' &nbsp;·&nbsp; <strong>Paziente:</strong> '+_escHtml(p.cognome+' '+p.nome):''} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
       <div><strong>Data:</strong> ${dStr}</div>
     </div>
-    <div class="ic-body" contenteditable="true" spellcheck="false">${_escHtml(record.testo)}</div>
+    ${corpoModuli}
     <div class="firme">
-      <div class="l">${firmaAssistitaHtml}</div>
+      <div class="l">${firmaHtml}</div>
       <div class="l">${_escHtml(c.firma)||'Firma del medico'}</div>
     </div>
     ${printFooterHtml()}
