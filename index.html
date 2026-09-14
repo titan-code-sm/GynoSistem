@@ -1763,6 +1763,12 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
   </div>
 
+  <!-- Riepilogo rapido: attivabile/disattivabile da Impostazioni → Cartella Paziente -->
+  <div class="card" id="paz-riepilogo" style="display:none;margin-bottom:20px;">
+    <div class="card-header"><div class="card-title">🧾 Riepilogo Rapido</div></div>
+    <div id="paz-riepilogo-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;"></div>
+  </div>
+
   <div class="paz-shell">
     <!-- Indice laterale: un unico pannello, niente più card sfasate di altezze diverse -->
     <div class="paz-index">
@@ -1921,6 +1927,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <button class="tipo-pill active" onclick="setSettingsTab(this,'set-tab-ai')">🤖 Assistente AI</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-stampa')">🖨️ Stampe</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-funzioni')">🧩 Funzionalità</button>
+    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-cartella')">🗂️ Cartella Paziente</button>
   </div>
 
   <div id="set-tab-ai" class="edit-panel active">
@@ -2002,6 +2009,21 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div style="display:flex;justify-content:flex-end;margin-top:14px;">
       <button class="btn btn-ghost btn-sm" onclick="riattivaTutteFunzioni()">↺ Riattiva tutte</button>
     </div>
+  </div>
+  </div>
+
+  <div id="set-tab-cartella" class="edit-panel">
+  <div class="card" style="max-width:720px;">
+    <div class="card-header"><div><div class="card-title">🗂️ Cartella Paziente</div><div class="card-subtitle">Scegli quali schede mostrare quando apri una paziente, e in che ordine — trascina per riordinare</div></div></div>
+    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 0;border-bottom:1px solid var(--separator);margin-bottom:14px;">
+      <input type="checkbox" id="set-paz-riepilogo" onchange="setPazRiepilogoVisibile(this.checked); if(curPaz && typeof renderPazRiepilogo==='function') renderPazRiepilogo(DB.pazienti.find(x=>x.id===curPaz));" style="width:20px;height:20px;flex-shrink:0;">
+      <span style="flex:1;">
+        <span style="font-weight:600;display:block;">🧾 Riepilogo rapido in cima alla cartella</span>
+        <span style="font-size:.78rem;color:var(--label4);">Età, gravidanza in corso, ultima visita, terapie e promemoria a colpo d'occhio</span>
+      </span>
+    </label>
+    <div id="set-paz-tabs-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div style="font-size:.76rem;color:var(--label4);margin-top:14px;">Deve restare visibile almeno una scheda. "Consensi Firmati" resta comunque nascosta da sola finché una paziente non ha moduli firmati, anche se qui è impostata come visibile.</div>
   </div>
   </div>
 </div>
@@ -6476,6 +6498,138 @@ function pazSwitchTab(tab){
   document.querySelectorAll('.paz-tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.paz-pane').forEach(el=>el.classList.toggle('active', el.id==='paz-pane-'+tab));
 }
+// Apre la prima scheda effettivamente visibile (rispetta sia le preferenze
+// dell'operatore sia lo stato dei dati, es. Consensi Firmati vuota).
+function pazApriTabIniziale(){
+  const tabs=[...document.querySelectorAll('.paz-tab')];
+  const primo=tabs.find(b=>b.style.display!=='none')||tabs[0];
+  if(primo) pazSwitchTab(primo.dataset.tab);
+}
+
+// ═══════════════════════════════════════════════════
+//  PERSONALIZZAZIONE CARTELLA PAZIENTE (Impostazioni → Cartella Paziente)
+//  Quali schede mostrare, in che ordine, e se mostrare il riepilogo rapido.
+//  Preferenza per-operatore (localStorage), non tocca alcun dato clinico.
+// ═══════════════════════════════════════════════════
+const PAZ_TABS_DEFAULT=[
+  {id:'clinica', label:'Cartella Clinica', icon:'📋', visible:true},
+  {id:'farmaci', label:'Farmaci Attuali', icon:'💊', visible:true},
+  {id:'consensi', label:'Consensi Firmati', icon:'✍️', visible:true},
+  {id:'note', label:'Note & Anamnesi', icon:'📝', visible:true},
+  {id:'screening', label:'Screening', icon:'🔬', visible:true},
+  {id:'promemoria', label:'Promemoria', icon:'🔔', visible:true},
+  {id:'referti', label:'Referti Esterni', icon:'📎', visible:true}
+];
+function _pazTabsKey(){ return 'gs_paz_tabs_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getPazTabsCfg(){
+  try{
+    const s=localStorage.getItem(_pazTabsKey());
+    if(s){
+      const arr=JSON.parse(s);
+      if(Array.isArray(arr) && arr.length){
+        // fonde con eventuali nuove schede introdotte in futuro, non presenti in un salvataggio vecchio
+        const ids=arr.map(x=>x.id);
+        PAZ_TABS_DEFAULT.forEach(d=>{ if(!ids.includes(d.id)) arr.push({...d}); });
+        return arr;
+      }
+    }
+  }catch(e){}
+  return PAZ_TABS_DEFAULT.map(x=>({...x}));
+}
+function savePazTabsCfg(arr){ try{ localStorage.setItem(_pazTabsKey(), JSON.stringify(arr)); }catch(e){} }
+function _pazRiepilogoKey(){ return 'gs_paz_riepilogo_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getPazRiepilogoVisibile(){ try{ const v=localStorage.getItem(_pazRiepilogoKey()); return v===null?true:v==='1'; }catch(e){ return true; } }
+function setPazRiepilogoVisibile(v){ try{ localStorage.setItem(_pazRiepilogoKey(), v?'1':'0'); }catch(e){} }
+
+// Applica l'ordine e la visibilità configurati: sposta i bottoni-scheda e i
+// pannelli corrispondenti nel DOM nell'ordine scelto, e nasconde quelli
+// disattivati (tranne "consensi", gestita anche da renderConsensiFirmati in
+// base ai dati — le due condizioni si combinano lì).
+function pazApplicaConfigTabs(){
+  const index=document.querySelector('.paz-index');
+  const panel=document.querySelector('.paz-panel');
+  if(!index||!panel) return;
+  getPazTabsCfg().forEach(t=>{
+    const tabEl=document.querySelector(`.paz-tab[data-tab="${t.id}"]`);
+    const paneEl=document.getElementById('paz-pane-'+t.id);
+    if(tabEl){
+      index.appendChild(tabEl);
+      if(t.id!=='consensi') tabEl.style.display=t.visible?'flex':'none';
+    }
+    if(paneEl) panel.appendChild(paneEl);
+  });
+}
+function renderSetPazTabsList(){
+  const box=document.getElementById('set-paz-tabs-list'); if(!box) return;
+  const cfg=getPazTabsCfg();
+  box.innerHTML=cfg.map((t,i)=>`
+    <div draggable="true" ondragstart="_pazTabDragStart(event,${i})" ondragover="_pazTabDragOver(event)" ondrop="_pazTabDrop(event,${i})" ondragend="_pazTabDragEnd(event)"
+      style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--separator);border-radius:10px;padding:9px 12px;cursor:grab;">
+      <span style="color:var(--label4);font-size:1rem;user-select:none;">⠿</span>
+      <span style="font-size:1.05rem;">${t.icon}</span>
+      <span style="flex:1;font-weight:600;font-size:.86rem;">${t.label}</span>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.76rem;color:var(--label4);">
+        <input type="checkbox" ${t.visible?'checked':''} onchange="pazTabToggleVisibile(${i},this.checked)" style="width:17px;height:17px;">
+        ${t.visible?'visibile':'nascosta'}
+      </label>
+    </div>`).join('');
+}
+let _pazTabDragIdx=null;
+function _pazTabDragStart(e,i){ _pazTabDragIdx=i; e.dataTransfer.effectAllowed='move'; e.currentTarget.style.opacity='0.45'; }
+function _pazTabDragOver(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+function _pazTabDragEnd(e){ e.currentTarget.style.opacity=''; }
+function _pazTabDrop(e,i){
+  e.preventDefault();
+  if(_pazTabDragIdx===null||_pazTabDragIdx===i){ _pazTabDragIdx=null; return; }
+  const cfg=getPazTabsCfg();
+  const [moved]=cfg.splice(_pazTabDragIdx,1);
+  cfg.splice(i,0,moved);
+  savePazTabsCfg(cfg);
+  _pazTabDragIdx=null;
+  renderSetPazTabsList();
+  pazApplicaConfigTabs();
+}
+function pazTabToggleVisibile(i,val){
+  const cfg=getPazTabsCfg();
+  if(!val && cfg.filter(t=>t.visible).length<=1){
+    if(typeof gsToast==='function') gsToast('Deve restare visibile almeno una scheda','gs-error');
+    renderSetPazTabsList();
+    return;
+  }
+  cfg[i].visible=val;
+  savePazTabsCfg(cfg);
+  renderSetPazTabsList();
+  pazApplicaConfigTabs();
+}
+// Statistiche a colpo d'occhio in cima alla cartella: età, gravidanza in
+// corso, ultima visita, terapie attive, prossimo promemoria, consensi firmati.
+function renderPazRiepilogo(p){
+  const box=document.getElementById('paz-riepilogo');
+  const grid=document.getElementById('paz-riepilogo-grid');
+  if(!box||!grid) return;
+  if(!p || !getPazRiepilogoVisibile()){ box.style.display='none'; return; }
+  box.style.display='block';
+  const eta=p.nascita?(new Date().getFullYear()-new Date(p.nascita).getFullYear()):null;
+  const ga=typeof gravidanzaAttiva==='function'?gravidanzaAttiva(p):null;
+  const settGrav=ga && typeof calcolaSettimaneGravidanza==='function' ? calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date()) : null;
+  const visiteOrdinate=[...(p.visite||[])].sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const ultima=visiteOrdinate[0];
+  const TIPO_LABEL={gyno:'Ginecologica',ob:'Ostetrica',eco:'Ecografia'};
+  const oggi=new Date();
+  const prossimo=(p.alerts||[]).filter(a=>new Date(a.data)>=oggi).sort((a,b)=>new Date(a.data)-new Date(b.data))[0];
+  const tiles=[
+    {label:'Età', val: eta!=null?eta+' anni':'–'},
+    {label:'Gravidanza', val: settGrav?`${settGrav} sett.`:'Non in corso'},
+    {label:'Ultima visita', val: ultima?`${new Date(ultima.data).toLocaleDateString('it-IT')} · ${TIPO_LABEL[ultima.tipo]||''}`:'Nessuna'},
+    {label:'Farmaci in terapia', val: (p.farmaciManuali||[]).length},
+    {label:'Prossimo promemoria', val: prossimo?new Date(prossimo.data).toLocaleDateString('it-IT'):'Nessuno'},
+    {label:'Consensi firmati', val: (p.consensiFirmati||[]).length}
+  ];
+  grid.innerHTML=tiles.map(t=>`<div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;">
+    <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--label4);margin-bottom:4px;">${t.label}</div>
+    <div style="font-size:.95rem;font-weight:700;color:var(--label);">${_escHtml(String(t.val))}</div>
+  </div>`).join('');
+}
 
 function openPaziente(id){
   curPaz=id;
@@ -6525,8 +6679,10 @@ function openPaziente(id){
   renderFarmaciAttuali(p);
   renderScreeningPaziente(p);
   renderAllegatiPaziente(p.id);
+  if(typeof renderPazRiepilogo==='function') renderPazRiepilogo(p);
+  if(typeof pazApplicaConfigTabs==='function') pazApplicaConfigTabs();
   if(typeof renderConsensiFirmati==='function') renderConsensiFirmati();
-  pazSwitchTab('clinica'); // riparte sempre dalla Cartella Clinica quando si apre una paziente
+  if(typeof pazApriTabIniziale==='function') pazApriTabIniziale(); // prima scheda visibile secondo le preferenze dell'operatore
   mostraAllertaPromemoriaScaduti(p);
 }
 
@@ -7757,6 +7913,9 @@ function renderFeatureToggles(){
 
 function renderImpostazioni(){
   renderFeatureToggles();
+  if(typeof renderSetPazTabsList==='function') renderSetPazTabsList();
+  const riepChk=document.getElementById('set-paz-riepilogo');
+  if(riepChk) riepChk.checked=getPazRiepilogoVisibile();
   const chk = document.getElementById('set-ai-enabled');
   if(chk) chk.checked = aiAbilitato;
   const riga = document.getElementById('ai-stato-riga');
@@ -9189,9 +9348,11 @@ function renderConsensiFirmati(){
   if(!box||!lista) return;
   const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
   const firmati = p?.consensiFirmati||[];
-  if(tab) tab.style.display=(p && firmati.length)?'flex':'none';
-  // se la scheda "Consensi Firmati" era attiva e non ha più contenuto (es. cambio paziente), torna alla Cartella Clinica
-  if(tab && tab.style.display==='none' && tab.classList.contains('active') && typeof pazSwitchTab==='function') pazSwitchTab('clinica');
+  const cfgConsensi = typeof getPazTabsCfg==='function' ? getPazTabsCfg().find(t=>t.id==='consensi') : null;
+  const utenteVisibile = !cfgConsensi || cfgConsensi.visible!==false;
+  if(tab) tab.style.display=(p && firmati.length && utenteVisibile)?'flex':'none';
+  // se la scheda "Consensi Firmati" era attiva e non ha più contenuto (es. cambio paziente), sposta sulla prima scheda visibile
+  if(tab && tab.style.display==='none' && tab.classList.contains('active') && typeof pazApriTabIniziale==='function') pazApriTabIniziale();
   if(!p || !firmati.length) return;
   if(badge) badge.textContent=firmati.length;
   if(nomeEl) nomeEl.textContent = `${p.cognome} ${p.nome}`;
@@ -9447,12 +9608,18 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   area.style.zIndex='-1';
   area.style.pointerEvents='none';
   area.style.background='#fff';
+  // Bug corretto: in modalità scura il colore del testo veniva ereditato da
+  // body (var(--label), quasi bianco) sopra questo sfondo bianco esplicito
+  // → testo praticamente invisibile, quindi un PDF che sembrava una pagina
+  // bianca. L'esportazione deve avere lo stesso aspetto indipendentemente
+  // dal tema a schermo, quindi forziamo qui un colore scuro esplicito.
+  area.style.color='#1c1c1e';
 
   if(typeof gsToast==='function') gsToast('📄 Generazione PDF in corso…','gs-info');
 
   const ripristina=()=>{
     area.style.display='none';
-    area.style.position=''; area.style.left=''; area.style.top=''; area.style.zIndex=''; area.style.pointerEvents=''; area.style.background='';
+    area.style.position=''; area.style.left=''; area.style.top=''; area.style.zIndex=''; area.style.pointerEvents=''; area.style.background=''; area.style.color='';
     area.style.fontFamily=''; area.style.fontSize='';
     if(phEl) phEl.style.borderBottomColor='';
     if(h1El) h1El.style.color='';
