@@ -521,6 +521,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 .alert-item .alert-date{font-size:0.75rem;font-weight:700;color:var(--primary);white-space:nowrap;}
 .alert-item .alert-text{font-size:0.85rem;color:var(--label2);flex:1;}
 .alert-item .alert-del{color:var(--label4);cursor:pointer;font-size:0.9rem;padding:4px;border-radius:6px;transition:0.15s;}
+.prom-dismiss-btn{cursor:pointer;transition:background .15s;}
+.prom-dismiss-btn:hover{background:rgba(255,255,255,0.3);}
 .alert-item .alert-del:hover{color:var(--red);background:var(--red-dim);}
 
 /* ─── UTILITY CARDS ─── */
@@ -1767,6 +1769,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="card" id="paz-riepilogo" style="display:none;margin-bottom:20px;">
     <div class="card-header"><div class="card-title">🧾 Riepilogo Rapido</div></div>
     <div id="paz-riepilogo-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;"></div>
+    <div id="paz-riepilogo-testo" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--separator);font-size:.86rem;line-height:1.65;color:var(--label2);"></div>
   </div>
 
   <div class="paz-shell">
@@ -5872,15 +5875,31 @@ function renderAlertsHome(){
 // arrivo): es. apri l'app il 9/9/2026 e un promemoria era datato 4/8/2026.
 // Confronto per stringa 'YYYY-MM-DD' (non new Date()<new Date()): evita che
 // un promemoria di OGGI risulti "scaduto" solo perché sono passate delle ore.
+// Promemoria scaduti "chiusi" dalla Dashboard: solo una preferenza personale
+// (non tocca il promemoria vero e proprio, che resta nella cartella della
+// paziente — chiudere qui equivale a "l'ho visto, non serve più segnalarmelo
+// in Dashboard"). Per-operatore, in localStorage.
+function _promDismissKey(){ return 'gs_prom_dismessi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function _getPromDismessi(){
+  try{ const arr=JSON.parse(localStorage.getItem(_promDismissKey())); return Array.isArray(arr)?arr:[]; }catch(e){ return []; }
+}
+function dismissPromemoriaScaduto(alertId, ev){
+  if(ev){ ev.stopPropagation(); }
+  const arr=_getPromDismessi();
+  if(!arr.includes(alertId)) arr.push(alertId);
+  try{ localStorage.setItem(_promDismissKey(), JSON.stringify(arr)); }catch(e){}
+  renderPromemoriaScaduti();
+}
 function renderPromemoriaScaduti(){
   const banner=document.getElementById('overdue-alert-banner');
   const list=document.getElementById('overdue-alert-list');
   const title=document.getElementById('overdue-alert-title');
   if(!banner||!list||!title) return;
   const oggi=new Date().toISOString().split('T')[0];
+  const dismessi=new Set(_getPromDismessi());
   let scaduti=[];
   DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
-    if(a.data && a.data<oggi) scaduti.push({p,a});
+    if(a.data && a.data<oggi && !dismessi.has(a.id)) scaduti.push({p,a});
   }));
   if(!scaduti.length){ banner.style.display='none'; return; }
   scaduti.sort((x,y)=>(x.a.data||'').localeCompare(y.a.data||''));
@@ -5892,6 +5911,7 @@ function renderPromemoriaScaduti(){
       <span style="font-weight:700;">${p.cognome} ${p.nome}</span>
       <span style="opacity:0.95;">${a.testo}</span>
       <span style="margin-left:auto;font-size:0.78rem;opacity:0.9;white-space:nowrap;">${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</span>
+      <span class="prom-dismiss-btn" onclick="dismissPromemoriaScaduto(${JSON.stringify(a.id)},event)" title="Nascondi da questo elenco" style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;opacity:.85;">✕</span>
     </div>`;
   }).join('');
   banner.style.display='block';
@@ -6629,6 +6649,69 @@ function renderPazRiepilogo(p){
     <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--label4);margin-bottom:4px;">${t.label}</div>
     <div style="font-size:.95rem;font-weight:700;color:var(--label);">${_escHtml(String(t.val))}</div>
   </div>`).join('');
+  const testoEl=document.getElementById('paz-riepilogo-testo');
+  if(testoEl) testoEl.textContent=costruisciRiassuntoPaziente(p);
+}
+
+// Piccolo riassunto testuale (non un referto: solo un paio di righe per
+// ricordarsi in fretta la storia della paziente) messo insieme dai dati già
+// in cartella — nessuna chiamata esterna, nessun uso dell'assistente AI.
+function costruisciRiassuntoPaziente(p){
+  const pezzi=[];
+  const eta=p.nascita?(new Date().getFullYear()-new Date(p.nascita).getFullYear()):null;
+  pezzi.push(`${p.nome} ${p.cognome}, ${eta!=null?eta+' anni':'età non nota'}.`);
+
+  const visite=[...(p.visite||[])].sort((a,b)=>new Date(a.data)-new Date(b.data));
+  if(visite.length){
+    const TIPO_LABEL_SING={gyno:'ginecologica',ob:'ostetrica',eco:'ecografica'};
+    const TIPO_LABEL_PL={gyno:'ginecologiche',ob:'ostetriche',eco:'ecografiche'};
+    const conteggi={};
+    visite.forEach(v=>{ conteggi[v.tipo]=(conteggi[v.tipo]||0)+1; });
+    const dettagliTipi=Object.entries(conteggi).map(([t,n])=>`${n} ${n===1?(TIPO_LABEL_SING[t]||t):(TIPO_LABEL_PL[t]||t)}`).join(', ');
+    const prima=visite[0], ultima=visite[visite.length-1];
+    pezzi.push(`${visite.length} visit${visite.length===1?'a':'e'} registrat${visite.length===1?'a':'e'} in cartella (${dettagliTipi}): la prima il ${new Date(prima.data).toLocaleDateString('it-IT')}, l'ultima il ${new Date(ultima.data).toLocaleDateString('it-IT')}.`);
+  } else {
+    pezzi.push('Nessuna visita ancora registrata in cartella.');
+  }
+
+  const ga=typeof gravidanzaAttiva==='function'?gravidanzaAttiva(p):null;
+  if(ga){
+    const sett=typeof calcolaSettimaneGravidanza==='function'?calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date()):null;
+    pezzi.push(`🤰 Gravidanza attualmente in corso${sett?`, ${sett} settimane`:''}.`);
+  }
+
+  if(p.allergie && p.allergie.trim()) pezzi.push(`⚠️ Allergie note: ${p.allergie.trim()}.`);
+
+  if((p.farmaciManuali||[]).length){
+    const elenco=p.farmaciManuali.map(f=>f.farmaco).filter(Boolean).join(', ');
+    pezzi.push(`In terapia con: ${elenco}.`);
+  }
+
+  if(p.screening && (p.screening.pap||p.screening.mammo)){
+    const parti=[];
+    if(p.screening.pap) parti.push(`Pap test/HPV il ${new Date(p.screening.pap).toLocaleDateString('it-IT')}`);
+    if(p.screening.mammo) parti.push(`mammografia il ${new Date(p.screening.mammo).toLocaleDateString('it-IT')}`);
+    pezzi.push(`Ultimo screening: ${parti.join(', ')}.`);
+  }
+
+  if((p.consensiFirmati||[]).length){
+    const n=p.consensiFirmati.length;
+    pezzi.push(`✍️ ${n} consens${n===1?'o':'i'} informat${n===1?'o':'i'} firmat${n===1?'o':'i'} e archiviat${n===1?'o':'i'} in questa cartella.`);
+  }
+
+  const oggi=new Date();
+  const alertsOrdinati=[...(p.alerts||[])].sort((a,b)=>new Date(a.data)-new Date(b.data));
+  const scaduti=alertsOrdinati.filter(a=>new Date(a.data)<oggi);
+  const futuri=alertsOrdinati.filter(a=>new Date(a.data)>=oggi);
+  if(scaduti.length) pezzi.push(`🔴 ${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'}, senza controllo registrato da allora.`);
+  if(futuri.length) pezzi.push(`Prossimo promemoria: ${new Date(futuri[0].data).toLocaleDateString('it-IT')} — ${futuri[0].testo}.`);
+
+  if(p.note && p.note.trim()){
+    const estratto=p.note.trim().length>240?p.note.trim().slice(0,240)+'…':p.note.trim();
+    pezzi.push(`Note: ${estratto}`);
+  }
+
+  return pezzi.join(' ');
 }
 
 function openPaziente(id){
