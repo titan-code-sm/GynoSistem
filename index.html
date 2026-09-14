@@ -10854,8 +10854,11 @@ async function ripristinaDaFileCifrato(){
     const pass = prompt('Password di cifratura del file selezionato:');
     if(!pass) return;
     const dati = await gsDecryptJSON(payload, pass);
-    if(!confirm('Sovrascrivere tutti i dati attuali con quelli di questo file? L\'operazione non è reversibile.')) return;
+    if(!dati || !Array.isArray(dati.pazienti)){ alert('Il file è stato decifrato correttamente ma non contiene un archivio valido (manca l\'elenco "pazienti").'); return; }
+    const nPaz=dati.pazienti.length;
+    if(!confirm(`Questo file contiene ${nPaz} pazient${nPaz===1?'e':'i'}.\n\nSovrascrivere tutti i dati attuali con quelli di questo file? L'operazione non è reversibile.`)) return;
     DB = dati;
+    if(!DB.agenda) DB.agenda=[];
     salvaDB();
     location.reload();
   }catch(e){
@@ -10908,10 +10911,41 @@ function exportCSV(){
   a.click();
 }
 
+// Bug corretto (2026-09-14): non c'era ALCUN controllo sul file caricato —
+// caricare per sbaglio un JSON di forma diversa da un vero backup (es. il
+// download automatico di UNA sola visita, "(N) Salvataggio Gynosistem.json",
+// che NON è un backup completo: ha forma {paziente,visita,esportato}, non
+// {pazienti:[...],agenda:[...]}) sovrascriveva silenziosamente tutto
+// l'archivio con dati praticamente vuoti. Ora si verifica che il file abbia
+// davvero la forma di un backup completo, e si chiede conferma mostrando
+// quante pazienti contiene, prima di sovrascrivere qualsiasi cosa.
 function restoreData(input){
+  const file=input.files[0];
+  if(!file) return;
   const r=new FileReader();
-  r.onload=e=>{try{DB=JSON.parse(e.target.result);salvaDB();registraLog('backup','Dati ripristinati da file');location.reload();}catch(x){alert('File non valido.');}};
-  r.readAsText(input.files[0]);
+  r.onload=e=>{
+    let dati;
+    try{ dati=JSON.parse(e.target.result); }
+    catch(x){ alert('File non valido: non è un JSON leggibile.'); input.value=''; return; }
+    if(!dati || typeof dati!=='object' || !Array.isArray(dati.pazienti)){
+      alert('Questo file non è un backup completo di GynoSystem (manca l\'elenco "pazienti").\n\nUsa solo un file scaricato con "📤 Esporta Backup JSON" — non il download automatico di una singola visita, che ha un altro formato ed è pensato solo come copia di sicurezza di quella visita, non per il ripristino di tutto l\'archivio.');
+      input.value='';
+      return;
+    }
+    const nPaz=dati.pazienti.length;
+    const nVis=dati.pazienti.reduce((s,p)=>s+(p.visite?.length||0),0);
+    if(!confirm(`Questo file contiene ${nPaz} pazient${nPaz===1?'e':'i'} e ${nVis} visit${nVis===1?'a':'e'} in totale.\n\n⚠️ Ripristinarlo SOSTITUISCE completamente l'archivio attuale su questo dispositivo — l'operazione non è reversibile.\n\nContinuare?`)){
+      input.value='';
+      return;
+    }
+    DB=dati;
+    if(!DB.agenda) DB.agenda=[];
+    if(!DB.studi) DB.studi=[];
+    salvaDB();
+    registraLog('backup','Dati ripristinati da file');
+    location.reload();
+  };
+  r.readAsText(file);
 }
 
 function resetDB(){
