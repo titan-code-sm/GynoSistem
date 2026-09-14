@@ -57,6 +57,24 @@
   --font-serif:'DM Serif Display',Georgia,serif;
   --transition:cubic-bezier(0.32,0.72,0,1);
 }
+/* Modalità scura: stesse variabili del tema chiaro con valori scuri, così
+   tutta l'interfaccia (che usa già solo var(--...) per i colori) si adatta
+   da sola. La schermata di login e l'area di stampa restano sempre chiare
+   di proposito (il login ha una sua identità grafica fissa, la stampa deve
+   restare leggibile su carta bianca indipendentemente dal tema a schermo). */
+body.dark-mode{
+  --bg:#0e0e10;
+  --surface:#1c1c1e;
+  --surface2:#232326;
+  --label:#f2f2f7;
+  --label2:#d1d1d6;
+  --label3:#a1a1a6;
+  --label4:#8e8e93;
+  --separator:rgba(255,255,255,0.12);
+  --shadow:0 2px 20px rgba(0,0,0,0.35);
+  --shadow-md:0 8px 30px rgba(0,0,0,0.45);
+  --shadow-lg:0 20px 60px rgba(0,0,0,0.55);
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 body{font-family:var(--font);background:var(--bg);color:var(--label);display:flex;height:100vh;overflow:hidden;}
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -814,6 +832,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 </style>
 </head>
 <body>
+<script>if(localStorage.getItem('gs_dark_mode')==='1')document.body.classList.add('dark-mode');</script>
 
 <!-- MOBILE TOP BAR -->
 <div class="mob-bar" id="mob-bar">
@@ -932,6 +951,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       </button>
       <button class="opts-item" onclick="naviga('disponibilita');closeOpts()">
         <span class="oi">🏥</span>Disponibilità Studi
+      </button>
+      <div class="opts-divider"></div>
+      <button class="opts-item" onclick="toggleDarkMode();closeOpts()">
+        <span class="oi" id="dark-mode-icon">🌙</span><span id="dark-mode-label">Modalità scura</span>
       </button>
       <div class="opts-divider"></div>
       <button class="opts-item" onclick="mostraLogAttivita();closeOpts()">
@@ -9799,6 +9822,26 @@ document.addEventListener('click',e=>{
     closeOpts();
   }
 },{capture:true});
+
+// ═══════════════════════════════════════════════════
+//  MODALITÀ SCURA — preferenza del dispositivo, non dell'account
+// ═══════════════════════════════════════════════════
+// Salvata in localStorage (non per-account): è una preferenza di comfort
+// visivo legata a questo schermo/momento della giornata, non ai dati clinici.
+function toggleDarkMode(){
+  const attiva=!document.body.classList.contains('dark-mode');
+  document.body.classList.toggle('dark-mode', attiva);
+  try{ localStorage.setItem('gs_dark_mode', attiva?'1':'0'); }catch(e){}
+  aggiornaLabelDarkMode();
+}
+function aggiornaLabelDarkMode(){
+  const attiva=document.body.classList.contains('dark-mode');
+  const icona=document.getElementById('dark-mode-icon');
+  const label=document.getElementById('dark-mode-label');
+  if(icona) icona.textContent=attiva?'☀️':'🌙';
+  if(label) label.textContent=attiva?'Modalità chiara':'Modalità scura';
+}
+aggiornaLabelDarkMode();
 
 // ═══════════════════════════════════════════════════
 //  MOBILE NAVIGATION
