@@ -22,6 +22,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+<!-- html2pdf: genera un vero file PDF scaricabile dal referto, senza passare dalla finestra di stampa del browser -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root{
   --bg:#f2f2f7;
@@ -1504,6 +1506,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <h3>✅ Visita salvata</h3>
     <p style="color:var(--label4);font-size:.85rem;margin-bottom:18px">Cosa vuoi stampare?</p>
     <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="stampaRefertoPostVisita()">🖨️ Stampa Referto</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="scaricaPDFReferto(_postVisitaVid)">📄 Scarica PDF Referto</button>
     <button class="btn btn-primary" id="post-visita-ricetta-btn" style="width:100%;justify-content:center;margin-bottom:10px;display:none;" onclick="stampaRicettaPostVisita()">🖨️ Stampa Ricetta</button>
     <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModal('modal-post-visita')">Chiudi</button>
   </div>
@@ -7974,6 +7977,7 @@ function renderVisiteList(p){
         <button class="btn btn-ghost btn-sm btn-icon" onclick="visualizzaVisita(${v.id})" title="Visualizza">👁️</button>
         ${editBtn}
         <button class="btn btn-ghost btn-sm btn-icon" onclick="stampa(${v.id})" title="Stampa">🖨️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="scaricaPDFReferto(${v.id})" title="Scarica PDF">📄</button>
         ${haTerapia?`<button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisita(${v.id})" title="Ricettario di questa visita">💊📋</button>`:''}
       </div>
     </div>`;
@@ -8559,6 +8563,77 @@ function stampa(vid){
   document.getElementById('p-body-print').innerHTML=buildRefertoBody(v);
   window.print();
   registraLog('stampa','Referto stampato');
+}
+
+// Genera un vero file .pdf del referto e lo scarica direttamente, senza
+// passare dalla finestra di stampa del browser. Riusa lo stesso "print-area"
+// di stampa(), così i due output restano sempre identici tra loro.
+function scaricaPDFReferto(vid){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  const v=p?.visite.find(x=>x.id===vid);
+  if(!v){ if(typeof gsToast==='function') gsToast('Visita non trovata','gs-error'); return; }
+  if(typeof html2pdf==='undefined'){ if(typeof gsToast==='function') gsToast('⚠️ Libreria PDF non disponibile: verifica la connessione internet e riprova','gs-error'); return; }
+
+  applyPrintCfgReferto();
+  const c=getPrintCfg(), l=c.layout;
+  document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
+  document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
+  document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'–';
+  document.getElementById('p-cf-print').textContent=p.cf||'–';
+  document.getElementById('p-body-print').innerHTML=buildRefertoBody(v);
+
+  // applyPrintCfgReferto() applica font/colore/logo solo dentro @media print:
+  // per catturare l'aspetto corretto nel PDF li applichiamo anche qui, in linea.
+  const area=document.getElementById('print-area');
+  const phEl=area.querySelector('.ph');
+  const h1El=area.querySelector('.ph-info h1');
+  const logoEl=document.getElementById('ph-logo');
+  area.style.fontFamily=`'${l.font}','Times New Roman',serif`;
+  area.style.fontSize=l.corpo+'pt';
+  if(phEl) phEl.style.borderBottomColor=l.colore;
+  if(h1El) h1El.style.color=l.colore;
+  if(logoEl && !logoEl.querySelector('img')) logoEl.style.background=l.colore;
+
+  // position:absolute, non fixed: html2canvas clona il documento per catturarlo
+  // e negli elementi position:fixed la clonazione può risultare in un'altezza
+  // misurata pari a 0 (limite noto della libreria).
+  area.style.display='block';
+  area.style.position='absolute';
+  area.style.left='-9999px';
+  area.style.top='0';
+  area.style.background='#fff';
+
+  const nomeFile=`Referto_${p.cognome}_${p.nome}_${v.data}`.replace(/\s+/g,'_');
+  if(typeof gsToast==='function') gsToast('📄 Generazione PDF in corso…','gs-info');
+
+  const ripristina=()=>{
+    area.style.display='none';
+    area.style.position=''; area.style.left=''; area.style.top=''; area.style.background='';
+    area.style.fontFamily=''; area.style.fontSize='';
+    if(phEl) phEl.style.borderBottomColor='';
+    if(h1El) h1El.style.color='';
+    if(logoEl) logoEl.style.background='';
+  };
+
+  // Aspetta un frame prima di catturare: appena cambiato display/position il
+  // browser non ha ancora calcolato il nuovo layout, e html2canvas misurerebbe
+  // l'elemento con altezza 0 (era display:none un istante prima).
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    html2pdf().set({
+      margin: l.margine||15,
+      filename: nomeFile+'.pdf',
+      image: {type:'jpeg', quality:0.98},
+      html2canvas: {scale:2, useCORS:true},
+      jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'}
+    }).from(area).save().then(()=>{
+      ripristina();
+      registraLog('stampa','Referto scaricato in PDF');
+    }).catch(e=>{
+      console.warn('Generazione PDF:',e);
+      ripristina();
+      if(typeof gsToast==='function') gsToast('⚠️ Errore nella generazione del PDF','gs-error');
+    });
+  }));
 }
 
 // Dati grezzi del referto di una visita, come lista di sezioni {icon,title,rows:[[label,valore],...]}.
