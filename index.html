@@ -8701,13 +8701,17 @@ function _prossimoNumeroSalvataggio(){
   try{ localStorage.setItem(key, String(n)); }catch(e){}
   return n;
 }
+// Salvataggio automatico scaricato dopo ogni visita: contiene l'INTERO
+// archivio (stessa forma di "Esporta Backup JSON" — {pazienti:[...],
+// agenda:[...]}), non solo la visita appena registrata. Così è sempre un
+// vero backup completo, restaurabile da "Ripristina da file JSON" senza
+// sorprese (prima conteneva solo {paziente,visita}: una forma diversa da
+// un backup vero, facile da confondere con uno — causa di un vero incidente
+// di dati il 2026-09-14, vedi commit b629fd9). p/v non servono più per il
+// contenuto (si scarica DB per intero) ma restano nella firma per chiarezza
+// di chi la chiama.
 function scaricaVisitaJSON(p, v){
-  const exportData={
-    paziente:{id:p.id,nome:p.nome,cognome:p.cognome,nascita:p.nascita,cf:p.cf,tel:p.tel,email:p.email},
-    visita:v,
-    esportato:new Date().toISOString()
-  };
-  const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   // Nome richiesto per tutti i file che l'app scarica da sola (es. dopo una
