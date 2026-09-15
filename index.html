@@ -2171,14 +2171,20 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <h3>✍️ Consenso/i informato/i</h3>
     <p id="cv-sottotitolo" style="color:var(--label4);font-size:.85rem;margin-bottom:14px;"></p>
     <div id="cv-stato-firmato" style="display:none;font-size:.8rem;color:var(--green);font-weight:600;background:var(--green-dim);border-radius:10px;padding:10px 14px;margin-bottom:14px;"></div>
+    <div style="font-size:.76rem;font-weight:600;color:var(--label3);margin-bottom:6px;">Chi firma questo consenso?</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="_impostaFirmatario('cv-nome','paziente')">👤 La paziente stessa</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="_impostaFirmatario('cv-nome','tutore')">👪 Genitore o tutore legale</button>
+    </div>
     <div class="field-row r2" style="margin-bottom:14px;">
-      <div class="form-group"><label class="form-label">Nome di chi firma</label><input id="cv-nome" placeholder="Nome e cognome"></div>
+      <div class="form-group"><label class="form-label">Nome e cognome di chi firma</label><input id="cv-nome" placeholder="Nome e cognome"></div>
       <div class="form-group"><label class="form-label">Data</label><input type="date" id="cv-data"></div>
     </div>
-    <div style="font-size:.72rem;color:var(--label4);margin-bottom:10px;">Il nome è precompilato con quello della paziente — modificalo se a firmare è un genitore (es. visita/ecografia su minorenne).</div>
+    <div style="font-size:.72rem;color:var(--label4);margin-bottom:10px;">Il nome è precompilato con quello della paziente e viene inserito nel testo del consenso — modificalo se a firmare è un genitore/tutore (es. visita/ecografia su minorenne).</div>
     <div id="consenso-visita-lista" style="display:flex;flex-direction:column;gap:8px;max-height:40vh;overflow-y:auto;margin-bottom:16px;"></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="pazFirmaCombinataEProsegui()">✍️ Firma il foglio selezionato e prosegui</button>
+      <button class="btn btn-primary" onclick="pazFirmaCombinataEProsegui()">✍️ Firma su schermo e prosegui</button>
+      <button class="btn btn-ghost" onclick="pazStampaSenzaFirma()">🖨️ Solo stampa (firma cartacea)</button>
       <button class="btn btn-ghost" id="cv-btn-ristampa" style="display:none;" onclick="pazRistampaConsensoVisita()">🖨️ Ristampa l'ultimo firmato</button>
       <button class="btn btn-ghost" onclick="pazSaltaConsensoEProsegui()">Salta, prosegui senza firmare</button>
     </div>
@@ -2193,9 +2199,13 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <div id="modal-consenso-nome" class="overlay">
   <div class="modal-sm" style="width:460px;">
     <h3>✍️ Chi firma questo modulo?</h3>
-    <div class="form-group" style="margin:14px 0;"><label class="form-label">Nome di chi firma</label><input id="cn-nome" placeholder="Nome e cognome"></div>
+    <div style="display:flex;gap:8px;margin:14px 0 10px;flex-wrap:wrap;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="_impostaFirmatario('cn-nome','paziente')">👤 La paziente stessa</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="_impostaFirmatario('cn-nome','tutore')">👪 Genitore o tutore legale</button>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;"><label class="form-label">Nome e cognome di chi firma</label><input id="cn-nome" placeholder="Nome e cognome"></div>
     <div class="form-group" style="margin-bottom:14px;"><label class="form-label">Data</label><input type="date" id="cn-data"></div>
-    <div style="font-size:.72rem;color:var(--label4);margin-bottom:16px;">Precompilato con la paziente selezionata — modificalo se a firmare è un genitore (es. minorenne).</div>
+    <div style="font-size:.72rem;color:var(--label4);margin-bottom:16px;">Il nome è inserito nel testo del consenso — precompilato con la paziente selezionata, modificalo se a firmare è un genitore/tutore (es. minorenne). Vale sia per la firma su schermo sia per la sola stampa cartacea.</div>
     <div style="display:flex;gap:10px;">
       <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="_cnContinua()">Continua</button>
       <button class="btn btn-ghost" onclick="closeModal('modal-consenso-nome')">Annulla</button>
@@ -9342,7 +9352,7 @@ function eliminaSchema(i){
 // Consensi → modifica modulo. "Inserimento IUD" è invece il documento
 // dello studio (Dr.ssa Cristina Guidi), usato come fornito.
 const CONSENSI_DEFAULT = [
-  { titolo:'Visita ginecologica generale', testo:"La sottoscritta dichiara di essere stata adeguatamente informata dal proprio Ginecologo sulle finalità, le modalità di esecuzione e gli eventuali fastidi della visita ginecologica (anamnesi, esame obiettivo generale, esame con speculum, esplorazione bimanuale, eventuali prelievi citologici/microbiologici). Ha avuto la possibilità di porre domande e ha ricevuto risposte esaurienti. Acconsente liberamente all'esecuzione della visita nelle modalità proposte." },
+  { titolo:'Visita ginecologica generale', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata adeguatamente informata dal proprio Ginecologo sulle finalità, le modalità di esecuzione e gli eventuali fastidi della visita ginecologica (anamnesi, esame obiettivo generale, esame con speculum, esplorazione bimanuale, eventuali prelievi citologici/microbiologici). Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione della visita nelle modalità proposte." },
 
   { titolo:'Ecografia ginecologica', testo:"L'ecografia è una metodica diagnostica che utilizza ultrasuoni per visualizzare gli organi interni; non impiega radiazioni e non ha effetti collaterali noti. L'ecografia ginecologica esamina utero, tube e ovaie e può essere eseguita per via trans-vaginale (la modalità più indicata nella maggior parte dei casi, dopo svuotamento della vescica), trans-addominale (a vescica piena, utile ad esempio in pazienti vergini, con stenosi vaginale, o per valutare formazioni di grandi dimensioni) o trans-rettale (alternativa nelle stesse situazioni particolari). È un esame generalmente indolore, al massimo lievemente fastidioso, eseguibile in qualsiasi fase del ciclo o in menopausa, senza preparazione particolare.\n\nServe a individuare condizioni patologiche anatomiche o funzionali dell'apparato genitale femminile, valutare condizioni a rischio oncologico e monitorare pazienti già in cura. Ha dei limiti: in circa il 10% dei casi l'endometrio non è ben visualizzabile, in post-menopausa le ovaie possono non essere identificabili, e l'accuratezza è condizionata da fattori come obesità, meteorismo intestinale o presenza di fibromi voluminosi. Pur essendo accurata nel distinguere formazioni benigne da sospette, l'ecografia non è validata come esame di screening di popolazione per i tumori ginecologici; uno screening specifico è indicato solo nelle donne ad alto rischio ereditario (mutazioni BRCA1-2, sindrome di Lynch) che non possano o non vogliano ricorrere alla chirurgia profilattica. In base ai reperti, il medico potrà proporre un completamento per via trans-addominale, controlli di follow-up nel tempo o ulteriori accertamenti (esami di laboratorio, TC, risonanza).\n\nCONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità, modalità e limiti dell'ecografia ginecologica, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere reperti che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
@@ -9354,9 +9364,9 @@ const CONSENSI_DEFAULT = [
 
   { titolo:'Ecografia ostetrica III trimestre', testo:"L'ecografia di screening del III trimestre valuta principalmente la crescita fetale, la quantità di liquido amniotico e la localizzazione della placenta. Nelle gravidanze a basso rischio ha una buona capacità di individuare feti piccoli o grandi per l'epoca gestazionale (superiore alla semplice misura della sinfisi-fondo) e può rilevare anomalie strutturali a comparsa tardiva, anche se i dati scientifici non dimostrano ancora con certezza un beneficio sistematico dell'esame di routine in gravidanze senza fattori di rischio. Nelle gravidanze ad alto rischio per problemi di crescita, l'esame permette di individuare alterazioni dell'accrescimento o del liquido amniotico, e può rendersi necessaria anche una valutazione Doppler dei vasi utero-placentari e/o fetali; in caso di sospetta placenta previa o bassa è indicata un'ecografia trans-vaginale, mentre un sospetto accretismo placentare richiede un approfondimento presso centri con esperienza specifica.\n\nL'esame può essere limitato da obesità materna, cicatrici addominali, fibromatosi uterina, scarsità di liquido amniotico, posizione fetale sfavorevole o gravidanza gemellare, e talvolta richiede un secondo tentativo nella stessa seduta o nei giorni successivi. L'individuazione di malformazioni non è l'obiettivo specifico di questo esame: può comunque evidenziare anomalie non diagnosticate in precedenza o a comparsa tardiva (valutando in particolare i ventricoli cerebrali, le quattro camere cardiache, stomaco, reni e vescica), ma alcune malformazioni evolutive restano rilevabili solo dopo la nascita. Analogamente, non tutti i ritardi o eccessi di crescita fetale, né tutte le variazioni del liquido amniotico, sono individuabili con questo esame: un esito normale (la maggioranza dei casi) non garantisce quindi con certezza l'assenza di alterazioni della crescita o una regolare evoluzione della gravidanza fino al parto.\n\nCONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del III trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Inserimento IUD', testo:"La spirale (Intra Uterine Device/IUD o Intra Uterine System/IUS) è un dispositivo a T inserito dal medico nella cavità uterina a scopo contraccettivo o terapeutico.\n\nCOME SI INSERISCE: l'inserimento avviene in ambulatorio, preferibilmente durante il ciclo mestruale. È necessaria una visita di controllo con ecografia dopo 3-6 settimane per verificare il corretto posizionamento.\n\nFUNZIONAMENTO: esistono due categorie di spirale. Quella in rame (IUD-Cu) agisce tramite una reazione locale da corpo estraneo che impedisce l'instaurarsi della gravidanza. Quella a rilascio ormonale (IUS-LNG, con levonorgestrel a 20 o 6 µg/die) agisce anche sul muco cervicale, sull'endometrio e sulla capacità fecondante degli spermatozoi, risultando più efficace e più protettiva verso la malattia infiammatoria pelvica.\n\nEFFICACIA: il tasso di fallimento nel primo anno è dello 0,8% per lo IUD al rame e dello 0,2% per lo IUS al levonorgestrel. In caso di gravidanza nonostante il dispositivo, il rischio di aborto è circa triplo rispetto alla media, con un lieve aumento del rischio di parto pretermine, ma nessun aumento del rischio di malformazioni fetali. La spirale non protegge dalle infezioni sessualmente trasmissibili.\n\nCONTROINDICAZIONI: non ve ne sono per l'uso in donne nullipare o adolescenti. È controindicato in caso di gravidanza, infezioni in atto, tumori dell'utero, fibromi, morbo di Wilson; per la sola IUS-LNG anche in caso di LES, anticorpi antifosfolipidi, tromboembolismo venoso, embolia polmonare o tumore maligno ormono-dipendente.\n\nREVERSIBILITÀ: il ritorno alla fertilità dopo la rimozione è immediato; l'80-95% delle donne concepisce entro 12 mesi. La rimozione può avvenire in qualsiasi momento del ciclo (non necessariamente durante le mestruazioni), tenendo presente il rischio di gravidanza per rapporti avuti nei 7 giorni precedenti o successivi alla rimozione. Al momento della rimozione è possibile inserire un nuovo dispositivo.\n\nCOMPLICANZE possibili: malattia infiammatoria pelvica (rara, circa 1,6 casi su 1000 donne/anno, più frequente nelle prime 3 settimane, ridotta con la spirale medicata, aumentata con più partner sessuali); perforazione uterina all'inserimento (circa 1 caso su 1000); reazione vagale transitoria durante l'inserimento (per cui è consigliabile farsi accompagnare); gravidanza extrauterina (rischio complessivamente ridotto rispetto alla popolazione generale, ma proporzionalmente più probabile se il metodo fallisce); cambiamenti del ciclo mestruale (flusso più abbondante/prolungato con lo IUD al rame; flusso scarso o assente dopo 6-12 mesi con lo IUS al levonorgestrel; spotting irregolare nei primi 3-6 mesi mentre l'endometrio si adatta); espulsione o dislocazione (più frequente nel primo anno, 3-5%, con rischio lievemente aumentato se inserita contestualmente a revisione della cavità uterina; il filo di repere risalito in cavità può richiedere rimozione isteroscopica); attenzione alla termoterapia in regione sacrale/addominale con IUD al rame (nessun rischio di dislocazione con la risonanza magnetica, poiché i materiali utilizzati non sono magnetizzabili).\n\nLa sottoscritta dichiara di essere stata informata dalla dott.ssa Cristina Guidi, dopo un colloquio che ha illustrato anche i vari metodi contraccettivi alternativi (ormonale, meccanico, chirurgico), e dopo valutazione anamnestico-clinica, e richiede l'inserimento del dispositivo intrauterino.\n\nRif.: Linee guida italiane sull'efficacia e l'uso appropriato della contraccezione intrauterina — Arisi, Bruni, Di Spiezio Sardo, Dubini, Gubbini, Parazzini, SIGO 2014.\n\nSe la richiedente è minorenne, i genitori firmano per consenso alla presenza del medico (documento d'identità e firma di entrambi i genitori)." },
+  { titolo:'Inserimento IUD', testo:"La spirale (Intra Uterine Device/IUD o Intra Uterine System/IUS) è un dispositivo a T inserito dal medico nella cavità uterina a scopo contraccettivo o terapeutico.\n\nCOME SI INSERISCE: l'inserimento avviene in ambulatorio, preferibilmente durante il ciclo mestruale. È necessaria una visita di controllo con ecografia dopo 3-6 settimane per verificare il corretto posizionamento.\n\nFUNZIONAMENTO: esistono due categorie di spirale. Quella in rame (IUD-Cu) agisce tramite una reazione locale da corpo estraneo che impedisce l'instaurarsi della gravidanza. Quella a rilascio ormonale (IUS-LNG, con levonorgestrel a 20 o 6 µg/die) agisce anche sul muco cervicale, sull'endometrio e sulla capacità fecondante degli spermatozoi, risultando più efficace e più protettiva verso la malattia infiammatoria pelvica.\n\nEFFICACIA: il tasso di fallimento nel primo anno è dello 0,8% per lo IUD al rame e dello 0,2% per lo IUS al levonorgestrel. In caso di gravidanza nonostante il dispositivo, il rischio di aborto è circa triplo rispetto alla media, con un lieve aumento del rischio di parto pretermine, ma nessun aumento del rischio di malformazioni fetali. La spirale non protegge dalle infezioni sessualmente trasmissibili.\n\nCONTROINDICAZIONI: non ve ne sono per l'uso in donne nullipare o adolescenti. È controindicato in caso di gravidanza, infezioni in atto, tumori dell'utero, fibromi, morbo di Wilson; per la sola IUS-LNG anche in caso di LES, anticorpi antifosfolipidi, tromboembolismo venoso, embolia polmonare o tumore maligno ormono-dipendente.\n\nREVERSIBILITÀ: il ritorno alla fertilità dopo la rimozione è immediato; l'80-95% delle donne concepisce entro 12 mesi. La rimozione può avvenire in qualsiasi momento del ciclo (non necessariamente durante le mestruazioni), tenendo presente il rischio di gravidanza per rapporti avuti nei 7 giorni precedenti o successivi alla rimozione. Al momento della rimozione è possibile inserire un nuovo dispositivo.\n\nCOMPLICANZE possibili: malattia infiammatoria pelvica (rara, circa 1,6 casi su 1000 donne/anno, più frequente nelle prime 3 settimane, ridotta con la spirale medicata, aumentata con più partner sessuali); perforazione uterina all'inserimento (circa 1 caso su 1000); reazione vagale transitoria durante l'inserimento (per cui è consigliabile farsi accompagnare); gravidanza extrauterina (rischio complessivamente ridotto rispetto alla popolazione generale, ma proporzionalmente più probabile se il metodo fallisce); cambiamenti del ciclo mestruale (flusso più abbondante/prolungato con lo IUD al rame; flusso scarso o assente dopo 6-12 mesi con lo IUS al levonorgestrel; spotting irregolare nei primi 3-6 mesi mentre l'endometrio si adatta); espulsione o dislocazione (più frequente nel primo anno, 3-5%, con rischio lievemente aumentato se inserita contestualmente a revisione della cavità uterina; il filo di repere risalito in cavità può richiedere rimozione isteroscopica); attenzione alla termoterapia in regione sacrale/addominale con IUD al rame (nessun rischio di dislocazione con la risonanza magnetica, poiché i materiali utilizzati non sono magnetizzabili).\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata dalla dott.ssa Cristina Guidi, dopo un colloquio che ha illustrato anche i vari metodi contraccettivi alternativi (ormonale, meccanico, chirurgico), e dopo valutazione anamnestico-clinica, e richiedo l'inserimento del dispositivo intrauterino.\n\nRif.: Linee guida italiane sull'efficacia e l'uso appropriato della contraccezione intrauterina — Arisi, Bruni, Di Spiezio Sardo, Dubini, Gubbini, Parazzini, SIGO 2014.\n\nSe la richiedente è minorenne, i genitori firmano per consenso alla presenza del medico (documento d'identità e firma di entrambi i genitori)." },
 
-  { titolo:'Trattamento dei dati personali (privacy)', testo:"La sottoscritta dichiara di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. La sottoscritta ha diritto di accedere, rettificare e cancellare i propri dati e di opporsi al trattamento, rivolgendosi allo studio. Presta il consenso al trattamento dei dati per le finalità sopra descritte." }
+  { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritta {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. Ho diritto di accedere, rettificare e cancellare i propri dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
 // Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
 // così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
@@ -9373,7 +9383,7 @@ function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefi
 // tutti i moduli) non si vede finché non si cancella il salvataggio vecchio.
 // Un numero di versione forza UNA volta sola il reset alla nuova lista,
 // dopodiché le modifiche fatte dall'operatore tornano a essere rispettate.
-const _CONSENSI_LIB_VERSION = 'sieog8-2026-09-15';
+const _CONSENSI_LIB_VERSION = 'sieog8-nome-2026-09-15b';
 function getConsensi(){
   try{
     const verKey=_consensiKey()+'_ver';
@@ -9622,6 +9632,21 @@ function pazToggleConsensoSelezionato(titolo, checked){
   if(checked) _consensoVisitaSelezionati.add(titolo);
   else _consensoVisitaSelezionati.delete(titolo);
 }
+// Scorciatoia "chi firma": la paziente stessa (ripristina il suo nome) o un
+// genitore/tutore legale (svuota il campo, pronto per scriverne il nome) —
+// usata sia nel picker della visita (cv-nome) sia nel prompt della libreria
+// Consensi (cn-nome).
+function _impostaFirmatario(inputId, modo){
+  const el=document.getElementById(inputId); if(!el) return;
+  if(modo==='paziente'){
+    const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
+    el.value = p?`${p.nome} ${p.cognome}`:'';
+  } else {
+    el.value='';
+    el.placeholder='Nome e cognome del genitore/tutore';
+    el.focus();
+  }
+}
 function pazSaltaConsensoEProsegui(){
   closeModal('modal-consenso-visita');
   const tipo=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
@@ -9647,6 +9672,28 @@ function pazFirmaCombinataEProsegui(){
     const tipoDaAprire=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
     if(tipoDaAprire) startEditor(tipoDaAprire);
   });
+}
+// Solo stampa su carta, senza passare dalla firma elettronica: stesso nome
+// di chi firma richiesto e inserito nel testo, stesso archivio con la
+// visita — semplicemente senza immagine della firma (la persona firma a
+// penna sul foglio stampato).
+function pazStampaSenzaFirma(){
+  if(!_consensoVisitaSelezionati.size){ if(typeof gsToast==='function') gsToast('Seleziona almeno un modulo, oppure usa "Salta"','gs-error'); return; }
+  const nome=(document.getElementById('cv-nome')?.value||'').trim();
+  if(!nome){ if(typeof gsToast==='function') gsToast('Inserisci il nome di chi firma','gs-error'); return; }
+  const dataIso=document.getElementById('cv-data')?.value || new Date().toISOString().split('T')[0];
+  const tipo=_consensoVisitaTipoPending || curMode;
+  const prefix=_consensoVisitaPrefix(tipo);
+  const scelti=getConsensi().filter(c=>_consensoVisitaSelezionati.has(c.titolo));
+  if(!scelti.length) return;
+  closeModal('modal-consenso-visita');
+  const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:'' };
+  const hidden=document.getElementById(prefix+'-consenso-visita');
+  if(hidden) hidden.value=JSON.stringify(record);
+  _stampaConsensoVisitaCombinato(record);
+  if(typeof gsToast==='function') gsToast('🖨️ Consenso stampato (firma cartacea) — archiviato con questa visita','gs-success');
+  const tipoDaAprire=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
+  if(tipoDaAprire) startEditor(tipoDaAprire);
 }
 function pazRistampaConsensoVisita(){
   const tipo=_consensoVisitaTipoPending || curMode;
