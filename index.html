@@ -2447,9 +2447,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <div id="ep-4" class="edit-panel">
           <div class="section-card">
             <h4 data-icon="🖥️">Strumentazione</h4>
+            <datalist id="dl-gd-ecografo"><option value="Voluson S10"></option><option value="Samsung"></option></datalist>
+            <datalist id="dl-gd-sonda"><option value="TV"></option><option value="TA"></option><option value="TV+TA"></option><option value="TR"></option></datalist>
             <div class="field-row r2">
-              <div class="form-group"><label class="form-label">Ecografo</label><select id="gd-ecografo"></select></div>
-              <div class="form-group"><label class="form-label">Sonda</label><select id="gd-sonda"></select></div>
+              <div class="form-group"><label class="form-label">Ecografo (selezionabile e modificabile)</label><input id="gd-ecografo" list="dl-gd-ecografo" placeholder="es. Voluson S10"></div>
+              <div class="form-group"><label class="form-label">Sonda (selezionabile e modificabile)</label><input id="gd-sonda" list="dl-gd-sonda" placeholder="TV / TA / TV+TA / TR"></div>
             </div>
           </div>
 
@@ -2459,7 +2461,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
               <input type="checkbox" id="gd-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0" onchange="toggleInformativa()">
               <span class="informativa-testo"></span>
             </label>
-            <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Visita Ginecologica con Ecografia')">🖨️ Stampa informativa / consenso informato</button>
+            <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="apriConsensoVisitaCorrente('Ecografia ginecologica')">✍️ Consenso informato — Ecografia ginecologica</button>
           </div>
 
           <div class="section-card">
@@ -3701,8 +3703,6 @@ function initGynoSelects(){
   fillGDSelect('gd-fumo-sel', GD.fumo);
   fillGDSelect('gd-speculum-sel', Object.keys(GD.speculum));
   fillGDSelect('gd-bimanuale-sel', Object.keys(GD.bimanuale));
-  fillGDSelect('gd-ecografo', GD.ecografo);
-  fillGDSelect('gd-sonda', GD.sonda);
   fillGDSelect('gd-eco-sel', Object.keys(GD.ecografia));
   // Macro buttons
   fillGDMacro('gd-motivo-btns', GD.motivo, 'gd-motivo');
@@ -9485,12 +9485,17 @@ function pazChiediConsensoPrimaVisita(tipo){
   closeModal('modal-type');
   _apriModalConsensoVisita(tipo);
 }
-// Riapre la scelta dei consensi per la visita ATTUALMENTE in compilazione (bottone nella barra dell'editor).
-function apriConsensoVisitaCorrente(){
+// Riapre la scelta dei consensi per la visita ATTUALMENTE in compilazione
+// (bottone nella barra dell'editor). "preseleziona", se passato, viene
+// aggiunto alle spunte già presenti — usato dal pulsante dedicato
+// "Stampa informativa/consenso" di una specifica sezione (es. Ecografia
+// ginecologica), che pre-spunta quel modulo senza deselezionare gli altri
+// eventualmente già scelti/firmati.
+function apriConsensoVisitaCorrente(preseleziona){
   _consensoVisitaTipoPending = null;
-  _apriModalConsensoVisita(curMode);
+  _apriModalConsensoVisita(curMode, preseleziona);
 }
-function _apriModalConsensoVisita(tipo){
+function _apriModalConsensoVisita(tipo, preseleziona){
   const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
   const sub=document.getElementById('cv-sottotitolo');
   if(sub) sub.textContent = `Scegli uno o più moduli per questa ${_META_TIPO_VISITA[tipo]||'visita'} — verranno stampati insieme su un unico foglio da far firmare. In evidenza i più pertinenti.`;
@@ -9505,6 +9510,7 @@ function _apriModalConsensoVisita(tipo){
   const statoBox=document.getElementById('cv-stato-firmato');
   const btnRistampa=document.getElementById('cv-btn-ristampa');
   _consensoVisitaSelezionati = new Set(salvato ? salvato.titoli : []);
+  if(preseleziona) _consensoVisitaSelezionati.add(preseleziona);
   if(salvato && salvato.firma){
     statoBox.style.display='block';
     statoBox.textContent = `✅ Già firmato da ${salvato.nome} il ${new Date(salvato.data).toLocaleDateString('it-IT')} (${salvato.titoli.length} modul${salvato.titoli.length===1?'o':'i'}) — verrà archiviato con questa visita al salvataggio.`;
