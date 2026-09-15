@@ -9311,8 +9311,21 @@ const CONSENSO_TIPI_VISITA = {
   eco: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre']
 };
 function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+// La libreria salvata in localStorage "vince" sempre sui default — corretto
+// per non perdere personalizzazioni dell'operatore, ma significa che un
+// aggiornamento della libreria di base (come questo, 2026-09-15: sostituiti
+// tutti i moduli) non si vede finché non si cancella il salvataggio vecchio.
+// Un numero di versione forza UNA volta sola il reset alla nuova lista,
+// dopodiché le modifiche fatte dall'operatore tornano a essere rispettate.
+const _CONSENSI_LIB_VERSION = 'sieog8-2026-09-15';
 function getConsensi(){
   try{
+    const verKey=_consensiKey()+'_ver';
+    if(localStorage.getItem(verKey)!==_CONSENSI_LIB_VERSION){
+      localStorage.setItem(_consensiKey(), JSON.stringify(CONSENSI_DEFAULT));
+      localStorage.setItem(verKey, _CONSENSI_LIB_VERSION);
+      return CONSENSI_DEFAULT.map(x=>({...x}));
+    }
     const s = localStorage.getItem(_consensiKey());
     if(s){ const arr = JSON.parse(s); if(Array.isArray(arr)) return arr; }
   }catch(e){}
