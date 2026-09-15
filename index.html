@@ -388,7 +388,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 @keyframes overlayIn{from{background:rgba(0,0,0,0)}to{background:rgba(0,0,0,0.5)}}
 @keyframes modalPop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 /* Modali aperte DA DENTRO l'editor visita: devono stare sopra l'editor stesso (z-index 2000) */
-#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay{z-index:2600;}
+#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay,#modal-score-tev.overlay{z-index:2600;}
 .mfv-box{width:min(760px,95vw);max-height:90vh;padding:22px 22px 0;display:flex;flex-direction:column;}
 .mfv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .mfv-x{border:none;background:var(--surface2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9rem;color:var(--label4);flex-shrink:0;}
@@ -2185,6 +2185,39 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
+<!-- Score TEV: valutazione del rischio tromboembolico in gravidanza — non
+     legato a una visita, archiviato nella PAZIENTE (p.scoreTev, una voce
+     per data) così una compilazione fatta in un'altra visita/data più
+     avanti si aggiunge senza perdere quelle precedenti. -->
+<div id="modal-score-tev" class="overlay">
+  <div class="modal-sm" style="width:680px;max-height:88vh;overflow-y:auto;">
+    <h3>🩸 Valutazione del Rischio TEV in Gravidanza</h3>
+    <div class="field-row r3" style="margin:14px 0 10px;">
+      <div class="form-group"><label class="form-label">Cognome e nome</label><input id="stev-nome"></div>
+      <div class="form-group"><label class="form-label">Data di nascita</label><input type="date" id="stev-nascita"></div>
+      <div class="form-group"><label class="form-label">Settimane gestazionali</label><input id="stev-settimane" placeholder="es. 24+3"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;max-width:220px;"><label class="form-label">Data compilazione</label><input type="date" id="stev-data"></div>
+    <div id="stev-voci"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--primary-dim);border-radius:10px;padding:12px 16px;margin:14px 0;font-weight:700;">
+      <span>SCORE TOTALE</span><span id="stev-totale" style="font-size:1.3rem;color:var(--primary);">0</span>
+    </div>
+    <div style="font-size:.7rem;color:var(--label4);line-height:1.5;margin-bottom:16px;">
+      <strong>Trombofilia alto rischio:</strong> deficit AT III, sindrome da anticorpi anti-fosfolipidi, difetti combinati, difetti omozigoti (omozigosi o doppia eterozigosi FV o FII), deficit Proteina C e S.<br>
+      <strong>Trombofilia basso rischio:</strong> mutazione gene protrombina, mutazione fattore V Leiden in eterozigosi.
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <button class="btn btn-primary" onclick="salvaScoreTev()">💾 Salva nell'archivio della paziente</button>
+      <button class="btn btn-ghost" onclick="stampaScoreTev()">🖨️ Stampa</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-score-tev')">Chiudi</button>
+    </div>
+    <div style="border-top:1px solid var(--separator);padding-top:14px;">
+      <div style="font-weight:700;font-size:.85rem;margin-bottom:8px;">Storico compilazioni precedenti</div>
+      <div id="stev-storico-lista" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+</div>
+
 <!-- EDITOR REFERTO -->
 <!-- BARRA EDITOR MINIMIZZATO -->
 <div id="editor-min-bar" class="editor-min-bar" onclick="restoreEditor()">
@@ -2681,7 +2714,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                   </div>
                 </div>
                 <div class="form-group"><label class="form-label">PA (mmHg)</label><input id="ob-pressione" placeholder="120/80"></div>
-                <div class="form-group"><label class="form-label">Score TEV</label><input id="ob-score-tev" placeholder="es. 1"></div>
+                <div class="form-group"><label class="form-label">Score TEV <span onclick="apriScoreTev()" title="Apri il documento di Valutazione del Rischio TEV in gravidanza" style="cursor:pointer;font-size:.9rem;">📄</span></label><input id="ob-score-tev" placeholder="es. 1"></div>
               </div>
               <div class="field-row r2">
                 <div class="form-group"><label class="form-label">Peso attuale (kg)</label><input type="number" id="ob-peso" placeholder="68" onchange="calcIncrementoPonderale()"></div>
@@ -2760,6 +2793,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
             <div class="section-card">
               <h4 data-icon="1️⃣">Ecografia I Trimestre (selezione multipla)</h4>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="apriConsensoVisitaCorrente('Ecografia ostetrica I trimestre precoce')" title="Consenso informato per ecografia precoce, prima delle 11 settimane">✍️ Consenso — Precoce (&lt;11 sett.)</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="apriConsensoVisitaCorrente('Ecografia ostetrica I trimestre 11-13+6 settimane')" title="Consenso informato per ecografia 11+0-13+6 settimane">✍️ Consenso — 11-13+6 sett.</button>
+              </div>
               <select onchange="appendOBText('ob-eco1',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.">ECO Datazione</option>
@@ -2773,6 +2810,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
             <div class="section-card">
               <h4 data-icon="2️⃣">Ecografia II-III Trimestre Office</h4>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-bottom:10px;" onclick="apriConsensoVisitaCorrente('Ecografia ostetrica II trimestre')">✍️ Consenso</button>
               <select onchange="appendOBText('ob-eco23',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento.">2-3 Trim Office</option>
@@ -2782,6 +2820,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
             <div class="section-card">
               <h4 data-icon="3️⃣">Ecografia III Trimestre</h4>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-bottom:10px;" onclick="apriConsensoVisitaCorrente('Ecografia ostetrica III trimestre')">✍️ Consenso</button>
               <select onchange="appendOBText('ob-eco3',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi referto --</option>
                 <option data-full="Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore.">Eco III Trimestre</option>
@@ -2795,7 +2834,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
                 <input type="checkbox" id="ob-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0" onchange="toggleInformativa()">
                 <span class="informativa-testo"></span>
               </label>
-              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Visita Ostetrica con Ecografia')">🖨️ Stampa informativa / consenso informato</button>
             </div>
           </div>
 
@@ -9635,6 +9673,198 @@ function _stampaConsensoVisitaCombinato(record){
     <div class="firme">
       <div class="l">${firmaHtml}</div>
       <div class="l">${_escHtml(c.firma)||'Firma del medico'}</div>
+    </div>
+    ${printFooterHtml()}
+  </body></html>`);
+  w.document.close();
+}
+
+// ═══════════════════════════════════════════════════
+//  SCORE TEV — Valutazione del Rischio Tromboembolico in Gravidanza
+//  Documento dello studio (Dr.ssa Cristina Guidi), usato come fornito.
+//  Non è legato a una singola visita: resta nell'archivio della PAZIENTE
+//  (p.scoreTev, un elenco — una voce per ogni data di compilazione), così
+//  aprendolo in una visita di un altro giorno si può compilarne uno nuovo
+//  senza perdere quelli precedenti, oppure riaprire e aggiornare quello di
+//  oggi se già esistente.
+// ═══════════════════════════════════════════════════
+const SCORE_TEV_VOCI = {
+  preesistenti: [
+    {id:'pt1', label:"Pregressa TEV (eccetto un singolo evento correlato a chirurgia maggiore)", punti:4},
+    {id:'pt2', label:'Trombofilia nota ad alto rischio', punti:3},
+    {id:'pt3', label:'Pregressa TEV correlata a chirurgia maggiore', punti:3},
+    {id:'pt4', label:'Trombofilia a basso rischio associata a familiarità per TEV', punti:1},
+    {id:'pt5', label:'Trombofilia nota a basso rischio (NO TEV)', punti:1},
+    {id:'pt6', label:'Comorbidità mediche (neoplasia, infarto miocardico, LES, poliartropatia infiammatoria, malattie infiammatorie intestinali, sindrome nefrotica, diabete mellito I con nefropatia, uso di droghe ev, anemia falciforme)', punti:3},
+    {id:'pt7', label:'Storia familiare di TEV estrogeno-correlata o idiopatica in familiari di I grado', punti:1},
+    {id:'pt8', label:'Età > 35 anni', punti:1},
+    {id:'pt9', label:'BMI ≥ 30', punti:1},
+    {id:'pt10', label:'Parità ≥ 3', punti:1},
+    {id:'pt11', label:'Grosse vene varicose', punti:1},
+    {id:'pt12', label:'Fumo > 10 sigarette/die', punti:1}
+  ],
+  ostetrico: [
+    {id:'ob1', label:'Preeclampsia nella gravidanza corrente', punti:1},
+    {id:'ob2', label:'Tecniche di fecondazione assistita (IVF, prenatale)', punti:1},
+    {id:'ob3', label:'Gravidanza multipla', punti:1},
+    {id:'ob4', label:'Parto operativo vaginale', punti:1},
+    {id:'ob5', label:'Travaglio prolungato (>24 ore)', punti:1},
+    {id:'ob6', label:'Emorragia post-partum (>1000cc o emotrasfusione)', punti:1},
+    {id:'ob7', label:'Parto pretermine (<37 settimane)', punti:1},
+    {id:'ob8', label:'MEF nella gravidanza corrente', punti:1}
+  ],
+  transitori: [
+    {id:'tr1', label:'Procedura chirurgica in gravidanza o puerperio (eccetto riparazione immediata del perineo, appendicectomia, sterilizzazione post-partum)', punti:3},
+    {id:'tr2', label:'Iperemesi', punti:3},
+    {id:'tr3', label:'Sindrome da iperstimolazione ovarica (solo I trimestre)', punti:4},
+    {id:'tr4', label:'Infezione sistemica in atto', punti:1},
+    {id:'tr5', label:'Immobilità ≥ 3 giorni / disidratazione', punti:1},
+    {id:'tr6', label:'Ospedalizzazione', punti:1}
+  ]
+};
+function _tutteVociScoreTev(){ return [...SCORE_TEV_VOCI.preesistenti, ...SCORE_TEV_VOCI.ostetrico, ...SCORE_TEV_VOCI.transitori]; }
+function _puntiScoreTev(checkedIds){
+  const tutte=_tutteVociScoreTev();
+  return (checkedIds||[]).reduce((s,id)=>{ const v=tutte.find(x=>x.id===id); return s+(v?v.punti:0); },0);
+}
+let _stevIdCorrente = null;
+function apriScoreTev(entryId){
+  const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
+  if(!p){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
+  if(!p.scoreTev) p.scoreTev=[];
+  const oggi = new Date().toISOString().split('T')[0];
+  let entry = entryId ? p.scoreTev.find(x=>x.id===entryId) : p.scoreTev.find(x=>x.data===oggi);
+  if(!entry){
+    entry = { id:'st'+Date.now().toString(36), data:oggi, cognome:p.cognome, nome:p.nome, nascita:p.nascita||'', settimane:document.getElementById('ob-settimane')?.value||'', checked:[] };
+  }
+  _stevIdCorrente = entry.id;
+  const nomeEl=document.getElementById('stev-nome');
+  if(nomeEl) nomeEl.value = `${entry.cognome||p.cognome||''} ${entry.nome||p.nome||''}`.trim();
+  const nascitaEl=document.getElementById('stev-nascita'); if(nascitaEl) nascitaEl.value = entry.nascita||'';
+  const settEl=document.getElementById('stev-settimane'); if(settEl) settEl.value = entry.settimane||'';
+  const dataEl=document.getElementById('stev-data'); if(dataEl) dataEl.value = entry.data||oggi;
+  _renderScoreTevVoci(entry.checked||[]);
+  _renderScoreTevStorico(p, entry.id);
+  document.getElementById('modal-score-tev').classList.add('show');
+}
+function _renderScoreTevVoci(checkedIds){
+  const box=document.getElementById('stev-voci'); if(!box) return;
+  const sezioni=[
+    {tit:'Fattori di rischio pre-esistenti', voci:SCORE_TEV_VOCI.preesistenti},
+    {tit:'Fattori di rischio ostetrico', voci:SCORE_TEV_VOCI.ostetrico},
+    {tit:'Fattori di rischio transitori', voci:SCORE_TEV_VOCI.transitori}
+  ];
+  box.innerHTML = sezioni.map(s=>`
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--label3);margin-bottom:6px;">${s.tit}</div>
+      ${s.voci.map(v=>`<label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
+        <input type="checkbox" data-stev-id="${v.id}" ${checkedIds.includes(v.id)?'checked':''} onchange="_ricalcolaScoreTevTotale()" style="width:18px;height:18px;flex-shrink:0;">
+        <span style="flex:1;font-size:.82rem;">${_escHtml(v.label)}</span>
+        <span style="font-weight:700;color:var(--primary);flex-shrink:0;">${v.punti}</span>
+      </label>`).join('')}
+    </div>`).join('');
+  _ricalcolaScoreTevTotale();
+}
+function _ricalcolaScoreTevTotale(){
+  const checked=[...document.querySelectorAll('#stev-voci input[type=checkbox]:checked')].map(c=>c.dataset.stevId);
+  const el=document.getElementById('stev-totale'); if(el) el.textContent=_puntiScoreTev(checked);
+}
+function _renderScoreTevStorico(p, idCorrente){
+  const box=document.getElementById('stev-storico-lista'); if(!box) return;
+  const altri=(p.scoreTev||[]).filter(e=>e.id!==idCorrente).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  if(!altri.length){ box.innerHTML='<div style="font-size:.78rem;color:var(--label4);">Nessuna compilazione precedente.</div>'; return; }
+  box.innerHTML = altri.map(e=>`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border-radius:8px;padding:8px 12px;">
+      <span style="font-size:.82rem;">${new Date(e.data).toLocaleDateString('it-IT')} — punteggio ${_puntiScoreTev(e.checked)}</span>
+      <button class="btn btn-ghost btn-sm" onclick="apriScoreTev('${e.id}')">Apri</button>
+    </div>`).join('');
+}
+// Salva/aggiorna la compilazione corrente nell'archivio della paziente
+// (nuova voce se la data non esiste ancora, altrimenti aggiorna quella
+// esistente) e riflette il punteggio anche nel campo Score TEV della visita.
+function salvaScoreTev(){
+  const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
+  if(!p) return;
+  if(!p.scoreTev) p.scoreTev=[];
+  const checked=[...document.querySelectorAll('#stev-voci input[type=checkbox]:checked')].map(c=>c.dataset.stevId);
+  const nomeCompleto=(document.getElementById('stev-nome').value||'').trim();
+  const spazio=nomeCompleto.indexOf(' ');
+  const cognome=spazio>0?nomeCompleto.slice(0,spazio):nomeCompleto;
+  const nome=spazio>0?nomeCompleto.slice(spazio+1):'';
+  const entry={
+    id: _stevIdCorrente || 'st'+Date.now().toString(36),
+    data: document.getElementById('stev-data').value || new Date().toISOString().split('T')[0],
+    cognome: cognome||p.cognome, nome: nome||p.nome,
+    nascita: document.getElementById('stev-nascita').value||'',
+    settimane: document.getElementById('stev-settimane').value||'',
+    checked, salvatoIl:new Date().toISOString()
+  };
+  const idx=p.scoreTev.findIndex(x=>x.id===entry.id);
+  if(idx>=0) p.scoreTev[idx]=entry; else p.scoreTev.push(entry);
+  _stevIdCorrente = entry.id;
+  salvaDB();
+  const campoVisita=document.getElementById('ob-score-tev');
+  if(campoVisita) campoVisita.value=_puntiScoreTev(checked);
+  _renderScoreTevStorico(p, entry.id);
+  if(typeof gsToast==='function') gsToast('✅ Score TEV salvato nell\'archivio della paziente','gs-success');
+}
+function stampaScoreTev(){
+  const checked=[...document.querySelectorAll('#stev-voci input[type=checkbox]:checked')].map(c=>c.dataset.stevId);
+  const tot=_puntiScoreTev(checked);
+  const nome=document.getElementById('stev-nome').value||'';
+  const nascitaVal=document.getElementById('stev-nascita').value;
+  const nascita=nascitaVal?new Date(nascitaVal).toLocaleDateString('it-IT'):'____________';
+  const settimane=document.getElementById('stev-settimane').value||'';
+  const dataVal=document.getElementById('stev-data').value;
+  const dataC=dataVal?new Date(dataVal).toLocaleDateString('it-IT'):'';
+  const c=getPrintCfg(); const l=c.layout;
+  const w=apriFinestraStampa(); if(!w) return;
+  registraLog('stampa','Score TEV');
+  const sezioniHtml=[
+    {tit:'FATTORI DI RISCHIO PRE-ESISTENTI', voci:SCORE_TEV_VOCI.preesistenti},
+    {tit:'FATTORI DI RISCHIO OSTETRICO', voci:SCORE_TEV_VOCI.ostetrico},
+    {tit:'FATTORI DI RISCHIO TRANSITORI', voci:SCORE_TEV_VOCI.transitori}
+  ].map(s=>`
+    <div style="margin-top:16px;">
+      <div style="font-weight:700;font-size:.8rem;border-bottom:1px solid #999;padding-bottom:4px;margin-bottom:6px;">${s.tit}</div>
+      ${s.voci.map(v=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:3px 0;font-size:.84rem;">
+        <span>${checked.includes(v.id)?'☑':'☐'}&nbsp; ${_escHtml(v.label)}</span><span style="flex-shrink:0;font-weight:600;">${v.punti}</span>
+      </div>`).join('')}
+    </div>`).join('');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Score TEV</title>
+  <style>
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.5}
+    h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
+    .ic-meta{font-size:.9rem;margin-bottom:10px}
+    .ic-meta div{margin-bottom:3px}
+    .totale{display:flex;justify-content:space-between;background:#f0f0f0;border-radius:8px;padding:10px 16px;margin-top:20px;font-weight:700;font-size:1.05rem}
+    .note{font-size:.68rem;color:#555;margin-top:16px;line-height:1.5}
+    .firme{display:flex;justify-content:space-between;margin-top:50px;font-size:.85rem;color:#555}
+    .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
+    .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
+    .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
+    .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
+  </style></head><body>
+    <div class="ic-toolbar no-print">✏️ Puoi modificare prima di stampare.
+      <button onclick="window.print()">🖨️ Stampa</button>
+      <button class="sec" onclick="window.close()">Chiudi</button>
+    </div>
+    ${printHeaderHtml()}
+    <h2>VALUTAZIONE DEL RISCHIO TEV IN GRAVIDANZA</h2>
+    <div class="ic-meta">
+      <div><strong>Paziente:</strong> ${_escHtml(nome)} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
+      <div><strong>Settimane gestazionali:</strong> ${_escHtml(settimane)} &nbsp;·&nbsp; <strong>Data:</strong> ${dataC}</div>
+    </div>
+    ${sezioniHtml}
+    <div class="totale"><span>SCORE TOTALE</span><span>${tot}</span></div>
+    <div class="note">
+      <strong>Trombofilia alto rischio:</strong> deficit AT III, sindrome da anticorpi anti-fosfolipidi, difetti combinati, difetti omozigoti (omozigosi o doppia eterozigosi FV o FII), deficit Proteina C e S.<br>
+      <strong>Trombofilia basso rischio:</strong> mutazione gene protrombina, mutazione fattore V Leiden in eterozigosi.
+    </div>
+    <div class="firme">
+      <div class="l">Data</div>
+      <div class="l">${_escHtml(c.firma)||'Dott.ssa Cristina Guidi'}</div>
     </div>
     ${printFooterHtml()}
   </body></html>`);
