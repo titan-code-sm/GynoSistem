@@ -1743,8 +1743,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <!-- Modal Registro Attività: mostrato dopo il login e riapribile da Opzioni -->
 <div id="modal-log-attivita" class="overlay">
   <div class="modal-sm" style="width:520px;max-height:80vh;overflow-y:auto;">
-    <h3>📜 Registro Attività</h3>
-    <p style="color:var(--label4);font-size:.85rem;margin-bottom:14px">Ultime azioni sul tuo account, con data e ora. Clicca su una voce per i dettagli.</p>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+      <h3 style="margin:0;">📜 Registro Attività</h3>
+      <button onclick="closeModal('modal-log-attivita')" title="Chiudi" style="background:var(--surface2);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;color:var(--label4);flex-shrink:0;">✕</button>
+    </div>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:14px">Ultime azioni sul tuo account, raggruppate per giorno. Clicca su una voce per i dettagli.</p>
     <div id="log-attivita-lista"></div>
     <div style="display:flex;justify-content:flex-end;margin-top:16px;">
       <button class="btn btn-ghost" onclick="closeModal('modal-log-attivita')">Chiudi</button>
@@ -2245,7 +2248,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button type="button" class="btn btn-ghost btn-sm" onclick="_impostaFirmatario('cv-nome','tutore')">👪 Genitore o tutore legale</button>
     </div>
     <div class="field-row r2" style="margin-bottom:14px;">
-      <div class="form-group"><label class="form-label">Nome e cognome di chi firma</label><input id="cv-nome" placeholder="Nome e cognome"></div>
+      <div class="form-group"><label class="form-label">Nome e cognome di chi firma</label><input id="cv-nome" placeholder="Nome e cognome" oninput="_renderConsensoVisitaLista()"></div>
       <div class="form-group"><label class="form-label">Data</label><input type="date" id="cv-data"></div>
     </div>
     <div style="font-size:.72rem;color:var(--label4);margin-bottom:10px;">Il nome è precompilato con quello della paziente e viene inserito nel testo del consenso — modificalo se a firmare è un genitore/tutore (es. visita/ecografia su minorenne).</div>
@@ -5786,23 +5789,32 @@ async function mostraLogAttivita(){
     const recenti=snap.docs
       .sort((a,b)=>new Date(b.data().data)-new Date(a.data().data))
       .slice(0,30);
-    box.innerHTML=recenti.map(docSnap=>{
+    // Raggruppate per giorno (giorno/mese/anno): un'intestazione di data
+    // seguita dalle sue voci, che mostrano solo l'ora (la data è già nel titolo).
+    let html='', giornoCorrente=null;
+    recenti.forEach(docSnap=>{
       const d=docSnap.data();
       const dt=new Date(d.data);
+      const chiaveGiorno=dt.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
       const dataStr=dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
       const oraStr=dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-      return `<details style="border-bottom:1px solid var(--separator);padding:10px 0">
+      if(chiaveGiorno!==giornoCorrente){
+        giornoCorrente=chiaveGiorno;
+        html+=`<div style="font-size:.72rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 4px;${html?'':'margin-top:4px;'}">${dataStr}</div>`;
+      }
+      html+=`<details style="border-bottom:1px solid var(--separator);padding:10px 0">
         <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
           <span style="font-size:1.1rem">${LOG_TIPO_ICON[d.tipo]||'•'}</span>
           <span style="flex:1;font-size:.85rem">${_escHtml(d.descrizione)}</span>
-          <span style="font-size:.74rem;color:var(--label4);white-space:nowrap">${dataStr} · ${oraStr}</span>
+          <span style="font-size:.74rem;color:var(--label4);white-space:nowrap">${oraStr}</span>
         </summary>
         <div style="padding:8px 0 0 30px;font-size:.78rem;color:var(--label3)">
           <strong>Cosa è stato fatto:</strong> ${_escHtml(d.descrizione)}<br>
           <strong>Quando:</strong> ${dataStr} alle ${oraStr}
         </div>
       </details>`;
-    }).join('');
+    });
+    box.innerHTML=html;
   }catch(e){
     console.warn('Lettura log attività:',e);
     // Firestore richiede un indice composito per where+orderBy insieme: se manca,
@@ -7482,7 +7494,7 @@ function _pharmaCardPatologia(f){
         <span onclick="event.stopPropagation();toggleFarmacoPreferito(${f.idx})" title="${pref?'Togli dai preferiti':'Aggiungi ai preferiti'}" style="cursor:pointer;font-size:1.05rem;color:${pref?'#f5a623':'var(--label4)'}">${pref?'★':'☆'}</span>
       </div>
     </div>
-    <div class="pharma-active">${f.p}${f.pat?' · <span style="color:var(--label4)">'+_escHtml(f.pat)+'</span>':''}</div>
+    <div class="pharma-active">${[f.p&&f.p!=='—'?_escHtml(f.p):'', f.pat?'<span style="color:var(--label4)">'+_escHtml(f.pat)+'</span>':''].filter(Boolean).join(' · ')}</div>
     <div class="pharma-dose">💊 ${f.dose}</div>
   </div>`;
 }
@@ -7716,7 +7728,7 @@ function _mfvCardFarmaco(f){
         <span onclick="event.stopPropagation();toggleFarmacoPreferito(${f.idx})" title="${pref?'Togli dai preferiti':'Aggiungi ai preferiti'}" style="cursor:pointer;font-size:1.05rem;color:${pref?'#f5a623':'var(--label4)'}">${pref?'★':'☆'}</span>
       </div>
     </div>
-    <div class="pharma-active">${f.p} · <span style="color:var(--label4)">${specTxt}</span></div>
+    <div class="pharma-active">${f.p&&f.p!=='—'?_escHtml(f.p)+' · ':''}<span style="color:var(--label4)">${specTxt}</span></div>
     <div class="pharma-dose">💊 ${f.dose}</div>
   </div>`;
 }
@@ -9909,10 +9921,13 @@ function renderConsensi(){
   if(boxRicerca) boxRicerca.style.display = p ? 'none' : 'block';
   const box=document.getElementById('consensi-lista');
   const consensi=getConsensi();
-  box.innerHTML = consensi.map((s,i)=>`
+  const nomeAnteprima = p ? `${p.nome} ${p.cognome}` : '';
+  box.innerHTML = consensi.map((s,i)=>{
+    const testoRisolto=_risolviTestoConsenso(s.testo, nomeAnteprima);
+    return `
     <div class="pharma-card">
       <div class="pharma-name" style="margin-bottom:8px;">${_escHtml(s.titolo)}</div>
-      <div style="font-size:.78rem;color:var(--label4);line-height:1.5;margin-bottom:12px;max-height:64px;overflow:hidden;">${_escHtml(s.testo).slice(0,180)}${s.testo.length>180?'…':''}</div>
+      <div style="font-size:.78rem;color:var(--label4);line-height:1.5;margin-bottom:12px;max-height:64px;overflow:hidden;">${_escHtml(testoRisolto).slice(0,180)}${testoRisolto.length>180?'…':''}</div>
       ${s.pdfUfficiale?`<a href="${s.pdfUfficiale}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:var(--primary);margin-bottom:10px;text-decoration:none;">📄 Documento informativo ufficiale SIEOG (PDF)</a>`:''}
       <div style="display:flex;flex-wrap:wrap;gap:6px;">
         <button class="btn btn-ghost btn-sm" onclick="_apriPromptNomeConsenso(${i},false)">🖨️ Stampa</button>
@@ -9920,7 +9935,8 @@ function renderConsensi(){
         <button class="btn btn-ghost btn-sm btn-icon" onclick="modificaConsenso(${i})" title="Modifica">✏️</button>
         <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaConsenso(${i})" title="Elimina">🗑️</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   renderConsensiFirmati();
 }
 function _mostraFormNuovoConsenso(){
@@ -10086,7 +10102,9 @@ function apriConsensoVisitaCorrente(preseleziona){
   _consensoVisitaTipoPending = null;
   _apriModalConsensoVisita(curMode, preseleziona);
 }
+let _consensoVisitaTipoCorrente=null;
 function _apriModalConsensoVisita(tipo, preseleziona){
+  _consensoVisitaTipoCorrente=tipo;
   const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
   const sub=document.getElementById('cv-sottotitolo');
   if(sub) sub.textContent = `Scegli uno o più moduli per questa ${_META_TIPO_VISITA[tipo]||'visita'} — verranno stampati insieme su un unico foglio da far firmare. In evidenza i più pertinenti.`;
@@ -10113,25 +10131,35 @@ function _apriModalConsensoVisita(tipo, preseleziona){
     btnRistampa.style.display='none';
   }
 
+  _renderConsensoVisitaLista(tipo);
+  document.getElementById('modal-consenso-visita').classList.add('show');
+}
+// Ricostruisce l'elenco dei moduli selezionabili, con l'anteprima del testo
+// già risolta sul nome attualmente inserito in #cv-nome (non il segnaposto
+// grezzo {{NOME}}) — richiamata sia all'apertura del modal sia ogni volta
+// che il nome di chi firma cambia (digitato o tramite i pulsanti rapidi),
+// così l'anteprima resta coerente se si passa a firmataria paziente/tutore.
+function _renderConsensoVisitaLista(tipo){
+  tipo = tipo || _consensoVisitaTipoCorrente;
+  const nomeAttuale = document.getElementById('cv-nome')?.value || '';
   const rilevanti = new Set(CONSENSO_TIPI_VISITA[tipo]||[]);
   const consensi = getConsensi().map((c,i)=>({...c,_i:i,_match:rilevanti.has(c.titolo)}));
   consensi.sort((a,b)=>(b._match-a._match));
   const lista=document.getElementById('consenso-visita-lista');
-  if(lista){
-    lista.innerHTML = consensi.map(c=>{
-      const sel=_consensoVisitaSelezionati.has(c.titolo);
-      const titoloJs=JSON.stringify(c.titolo).replace(/"/g,'&quot;');
-      return `<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${sel?'var(--primary)':'var(--separator)'};background:${sel?'var(--primary-dim)':'var(--surface2)'};">
-        <input type="checkbox" ${sel?'checked':''} onchange="pazToggleConsensoSelezionato(${titoloJs},this.checked)" style="margin-top:2px;width:18px;height:18px;flex-shrink:0;">
-        <span style="flex:1;">
-          <span style="font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${_escHtml(c.titolo)}${c._match?' <span class="badge badge-blue" style="font-size:.6rem;">Consigliato</span>':''}</span>
-          <span style="font-size:.76rem;color:var(--label4);display:block;margin-top:2px;">${_escHtml(c.testo.slice(0,140))}${c.testo.length>140?'…':''}</span>
-          ${c.pdfUfficiale?`<a href="${c.pdfUfficiale}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--primary);margin-top:4px;text-decoration:none;">📄 Documento ufficiale SIEOG (PDF)</a>`:''}
-        </span>
-      </label>`;
-    }).join('');
-  }
-  document.getElementById('modal-consenso-visita').classList.add('show');
+  if(!lista) return;
+  lista.innerHTML = consensi.map(c=>{
+    const sel=_consensoVisitaSelezionati.has(c.titolo);
+    const titoloJs=JSON.stringify(c.titolo).replace(/"/g,'&quot;');
+    const testoRisolto=_risolviTestoConsenso(c.testo, nomeAttuale);
+    return `<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${sel?'var(--primary)':'var(--separator)'};background:${sel?'var(--primary-dim)':'var(--surface2)'};">
+      <input type="checkbox" ${sel?'checked':''} onchange="pazToggleConsensoSelezionato(${titoloJs},this.checked)" style="margin-top:2px;width:18px;height:18px;flex-shrink:0;">
+      <span style="flex:1;">
+        <span style="font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${_escHtml(c.titolo)}${c._match?' <span class="badge badge-blue" style="font-size:.6rem;">Consigliato</span>':''}</span>
+        <span style="font-size:.76rem;color:var(--label4);display:block;margin-top:2px;">${_escHtml(testoRisolto.slice(0,140))}${testoRisolto.length>140?'…':''}</span>
+        ${c.pdfUfficiale?`<a href="${c.pdfUfficiale}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--primary);margin-top:4px;text-decoration:none;">📄 Documento ufficiale SIEOG (PDF)</a>`:''}
+      </span>
+    </label>`;
+  }).join('');
 }
 function pazToggleConsensoSelezionato(titolo, checked){
   if(checked) _consensoVisitaSelezionati.add(titolo);
@@ -10151,6 +10179,7 @@ function _impostaFirmatario(inputId, modo){
     el.placeholder='Nome e cognome del genitore/tutore';
     el.focus();
   }
+  if(inputId==='cv-nome' && typeof _renderConsensoVisitaLista==='function') _renderConsensoVisitaLista();
 }
 function pazSaltaConsensoEProsegui(){
   closeModal('modal-consenso-visita');
@@ -12105,8 +12134,7 @@ function showApptPopup(appts, oggi){
       <!-- Info -->
       <div style="flex:1">
         <div style="font-weight:700;font-size:.95rem;color:var(--label);margin-bottom:3px">
-          ${(()=>{const localId=trovaPazienteLocaleId(a.pazienteId);
-            return localId?`<span onclick="closeModal('popup-appts');openPaziente(${localId})" style="cursor:pointer;color:var(--primary)">${a.pazienteNome||'Paziente'} ↗</span>`:(a.pazienteNome||'Paziente');})()}</div>
+          <span onclick="closeModal('popup-appts');apriModificaAppuntamento('${a.id}')" style="cursor:pointer;color:var(--primary);text-decoration:underline;text-decoration-style:dotted" title="Modifica questo appuntamento">${a.pazienteNome||'Paziente'} ✏️</span></div>
         <div style="font-size:.8rem;color:var(--label3);margin-bottom:4px">
           ${ICONS[a.tipo]||'🩺'} ${a.tipo||'–'} ${a.durata?'· '+a.durata+' min':''}
         </div>
