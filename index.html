@@ -3171,6 +3171,14 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
               </select>
               <textarea id="ec-eco3" rows="3" style="margin-top:6px"></textarea>
             </div>
+
+            <div class="section-card informativa-card">
+              <h4 data-icon="📋">Informativa e consenso</h4>
+              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+                <input type="checkbox" id="ec-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
+                <span class="informativa-testo-eco" style="font-size:0.82rem;line-height:1.55;color:var(--label3)"></span>
+              </label>
+            </div>
           </div>
 
           <!-- ════════ ECO PANEL: DOPPLER ════════ -->
@@ -3179,7 +3187,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
               <h4 data-icon="〜">Flussimetria Doppler (se eseguita)</h4>
               <div style="background:var(--primary-dim);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.82rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                 <span>🔗 Per la classificazione precisa in percentili secondo le curve di riferimento ufficiali:</span>
-                <a href="https://www.medfetal.org/en/gestational-calculator/" target="_blank" style="color:var(--primary);font-weight:600;text-decoration:underline">medfetal.org — Calcolatore Vall d'Hebron Barcelona ↗</a>
+                <a href="https://fetalmedicinebarcelona.org/calc/" target="_blank" style="color:var(--primary);font-weight:600;text-decoration:underline">fetalmedicinebarcelona.org/calc ↗</a>
               </div>
 
               <div class="field-row r2" style="margin-bottom:12px">
@@ -3248,14 +3256,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
               <textarea id="ec-diagnosi" rows="6" style="margin-top:6px" placeholder="Referto conclusivo dell'esame ecografico..."></textarea>
             </div>
 
-            <div class="section-card informativa-card">
-              <h4 data-icon="📋">Informativa e consenso</h4>
-              <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
-                <input type="checkbox" id="ec-informativa-chk" checked style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
-                <span class="informativa-testo-eco" style="font-size:0.82rem;line-height:1.55;color:var(--label3)"></span>
-              </label>
-              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:12px" onclick="stampaInformativaConsenso('Ecografia Ostetrica')">🖨️ Stampa informativa / consenso informato</button>
-            </div>
             <div class="section-card">
               <h4 data-icon="💊">Terapia<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriSelettoreFarmaciVisita('ec-terapia')">+ Farmaci</button></h4>
               <div class="form-group"><textarea id="ec-terapia" rows="4"></textarea></div>
@@ -3719,62 +3719,6 @@ function riportaDatiEco(nuova){
   if(typeof aggiornaPercentiliEco==='function') aggiornaPercentiliEco();
 }
 
-// Apre una pagina stampabile e modificabile con l'informativa e il consenso
-// informato, intestata come la ricetta. tipoEsame = descrizione dell'indagine.
-function stampaInformativaConsenso(tipoEsame){
-  const c = getPrintCfg(); const l = c.layout;
-  const testoInformativa = /^ecografia/i.test(tipoEsame||'') ? GD.informativaEco : GD.informativa;
-  const p = DB.pazienti.find(x=>x.id===curPaz);
-  const nome = p ? `${p.cognome} ${p.nome}` : '________________________';
-  const nascita = p && p.nascita ? new Date(p.nascita).toLocaleDateString('it-IT') : '____________';
-  const oggi = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
-  const w = apriFinestraStampa(); if(!w) return;
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Informativa e Consenso</title>
-  <style>
-    ${printStyleComune()}
-    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
-    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:24px}
-    .ic-header img{max-height:60px}
-    .ic-header h1{font-size:1.2rem;margin:0;color:${l.colore}}
-    .ic-header .sp{font-size:.82rem;color:#555;margin-top:2px}
-    .ic-header .ct{font-size:.76rem;color:#777;margin-top:3px}
-    h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
-    .ic-meta{font-size:.9rem;margin-bottom:20px}
-    .ic-meta div{margin-bottom:3px}
-    .ic-body{font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:24px;outline:none}
-    .ic-body:focus{background:#fffdf5}
-    .ic-consenso{font-size:.98em;margin-bottom:34px}
-    .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
-    .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
-    .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
-    .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
-    .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
-  </style></head><body>
-    <div class="ic-toolbar">✏️ Puoi modificare il testo prima di stampare.
-      <button onclick="window.print()">🖨️ Stampa</button>
-      <button class="sec" onclick="window.close()">Chiudi</button>
-    </div>
-    <div class="ic-header">${printHeaderHtml()}</div>
-    <h2>INFORMATIVA E CONSENSO INFORMATO</h2>
-    <div class="ic-meta">
-      <div><strong>Esame:</strong> ${tipoEsame||'Esame ecografico'}</div>
-      <div><strong>Persona assistita:</strong> ${nome} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
-      <div><strong>Data:</strong> ${oggi}</div>
-    </div>
-    <div class="ic-body" contenteditable="true" spellcheck="false">${testoInformativa}</div>
-    <div class="ic-consenso" contenteditable="true" spellcheck="false">
-      La sottoscritta, presa visione di quanto sopra e avendo ricevuto adeguate informazioni sugli scopi, i limiti e le eventuali alternative dell'esame, avendo potuto porre domande e ricevuto risposte esaurienti, <strong>acconsente</strong> liberamente all'esecuzione dell'indagine nelle modalità proposte.
-    </div>
-    <div class="firme">
-      <div class="l">Firma della persona assistita</div>
-      <div class="l">${_escHtml(getPrintCfg().firma)||'Firma del medico'}</div>
-    </div>
-    ${printFooterHtml()}
-  </body></html>`);
-  w.document.close();
-}
-
 function initGynoSelects(){
   fillGDSelect('gd-menopausa-sel', GD.menopausa);
   fillGDSelect('gd-ciclo-ritmo-sel', GD.cicloRitmo);
@@ -4014,7 +3958,7 @@ function calcBMIPregravidico(){
 // Cerebroplacental Ratio: semplice rapporto aritmetico MCA-PI / UA-PI.
 // La CLASSIFICAZIONE in percentili (es. "CPR < 5° percentile = a rischio") richiede
 // le curve di riferimento ufficiali in funzione dell'epoca gestazionale: per quello
-// si usa il calcolatore Medfetal (link nel pannello), per non rischiare imprecisioni
+// si usa il calcolatore fetalmedicinebarcelona.org/calc (link nel pannello), per non rischiare imprecisioni
 // cliniche con formule ricostruite internamente.
 // Peso Fetale Stimato (EFW) — formula di Hadlock (1985), la più validata e diffusa
 // a livello internazionale per la stima ecografica del peso fetale da 4 parametri
@@ -4055,7 +3999,7 @@ function calcEFW(){
     } else {
       testoNota='💡 Inserisci le settimane di gestazione per un confronto orientativo con la crescita media attesa.';
     }
-    nota.innerHTML=`${testoNota} Per il percentile preciso del peso stimato: <a href="https://www.medfetal.org/en/gestational-calculator/" target="_blank" style="color:var(--primary);text-decoration:underline">calcolatore ufficiale ↗</a>`;
+    nota.innerHTML=`${testoNota} Per il percentile preciso del peso stimato: <a href="https://fetalmedicinebarcelona.org/calc/" target="_blank" style="color:var(--primary);text-decoration:underline">calcolatore ufficiale ↗</a>`;
   }
   if(box) box.style.display='block';
   if(typeof aggiornaPercentiliEco==='function') aggiornaPercentiliEco();
@@ -4272,7 +4216,7 @@ const ECO_FIELDS=['settimane','crl','bpd','hc','fl','ac','efw','diagnosi','terap
   'consenso-visita',
   // Note ecografiche
   'note-eco',
-  // Doppler (PI = pulsatility index secondo Fetal Medicine Foundation / Medfetal Barcelona)
+  // Doppler (PI = pulsatility index secondo Fetal Medicine Foundation / fetalmedicinebarcelona.org)
   'doppler-ua-pi','doppler-ua-flusso','doppler-mca-pi','doppler-mca-vmax','doppler-cpr',
   'doppler-utsx-pi','doppler-utdx-pi','doppler-dv-pi','doppler-note'];
 function getEcoData(){
@@ -10217,7 +10161,8 @@ function apriRicettarioVisitaGlobale(pazId,vid){
 function buildRefertoBody(v){
   const nl=s=>(s||'').replace(/\n/g,'<br>');
   const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica'};
-  let body=`<h2 style="margin-bottom:16px;font-family:Georgia,serif;">Referto ${TITOLI[v.tipo]||TITOLI.gyno}</h2>`;
+  let body=`<h2 style="margin-bottom:2px;font-family:Georgia,serif;">Referto ${TITOLI[v.tipo]||TITOLI.gyno}</h2>`;
+  if(v.ora) body+=`<div style="margin-bottom:14px;font-size:0.82rem;color:#666">Ora di compilazione: ${v.ora}</div>`;
   getRefertoSezioni(v).forEach(s=>{
     const valid=s.rows.filter(r=>r[1]&&String(r[1]).trim());
     if(!valid.length)return;
@@ -10840,7 +10785,7 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
   }
 
   visiteGravidanza.forEach(v=>{
-    const dataStr=new Date(v.data).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const dataStr=new Date(v.data).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(v.ora?` · ore ${v.ora}`:'');
     html+=`<div class="visita-block">
       <div class="visita-header"><span class="data">${dataStr}</span><span class="tipo">${TIPO_LABEL[v.tipo]||v.tipo}</span></div>
       ${buildRefertoView(v)}
@@ -11016,7 +10961,7 @@ function visualizzaVisita(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p.visite.find(x=>x.id===vid);
   if(!v)return;
-  document.getElementById('vv-title').textContent=`Visita del ${new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}`;
+  document.getElementById('vv-title').textContent=`Visita del ${new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}${v.ora?` · ore ${v.ora}`:''}`;
   document.getElementById('vv-subtitle').textContent=`${p.cognome} ${p.nome}`;
   document.getElementById('vv-body').innerHTML=buildRefertoView(v);
   document.getElementById('vv-print-btn').onclick=()=>{closeModal('view-visita');stampa(vid);};
