@@ -1886,8 +1886,19 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
       <div class="paz-pane" id="paz-pane-consensi">
         <div class="paz-pane-header">
-          <div><div class="paz-pane-title">✍️ Consensi Firmati</div><div class="paz-pane-sub">Moduli firmati su schermo, salvati in questa cartella</div></div>
+          <div><div class="paz-pane-title">✍️ Consensi Firmati</div><div class="paz-pane-sub">Moduli firmati su schermo o caricati come PDF, salvati in questa cartella</div></div>
           <button class="btn btn-ghost btn-sm" onclick="naviga('consensi')" title="Vai alla libreria dei consensi">📋 Libreria</button>
+        </div>
+        <div class="section-card" style="margin-bottom:16px;">
+          <h4 data-icon="📎">Carica un consenso firmato cartaceo</h4>
+          <p style="font-size:.78rem;color:var(--label4);margin-bottom:10px;">Per un consenso firmato a mano su carta — scansionato o fotografato in PDF — invece che con la firma su schermo. Resta solo su questo dispositivo, mai online.</p>
+          <div class="field-row r2" style="margin-bottom:8px;">
+            <div class="form-group"><label class="form-label">Quale consenso</label><input id="cc-titolo" list="dl-cc-titolo" placeholder="es. Visita ginecologica generale"></div>
+            <div class="form-group"><label class="form-label">Data firma</label><input type="date" id="cc-data"></div>
+          </div>
+          <datalist id="dl-cc-titolo"></datalist>
+          <div class="form-group" style="margin-bottom:10px;"><label class="form-label">File PDF</label><input type="file" id="cc-file" accept="application/pdf"></div>
+          <button class="btn btn-ghost btn-sm" onclick="caricaConsensoCartaceo()">➕ Carica PDF</button>
         </div>
         <div id="consensi-firmati-box"><div id="consensi-firmati-lista"></div></div>
       </div>
@@ -7174,21 +7185,41 @@ function costruisciRiassuntoPaziente(p){
     pezzi.push(`🤰 Gravidanza attualmente in corso${sett?`, ${sett} settimane`:''}.`);
   }
 
-  // ── Sintesi clinica: patologie/anamnesi rilevanti + ultima valutazione conclusiva registrata ──
-  const patologiePezzi=new Set();
+  // ── Sintesi clinica: anamnesi rilevante (da tutte le visite) + dati salienti dell'ultima visita eseguita, di qualunque tipo ──
+  const anamnesiPezzi=new Set();
   visite.forEach(v=>{
-    const pat = v.tipo==='ob' ? (v.obData||{}).patologie : v.tipo==='gyno' ? (v.gynoData||{}).patologie : null;
-    if(pat && pat.trim()) patologiePezzi.add(pat.trim());
+    const dati = v.tipo==='ob' ? v.obData : v.tipo==='gyno' ? v.gynoData : null;
+    if(!dati) return;
+    [dati.patologie, dati.chirurgia, dati.familiarita].forEach(x=>{ if(x && x.trim()) anamnesiPezzi.add(x.trim()); });
   });
-  if(patologiePezzi.size) pezzi.push(`Patologie/anamnesi rilevanti: ${[...patologiePezzi].join(' · ')}.`);
+  if(anamnesiPezzi.size) pezzi.push(`Anamnesi rilevante: ${[...anamnesiPezzi].join(' · ')}.`);
 
-  const visiteConDiagnosi=[...visite].reverse()
-    .map(v=>({v, diag: v.tipo==='eco'?(v.ecoData||{}).diagnosi:null}))
-    .filter(x=>x.diag && x.diag.trim());
-  if(visiteConDiagnosi.length){
-    const d=visiteConDiagnosi[0];
-    const estratto=d.diag.trim().length>200?d.diag.trim().slice(0,200)+'…':d.diag.trim();
-    pezzi.push(`Ultima valutazione clinica (${new Date(d.v.data).toLocaleDateString('it-IT')}): ${estratto}`);
+  if(visite.length){
+    const ultima=visite[visite.length-1];
+    const TIPO_LABEL_VISITA={gyno:'visita ginecologica',ob:'visita ostetrica',eco:'ecografia'};
+    const dettagli=[];
+    if(ultima.tipo==='gyno'){
+      const g=ultima.gynoData||{};
+      if(g.motivo && g.motivo.trim()) dettagli.push(g.motivo.trim());
+      if(g.conclusioni && g.conclusioni.trim()) dettagli.push(g.conclusioni.trim());
+    } else if(ultima.tipo==='ob'){
+      const o=ultima.obData||{};
+      const parametri=[];
+      if(o.settimane) parametri.push(`${o.settimane} sett.`);
+      if(o.pressione) parametri.push(`PA ${o.pressione}`);
+      if(o.peso) parametri.push(`peso ${o.peso} kg`);
+      if(parametri.length) dettagli.push(parametri.join(', '));
+      if(o.diagnosi && o.diagnosi.trim()) dettagli.push(o.diagnosi.trim());
+    } else if(ultima.tipo==='eco'){
+      const e=ultima.ecoData||{};
+      if(e.settimane) dettagli.push(`${e.settimane} sett.`);
+      if(e.diagnosi && e.diagnosi.trim()) dettagli.push(e.diagnosi.trim());
+    }
+    if(dettagli.length){
+      const estratto=dettagli.join(' — ');
+      const troncato=estratto.length>220?estratto.slice(0,220)+'…':estratto;
+      pezzi.push(`Ultima visita (${TIPO_LABEL_VISITA[ultima.tipo]||ultima.tipo} del ${new Date(ultima.data).toLocaleDateString('it-IT')}): ${troncato}`);
+    }
   }
 
   const elencoAllergie=_allergieAttivePaziente(p);
@@ -8244,7 +8275,10 @@ async function renderAllegatiPaziente(pazId){
     const items=await new Promise((resolve,reject)=>{
       const tx=db.transaction('files','readonly');
       const req=tx.objectStore('files').index('pazienteId').getAll(pazId);
-      req.onsuccess=()=>resolve(req.result||[]);
+      // I consensi cartacei caricati dalla scheda "Consensi Firmati" vivono nello
+      // stesso store (stesso meccanismo, stesso IndexedDB) ma non vanno duplicati
+      // qui in Referti Esterni: hanno categoria:'consenso'.
+      req.onsuccess=()=>resolve((req.result||[]).filter(it=>it.categoria!=='consenso'));
       req.onerror=()=>reject(req.error);
     });
     if(!items.length){
@@ -8298,6 +8332,72 @@ async function eliminaAllegato(id,pazId){
     renderAllegatiPaziente(pazId);
   }catch(e){
     console.warn('Eliminazione allegato:',e);
+  }
+}
+// Consenso firmato su carta (non su schermo): un PDF scansionato/fotografato,
+// caricato dalla scheda "Consensi Firmati" della cartella paziente. Stesso
+// store IndexedDB degli allegati di Referti Esterni (categoria:'consenso' li
+// tiene distinti), così restano anch'essi solo su questo dispositivo.
+async function caricaConsensoCartaceo(){
+  const fileInput=document.getElementById('cc-file');
+  const file=fileInput.files[0];
+  if(!file){ if(typeof gsToast==='function') gsToast('Scegli prima un file PDF','gs-error'); return; }
+  if(file.type && !file.type.includes('pdf')){ if(typeof gsToast==='function') gsToast('Il file deve essere un PDF','gs-error'); return; }
+  if(file.size>15*1024*1024){ if(typeof gsToast==='function') gsToast('⚠️ File troppo grande (limite 15 MB)','gs-error'); return; }
+  if(!curPaz){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
+  const titolo=document.getElementById('cc-titolo').value.trim() || 'Consenso informato';
+  const dataFirma=document.getElementById('cc-data').value || new Date().toISOString().split('T')[0];
+  try{
+    const db=await apriDbAllegati();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      tx.objectStore('files').add({
+        pazienteId:curPaz,
+        nomeFile:file.name,
+        tipo:file.type||'application/pdf',
+        dimensione:file.size,
+        descrizione:titolo,
+        categoria:'consenso',
+        dataFirma,
+        dataCaricamento:new Date().toISOString(),
+        blob:file
+      });
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    document.getElementById('cc-titolo').value='';
+    document.getElementById('cc-data').value='';
+    fileInput.value='';
+    if(typeof gsToast==='function') gsToast('✅ Consenso caricato (solo su questo dispositivo)','gs-success');
+    renderConsensiFirmati();
+  }catch(e){
+    console.warn('Caricamento consenso cartaceo:',e);
+    if(typeof gsToast==='function') gsToast('⚠️ Errore nel caricamento del PDF','gs-error');
+  }
+}
+async function leggiConsensiCartacei(pazId){
+  try{
+    const db=await apriDbAllegati();
+    const items=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readonly');
+      const req=tx.objectStore('files').index('pazienteId').getAll(pazId);
+      req.onsuccess=()=>resolve((req.result||[]).filter(it=>it.categoria==='consenso'));
+      req.onerror=()=>reject(req.error);
+    });
+    return items;
+  }catch(e){ console.warn('Lettura consensi cartacei:',e); return []; }
+}
+async function eliminaConsensoCartaceo(id){
+  if(!confirm('Eliminare questo consenso caricato? L\'operazione non è reversibile.'))return;
+  try{
+    const db=await apriDbAllegati();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      tx.objectStore('files').delete(id);
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    renderConsensiFirmati();
+  }catch(e){
+    console.warn('Eliminazione consenso cartaceo:',e);
   }
 }
 async function eliminaAllegatiPaziente(pazId){
@@ -9845,7 +9945,7 @@ const CONSENSI_DEFAULT = [
 
   { titolo:'Ecografia ostetrica III trimestre', pdfUfficiale:'consensi-pdf/eco-iii-trimestre.pdf', testo:"CONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato — anche tramite il documento informativo ufficiale SIEOG allegato — su finalità e limiti dell'ecografia di screening del III trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Inserimento IUD', testo:"La spirale (Intra Uterine Device/IUD o Intra Uterine System/IUS) è un dispositivo a T inserito dal medico nella cavità uterina a scopo contraccettivo o terapeutico.\n\nCOME SI INSERISCE: l'inserimento avviene in ambulatorio, preferibilmente durante il ciclo mestruale. È necessaria una visita di controllo con ecografia dopo 3-6 settimane per verificare il corretto posizionamento.\n\nFUNZIONAMENTO: esistono due categorie di spirale. Quella in rame (IUD-Cu) agisce tramite una reazione locale da corpo estraneo che impedisce l'instaurarsi della gravidanza. Quella a rilascio ormonale (IUS-LNG, con levonorgestrel a 20 o 6 µg/die) agisce anche sul muco cervicale, sull'endometrio e sulla capacità fecondante degli spermatozoi, risultando più efficace e più protettiva verso la malattia infiammatoria pelvica.\n\nEFFICACIA: il tasso di fallimento nel primo anno è dello 0,8% per lo IUD al rame e dello 0,2% per lo IUS al levonorgestrel. In caso di gravidanza nonostante il dispositivo, il rischio di aborto è circa triplo rispetto alla media, con un lieve aumento del rischio di parto pretermine, ma nessun aumento del rischio di malformazioni fetali. La spirale non protegge dalle infezioni sessualmente trasmissibili.\n\nCONTROINDICAZIONI: non ve ne sono per l'uso in donne nullipare o adolescenti. È controindicato in caso di gravidanza, infezioni in atto, tumori dell'utero, fibromi, morbo di Wilson; per la sola IUS-LNG anche in caso di LES, anticorpi antifosfolipidi, tromboembolismo venoso, embolia polmonare o tumore maligno ormono-dipendente.\n\nREVERSIBILITÀ: il ritorno alla fertilità dopo la rimozione è immediato; l'80-95% delle donne concepisce entro 12 mesi. La rimozione può avvenire in qualsiasi momento del ciclo (non necessariamente durante le mestruazioni), tenendo presente il rischio di gravidanza per rapporti avuti nei 7 giorni precedenti o successivi alla rimozione. Al momento della rimozione è possibile inserire un nuovo dispositivo.\n\nCOMPLICANZE possibili: malattia infiammatoria pelvica (rara, circa 1,6 casi su 1000 donne/anno, più frequente nelle prime 3 settimane, ridotta con la spirale medicata, aumentata con più partner sessuali); perforazione uterina all'inserimento (circa 1 caso su 1000); reazione vagale transitoria durante l'inserimento (per cui è consigliabile farsi accompagnare); gravidanza extrauterina (rischio complessivamente ridotto rispetto alla popolazione generale, ma proporzionalmente più probabile se il metodo fallisce); cambiamenti del ciclo mestruale (flusso più abbondante/prolungato con lo IUD al rame; flusso scarso o assente dopo 6-12 mesi con lo IUS al levonorgestrel; spotting irregolare nei primi 3-6 mesi mentre l'endometrio si adatta); espulsione o dislocazione (più frequente nel primo anno, 3-5%, con rischio lievemente aumentato se inserita contestualmente a revisione della cavità uterina; il filo di repere risalito in cavità può richiedere rimozione isteroscopica); attenzione alla termoterapia in regione sacrale/addominale con IUD al rame (nessun rischio di dislocazione con la risonanza magnetica, poiché i materiali utilizzati non sono magnetizzabili).\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata dalla dott.ssa Cristina Guidi, dopo un colloquio che ha illustrato anche i vari metodi contraccettivi alternativi (ormonale, meccanico, chirurgico), e dopo valutazione anamnestico-clinica, e richiedo l'inserimento del dispositivo intrauterino.\n\nRif.: Linee guida italiane sull'efficacia e l'uso appropriato della contraccezione intrauterina — Arisi, Bruni, Di Spiezio Sardo, Dubini, Gubbini, Parazzini, SIGO 2014.\n\nSe la richiedente è minorenne, i genitori firmano per consenso alla presenza del medico (documento d'identità e firma di entrambi i genitori)." },
+  { titolo:'Inserimento IUD', testo:"La spirale (Intra Uterine Device/IUD o Intra Uterine System/IUS) è un dispositivo a T inserito dal medico nella cavità uterina a scopo contraccettivo o terapeutico.\n\nCOME SI INSERISCE: l'inserimento avviene in ambulatorio, preferibilmente durante il ciclo mestruale. È necessaria una visita di controllo con ecografia dopo 3-6 settimane per verificare il corretto posizionamento.\n\nFUNZIONAMENTO: esistono due categorie di spirale. Quella in rame (IUD-Cu) agisce tramite una reazione locale da corpo estraneo che impedisce l'instaurarsi della gravidanza. Quella a rilascio ormonale (IUS-LNG, con levonorgestrel a 20 o 6 µg/die) agisce anche sul muco cervicale, sull'endometrio e sulla capacità fecondante degli spermatozoi, risultando più efficace e più protettiva verso la malattia infiammatoria pelvica.\n\nEFFICACIA: il tasso di fallimento nel primo anno è dello 0,8% per lo IUD al rame e dello 0,2% per lo IUS al levonorgestrel. In caso di gravidanza nonostante il dispositivo, il rischio di aborto è circa triplo rispetto alla media, con un lieve aumento del rischio di parto pretermine, ma nessun aumento del rischio di malformazioni fetali. La spirale non protegge dalle infezioni sessualmente trasmissibili.\n\nCONTROINDICAZIONI: non ve ne sono per l'uso in donne nullipare o adolescenti. È controindicato in caso di gravidanza, infezioni in atto, tumori dell'utero, fibromi, morbo di Wilson; per la sola IUS-LNG anche in caso di LES, anticorpi antifosfolipidi, tromboembolismo venoso, embolia polmonare o tumore maligno ormono-dipendente.\n\nREVERSIBILITÀ: il ritorno alla fertilità dopo la rimozione è immediato; l'80-95% delle donne concepisce entro 12 mesi. La rimozione può avvenire in qualsiasi momento del ciclo (non necessariamente durante le mestruazioni), tenendo presente il rischio di gravidanza per rapporti avuti nei 7 giorni precedenti o successivi alla rimozione. Al momento della rimozione è possibile inserire un nuovo dispositivo.\n\nCOMPLICANZE possibili: malattia infiammatoria pelvica (rara, circa 1,6 casi su 1000 donne/anno, più frequente nelle prime 3 settimane, ridotta con la spirale medicata, aumentata con più partner sessuali); perforazione uterina all'inserimento (circa 1 caso su 1000); reazione vagale transitoria durante l'inserimento (per cui è consigliabile farsi accompagnare); gravidanza extrauterina (rischio complessivamente ridotto rispetto alla popolazione generale, ma proporzionalmente più probabile se il metodo fallisce); cambiamenti del ciclo mestruale (flusso più abbondante/prolungato con lo IUD al rame; flusso scarso o assente dopo 6-12 mesi con lo IUS al levonorgestrel; spotting irregolare nei primi 3-6 mesi mentre l'endometrio si adatta); espulsione o dislocazione (più frequente nel primo anno, 3-5%, con rischio lievemente aumentato se inserita contestualmente a revisione della cavità uterina; il filo di repere risalito in cavità può richiedere rimozione isteroscopica); attenzione alla termoterapia in regione sacrale/addominale con IUD al rame (nessun rischio di dislocazione con la risonanza magnetica, poiché i materiali utilizzati non sono magnetizzabili).\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata dalla dott.ssa Cristina Guidi, dopo un colloquio che ha illustrato anche i vari metodi contraccettivi alternativi (ormonale, meccanico, chirurgico), e dopo valutazione anamnestico-clinica, e richiedo l'inserimento del dispositivo intrauterino.\n\nRif.: Linee guida italiane sull'efficacia e l'uso appropriato della contraccezione intrauterina — Arisi, Bruni, Di Spiezio Sardo, Dubini, Gubbini, Parazzini, SIGO 2014." },
 
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritta {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. Ho diritto di accedere, rettificare e cancellare i propri dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
@@ -9864,7 +9964,7 @@ function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefi
 // tutti i moduli) non si vede finché non si cancella il salvataggio vecchio.
 // Un numero di versione forza UNA volta sola il reset alla nuova lista,
 // dopodiché le modifiche fatte dall'operatore tornano a essere rispettate.
-const _CONSENSI_LIB_VERSION = 'sieog8-testibrevi-2026-09-15d';
+const _CONSENSI_LIB_VERSION = 'minorenne-dinamico-2026-09-16';
 function getConsensi(){
   try{
     const verKey=_consensiKey()+'_ver';
@@ -9974,11 +10074,12 @@ function eliminaConsenso(i){
 
 // Genera la pagina stampabile/modificabile di un consenso. Se firmaDataUrl è
 // passata, la firma viene incorporata al posto della riga da firmare a mano.
-function apriConsensoStampa(i, firmaDataUrl, nomeOverride){
+function apriConsensoStampa(i, firmaDataUrl, nomeOverride, isMinore){
   const s=getConsensi()[i]; if(!s) return;
   const c=getPrintCfg(); const l=c.layout;
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const nome=nomeOverride || (p?`${p.cognome} ${p.nome}`:'________________________');
+  const nomeAssistita=p?`${p.cognome} ${p.nome}`:nome;
   const nascita=p&&p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'____________';
   const oggi=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   const w=apriFinestraStampa(); if(!w) return;
@@ -9998,7 +10099,7 @@ function apriConsensoStampa(i, firmaDataUrl, nomeOverride){
     h2{font-size:1.05rem;text-align:center;letter-spacing:.5px;margin:8px 0 20px}
     .ic-meta{font-size:.9rem;margin-bottom:20px}
     .ic-meta div{margin-bottom:3px}
-    .ic-body{font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:34px;outline:none}
+    .ic-body{white-space:pre-wrap;font-size:.98em;border:1px solid #ddd;border-radius:8px;padding:16px 18px;margin-bottom:34px;outline:none}
     .ic-body:focus{background:#fffdf5}
     .firme{display:flex;justify-content:space-between;margin-top:60px;font-size:.85rem;color:#555}
     .firme .l{border-top:1px solid #1a1a1a;width:230px;padding-top:6px;text-align:center}
@@ -10014,10 +10115,10 @@ function apriConsensoStampa(i, firmaDataUrl, nomeOverride){
     <div class="ic-header">${printHeaderHtml()}</div>
     <h2>${_escHtml(s.titolo.toUpperCase())}</h2>
     <div class="ic-meta">
-      <div><strong>Persona assistita:</strong> ${nome} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
+      <div><strong>Paziente:</strong> ${_escHtml(nomeAssistita)} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
       <div><strong>Data:</strong> ${oggi}</div>
     </div>
-    <div class="ic-body" contenteditable="true" spellcheck="false">${_escHtml(_risolviTestoConsenso(s.testo, nome))}</div>
+    <div class="ic-body" contenteditable="true" spellcheck="false">${_escHtml(_risolviTestoConsenso(s.testo, nome, isMinore))}</div>
     <div class="firme">
       <div class="l">${firmaAssistitaHtml}</div>
       <div class="l">${_escHtml(c.firma)||'Firma del medico'}</div>
@@ -10036,6 +10137,7 @@ function _apriPromptNomeConsenso(i, modoFirma){
   const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
   const nomeEl=document.getElementById('cn-nome'); if(nomeEl) nomeEl.value = p?`${p.nome} ${p.cognome}`:'';
   const dataEl=document.getElementById('cn-data'); if(dataEl) dataEl.value = new Date().toISOString().split('T')[0];
+  _firmatarioTutoreMap['cn-nome']=false;
   document.getElementById('modal-consenso-nome').classList.add('show');
 }
 function _cnContinua(){
@@ -10043,23 +10145,24 @@ function _cnContinua(){
   if(!nome){ if(typeof gsToast==='function') gsToast('Inserisci il nome di chi firma','gs-error'); return; }
   closeModal('modal-consenso-nome');
   const i=_cnIndiceCorrente;
-  if(_cnModoFirma) apriConsensoConFirma(i, null, nome);
-  else apriConsensoStampa(i, null, nome);
+  const isMinore=!!_firmatarioTutoreMap['cn-nome'];
+  if(_cnModoFirma) apriConsensoConFirma(i, null, nome, isMinore);
+  else apriConsensoStampa(i, null, nome, isMinore);
 }
 
 // Firma su schermo: apre il pad, poi genera la stampa con la firma
 // incorporata. Se è selezionata una paziente (curPaz) ne salva anche una
 // copia nella sua cartella; altrimenti stampa/firma comunque (consenso
 // occasionale) senza archiviarlo in nessuna cartella.
-function apriConsensoConFirma(i, onDone, nomeOverride){
+function apriConsensoConFirma(i, onDone, nomeOverride, isMinore){
   const s=getConsensi()[i]; if(!s) return;
   const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
   const nome=nomeOverride || (p?p.cognome+' '+p.nome:'');
   apriFirmaElettronica(`${s.titolo} — ${nome}`, (firmaDataUrl)=>{
-    apriConsensoStampa(i, firmaDataUrl, nome);
+    apriConsensoStampa(i, firmaDataUrl, nome, isMinore);
     if(p){
       if(!p.consensiFirmati) p.consensiFirmati=[];
-      p.consensiFirmati.push({ titolo:s.titolo, testo:s.testo, nome, firma:firmaDataUrl, data:new Date().toISOString() });
+      p.consensiFirmati.push({ titolo:s.titolo, testo:s.testo, nome, firma:firmaDataUrl, data:new Date().toISOString(), tutore:!!isMinore });
       salvaDB();
       renderConsensiFirmati();
       if(typeof gsToast==='function') gsToast('✅ Consenso firmato e salvato nella cartella','gs-success');
@@ -10111,6 +10214,7 @@ function _apriModalConsensoVisita(tipo, preseleziona){
   const nomeEl=document.getElementById('cv-nome'), dataEl=document.getElementById('cv-data');
   if(nomeEl) nomeEl.value = p ? `${p.nome} ${p.cognome}` : '';
   if(dataEl) dataEl.value = new Date().toISOString().split('T')[0];
+  _firmatarioTutoreMap['cv-nome']=false;
 
   const prefix=_consensoVisitaPrefix(tipo);
   const hidden=document.getElementById(prefix+'-consenso-visita');
@@ -10126,6 +10230,7 @@ function _apriModalConsensoVisita(tipo, preseleziona){
     btnRistampa.style.display='inline-flex';
     if(nomeEl) nomeEl.value = salvato.nome;
     if(dataEl) dataEl.value = (salvato.data||'').split('T')[0];
+    _firmatarioTutoreMap['cv-nome']=!!salvato.tutore;
   } else {
     statoBox.style.display='none';
     btnRistampa.style.display='none';
@@ -10142,6 +10247,7 @@ function _apriModalConsensoVisita(tipo, preseleziona){
 function _renderConsensoVisitaLista(tipo){
   tipo = tipo || _consensoVisitaTipoCorrente;
   const nomeAttuale = document.getElementById('cv-nome')?.value || '';
+  const isMinore = !!_firmatarioTutoreMap['cv-nome'];
   const rilevanti = new Set(CONSENSO_TIPI_VISITA[tipo]||[]);
   const consensi = getConsensi().map((c,i)=>({...c,_i:i,_match:rilevanti.has(c.titolo)}));
   consensi.sort((a,b)=>(b._match-a._match));
@@ -10150,7 +10256,7 @@ function _renderConsensoVisitaLista(tipo){
   lista.innerHTML = consensi.map(c=>{
     const sel=_consensoVisitaSelezionati.has(c.titolo);
     const titoloJs=JSON.stringify(c.titolo).replace(/"/g,'&quot;');
-    const testoRisolto=_risolviTestoConsenso(c.testo, nomeAttuale);
+    const testoRisolto=_risolviTestoConsenso(c.testo, nomeAttuale, isMinore);
     return `<label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border-radius:10px;border:1px solid ${sel?'var(--primary)':'var(--separator)'};background:${sel?'var(--primary-dim)':'var(--surface2)'};">
       <input type="checkbox" ${sel?'checked':''} onchange="pazToggleConsensoSelezionato(${titoloJs},this.checked)" style="margin-top:2px;width:18px;height:18px;flex-shrink:0;">
       <span style="flex:1;">
@@ -10169,8 +10275,14 @@ function pazToggleConsensoSelezionato(titolo, checked){
 // genitore/tutore legale (svuota il campo, pronto per scriverne il nome) —
 // usata sia nel picker della visita (cv-nome) sia nel prompt della libreria
 // Consensi (cn-nome).
+// Traccia, per ciascun input "chi firma" (cv-nome nel picker di visita,
+// cn-nome nella libreria Consensi), se il firmatario è un genitore/tutore:
+// in tal caso il testo stampato/archiviato include in fondo la clausola per
+// richiedente minorenne (CONSENSO_MINORE_FOOTER).
+let _firmatarioTutoreMap={};
 function _impostaFirmatario(inputId, modo){
   const el=document.getElementById(inputId); if(!el) return;
+  _firmatarioTutoreMap[inputId] = (modo==='tutore');
   if(modo==='paziente'){
     const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
     el.value = p?`${p.nome} ${p.cognome}`:'';
@@ -10198,7 +10310,7 @@ function pazFirmaCombinataEProsegui(){
   closeModal('modal-consenso-visita');
   const titoloFirma = scelti.length===1 ? scelti[0].titolo : `${scelti.length} consensi informati`;
   apriFirmaElettronica(`${titoloFirma} — ${nome}`, (firmaDataUrl)=>{
-    const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:firmaDataUrl };
+    const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:firmaDataUrl, tutore:!!_firmatarioTutoreMap['cv-nome'] };
     const hidden=document.getElementById(prefix+'-consenso-visita');
     if(hidden) hidden.value=JSON.stringify(record);
     _stampaConsensoVisitaCombinato(record);
@@ -10221,7 +10333,7 @@ function pazStampaSenzaFirma(){
   const scelti=getConsensi().filter(c=>_consensoVisitaSelezionati.has(c.titolo));
   if(!scelti.length) return;
   closeModal('modal-consenso-visita');
-  const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:'' };
+  const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:'', tutore:!!_firmatarioTutoreMap['cv-nome'] };
   const hidden=document.getElementById(prefix+'-consenso-visita');
   if(hidden) hidden.value=JSON.stringify(record);
   _stampaConsensoVisitaCombinato(record);
@@ -10249,8 +10361,15 @@ function pazRistampaConsensoVisita(){
 // per legge"): va sostituito con chi firma davvero prima di stampare — la
 // paziente stessa, o un genitore se l'esame è su una minorenne. Gli altri
 // moduli (senza segnaposto) restano invariati.
-function _risolviTestoConsenso(testo, nome){
-  return (testo||'').split('{{NOME}}').join(nome||'________________________');
+// Aggiunto in fondo al testo di QUALSIASI consenso quando a firmare è un
+// genitore/tutore legale (paziente minorenne) — sostituisce le clausole
+// minorenni che prima erano scritte a mano dentro un singolo modulo (es.
+// IUD): ora è universale e si applica a tutti.
+const CONSENSO_MINORE_FOOTER = "Essendo la richiedente minorenne i genitori, alla presenza del sottoscritto, firmano per consenso\nDocumento di Identità della Madre\nFirma della Madre\nDocumento di Identità del Padre\nFirma del Padre";
+function _risolviTestoConsenso(testo, nome, isMinore){
+  let out = (testo||'').split('{{NOME}}').join(nome||'________________________');
+  if(isMinore) out += '\n\n' + CONSENSO_MINORE_FOOTER;
+  return out;
 }
 function _stampaConsensoVisitaCombinato(record){
   const c=getPrintCfg(); const l=c.layout;
@@ -10265,7 +10384,7 @@ function _stampaConsensoVisitaCombinato(record){
   const corpoModuli = record.titoli.map((tit,i)=>`
     <div style="${i>0?'margin-top:30px;padding-top:20px;border-top:1px dashed #ccc;':''}">
       <h2 style="text-align:left;">${_escHtml(tit.toUpperCase())}</h2>
-      <div class="ic-body" contenteditable="true" spellcheck="false">${_escHtml(_risolviTestoConsenso(record.testi[i], record.nome))}</div>
+      <div class="ic-body" contenteditable="true" spellcheck="false">${_escHtml(_risolviTestoConsenso(record.testi[i], record.nome, record.tutore))}</div>
     </div>`).join('');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Consenso informato</title>
   <style>
@@ -10294,7 +10413,7 @@ function _stampaConsensoVisitaCombinato(record){
     </div>
     <div class="ic-header">${printHeaderHtml()}</div>
     <div class="ic-meta">
-      <div><strong>Persona che firma:</strong> ${_escHtml(record.nome)}${p?' &nbsp;·&nbsp; <strong>Paziente:</strong> '+_escHtml(p.cognome+' '+p.nome):''} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
+      <div><strong>Paziente:</strong> ${p?_escHtml(p.cognome+' '+p.nome):_escHtml(record.nome)} &nbsp;·&nbsp; <strong>Data di nascita:</strong> ${nascita}</div>
       <div><strong>Data:</strong> ${dStr}</div>
     </div>
     ${corpoModuli}
@@ -10499,7 +10618,7 @@ function stampaScoreTev(){
   w.document.close();
 }
 
-function renderConsensiFirmati(){
+async function renderConsensiFirmati(){
   const box=document.getElementById('consensi-firmati-box');
   const lista=document.getElementById('consensi-firmati-lista');
   const nomeEl=document.getElementById('consensi-firmati-nome');
@@ -10507,17 +10626,35 @@ function renderConsensiFirmati(){
   const badge=document.getElementById('pt-badge-consensi');
   if(!box||!lista) return;
   const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
-  const firmati = p?.consensiFirmati||[];
   const cfgConsensi = typeof getPazTabsCfg==='function' ? getPazTabsCfg().find(t=>t.id==='consensi') : null;
   const utenteVisibile = !cfgConsensi || cfgConsensi.visible!==false;
-  if(tab) tab.style.display=(p && firmati.length && utenteVisibile)?'flex':'none';
-  // se la scheda "Consensi Firmati" era attiva e non ha più contenuto (es. cambio paziente), sposta sulla prima scheda visibile
+  // La scheda resta sempre raggiungibile (se non nascosta dall'operatore in
+  // Impostazioni) perché ora permette anche di caricare un PDF cartaceo,
+  // utile pure quando non c'è ancora nessun consenso archiviato.
+  if(tab) tab.style.display=(p && utenteVisibile)?'flex':'none';
   if(tab && tab.style.display==='none' && tab.classList.contains('active') && typeof pazApriTabIniziale==='function') pazApriTabIniziale();
-  if(!p || !firmati.length) return;
-  if(badge) badge.textContent=firmati.length;
+  const dl=document.getElementById('dl-cc-titolo');
+  if(dl && !dl.childElementCount) dl.innerHTML=getConsensi().map(c=>`<option value="${_escHtml(c.titolo)}"></option>`).join('');
+  if(!p){ lista.innerHTML=''; if(badge) badge.textContent=''; return; }
   if(nomeEl) nomeEl.textContent = `${p.cognome} ${p.nome}`;
-  const ordinati=[...firmati].map((f,i)=>({...f,_i:i})).sort((a,b)=>new Date(b.data)-new Date(a.data));
-  lista.innerHTML = ordinati.map(f=>{
+  const firmati = (p.consensiFirmati||[]).map((f,i)=>({...f,_tipo:'digitale',_i:i}));
+  const cartacei = (await leggiConsensiCartacei(p.id)).map(f=>({...f,_tipo:'pdf'}));
+  const tutti=[...firmati, ...cartacei].sort((a,b)=>new Date(b.data||b.dataFirma)-new Date(a.data||a.dataFirma));
+  if(badge) badge.textContent=tutti.length||'';
+  if(!tutti.length){ lista.innerHTML=''; return; }
+  lista.innerHTML = tutti.map(f=>{
+    if(f._tipo==='pdf'){
+      const dStr=new Date(f.dataFirma).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+      return `<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--separator);border-radius:10px;padding:10px 14px;margin-bottom:8px;">
+        <span style="font-size:1.4rem;flex-shrink:0;">📄</span>
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:.86rem;">${_escHtml(f.descrizione)} <span class="badge badge-gray" style="font-size:.6rem;vertical-align:middle;">PDF caricato</span></div>
+          <div style="font-size:.74rem;color:var(--label4);">Firmato il ${dStr}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="apriAllegato(${f.id})" title="Apri PDF">👁️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminaConsensoCartaceo(${f.id})" title="Elimina">🗑️</button>
+      </div>`;
+    }
     const dStr=new Date(f.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     return `<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--separator);border-radius:10px;padding:10px 14px;margin-bottom:8px;">
       <img src="${f.firma}" style="height:32px;background:#fff;border-radius:4px;flex-shrink:0;">
@@ -10553,8 +10690,8 @@ function _riapriConsensoFirmato(idx){
   </style></head><body>
     <div class="ic-header">${printHeaderHtml()}</div>
     <h2>${_escHtml(f.titolo.toUpperCase())} <span style="font-size:.7rem;color:#999;">(copia del consenso firmato)</span></h2>
-    <div class="ic-meta"><div><strong>Persona assistita:</strong> ${nome} · <strong>Data di nascita:</strong> ${nascita}</div><div><strong>Firmato il:</strong> ${dStr}</div></div>
-    <div class="ic-body">${_escHtml(_risolviTestoConsenso(f.testo, nome))}</div>
+    <div class="ic-meta"><div><strong>Paziente:</strong> ${_escHtml(p.cognome+' '+p.nome)} · <strong>Data di nascita:</strong> ${nascita}</div><div><strong>Firmato il:</strong> ${dStr}</div></div>
+    <div class="ic-body">${_escHtml(_risolviTestoConsenso(f.testo, nome, f.tutore))}</div>
     <div class="firme">
       <div class="l"><img src="${f.firma}" style="max-height:56px;display:block;margin:0 auto 4px;">Firma della persona assistita</div>
       <div class="l">${_escHtml(c.firma)||'Firma del medico'}</div>
