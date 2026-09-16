@@ -533,9 +533,18 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 /* ─── PRINT ─── */
 @media print {
   @page{margin:15mm;size:A4;}
+  /* Bug corretto: il <body> dell'app è display:flex;height:100vh;overflow:hidden
+     per il layout a schermo (sidebar + contenuto affiancati). Senza questa
+     regola quella disposizione flex resta attiva anche in stampa: #print-area
+     diventa un "flex item" che si restringe al contenuto invece di occupare
+     tutta la larghezza del foglio (da cui referti stampati non centrati,
+     addossati a sinistra), e l'altezza fissa a 100vh con overflow:hidden può
+     tagliare i referti più lunghi di una schermata. Per la stampa il body
+     deve tornare un blocco normale, a altezza libera. */
+  body{display:block!important;height:auto!important;overflow:visible!important;}
   body *{visibility:hidden;}
   #print-area,#print-area *{visibility:visible;}
-  #print-area{display:block!important;position:absolute;left:0;top:0;width:100%;font-family:'Times New Roman',serif;color:black;background:white;padding:0;}
+  #print-area{display:block!important;width:auto;font-family:'Times New Roman',serif;color:black;background:white;padding:0;}
   .no-print{display:none!important;}
   aside,main,.mob-bar,.overlay,.sid-backdrop,#login-overlay,.editor-min-bar,#ai-robot,#ai-chat{display:none!important;}
 }
@@ -9748,7 +9757,7 @@ function stampaRicettaConTesto(paziente,dataStr,testo){
     .rx-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
     .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     .rx-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0;padding:0}.rx-toolbar{display:none}}
+    @media print{body{margin:0 auto;padding:0}.rx-toolbar{display:none}}
   </style></head><body>
     <div class="rx-toolbar no-print">
       ✏️ Puoi modificare il testo qui sotto prima di stampare.
@@ -10106,7 +10115,7 @@ function apriConsensoStampa(i, firmaDataUrl, nomeOverride, isMinore){
     .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
     .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
+    @media print{body{margin:0 auto;padding:0}.ic-toolbar{display:none}}
   </style></head><body>
     <div class="ic-toolbar no-print">✏️ Puoi modificare il testo prima di stampare.
       <button onclick="window.print()">🖨️ Stampa</button>
@@ -10405,7 +10414,7 @@ function _stampaConsensoVisitaCombinato(record){
     .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
     .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
+    @media print{body{margin:0 auto;padding:0}.ic-toolbar{display:none}}
   </style></head><body>
     <div class="ic-toolbar no-print">✏️ Puoi modificare il testo prima di stampare.
       <button onclick="window.print()">🖨️ Stampa</button>
@@ -10591,7 +10600,7 @@ function stampaScoreTev(){
     .ic-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
     .ic-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     .ic-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0;padding:0}.ic-toolbar{display:none}}
+    @media print{body{margin:0 auto;padding:0}.ic-toolbar{display:none}}
   </style></head><body>
     <div class="ic-toolbar no-print">✏️ Puoi modificare prima di stampare.
       <button onclick="window.print()">🖨️ Stampa</button>
@@ -10906,6 +10915,14 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   area.style.zIndex='-1';
   area.style.pointerEvents='none';
   area.style.background='#fff';
+  // Bug corretto: #print-area non ha una larghezza propria (solo padding),
+  // quindi da position:absolute senza width esplicita si restringe al
+  // contenuto ("shrink-to-fit") invece di avere una proporzione A4 prevedibile.
+  // html2canvas catturava quindi una larghezza arbitraria/diversa a ogni
+  // referto (a seconda del contenuto più largo), e html2pdf la riscalava
+  // sulla pagina risultando fuori centro o storta. Una larghezza fissa dà
+  // sempre la stessa proporzione, quindi lo stesso posizionamento centrato.
+  area.style.width='800px';
   // Bug corretto: in modalità scura il colore del testo veniva ereditato da
   // body (var(--label), quasi bianco) sopra questo sfondo bianco esplicito
   // → testo praticamente invisibile, quindi un PDF che sembrava una pagina
@@ -10918,7 +10935,7 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   const ripristina=()=>{
     area.style.display='none';
     area.style.position=''; area.style.left=''; area.style.top=''; area.style.zIndex=''; area.style.pointerEvents=''; area.style.background=''; area.style.color='';
-    area.style.fontFamily=''; area.style.fontSize='';
+    area.style.fontFamily=''; area.style.fontSize=''; area.style.width='';
     if(phEl) phEl.style.borderBottomColor='';
     if(h1El) h1El.style.color='';
     if(logoEl) logoEl.style.background='';
@@ -11432,7 +11449,7 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     .riep-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:var(--print-acc);color:#fff;cursor:pointer}
     .riep-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
     .riep-toolbar .stato{margin-left:auto;font-size:.76rem;opacity:.8}
-    @media print{body{margin:0;padding:0}.riep-toolbar{display:none}.pdf-banner{display:none}.grid{grid-template-columns:1fr 1fr}}
+    @media print{body{margin:0 auto;padding:0}.riep-toolbar{display:none}.pdf-banner{display:none}.grid{grid-template-columns:1fr 1fr}}
   </style></head><body>
     <div class="riep-toolbar no-print">
       <button onclick="window.print()">Stampa</button>
