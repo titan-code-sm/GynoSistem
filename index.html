@@ -1617,6 +1617,26 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div><div class="page-title">Email</div><div class="page-subtitle">Scrivi e invia email alle pazienti, singolarmente o in gruppo</div></div>
   </div>
 
+  <details class="card" style="margin-bottom:20px;">
+    <summary style="cursor:pointer;font-weight:700;font-size:.92rem;color:var(--label);list-style:none;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:1.1rem;">📖</span> Come collegare la tua email (da fare una sola volta)
+    </summary>
+    <div style="margin-top:14px;font-size:.85rem;line-height:1.7;color:var(--label3);">
+      <p style="margin-bottom:10px;">L'invio vero e proprio parte da un tuo account Gmail collegato all'app. Serve un piccolo setup, una volta sola, fatto dal computer (non da qui):</p>
+      <ol style="margin:0 0 10px 20px;padding:0;">
+        <li><strong>Crea una "Password per le app" Google</strong> — vai su <em>myaccount.google.com → Sicurezza → Verifica in due passaggi</em> (attivala se non è già attiva) <em>→ Password per le app</em>, crea una nuova password (16 caratteri). Non è la tua password normale: usala solo qui.</li>
+        <li><strong>Apri un terminale</strong> nella cartella del progetto e lancia, una alla volta:
+          <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;margin:6px 0;font-family:monospace;font-size:.78rem;white-space:pre-wrap;">firebase functions:secrets:set EMAIL_USER
+firebase functions:secrets:set EMAIL_PASS
+firebase deploy --only functions:inviaEmail,firestore:rules</div>
+          Per <code>EMAIL_USER</code> inserisci il tuo indirizzo Gmail; per <code>EMAIL_PASS</code> incolla la password per le app generata al punto 1 (16 caratteri, mai la password vera).
+        </li>
+        <li>Fatto! Da quel momento "Invia Email" funziona davvero, e le email arriveranno a nome del tuo indirizzo.</li>
+      </ol>
+      <p style="color:var(--label4);font-size:.78rem;">Finché non completi questi passaggi, questa pagina resta comunque utilizzabile per scrivere/organizzare le email, ma "Invia" darà un errore leggibile invece di partire davvero.</p>
+    </div>
+  </details>
+
   <div class="tipo-pills" id="email-tab-toggle" style="margin-bottom:20px;">
     <button type="button" class="tipo-pill active" data-etab="nuova" onclick="_emailSwitchTab('nuova')">✏️ Nuova Email</button>
     <button type="button" class="tipo-pill" data-etab="modelli" onclick="_emailSwitchTab('modelli')">🧰 Modelli</button>
@@ -10516,6 +10536,15 @@ const EMAIL_MODELLI=[
   { titolo:'Richiamo screening (Pap-test/HPV/Mammografia)', icona:'🔬',
     oggetto:'Promemoria controllo periodico — Studio Dr.ssa Cristina Guidi',
     corpo:"Gentile {{NOME}},\n\nDai nostri controlli risulta che è consigliabile programmare il Suo prossimo screening periodico (Pap-test/HPV o mammografia).\n\nLa invitiamo a contattare lo studio per fissare un appuntamento quando Le è comodo.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+  { titolo:'Referto pronto', icona:'📄',
+    oggetto:'Il Suo referto è disponibile — Studio Dr.ssa Cristina Guidi',
+    corpo:"Gentile {{NOME}},\n\nLa informiamo che il referto del Suo recente esame/visita è pronto.\n\nPuò ritirarlo in studio oppure concordare con noi le modalità di consegna preferite.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+  { titolo:'Richiamo controllo post-intervento', icona:'🩹',
+    oggetto:'Promemoria controllo post-intervento — Studio Dr.ssa Cristina Guidi',
+    corpo:"Gentile {{NOME}},\n\nCome da indicazioni, Le ricordiamo di programmare il controllo post-intervento presso il nostro studio.\n\nLa invitiamo a contattarci per fissare l'appuntamento più adatto.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+  { titolo:'Benvenuto nuova paziente', icona:'🌸',
+    oggetto:'Benvenuta nello Studio Dr.ssa Cristina Guidi',
+    corpo:"Gentile {{NOME}},\n\nLe diamo il benvenuto presso il nostro studio. Siamo a disposizione per qualsiasi informazione riguardo ai nostri servizi e agli orari di ricevimento.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
   { titolo:'Comunicazione generale dello studio', icona:'📢',
     oggetto:'Comunicazione dallo Studio Dr.ssa Cristina Guidi',
     corpo:"Gentile {{NOME}},\n\n[scrivi qui la comunicazione]\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" }
