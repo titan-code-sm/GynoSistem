@@ -11123,18 +11123,61 @@ function buildRefertoBody(v){
   return body;
 }
 
+// Bug corretto: la stampa nativa usava un'area nascosta (#print-area) dentro
+// la pagina principale della SPA, resa visibile solo con CSS @media print.
+// Su carta risultava non centrata/tagliata in modo incoerente \u2014 con ogni
+// probabilit\u00e0 un'interazione nota e poco affidabile tra @page (i margini di
+// stampa) e il layout della pagina principale, non riproducibile in modo
+// affidabile per correggerla "sul posto". Riscritta con lo STESSO pattern
+// gi\u00e0 usato (e mai segnalato come difettoso) da ricetta/consensi/riepilogo:
+// un documento HTML nuovo e isolato in una finestra separata, senza nessun
+// legame con il CSS/layout dell'app principale \u2014 @page/margini di stampa
+// si applicano quindi in modo semplice e prevedibile.
 function stampa(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   const v=p.visite.find(x=>x.id===vid);
-  // Applica intestazione + impaginazione personalizzate (per operatore)
-  applyPrintCfgReferto();
-  document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
-  document.getElementById('p-data-print').textContent=new Date(v.data).toLocaleDateString('it-IT');
-  document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'\u2013';
-  document.getElementById('p-cf-print').textContent=p.cf||'\u2013';
-  document.getElementById('p-body-print').innerHTML=buildRefertoBody(v);
-  window.print();
+  const c=getPrintCfg(); const l=c.layout;
+  const nomeStr=`${p.cognome} ${p.nome}`;
+  const dataStr=new Date(v.data).toLocaleDateString('it-IT');
+  const nascitaStr=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'\u2013';
+  const cfStr=p.cf||'\u2013';
+  const w=apriFinestraStampa(); if(!w) return;
   registraLog('stampa','Referto stampato');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Referto \u2014 ${_escHtml(nomeStr)}</title>
+  <style>
+    ${printStyleComune()}
+    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
+    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px double #1c1c1e;padding-bottom:20px;margin-bottom:28px}
+    .ic-header img{max-height:60px}
+    .ic-header h1{font-family:Georgia,serif;font-size:1.3rem;margin:0;color:${l.colore}}
+    .ic-header .sp{font-size:.85rem;color:#555;margin-top:2px}
+    .ic-header .ct{font-size:.8rem;color:#777;margin-top:3px}
+    .pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#f8f8f8;border-radius:8px;padding:16px;margin-bottom:24px}
+    .pb-label{font-size:.72rem;text-transform:uppercase;color:#777;letter-spacing:.5px;font-weight:700}
+    .pb-val{font-size:.98rem;font-weight:600;color:#1c1c1e;margin-top:2px}
+    .pb-body{font-size:.98rem}
+    .pb-body h2{font-family:Georgia,serif;font-size:1.15rem;margin-bottom:16px}
+    .pb-body p{margin-bottom:8px}
+    .rx-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
+    .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
+    .rx-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+    @media print{body{margin:0 auto;padding:0}.rx-toolbar{display:none}}
+  </style></head><body>
+    <div class="rx-toolbar no-print">\ud83d\udda8\ufe0f Anteprima di stampa.
+      <button onclick="window.print()">\ud83d\udda8\ufe0f Stampa</button>
+      <button class="sec" onclick="window.close()">Chiudi</button>
+    </div>
+    <div class="ic-header">${printHeaderHtml()}</div>
+    <div class="pb-grid">
+      <div><div class="pb-label">Paziente</div><div class="pb-val">${_escHtml(nomeStr)}</div></div>
+      <div style="text-align:right"><div class="pb-label">Data Visita</div><div class="pb-val">${_escHtml(dataStr)}</div></div>
+      <div><div class="pb-label">Data di Nascita</div><div class="pb-val">${_escHtml(nascitaStr)}</div></div>
+      <div style="text-align:right"><div class="pb-label">Codice Fiscale</div><div class="pb-val">${_escHtml(cfStr)}</div></div>
+    </div>
+    <div class="pb-body">${buildRefertoBody(v)}</div>
+    ${printFooterHtml()}
+  </body></html>`);
+  w.document.close();
 }
 
 // Genera un vero file .pdf del referto e lo scarica direttamente, senza
