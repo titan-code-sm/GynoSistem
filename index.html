@@ -11181,11 +11181,12 @@ function stampa(vid){
 }
 
 // Genera un vero file .pdf del referto e lo scarica direttamente, senza
-// passare dalla finestra di stampa del browser. Riusa lo stesso "print-area"
-// di stampa(), così i due output restano sempre identici tra loro.
-// Popola #print-area con l'intestazione/dati paziente e il corpo passato,
-// poi lo cattura con html2pdf e scarica il file. Condivisa da scaricaPDFReferto
-// (una visita) ed esportaCartellaPDF (tutte le visite di una paziente).
+// passare dalla finestra di stampa del browser. Popola l'area nascosta
+// #print-area (usata SOLO da questa funzione — stampa() usa invece una
+// finestra separata, vedi sopra) con intestazione/dati paziente e il corpo
+// passato, poi la cattura con html2canvas/html2pdf e scarica il file.
+// Condivisa da scaricaPDFReferto (una visita) ed esportaCartellaPDF (tutte
+// le visite di una paziente).
 function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   if(typeof html2pdf==='undefined'){ if(typeof gsToast==='function') gsToast('⚠️ Libreria PDF non disponibile: verifica la connessione internet e riprova','gs-error'); return; }
 
@@ -11258,11 +11259,20 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
     // (può restituire un'altezza di 0px): le passiamo esplicitamente, misurate
     // ORA che il layout è stabile.
     const larghezza=area.scrollWidth, altezza=area.scrollHeight;
+    // Bug corretto: html2canvas cattura di default a partire dallo scroll
+    // ATTUALE della pagina (window.scrollX/scrollY), non dalle coordinate
+    // dell'elemento nel documento. #print-area è però position:absolute a
+    // left:0/top:0 nel DOCUMENTO — se l'operatore aveva scrollato la cartella
+    // (verso il basso per trovare "Esporta Cartella", tipicamente) al momento
+    // del click, la cattura partiva da quello scroll invece che dall'angolo
+    // reale dell'area, tagliando/spostando il referto nel PDF risultante.
+    // scrollX/scrollY:0 forza la cattura sempre dall'origine del documento,
+    // indipendentemente da dove si trovava la pagina in quel momento.
     html2pdf().set({
       margin: l.margine||15,
       filename: nomeFile+'.pdf',
       image: {type:'jpeg', quality:0.98},
-      html2canvas: {scale:2, useCORS:true, width:larghezza, height:altezza, windowWidth:larghezza, windowHeight:altezza},
+      html2canvas: {scale:2, useCORS:true, width:larghezza, height:altezza, windowWidth:larghezza, windowHeight:altezza, scrollX:0, scrollY:0},
       jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'},
       pagebreak: {mode:['css','legacy']}
     }).from(area).save().then(()=>{
