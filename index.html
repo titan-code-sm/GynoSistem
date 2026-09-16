@@ -984,6 +984,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
       <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">📋</span>Ricettario</button>
       <button onclick="naviga('consensi')" id="nav-consensi"><span class="nav-icon">✍️</span>Consensi</button>
+      <button onclick="naviga('email')" id="nav-email"><span class="nav-icon">📧</span>Email</button>
     </div>
     <div class="nav-group" id="nav-group-strumenti">
       <div class="nav-group-label">Strumenti</div>
@@ -1607,6 +1608,65 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
   </div>
   <div id="consensi-lista" class="pharma-grid"></div>
+</div>
+
+<!-- EMAIL: compone, invia (Cloud Function inviaEmail via SMTP Gmail dello
+     studio) e archivia email a una o più pazienti, con modelli pronti. -->
+<div id="sec-email" class="section">
+  <div class="page-header">
+    <div><div class="page-title">Email</div><div class="page-subtitle">Scrivi e invia email alle pazienti, singolarmente o in gruppo</div></div>
+  </div>
+
+  <div class="tipo-pills" id="email-tab-toggle" style="margin-bottom:20px;">
+    <button type="button" class="tipo-pill active" data-etab="nuova" onclick="_emailSwitchTab('nuova')">✏️ Nuova Email</button>
+    <button type="button" class="tipo-pill" data-etab="modelli" onclick="_emailSwitchTab('modelli')">🧰 Modelli</button>
+    <button type="button" class="tipo-pill" data-etab="archivio" onclick="_emailSwitchTab('archivio')">📁 Archivio Inviate</button>
+  </div>
+
+  <!-- NUOVA EMAIL -->
+  <div id="email-pane-nuova" class="email-pane">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div><div class="card-title">👥 Destinatarie</div></div></div>
+      <div class="tipo-pills" id="email-modo-toggle" style="margin-bottom:14px;">
+        <button type="button" class="tipo-pill active" data-emodo="tutte" onclick="_emailSetModoDestinatari('tutte')">Tutte le pazienti</button>
+        <button type="button" class="tipo-pill" data-emodo="alcune" onclick="_emailSetModoDestinatari('alcune')">Seleziona alcune</button>
+      </div>
+      <div id="email-tutte-info" style="font-size:.85rem;color:var(--label4);"></div>
+      <div id="email-alcune-wrap" style="display:none;">
+        <div style="position:relative;max-width:420px;margin-bottom:10px;">
+          <input id="email-paz-search" placeholder="Cerca per cognome o nome…" autocomplete="off" oninput="_emailCercaPaziente(this.value)" onfocus="_emailCercaPaziente(this.value)">
+          <div id="email-paz-risultati" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--separator);border-radius:10px;box-shadow:var(--shadow-md);z-index:30;max-height:240px;overflow-y:auto;margin-top:4px;"></div>
+        </div>
+        <div id="email-paz-chips" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div><div class="card-title">✏️ Messaggio</div></div></div>
+      <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Oggetto</label><input id="email-oggetto" placeholder="Oggetto dell'email"></div>
+      <div class="form-group"><label class="form-label">Testo</label><textarea id="email-corpo" rows="10" placeholder="Scrivi qui il messaggio... usa {{NOME}} per inserire automaticamente il nome di ciascuna paziente."></textarea></div>
+      <div style="font-size:.74rem;color:var(--label4);margin-top:8px;">💡 <strong>{{NOME}}</strong> viene sostituito con il nome di ciascuna destinataria. ⚠️ Non includere dati clinici o diagnosi in questa email: è pensata per comunicazioni amministrative (appuntamenti, richiami, avvisi) e resta archiviata nel tuo account online.</div>
+    </div>
+
+    <button class="btn btn-primary" id="email-invia-btn" onclick="inviaEmailComposta()">📤 Invia Email</button>
+    <span id="email-invio-stato" style="margin-left:12px;font-size:.85rem;color:var(--label4);"></span>
+  </div>
+
+  <!-- MODELLI -->
+  <div id="email-pane-modelli" class="email-pane" style="display:none;">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">🧰 Modelli pronti</div><div class="card-subtitle">Un clic precompila oggetto e testo nella scheda "Nuova Email" — poi scegli le destinatarie e invia</div></div></div>
+      <div id="email-modelli-lista" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ARCHIVIO -->
+  <div id="email-pane-archivio" class="email-pane" style="display:none;">
+    <div class="card">
+      <div class="card-header"><div><div class="card-title">📁 Email Inviate</div></div></div>
+      <div id="email-archivio-lista"></div>
+    </div>
+  </div>
 </div>
 
 <!-- Modal Firma Elettronica: la persona assistita firma nel riquadro, il tratto viene
@@ -5787,7 +5847,7 @@ function registraLog(tipo, descrizione){
   }).catch(e=>console.warn('Log attività:',e));
 }
 
-const LOG_TIPO_ICON={login:'🔑',paziente:'👩‍⚕️',visita:'📋',stampa:'🖨️',backup:'💾'};
+const LOG_TIPO_ICON={login:'🔑',paziente:'👩‍⚕️',visita:'📋',stampa:'🖨️',backup:'💾',email:'📧'};
 
 async function mostraLogAttivita(){
   if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return;
@@ -6103,6 +6163,7 @@ function naviga(id){
   if(id==='disponibilita') renderDisponibilita();
   if(id==='ricettario') renderRicettario();
   if(id==='consensi') renderConsensi();
+  if(id==='email') renderEmailSezione();
   if(id==='utility') caricaDiarioPersonale();
   if(id==='amministrazione') renderAdminUtenti();
   if(id==='impostazioni') renderImpostazioni();
@@ -10433,6 +10494,182 @@ function _stampaConsensoVisitaCombinato(record){
     ${printFooterHtml()}
   </body></html>`);
   w.document.close();
+}
+
+// ═══════════════════════════════════════════════════
+//  EMAIL — comporre, inviare e archiviare email alle pazienti
+// ═══════════════════════════════════════════════════
+// L'invio vero passa dalla Cloud Function "inviaEmail" (SMTP Gmail
+// dell'account dello studio, credenziali mai nel client) — vedi
+// functions/index.js. Qui in front-end: scelta destinatarie (tutte le
+// pazienti con email in anagrafica, o una selezione), testo con segnaposto
+// {{NOME}} (stesso meccanismo dei consensi informati), modelli pronti, e
+// lettura dell'archivio (scritto dalla Cloud Function stessa, mai dal client).
+let _emailTabCorrente='nuova';
+let _emailModo='tutte';
+let _emailSelezionate=new Set();
+
+const EMAIL_MODELLI=[
+  { titolo:'Promemoria appuntamento', icona:'📅',
+    oggetto:'Promemoria appuntamento — Studio Dr.ssa Cristina Guidi',
+    corpo:"Gentile {{NOME}},\n\nLe ricordiamo il Suo prossimo appuntamento presso il nostro studio.\n\nIn caso di impedimento La preghiamo di avvisarci con anticipo per poter riorganizzare l'agenda.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+  { titolo:'Richiamo screening (Pap-test/HPV/Mammografia)', icona:'🔬',
+    oggetto:'Promemoria controllo periodico — Studio Dr.ssa Cristina Guidi',
+    corpo:"Gentile {{NOME}},\n\nDai nostri controlli risulta che è consigliabile programmare il Suo prossimo screening periodico (Pap-test/HPV o mammografia).\n\nLa invitiamo a contattare lo studio per fissare un appuntamento quando Le è comodo.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+  { titolo:'Comunicazione generale dello studio', icona:'📢',
+    oggetto:'Comunicazione dallo Studio Dr.ssa Cristina Guidi',
+    corpo:"Gentile {{NOME}},\n\n[scrivi qui la comunicazione]\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" }
+];
+
+function renderEmailSezione(){
+  renderEmailModelli();
+  _emailAggiornaInfoDestinatari();
+  _emailSwitchTab(_emailTabCorrente);
+}
+function _emailSwitchTab(tab){
+  _emailTabCorrente=tab;
+  document.querySelectorAll('#email-tab-toggle .tipo-pill').forEach(b=>b.classList.toggle('active', b.dataset.etab===tab));
+  document.querySelectorAll('.email-pane').forEach(p=>p.style.display='none');
+  const pane=document.getElementById('email-pane-'+tab);
+  if(pane) pane.style.display='block';
+  if(tab==='archivio') _emailCaricaArchivio();
+}
+function _emailSetModoDestinatari(modo){
+  _emailModo=modo;
+  document.querySelectorAll('#email-modo-toggle .tipo-pill').forEach(b=>b.classList.toggle('active', b.dataset.emodo===modo));
+  document.getElementById('email-alcune-wrap').style.display = modo==='alcune' ? 'block' : 'none';
+  document.getElementById('email-tutte-info').style.display = modo==='tutte' ? 'block' : 'none';
+  _emailAggiornaInfoDestinatari();
+}
+function _emailAggiornaInfoDestinatari(){
+  const info=document.getElementById('email-tutte-info');
+  if(!info) return;
+  const tot=(DB.pazienti||[]).length;
+  const conEmail=(DB.pazienti||[]).filter(p=>(p.email||'').trim()).length;
+  info.innerHTML = `✉️ ${conEmail} pazient${conEmail===1?'e':'i'} con email in anagrafica su ${tot} totali${tot>conEmail?' — le altre non riceveranno il messaggio finché non aggiungi la loro email':''}.`;
+}
+function _emailCercaPaziente(q){
+  const box=document.getElementById('email-paz-risultati'); if(!box) return;
+  q=(q||'').trim().toLowerCase();
+  if(!q){ box.style.display='none'; box.innerHTML=''; return; }
+  const risultati=(DB.pazienti||[]).filter(p=>`${p.cognome} ${p.nome}`.toLowerCase().includes(q) && !_emailSelezionate.has(p.id)).slice(0,8);
+  box.innerHTML = risultati.length
+    ? risultati.map(p=>{
+        const haEmail=!!(p.email||'').trim();
+        return haEmail
+          ? `<div onclick="_emailAggiungiDestinataria(${p.id})" style="padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--separator);font-size:.85rem;">${_escHtml(p.cognome+' '+p.nome)} <span style="color:var(--label4);font-size:.76rem;">· ${_escHtml(p.email)}</span></div>`
+          : `<div style="padding:9px 14px;border-bottom:1px solid var(--separator);font-size:.85rem;color:var(--label4);">${_escHtml(p.cognome+' '+p.nome)} — nessuna email in anagrafica</div>`;
+      }).join('')
+    : '<div style="padding:10px 14px;color:var(--label4);font-size:.82rem;">Nessuna paziente trovata</div>';
+  box.style.display='block';
+}
+function _emailAggiungiDestinataria(id){
+  _emailSelezionate.add(id);
+  document.getElementById('email-paz-search').value='';
+  document.getElementById('email-paz-risultati').style.display='none';
+  _emailRenderChips();
+}
+function _emailRimuoviDestinataria(id){
+  _emailSelezionate.delete(id);
+  _emailRenderChips();
+}
+function _emailRenderChips(){
+  const box=document.getElementById('email-paz-chips'); if(!box) return;
+  const elenco=[..._emailSelezionate].map(id=>DB.pazienti.find(p=>p.id===id)).filter(Boolean);
+  box.innerHTML = elenco.map(p=>`<span class="paz-selected-chip">👩 ${_escHtml(p.cognome+' '+p.nome)}<span class="paz-chip-del" onclick="_emailRimuoviDestinataria(${p.id})">✕</span></span>`).join('');
+}
+// Elenco effettivo {pazienteId,nome,email} in base alla modalità scelta —
+// sempre filtrato su chi ha davvero un'email in anagrafica.
+function _emailRaccogliDestinatari(){
+  const base = _emailModo==='tutte'
+    ? (DB.pazienti||[])
+    : [..._emailSelezionate].map(id=>DB.pazienti.find(p=>p.id===id)).filter(Boolean);
+  return base
+    .filter(p=>(p.email||'').trim())
+    .map(p=>({ pazienteId:String(p.id), nome:`${p.nome} ${p.cognome}`, email:p.email.trim() }));
+}
+function renderEmailModelli(){
+  const box=document.getElementById('email-modelli-lista'); if(!box) return;
+  box.innerHTML = EMAIL_MODELLI.map((m,i)=>`
+    <div style="display:flex;align-items:center;gap:14px;border:1px solid var(--separator);border-radius:10px;padding:12px 16px;">
+      <span style="font-size:1.4rem;flex-shrink:0;">${m.icona}</span>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.88rem;">${_escHtml(m.titolo)}</div>
+        <div style="font-size:.76rem;color:var(--label4);">${_escHtml(m.oggetto)}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="_emailApplicaModello(${i})">Usa questo modello</button>
+    </div>`).join('');
+}
+function _emailApplicaModello(i){
+  const m=EMAIL_MODELLI[i]; if(!m) return;
+  document.getElementById('email-oggetto').value=m.oggetto;
+  document.getElementById('email-corpo').value=m.corpo;
+  _emailSwitchTab('nuova');
+  if(typeof gsToast==='function') gsToast('✅ Modello caricato — scegli le destinatarie e invia','gs-success');
+}
+async function inviaEmailComposta(){
+  if(gsDemoMode){ if(typeof gsToast==='function') gsToast('Non disponibile in modalità demo','gs-info'); return; }
+  const oggetto=(document.getElementById('email-oggetto').value||'').trim();
+  const corpo=(document.getElementById('email-corpo').value||'').trim();
+  if(!oggetto || !corpo){ if(typeof gsToast==='function') gsToast('Scrivi oggetto e testo prima di inviare','gs-error'); return; }
+  const destinatari=_emailRaccogliDestinatari();
+  if(!destinatari.length){ if(typeof gsToast==='function') gsToast('Nessuna destinataria con email valida','gs-error'); return; }
+  if(!gsFunctions){ if(typeof gsToast==='function') gsToast('Servizio email non disponibile (Firebase non inizializzato)','gs-error'); return; }
+  const conferma=confirm(`Inviare questa email a ${destinatari.length} paziente${destinatari.length===1?'':'i'}?\n\nOggetto: ${oggetto}`);
+  if(!conferma) return;
+
+  const btn=document.getElementById('email-invia-btn');
+  const stato=document.getElementById('email-invio-stato');
+  btn.disabled=true; btn.textContent='📤 Invio in corso…';
+  if(stato) stato.textContent='';
+  try{
+    const fn=gsFunctions.httpsCallable('inviaEmail');
+    const res=await fn({ oggetto, corpo, destinatari });
+    const { inviateOk, inviateErrore } = res.data || {};
+    if(stato) stato.textContent = `✅ ${inviateOk||0} inviate${inviateErrore?`, ⚠️ ${inviateErrore} non riuscite`:''}.`;
+    if(typeof gsToast==='function') gsToast(`✅ Email inviata a ${inviateOk||0} paziente${(inviateOk||0)===1?'':'i'}`, inviateErrore?'gs-info':'gs-success');
+    _emailSelezionate.clear();
+    _emailRenderChips();
+    registraLog('email', `Email "${oggetto.slice(0,80)}" inviata a ${inviateOk||0} paziente${(inviateOk||0)===1?'':'i'}`);
+  }catch(e){
+    console.warn('Invio email:', e);
+    if(stato) stato.textContent='⚠️ Invio non riuscito: '+(e.message||'');
+    if(typeof gsToast==='function') gsToast('⚠️ Invio non riuscito: '+(e.message||''), 'gs-error');
+  }finally{
+    btn.disabled=false; btn.textContent='📤 Invia Email';
+  }
+}
+async function _emailCaricaArchivio(){
+  const box=document.getElementById('email-archivio-lista'); if(!box) return;
+  if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📁</div><p style="font-size:.85rem">Archivio non disponibile</p></div>'; return; }
+  box.innerHTML='<div style="padding:16px 0;text-align:center;color:var(--label4);font-size:.85rem">Caricamento…</div>';
+  try{
+    const snap=await gsDb.collection('emailInviate').where('ownerUid','==',gsCurrentUser.uid).get();
+    if(snap.empty){ box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📁</div><p style="font-size:.85rem">Nessuna email inviata finora</p></div>'; return; }
+    const voci=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.data?.toMillis?b.data.toMillis():0)-(a.data?.toMillis?a.data.toMillis():0));
+    box.innerHTML = voci.map(v=>{
+      const dt = v.data?.toDate ? v.data.toDate() : null;
+      const dStr = dt ? dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})+' · '+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '';
+      const idSafe=JSON.stringify(v.id).replace(/"/g,'&quot;');
+      return `<details style="border-bottom:1px solid var(--separator);padding:10px 0">
+        <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
+          <span style="font-size:1.1rem">📧</span>
+          <span style="flex:1;font-size:.85rem;font-weight:600;">${_escHtml(v.oggetto||'(senza oggetto)')}</span>
+          <span class="badge badge-green" style="font-size:.68rem;">${v.inviateOk||0} inviate</span>
+          ${v.inviateErrore?`<span class="badge badge-red" style="font-size:.68rem;">${v.inviateErrore} errori</span>`:''}
+          <span style="font-size:.72rem;color:var(--label4);white-space:nowrap">${dStr}</span>
+        </summary>
+        <div style="padding:10px 0 0 30px;font-size:.78rem;color:var(--label3)">
+          <div style="white-space:pre-wrap;margin-bottom:8px;">${_escHtml(v.corpo||'')}</div>
+          <div style="color:var(--label4);">Destinatarie: ${(v.destinatari||[]).map(d=>_escHtml(d.nome||d.email)+(d.ok?'':' ⚠️')).join(', ')}</div>
+        </div>
+      </details>`;
+    }).join('');
+  }catch(e){
+    console.warn('Lettura archivio email:',e);
+    box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Errore nel caricamento dell\'archivio</p></div>';
+  }
 }
 
 // ═══════════════════════════════════════════════════

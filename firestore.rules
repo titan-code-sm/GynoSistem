@@ -152,6 +152,16 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ── EMAIL INVIATE (archivio) ──────────────────────────────
+    // Scritto SOLO dalla Cloud Function inviaEmail (Admin SDK, bypassa
+    // queste regole) dopo l'invio effettivo — il client non può scrivere
+    // direttamente un "invio" che non è mai partito davvero. Ogni medico
+    // legge solo il proprio archivio (ownerUid == proprio uid).
+    match /emailInviate/{doc} {
+      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
+      allow write: if false;
+    }
+
     // ── DEFAULT: blocca tutto il resto ─────────────────────────
     match /{document=**} {
       allow read, write: if false;

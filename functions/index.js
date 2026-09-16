@@ -23,11 +23,18 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const nodemailer = require("nodemailer");
 
 initializeApp();
 const db = getFirestore();
 
 const ANTHROPIC_API_KEY = defineSecret("ANTHROPIC_API_KEY");
+// Account Gmail dello studio da cui partono le email alle pazienti (sezione
+// "Email" dell'app). EMAIL_PASS è una "password per le app" di Google
+// (16 caratteri, generata da Account Google → Sicurezza → Verifica in due
+// passaggi → Password per le app) — MAI la password vera dell'account.
+const EMAIL_USER = defineSecret("EMAIL_USER");
+const EMAIL_PASS = defineSecret("EMAIL_PASS");
 
 // Modelli: Haiku per i suggerimenti brevi e frequenti (economico e veloce),
 // Sonnet per la chat libera (risposte più elaborate, usata meno spesso).
@@ -125,5 +132,119 @@ exports.assistenteAI = onCall(
       .trim();
 
     return { text, usage: data.usage || null };
+  }
+);
+
+// ═══════════════════════════════════════════════════════════
+//  INVIO EMAIL ALLE PAZIENTI (sezione "Email" dell'app)
+// ═══════════════════════════════════════════════════════════
+// Invia una email (con eventuale segnaposto {{NOME}} risolto per ciascuna
+// destinataria, stesso meccanismo dei consensi informati) a una lista di
+// pazienti, via SMTP Gmail con l'account dello studio. Al termine scrive
+// UN documento di riepilogo in emailInviate/ (mai il corpo/oggetto se non
+// per l'archivio del medico stesso — resta comunque testo amministrativo,
+// non clinico: l'app ricorda al medico di non scrivere dati clinici qui).
+const MAX_DESTINATARI = 300;
+const LIMITE_EMAIL_GIORNO = 500; // stesso ordine di grandezza del limite giornaliero di Gmail
+
+function risolviPlaceholder(testo, nome) {
+  return String(testo || "").split("{{NOME}}").join(nome || "");
+}
+
+exports.inviaEmail = onCall(
+  {
+    secrets: [EMAIL_USER, EMAIL_PASS],
+    region: "europe-west1",
+    timeoutSeconds: 300,
+    memory: "256MiB",
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Devi essere autenticata per inviare email.");
+    }
+    const uid = request.auth.uid;
+
+    const { oggetto, corpo, destinatari } = request.data || {};
+    if (typeof oggetto !== "string" || !oggetto.trim() || oggetto.length > 200) {
+      throw new HttpsError("invalid-argument", "Oggetto mancante o troppo lungo.");
+    }
+    if (typeof corpo !== "string" || !corpo.trim() || corpo.length > 20000) {
+      throw new HttpsError("invalid-argument", "Testo dell'email mancante o troppo lungo.");
+    }
+    if (!Array.isArray(destinatari) || destinatari.length === 0) {
+      throw new HttpsError("invalid-argument", "Nessuna destinataria selezionata.");
+    }
+    if (destinatari.length > MAX_DESTINATARI) {
+      throw new HttpsError("invalid-argument", `Troppe destinatarie in un solo invio (massimo ${MAX_DESTINATARI}).`);
+    }
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const dest = destinatari
+      .filter((d) => d && typeof d.email === "string" && emailRe.test(d.email.trim()))
+      .map((d) => ({
+        pazienteId: typeof d.pazienteId === "string" || typeof d.pazienteId === "number" ? String(d.pazienteId) : "",
+        nome: typeof d.nome === "string" ? d.nome.slice(0, 120) : "",
+        email: d.email.trim().slice(0, 200),
+      }));
+    if (!dest.length) {
+      throw new HttpsError("invalid-argument", "Nessun indirizzo email valido tra le destinatarie.");
+    }
+
+    // ── Limite giornaliero (per medico, conta le email effettivamente da inviare) ──
+    const oggi = new Date().toISOString().slice(0, 10);
+    const usageRef = db.collection("emailUsage").doc(`${uid}_${oggi}`);
+    try {
+      await db.runTransaction(async (tx) => {
+        const snap = await tx.get(usageRef);
+        const n = snap.exists ? (snap.data().count || 0) : 0;
+        if (n + dest.length > LIMITE_EMAIL_GIORNO) {
+          throw new HttpsError("resource-exhausted", `Limite giornaliero di ${LIMITE_EMAIL_GIORNO} email raggiunto.`);
+        }
+        tx.set(usageRef, { count: FieldValue.increment(dest.length), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+      });
+    } catch (e) {
+      if (e instanceof HttpsError) throw e;
+      console.warn("rate-limit email tx fallita:", e.message);
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: EMAIL_USER.value().trim(), pass: EMAIL_PASS.value().trim() },
+    });
+
+    const risultati = [];
+    for (const d of dest) {
+      try {
+        await transporter.sendMail({
+          from: EMAIL_USER.value().trim(),
+          to: d.email,
+          subject: risolviPlaceholder(oggetto, d.nome),
+          text: risolviPlaceholder(corpo, d.nome),
+        });
+        risultati.push({ pazienteId: d.pazienteId, nome: d.nome, email: d.email, ok: true });
+      } catch (e) {
+        console.warn("Invio email fallito per", d.email, e.message);
+        risultati.push({ pazienteId: d.pazienteId, nome: d.nome, email: d.email, ok: false, errore: e.message.slice(0, 200) });
+      }
+    }
+
+    const inviateOk = risultati.filter((r) => r.ok).length;
+    const inviateErrore = risultati.length - inviateOk;
+
+    try {
+      await db.collection("emailInviate").add({
+        ownerUid: uid,
+        oggetto: oggetto.slice(0, 200),
+        corpo: corpo.slice(0, 20000),
+        destinatari: risultati,
+        totaleDestinatari: risultati.length,
+        inviateOk,
+        inviateErrore,
+        data: FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      console.warn("Scrittura archivio email fallita:", e.message);
+    }
+
+    return { inviateOk, inviateErrore, dettagli: risultati };
   }
 );
