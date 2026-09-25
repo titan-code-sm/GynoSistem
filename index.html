@@ -388,7 +388,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 @keyframes overlayIn{from{background:rgba(0,0,0,0)}to{background:rgba(0,0,0,0.5)}}
 @keyframes modalPop{from{opacity:0;transform:scale(.94) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 /* Modali aperte DA DENTRO l'editor visita: devono stare sopra l'editor stesso (z-index 2000) */
-#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay,#modal-score-tev.overlay{z-index:2600;}
+#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay,#modal-score-tev.overlay,#modal-scelta-curve.overlay{z-index:2600;}
 .mfv-box{width:min(760px,95vw);max-height:90vh;padding:22px 22px 0;display:flex;flex-direction:column;}
 .mfv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .mfv-x{border:none;background:var(--surface2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9rem;color:var(--label4);flex-shrink:0;}
@@ -1120,10 +1120,20 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div class="dash-widget" data-widget-id="appuntamenti" draggable="true" ondragstart="dashDragStart(event)" ondragover="dashDragOver(event)" ondragend="dashDragEnd(event)" style="margin-top:24px;">
       <div class="card">
         <div class="card-header">
-          <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Prenotazioni GynoBook e promemoria, in ordine di data</div></div>
+          <div><div class="card-title">📅 Appuntamenti</div><div class="card-subtitle">Visite delle pazienti prenotate, in ordine di data</div></div>
           <span class="dash-grip" title="Trascina per spostare">⠿</span>
         </div>
         <div id="dashboard-alerts" style="max-height:480px;overflow-y:auto;"></div>
+      </div>
+    </div>
+
+    <div class="dash-widget" data-widget-id="promemoria-attivi" draggable="true" ondragstart="dashDragStart(event)" ondragover="dashDragOver(event)" ondragend="dashDragEnd(event)" style="margin-top:24px;">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">🔔 Promemoria Attivi</div><div class="card-subtitle">In scadenza, in ordine di data</div></div>
+          <span class="dash-grip" title="Trascina per spostare">⠿</span>
+        </div>
+        <div id="dashboard-promemoria" style="max-height:480px;overflow-y:auto;"></div>
       </div>
     </div>
 
@@ -1460,7 +1470,14 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
     <div class="field-row r2" style="margin-bottom:14px">
       <div class="form-group"><label class="form-label">Data *</label><input type="date" id="np-data"></div>
-      <div class="form-group"><label class="form-label">Ora *</label><input type="time" id="np-ora" step="900"></div>
+      <div class="form-group"><label class="form-label">Ora *</label><input type="time" id="np-ora" step="60">
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('np-ora',0)">:00</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('np-ora',15)">:15</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('np-ora',30)">:30</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('np-ora',45)">:45</button>
+        </div>
+      </div>
     </div>
 
     <div class="field-row r2" style="margin-bottom:14px">
@@ -1505,7 +1522,14 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
     <div class="field-row r2" style="margin-bottom:14px">
       <div class="form-group"><label class="form-label">Data *</label><input type="date" id="ma-data"></div>
-      <div class="form-group"><label class="form-label">Ora *</label><input type="time" id="ma-ora" step="900"></div>
+      <div class="form-group"><label class="form-label">Ora *</label><input type="time" id="ma-ora" step="60">
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('ma-ora',0)">:00</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('ma-ora',15)">:15</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('ma-ora',30)">:30</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:3px 8px;font-size:.72rem;" onclick="impostaMinutiOra('ma-ora',45)">:45</button>
+        </div>
+      </div>
     </div>
 
     <div class="field-row r2" style="margin-bottom:14px">
@@ -2018,7 +2042,6 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 
       <div class="paz-pane" id="paz-pane-referti">
         <div class="paz-pane-header"><div><div class="paz-pane-title">📎 Referti Esterni</div><div class="paz-pane-sub">Analisi o referti fatti altrove — salvati solo su questo dispositivo, mai online</div></div>
-          <button class="btn btn-ghost btn-sm" onclick="apriAppuntamentoDaCartella()" title="Fissa un controllo o una nuova visita per questa paziente">🗓️ Appuntamenti</button>
         </div>
         <div class="field-row r2" style="margin-bottom:8px;max-width:600px;">
           <div class="form-group"><label class="form-label">Descrizione</label><input id="alg-desc" placeholder="es. Analisi del sangue, 10 sett."></div>
@@ -2027,6 +2050,9 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         <button class="btn btn-ghost btn-sm" onclick="caricaAllegato()">➕ Aggiungi allegato</button>
         <div id="allegati-lista" style="margin-top:12px;"></div>
         <div id="allegati-spazio" style="font-size:.72rem;color:var(--label4);margin-top:10px;"></div>
+        <div style="border-top:1px solid var(--separator);margin-top:20px;padding-top:16px;">
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="apriAppuntamentoDaCartella()" title="Fissa un controllo o una nuova visita per questa paziente">🗓️ Nuovo appuntamento</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2413,6 +2439,35 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <div style="border-top:1px solid var(--separator);padding-top:14px;">
       <div style="font-weight:700;font-size:.85rem;margin-bottom:8px;">Storico compilazioni precedenti</div>
       <div id="stev-storico-lista" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SELEZIONE CURVE DI CRESCITA DA STAMPARE -->
+<div id="modal-scelta-curve" class="overlay">
+  <div class="modal-sm" style="width:380px;">
+    <h3>📈 Curve da Stampare</h3>
+    <p style="font-size:.82rem;color:var(--label4);margin-bottom:12px">Seleziona quali curve includere nella stampa (puoi sceglierne più di una).</p>
+    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px;">
+      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
+        <input type="checkbox" id="curve-sel-bpd" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">BPD — Diametro Biparietale</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
+        <input type="checkbox" id="curve-sel-hc" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">CC — Circonferenza Cranica</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
+        <input type="checkbox" id="curve-sel-ac" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">CA — Circonferenza Addominale</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
+        <input type="checkbox" id="curve-sel-fl" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">LF — Lunghezza Femore</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;cursor:pointer;">
+        <input type="checkbox" id="curve-sel-peso" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">Peso Fetale Stimato (EFW)</span>
+      </label>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeModal('modal-scelta-curve')">Annulla</button>
+      <button class="btn btn-primary" onclick="_confermaScelteCurve()">🖨️ Genera e Stampa</button>
     </div>
   </div>
 </div>
@@ -3046,18 +3101,18 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
                 <div class="form-group"></div>
               </div>
               <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">DBP (mm)</label><input id="ob-bio-bpd" placeholder="es. 61" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-bpd"></div></div>
-                <div class="form-group"><label class="form-label">CC (mm)</label><input id="ob-bio-hc" placeholder="es. 219" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-hc"></div></div>
+                <div class="form-group"><label class="form-label">DBP (mm)</label><input id="ob-bio-bpd" placeholder="es. 61" oninput="calcEFWOb();aggiornaPercentili()"><div class="perc-badge" id="ob-perc-bpd"></div></div>
+                <div class="form-group"><label class="form-label">CC (mm)</label><input id="ob-bio-hc" placeholder="es. 219" oninput="calcEFWOb();aggiornaPercentili()"><div class="perc-badge" id="ob-perc-hc"></div></div>
               </div>
               <div class="field-row r2" style="margin-bottom:10px">
-                <div class="form-group"><label class="form-label">CA (mm)</label><input id="ob-bio-ac" placeholder="es. 191" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-ac"></div></div>
-                <div class="form-group"><label class="form-label">LF (mm)</label><input id="ob-bio-fl" placeholder="es. 42" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-fl"></div></div>
+                <div class="form-group"><label class="form-label">CA (mm)</label><input id="ob-bio-ac" placeholder="es. 191" oninput="calcEFWOb();aggiornaPercentili()"><div class="perc-badge" id="ob-perc-ac"></div></div>
+                <div class="form-group"><label class="form-label">LF (mm)</label><input id="ob-bio-fl" placeholder="es. 42" oninput="calcEFWOb();aggiornaPercentili()"><div class="perc-badge" id="ob-perc-fl"></div></div>
               </div>
               <div class="field-row r2">
-                <div class="form-group"><label class="form-label">Peso fetale stimato (gr)</label><input id="ob-bio-peso" placeholder="es. 700" oninput="aggiornaPercentili()"><div class="perc-badge" id="ob-perc-peso"></div></div>
+                <div class="form-group"><label class="form-label">Peso Fetale Stimato (EFW, formula di Hadlock) — calcolato automaticamente</label><input id="ob-bio-peso" readonly style="background:var(--surface2);font-weight:700" placeholder="compilare DBP, CC, CA, LF"><div class="perc-badge" id="ob-perc-peso"></div></div>
                 <div class="form-group"><label class="form-label">Percentile peso (manuale, opzionale)</label><input id="ob-bio-peso-perc" placeholder="es. 50°"></div>
               </div>
-              <p style="font-size:.74rem;color:var(--label4);margin-top:6px">Il percentile del peso è stimato sulle curve INTERGROWTH-21st (EFW, Stirnemann 2017): valore <strong>orientativo</strong>, verificare con il <a href="https://fetalmedicinebarcelona.org/calc/" target="_blank" style="color:var(--primary)">calcolatore ufficiale ↗</a>.</p>
+              <p style="font-size:.74rem;color:var(--label4);margin-top:6px">Formula di Hadlock (1985) su DBP+CC+CA+LF. Il percentile del peso è stimato sulle curve INTERGROWTH-21st (EFW, Stirnemann 2017): valore <strong>orientativo</strong>, verificare con il <a href="https://fetalmedicinebarcelona.org/calc/" target="_blank" style="color:var(--primary)">calcolatore ufficiale ↗</a>.</p>
               <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px" onclick="apriCurveCrescitaOb()">📈 Vedi Curve di Crescita + peso fetale (stampabili)</button>
             </div>
 
@@ -3985,6 +4040,7 @@ function setObData(data){
   if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   obToggleImmuno();
   calcBMIPregravidico();
+  calcEFWOb(); // ricalcola il peso stimato se la biometria è presente (sovrascrive il valore salvato coi campi correnti)
   if(typeof aggiornaPercentili==='function') aggiornaPercentili();
 }
 
@@ -4165,6 +4221,22 @@ function calcEFW(){
   }
   if(box) box.style.display='block';
   if(typeof aggiornaPercentiliEco==='function') aggiornaPercentiliEco();
+}
+
+// Come calcEFW() ma per la Biometria Fetale della VISITA OSTETRICA (campi ob-bio-*).
+function calcEFWOb(){
+  const bpd=parseFloat(document.getElementById('ob-bio-bpd')?.value)/10; // mm → cm
+  const hc=parseFloat(document.getElementById('ob-bio-hc')?.value)/10;
+  const ac=parseFloat(document.getElementById('ob-bio-ac')?.value)/10;
+  const fl=parseFloat(document.getElementById('ob-bio-fl')?.value)/10;
+  const out=document.getElementById('ob-bio-peso');
+  if(!out)return;
+  // Servono almeno HC, AC e FL (BPD opzionale ma migliora la stima se presente).
+  // Se mancano, NON svuota il campo: visite vecchie possono avere un peso inserito
+  // manualmente senza biometria completa e non va perso al riapertura/salvataggio.
+  if(!hc||!ac||!fl||hc<=0||ac<=0||fl<=0){ return; }
+  const log10peso=1.3596 - 0.00386*ac*fl + 0.0064*hc + 0.00061*bpd*ac + 0.0424*ac + 0.174*fl;
+  out.value=Math.round(Math.pow(10,log10peso));
 }
 
 function calcCPR(){
@@ -4353,7 +4425,7 @@ function apriCurveCrescitaOb(){
   // Salva temporaneamente i dati biometrici come se fossero una eco, per riusare la pagina curve esistente
   const epoca=document.getElementById('ob-bio-epoca')?.value;
   if(!epoca){ if(typeof gsToast==='function')gsToast('Inserisci prima l epoca gestazionale','gs-error'); return; }
-  apriCurveCrescitaDaOb(curPaz, curGravidanzaId, {
+  _apriModalSceltaCurve(curPaz, curGravidanzaId, {
     settimane:epoca,
     bpd:document.getElementById('ob-bio-bpd')?.value,
     hc:document.getElementById('ob-bio-hc')?.value,
@@ -4456,7 +4528,7 @@ function apriCurveCrescitaEco(){
   if(!parseSettimaneEsatte(sett)){ if(typeof gsToast==='function')gsToast('Inserisci prima l\'epoca gestazionale','gs-error'); return; }
   const p=DB.pazienti.find(x=>x.id===curPaz);
   if(!p) return;
-  apriCurveCrescitaDaOb(curPaz, curGravidanzaId, {
+  _apriModalSceltaCurve(curPaz, curGravidanzaId, {
     settimane:sett,
     bpd:document.getElementById('ec-bpd')?.value,
     hc:document.getElementById('ec-hc')?.value,
@@ -4464,6 +4536,25 @@ function apriCurveCrescitaEco(){
     fl:document.getElementById('ec-fl')?.value,
     peso:(document.getElementById('ec-efw')?.value||'').replace(/[^\d.]/g,'')
   });
+}
+
+// Apre il modal di selezione curve (BPD/CC/CA/LF/Peso) prima di generare la
+// pagina di stampa: memorizza il contesto (paziente/gravidanza/dato corrente
+// non ancora salvato) e lo riprende in _confermaScelteCurve() dopo la scelta.
+let _curveContestoPendente=null;
+function _apriModalSceltaCurve(pazId, gravidanzaId, datiCorrente){
+  _curveContestoPendente={pazId, gravidanzaId, datiCorrente};
+  ['bpd','hc','ac','fl','peso'].forEach(k=>{ const c=document.getElementById('curve-sel-'+k); if(c) c.checked=true; });
+  document.getElementById('modal-scelta-curve').classList.add('show');
+}
+function _confermaScelteCurve(){
+  const ctx=_curveContestoPendente;
+  if(!ctx) return;
+  const sel=['bpd','hc','ac','fl','peso'].filter(k=>document.getElementById('curve-sel-'+k)?.checked);
+  if(!sel.length){ if(typeof gsToast==='function')gsToast('Seleziona almeno una curva','gs-error'); return; }
+  closeModal('modal-scelta-curve');
+  apriCurveCrescitaDaOb(ctx.pazId, ctx.gravidanzaId, ctx.datiCorrente, sel);
+  _curveContestoPendente=null;
 }
 
 // ═══════════════════════════════════════════════════
@@ -6378,9 +6469,12 @@ function renderDashboard(){
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{if(v.data===oggi)visitOggi++;}));
   animaStatValue('stat-oggi', visitOggi);
   renderAlertsHome();
+  renderPromemoriaHome();
   renderPromemoriaScaduti();
 }
 
+// Widget "Appuntamenti": SOLO le visite/prenotazioni delle pazienti (GynoBook),
+// niente promemoria — quelli hanno il loro widget dedicato (renderPromemoriaHome).
 function renderAlertsHome(){
   const c=document.getElementById('dashboard-alerts');
   if(!c) return;
@@ -6389,40 +6483,45 @@ function renderAlertsHome(){
   const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
 
   // Tutti gli appuntamenti GynoBook da oggi in poi (nessun limite di quantità)
-  const fbProssimi=GS_APPTS.filter(a=>a.data>=oggi && a.stato!=='cancellato');
+  const fbProssimi=GS_APPTS.filter(a=>a.data>=oggi && a.stato!=='cancellato').sort((x,y)=>(x.data||'').localeCompare(y.data||''));
 
-  // Tutti i promemoria di tutte le pazienti
-  let promemoria=[];
-  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>promemoria.push({p,a})));
-
-  // Unifica in una sola lista ordinata per data
-  const righe=[
-    ...fbProssimi.map(a=>({tipo:'appuntamento',data:a.data,a})),
-    ...promemoria.map(i=>({tipo:'promemoria',data:i.a.data,p:i.p,a:i.a}))
-  ].sort((x,y)=>(x.data||'').localeCompare(y.data||''));
-
-  if(!righe.length){
-    c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun appuntamento o promemoria attivo</p></div>';
+  if(!fbProssimi.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">📅</div><p>Nessun appuntamento in agenda</p></div>';
     return;
   }
 
-  c.innerHTML=righe.map(r=>{
-    if(r.tipo==='appuntamento'){
-      const a=r.a;
-      const isOggi=a.data===oggi;
-      const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-      const localId=trovaPazienteLocaleId(a.pazienteId);
-      const nameClick=localId?`onclick="openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
-      return `<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
-        <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
-        <span class="alert-text">
-          <strong ${nameClick}>${a.pazienteNome||'–'}${localId?' ↗':''}</strong>
-          <span style="color:var(--label4);font-size:.75rem"> ${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.ora?'· '+a.ora:''}</span>
-          ${a.createdBy?`<span style="color:var(--label4);font-size:.72rem"> · 👤${a.createdBy}</span>`:''}
-        </span>
-      </div>`;
-    }
-    // Promemoria
+  c.innerHTML=fbProssimi.map(a=>{
+    const isOggi=a.data===oggi;
+    const dStr=isOggi?'Oggi':new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    const localId=trovaPazienteLocaleId(a.pazienteId);
+    const nameClick=localId?`onclick="openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
+    return `<div class="alert-item" style="border-left:3px solid var(--green);${isOggi?'background:var(--green-dim);':''}">
+      <span class="alert-date" style="color:var(--green);min-width:60px">${dStr}</span>
+      <span class="alert-text">
+        <strong ${nameClick}>${a.pazienteNome||'–'}${localId?' ↗':''}</strong>
+        <span style="color:var(--label4);font-size:.75rem"> ${ICONS[a.tipo]||'🩺'} ${a.tipo||''} ${a.ora?'· '+a.ora:''}</span>
+        ${a.createdBy?`<span style="color:var(--label4);font-size:.72rem"> · 👤${a.createdBy}</span>`:''}
+      </span>
+    </div>`;
+  }).join('');
+}
+
+// Widget "Promemoria Attivi": tutti i promemoria di tutte le pazienti, in
+// ordine di data (comprende sia quelli già scaduti, evidenziati in rosso,
+// sia quelli in arrivo).
+function renderPromemoriaHome(){
+  const c=document.getElementById('dashboard-promemoria');
+  if(!c) return;
+  let promemoria=[];
+  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>promemoria.push({p,a})));
+  promemoria.sort((x,y)=>(x.a.data||'').localeCompare(y.a.data||''));
+
+  if(!promemoria.length){
+    c.innerHTML='<div class="empty-state"><div class="es-icon">🔔</div><p>Nessun promemoria attivo</p></div>';
+    return;
+  }
+
+  c.innerHTML=promemoria.map(r=>{
     const past=new Date(r.a.data)<new Date();
     return `<div class="alert-item" style="${past?'border-left:3px solid var(--red);':''}">
       <span class="alert-date">${new Date(r.a.data).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})}</span>
@@ -9315,6 +9414,17 @@ function apriAppuntamentoDaCartella(){
   apriNuovaPrenotazioneGS(curPaz);
 }
 
+// Imposta i minuti (0/15/30/45) di un campo <input type="time"> mantenendo
+// l'ora già scelta (o l'ora corrente se il campo è vuoto). Il campo resta
+// comunque un time nativo modificabile a mano per qualsiasi minuto.
+function impostaMinutiOra(inputId, minuti){
+  const el=document.getElementById(inputId);
+  if(!el) return;
+  const attuale=el.value;
+  const ora=(attuale && attuale.includes(':')) ? attuale.split(':')[0] : String(new Date().getHours()).padStart(2,'0');
+  el.value=`${ora}:${String(minuti).padStart(2,'0')}`;
+}
+
 function searchNpPaz(q){
   const dd=document.getElementById('np-paz-dropdown');
   if(!q||q.length<2){dd.classList.remove('show');return;}
@@ -10916,8 +11026,17 @@ async function renderConsensiFirmati(){
   const cartacei = (await leggiConsensiCartacei(p.id)).map(f=>({...f,_tipo:'pdf'}));
   const tutti=[...firmati, ...cartacei].sort((a,b)=>new Date(b.data||b.dataFirma)-new Date(a.data||a.dataFirma));
   if(badge) badge.textContent=tutti.length||'';
-  if(!tutti.length){ lista.innerHTML=''; return; }
-  lista.innerHTML = tutti.map(f=>{
+  const scoreTevList=(p.scoreTev||[]).slice().sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const scoreTevHtml=scoreTevList.length?`<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--separator);border-radius:10px;padding:10px 14px;margin-bottom:8px;cursor:pointer;" onclick="apriScoreTev()">
+      <span style="font-size:1.4rem;flex-shrink:0;">🩸</span>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.86rem;">Score TEV <span class="badge badge-gray" style="font-size:.6rem;vertical-align:middle;">${scoreTevList.length} compilazion${scoreTevList.length>1?'i':'e'}</span></div>
+        <div style="font-size:.74rem;color:var(--label4);">Ultima compilazione: ${new Date(scoreTevList[0].data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})} · punteggio ${_puntiScoreTev(scoreTevList[0].checked)}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();apriScoreTev()">Apri storico</button>
+    </div>`:'';
+  if(!tutti.length && !scoreTevList.length){ lista.innerHTML=''; return; }
+  lista.innerHTML = scoreTevHtml + tutti.map(f=>{
     if(f._tipo==='pdf'){
       const dStr=new Date(f.dataFirma).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
       return `<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--separator);border-radius:10px;padding:10px 14px;margin-bottom:8px;">
@@ -11515,7 +11634,7 @@ function buildRefertoView(v){
 // ═══════════════════════════════════════════════════
 // Variante per le visite ostetriche: raccoglie i dati biometrici da tutte le visite
 // ostetriche della stessa gravidanza (+ quello corrente non ancora salvato) e disegna le curve.
-function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente){
+function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente, curveSelezionate){
   const p=DB.pazienti.find(x=>x.id===pazId);
   if(!p){ return; }
   // Raccoglie i punti dalle visite ostetriche salvate (campi biometria) della stessa gravidanza
@@ -11533,15 +11652,18 @@ function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente){
   }
   if(!punti.length){ if(typeof gsToast==='function')gsToast('Nessun dato biometrico valido (epoca 14-40 sett.)','gs-error'); return; }
   punti.sort((a,b)=>a.settimane-b.settimane);
-  generaPaginaCurve(p, punti);
+  generaPaginaCurve(p, punti, curveSelezionate);
 }
 
-// Genera e stampa la pagina con i 4 grafici. Accetta una lista di punti {settimane,bpd,hc,ac,fl}.
-function generaPaginaCurve(p, punti){
+// Genera e stampa la pagina con i grafici selezionati. Accetta una lista di punti
+// {settimane,bpd,hc,ac,fl,peso} e l'elenco delle curve da includere fra
+// 'bpd','hc','ac','fl','peso' (default: tutte, per compatibilità con chiamate esterne).
+function generaPaginaCurve(p, punti, curveSelezionate){
+  const sel=(curveSelezionate&&curveSelezionate.length)?curveSelezionate:['bpd','hc','ac','fl','peso'];
   const parametri=[
     {key:'bpd',dataset:INTERGROWTH_BPD},{key:'hc',dataset:INTERGROWTH_HC},
     {key:'ac',dataset:INTERGROWTH_AC},{key:'fl',dataset:INTERGROWTH_FL}
-  ];
+  ].filter(par=>sel.includes(par.key));
   const w=apriFinestraStampa(); if(!w) return;
   let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
   <style>
@@ -11572,9 +11694,10 @@ function generaPaginaCurve(p, punti){
       </div>
     </div>`;
   });
-  // 5° grafico: Peso Fetale Stimato (EFW) — curve INTERGROWTH-21st
-  const ptsEfw=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e.peso)})).filter(pt=>!isNaN(pt.valore));
-  html+=`<div class="chart-box"><h3>Peso Fetale Stimato (g) — orientativo</h3>${svgCurva5(INTERGROWTH_EFW,ptsEfw)}
+  // 5° grafico: Peso Fetale Stimato (EFW) — curve INTERGROWTH-21st (solo se selezionato)
+  if(sel.includes('peso')){
+    const ptsEfw=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e.peso)})).filter(pt=>!isNaN(pt.valore));
+    html+=`<div class="chart-box"><h3>Peso Fetale Stimato (g) — orientativo</h3>${svgCurva5(INTERGROWTH_EFW,ptsEfw)}
       <div class="legend">
         <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
         <span><span class="dot" style="background:#fb8c00"></span>3° percentile</span>
@@ -11583,6 +11706,7 @@ function generaPaginaCurve(p, punti){
       </div>
       <div style="font-size:.68rem;color:#999;margin-top:4px">Percentili peso INTERGROWTH-21st (EFW): valori orientativi — verificare con il calcolatore ufficiale.</div>
     </div>`;
+  }
   html+=`</div>
     <div class="fonte">Curve di riferimento biometria: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.<br>Curve del peso fetale stimato: Stirnemann J, Villar J, Salomon LJ, et al. "International estimated fetal weight standards of the INTERGROWTH-21st Project." Ultrasound Obstet Gynecol 2017;49:478-486. I valori di peso e i relativi percentili qui riportati sono orientativi: per il referto clinico confrontare con il calcolatore ufficiale (fetalmedicinebarcelona.org/calc).</div>
   </body></html>`;
@@ -12598,11 +12722,10 @@ function showApptPopup(appts, oggi){
     <div style="display:flex;align-items:flex-start;gap:14px;padding:12px 0;
       ${i<appts.length-1?'border-bottom:1px solid var(--separator)':''}">
       <!-- Ora -->
-      <div style="min-width:48px;text-align:center;flex-shrink:0;
-        background:var(--green-dim);border-radius:10px;padding:6px 4px">
-        <div style="font-family:var(--font-serif);font-size:1.2rem;color:var(--green);line-height:1">
-          ${a.ora?.split(':')[0]||'--'}</div>
-        <div style="font-size:.62rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
+      <div style="min-width:58px;text-align:center;flex-shrink:0;
+        background:var(--green-dim);border-radius:10px;padding:8px 4px">
+        <div style="font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:var(--green);line-height:1;white-space:nowrap">
+          ${a.ora||'--:--'}</div>
       </div>
       <!-- Info -->
       <div style="flex:1">
@@ -12638,10 +12761,9 @@ function renderFBAppts(){
     const nomeClick=`onclick="apriModificaAppuntamento('${a.id}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" title="Modifica questo appuntamento"`;
     const centroHtml=a.createdByOrg?`<span class="badge badge-blue" style="margin-left:6px">🏥 ${a.createdByOrg}</span>`:'<span class="badge badge-purple" style="margin-left:6px">👩‍⚕️ Dr.ssa Guidi</span>';
     return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid var(--separator)">
-      <div style="min-width:44px;text-align:center;flex-shrink:0">
-        ${showDate?`<div style="font-size:.65rem;color:var(--label4);font-weight:700">${dStr}</div>`:''}
-        <div style="font-family:var(--font-serif);font-size:1.2rem;color:var(--primary);line-height:1">${a.ora?.split(':')[0]||'--'}</div>
-        <div style="font-size:.7rem;color:var(--label4)">:${a.ora?.split(':')[1]||'--'}</div>
+      <div style="min-width:58px;text-align:center;flex-shrink:0">
+        ${showDate?`<div style="font-size:.65rem;color:var(--label4);font-weight:700;margin-bottom:3px">${dStr}</div>`:''}
+        <div style="font-family:var(--font-serif);font-size:1.05rem;font-weight:700;color:var(--primary);line-height:1;white-space:nowrap;background:var(--surface2);border-radius:8px;padding:6px 4px">${a.ora||'--:--'}</div>
       </div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:.875rem;color:var(--label)" ${nomeClick}>${a.pazienteNome||'–'} ${centroHtml}</div>
