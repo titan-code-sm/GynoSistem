@@ -18,7 +18,8 @@
   const T = window.__TAURI__;
   if(!T || !T.core){ console.warn('MED System desktop: ambiente Tauri non rilevato, uso archivio del browser'); return; }
   const invoke = T.core.invoke;
-  const NOME_DB = 'medsystem-gineco.db';
+  // Un database per versione: medsystem-gineco.db, medsystem-base.db...
+  const NOME_DB = 'medsystem-' + (window.GS_MODELLO_APP || 'gineco') + '.db';
   const BASE_WEB = 'https://titan-code-sm.github.io/GynoSistem/';
   const STORICO_OGNI_MS = 60*60*1000;
   const STORICO_MAX = 30;
@@ -27,17 +28,38 @@
 
   // ── Cifratura ──
   const PREFISSO = 'enc1:';
-  let _chiave = null;
-  async function chiave(){
-    if(_chiave) return _chiave;
+  // Una sola richiesta alla volta: due salvataggi simultanei al primo avvio
+  // non devono creare due chiavi diverse.
+  let _chiaveP = null;
+  function chiave(){
+    if(!_chiaveP){
+      _chiaveP = caricaChiave();
+      _chiaveP.catch(()=>{ _chiaveP = null; });
+    }
+    return _chiaveP;
+  }
+  async function caricaChiave(){
     let k = await invoke('chiave_db_leggi');
     if(!k){
+      // Dati già cifrati ma chiave assente in Windows (es. altro account Windows):
+      // NON se ne crea una nuova, che li renderebbe irrecuperabili.
+      if(await ciSonoDatiCifrati())
+        throw new Error('chiave di cifratura non trovata in Windows. I dati sono intatti ma non leggibili da questo account: ripristina un backup completo.');
       k = gsBufToB64(crypto.getRandomValues(new Uint8Array(32)));
       await invoke('chiave_db_salva', { chiave: k });
       if(await invoke('chiave_db_leggi') !== k) throw new Error('La chiave di cifratura non è stata salvata da Windows');
     }
-    _chiave = await crypto.subtle.importKey('raw', gsB64ToBuf(k), 'AES-GCM', false, ['encrypt','decrypt']);
-    return _chiave;
+    return crypto.subtle.importKey('raw', gsB64ToBuf(k), 'AES-GCM', false, ['encrypt','decrypt']);
+  }
+  async function ciSonoDatiCifrati(){
+    const db = await invoke('plugin:sql|load', { db: 'sqlite:' + NOME_DB });
+    for(const [tab, col] of [['archivio','json'], ['archivio_storico','json'], ['allegati','meta']]){
+      let r = [];
+      try{ r = await invoke('plugin:sql|select', { db, query: `SELECT COUNT(*) AS n FROM ${tab} WHERE substr(${col},1,5)=$1`, values: [PREFISSO] }); }
+      catch(e){ continue; } // tabella non ancora creata: database nuovo
+      if(r[0] && r[0].n > 0) return true;
+    }
+    return false;
   }
   async function cifra(testo){
     const iv = crypto.getRandomValues(new Uint8Array(12));

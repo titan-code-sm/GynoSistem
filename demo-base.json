@@ -1,0 +1,748 @@
+{
+ "dataRiferimento": "2026-10-05",
+ "pazienti": [
+  {
+   "id": 1800000000000,
+   "nome": "Marco",
+   "cognome": "Rossi",
+   "nascita": "1968-04-22",
+   "tel": "+39 331 1000000",
+   "email": "marco.rossi@esempio.it",
+   "cf": "",
+   "note": "Iperteso in terapia. Ex fumatore (smesso 2015).",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000001,
+     "data": "2026-03-09",
+     "ora": "09:30",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Ipertensione arteriosa dal 2019. Appendicectomia (1985).",
+      "anamnesi-prossima": "Valori domiciliari 145-150/90 nelle ultime settimane.",
+      "farmaci": "Ramipril 5 mg 1 cp/die",
+      "allergie": "Nessuna nota",
+      "familiarita": "Padre: infarto miocardico a 62 anni.",
+      "pa": "150/92",
+      "fc": "78",
+      "temp": "",
+      "sat": "98",
+      "peso": "86",
+      "altezza": "176",
+      "bmi": "27.8",
+      "esame": "Buone condizioni generali. Toni cardiaci validi, ritmici, pause libere. MV fisiologico su tutto l'ambito polmonare. Addome trattabile. Polsi periferici presenti e simmetrici.",
+      "esami-eseguiti": "ECG: ritmo sinusale, FC 76 bpm, nessuna alterazione della ripolarizzazione.",
+      "esami-richiesti": "Emocromo, glicemia, creatinina, elettroliti, profilo lipidico, esame urine.",
+      "diagnosi": "Ipertensione arteriosa non a target.",
+      "terapia": "Ramipril 10 mg 1 cp al mattino.\nRiduzione del sale, attività fisica aerobica 30 min/die.",
+      "prossimo": "Tra 2 mesi con esami e diario pressorio.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Controllo pressorio, riferisce cefalea mattutina occasionale."
+     }
+    },
+    {
+     "id": 1800000000002,
+     "data": "2026-06-07",
+     "ora": "10:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Ipertensione arteriosa dal 2019. Appendicectomia (1985).",
+      "anamnesi-prossima": "Diario pressorio: media 132/84.",
+      "farmaci": "Ramipril 10 mg 1 cp/die",
+      "allergie": "Nessuna nota",
+      "familiarita": "Padre: infarto miocardico a 62 anni.",
+      "pa": "134/84",
+      "fc": "72",
+      "temp": "",
+      "sat": "98",
+      "peso": "84",
+      "altezza": "176",
+      "bmi": "27.1",
+      "esame": "Obiettività cardiopolmonare nella norma.",
+      "esami-eseguiti": "Colesterolo totale 228 mg/dl, LDL 152 mg/dl, HDL 44 mg/dl, trigliceridi 160 mg/dl. Glicemia 98 mg/dl. Creatinina 0,9 mg/dl.",
+      "esami-richiesti": "",
+      "diagnosi": "Ipertensione arteriosa in buon controllo. Ipercolesterolemia.",
+      "terapia": "Ramipril 10 mg 1 cp al mattino.\nAtorvastatina 20 mg 1 cp la sera.",
+      "prossimo": "Tra 6 mesi con profilo lipidico e transaminasi.",
+      "note": "Calo ponderale di 2 kg, motivato.",
+      "consenso-visita": "",
+      "motivo": "Controllo con esami."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000003,
+     "data": "2026-12-04",
+     "testo": "Ricontrollo profilo lipidico e transaminasi",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1800000000005,
+   "nome": "Laura",
+   "cognome": "Ferri",
+   "nascita": "1985-09-03",
+   "tel": "+39 332 1137531",
+   "email": "laura.ferri@esempio.it",
+   "cf": "",
+   "note": "",
+   "allergie": "Penicillina",
+   "visite": [
+    {
+     "id": 1800000000006,
+     "data": "2026-08-31",
+     "ora": "15:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Nessuna patologia di rilievo.",
+      "anamnesi-prossima": "Astenia, intolleranza al freddo, stipsi.",
+      "farmaci": "Nessuno",
+      "allergie": "Penicillina (orticaria)",
+      "familiarita": "Madre: ipotiroidismo.",
+      "pa": "118/74",
+      "fc": "62",
+      "temp": "",
+      "sat": "99",
+      "peso": "67",
+      "altezza": "164",
+      "bmi": "24.9",
+      "esame": "Cute secca. Tiroide palpabile, di consistenza aumentata, non noduli apprezzabili. Restante obiettività nella norma.",
+      "esami-eseguiti": "TSH 8,9 mUI/L, FT4 0,8 ng/dl. Anticorpi anti-TPO positivi.",
+      "esami-richiesti": "Ecografia tiroidea.",
+      "diagnosi": "Ipotiroidismo subclinico in tiroidite cronica autoimmune.",
+      "terapia": "Levotiroxina 50 mcg 1 cp a digiuno al mattino, 30 minuti prima della colazione.",
+      "prossimo": "Tra 8 settimane con TSH e FT4.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Stanchezza e aumento di peso da alcuni mesi."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000007,
+     "data": "2026-10-26",
+     "testo": "Controllo TSH dopo inizio levotiroxina",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1800000000009,
+   "nome": "Giuseppe",
+   "cognome": "Esposito",
+   "nascita": "1952-12-14",
+   "tel": "+39 333 1275062",
+   "email": "giuseppe.esposito@esempio.it",
+   "cf": "",
+   "note": "Diabete tipo 2 dal 2012.",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000010,
+     "data": "2026-07-07",
+     "ora": "11:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Diabete mellito tipo 2 (2012). Ipertensione arteriosa. Colecistectomia (2008).",
+      "anamnesi-prossima": "Glicemie a digiuno 130-150 mg/dl.",
+      "farmaci": "Metformina 1000 mg 2 cp/die, Amlodipina 5 mg 1 cp/die",
+      "allergie": "Nessuna nota",
+      "familiarita": "Madre diabetica.",
+      "pa": "138/80",
+      "fc": "74",
+      "temp": "",
+      "sat": "97",
+      "peso": "92",
+      "altezza": "172",
+      "bmi": "31.1",
+      "esame": "Piedi: cute integra, polsi pedidii presenti, sensibilità vibratoria conservata. Obiettività cardiopolmonare nella norma.",
+      "esami-eseguiti": "HbA1c 7,6%. Creatinina 1,1 mg/dl, eGFR 68. Microalbuminuria 25 mg/g.",
+      "esami-richiesti": "Fundus oculi. HbA1c tra 3 mesi.",
+      "diagnosi": "Diabete mellito tipo 2 non a target glicemico.",
+      "terapia": "Metformina 1000 mg 2 cp/die.\nSi aggiunge Empagliflozin 10 mg 1 cp al mattino.\nAmlodipina 5 mg 1 cp/die.",
+      "prossimo": "Tra 3 mesi con HbA1c.",
+      "note": "Consigliata dieta ipoglicidica e camminata quotidiana.",
+      "consenso-visita": "",
+      "motivo": "Controllo diabetologico."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000011,
+     "data": "2026-09-30",
+     "testo": "Esito fundus oculi da visionare",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1800000000013,
+   "nome": "Sara",
+   "cognome": "Conti",
+   "nascita": "1999-06-27",
+   "tel": "+39 334 1412593",
+   "email": "sara.conti@esempio.it",
+   "cf": "",
+   "note": "",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000014,
+     "data": "2026-09-21",
+     "ora": "17:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Asma lieve in età infantile.",
+      "anamnesi-prossima": "Rinorrea acquosa, prurito nasale e oculare da marzo a giugno.",
+      "farmaci": "Al bisogno antistaminico da banco",
+      "allergie": "Nessuna nota",
+      "familiarita": "Padre allergico alle graminacee.",
+      "pa": "110/70",
+      "fc": "70",
+      "temp": "",
+      "sat": "99",
+      "peso": "56",
+      "altezza": "168",
+      "bmi": "19.8",
+      "esame": "Mucosa nasale pallida ed edematosa. Torace: MV fisiologico, non rumori aggiunti.",
+      "esami-eseguiti": "Prick test: positività per graminacee (+++) e parietaria (++).",
+      "esami-richiesti": "Spirometria basale.",
+      "diagnosi": "Rinocongiuntivite allergica stagionale da graminacee e parietaria.",
+      "terapia": "Cetirizina 10 mg 1 cp la sera nel periodo dei sintomi.\nMometasone spray nasale 2 spruzzi per narice al mattino.",
+      "prossimo": "A febbraio per valutare immunoterapia specifica.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Rinite e starnuti ricorrenti in primavera."
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1800000000016,
+   "nome": "Andrea",
+   "cognome": "Gallo",
+   "nascita": "1979-02-10",
+   "tel": "+39 335 1550124",
+   "email": "andrea.gallo@esempio.it",
+   "cf": "",
+   "note": "Lavoro sedentario (impiegato).",
+   "allergie": "FANS (broncospasmo)",
+   "visite": [
+    {
+     "id": 1800000000017,
+     "data": "2026-09-28",
+     "ora": "12:15",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Episodi di lombalgia in passato.",
+      "anamnesi-prossima": "Dolore lombare basso senza irradiazione, peggiora in posizione seduta.",
+      "farmaci": "Nessuno",
+      "allergie": "FANS (broncospasmo)",
+      "familiarita": "",
+      "pa": "126/80",
+      "fc": "68",
+      "temp": "",
+      "sat": "99",
+      "peso": "81",
+      "altezza": "180",
+      "bmi": "25.0",
+      "esame": "Contrattura della muscolatura paravertebrale lombare. Lasègue negativo bilateralmente. Riflessi osteotendinei presenti e simmetrici. Forza e sensibilità conservate.",
+      "esami-eseguiti": "",
+      "esami-richiesti": "Nessuno al momento.",
+      "diagnosi": "Lombalgia acuta meccanica, senza segni di compromissione radicolare.",
+      "terapia": "Paracetamolo 1000 mg fino a 3 volte al giorno per 5 giorni (NO FANS per allergia).\nCalore locale, mantenere il movimento.",
+      "prossimo": "Se non migliora entro 3 settimane.",
+      "note": "Consigliata fisioterapia/ginnastica posturale.",
+      "consenso-visita": "",
+      "motivo": "Lombalgia da 10 giorni dopo sforzo."
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1800000000018,
+   "nome": "Francesca",
+   "cognome": "Moretti",
+   "nascita": "1960-11-05",
+   "tel": "+39 336 1687655",
+   "email": "francesca.moretti@esempio.it",
+   "cf": "",
+   "note": "",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000019,
+     "data": "2025-12-09",
+     "ora": "09:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Osteopenia (DEXA 2023).",
+      "anamnesi-prossima": "Asintomatica.",
+      "farmaci": "Colecalciferolo 25.000 UI ogni 15 giorni",
+      "allergie": "Nessuna nota",
+      "familiarita": "",
+      "pa": "128/78",
+      "fc": "70",
+      "temp": "",
+      "sat": "98",
+      "peso": "63",
+      "altezza": "160",
+      "bmi": "24.6",
+      "esame": "Obiettività generale nella norma.",
+      "esami-eseguiti": "Esami ematochimici nella norma. Vitamina D 32 ng/ml.",
+      "esami-richiesti": "DEXA lombare e femorale. Screening del colon-retto (sangue occulto).",
+      "diagnosi": "Buono stato di salute. Osteopenia in profilassi.",
+      "terapia": "Prosegue colecalciferolo 25.000 UI ogni 15 giorni.",
+      "prossimo": "Tra 1 anno.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Check-up annuale."
+     }
+    },
+    {
+     "id": 1800000000020,
+     "data": "2026-09-15",
+     "ora": "09:30",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Osteopenia (DEXA 2023).",
+      "anamnesi-prossima": "Asintomatica.",
+      "farmaci": "Colecalciferolo 25.000 UI ogni 15 giorni",
+      "allergie": "Nessuna nota",
+      "familiarita": "",
+      "pa": "130/80",
+      "fc": "72",
+      "temp": "",
+      "sat": "98",
+      "peso": "64",
+      "altezza": "160",
+      "bmi": "25.0",
+      "esame": "Obiettività generale nella norma.",
+      "esami-eseguiti": "DEXA: T-score lombare -1,8, femorale -1,5. Sangue occulto negativo.",
+      "esami-richiesti": "",
+      "diagnosi": "Osteopenia stabile.",
+      "terapia": "Prosegue colecalciferolo. Attività fisica con carico.",
+      "prossimo": "Tra 1 anno.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Check-up annuale ed esito DEXA."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000021,
+     "data": "2027-09-15",
+     "testo": "Check-up annuale",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1800000000022,
+   "nome": "Luca",
+   "cognome": "Ricci",
+   "nascita": "2012-08-19",
+   "tel": "+39 337 1825186",
+   "email": "luca.ricci@esempio.it",
+   "cf": "",
+   "note": "Minorenne: accompagnato dalla madre.",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000023,
+     "data": "2026-10-02",
+     "ora": "16:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Vaccinazioni regolari.",
+      "anamnesi-prossima": "Febbre fino a 38,8 °C, odinofagia, non tosse.",
+      "farmaci": "Paracetamolo al bisogno",
+      "allergie": "Nessuna nota",
+      "familiarita": "",
+      "pa": "",
+      "fc": "96",
+      "temp": "38,4",
+      "sat": "98",
+      "peso": "45",
+      "altezza": "155",
+      "bmi": "18.7",
+      "esame": "Faringe iperemica con essudato tonsillare bilaterale. Linfonodi laterocervicali anteriori aumentati e dolenti. Torace libero.",
+      "esami-eseguiti": "Tampone rapido per streptococco: positivo.",
+      "esami-richiesti": "",
+      "diagnosi": "Faringotonsillite streptococcica.",
+      "terapia": "Amoxicillina 50 mg/kg/die in 2 somministrazioni per 10 giorni.\nParacetamolo al bisogno per febbre.",
+      "prossimo": "Al termine della terapia se persistono i sintomi.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Febbre e mal di gola da 2 giorni."
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1800000000024,
+   "nome": "Elena",
+   "cognome": "Marino",
+   "nascita": "1974-01-30",
+   "tel": "+39 338 1962717",
+   "email": "elena.marino@esempio.it",
+   "cf": "",
+   "note": "",
+   "allergie": "",
+   "visite": [],
+   "alerts": []
+  },
+  {
+   "id": 1800000000027,
+   "nome": "Paolo",
+   "cognome": "Bruno",
+   "nascita": "1947-07-08",
+   "tel": "+39 339 2100248",
+   "email": "paolo.bruno@esempio.it",
+   "cf": "",
+   "note": "Vive con la moglie, autonomo.",
+   "allergie": "Mezzo di contrasto iodato",
+   "visite": [
+    {
+     "id": 1800000000028,
+     "data": "2026-08-06",
+     "ora": "10:30",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Cardiopatia ischemica (PTCA 2018). Fibrillazione atriale permanente. BPCO.",
+      "anamnesi-prossima": "Dispnea dopo 1 piano di scale, edemi declivi serali.",
+      "farmaci": "Apixaban 5 mg x2, Bisoprololo 2,5 mg, Furosemide 25 mg, Tiotropio inal.",
+      "allergie": "Mezzo di contrasto iodato",
+      "familiarita": "",
+      "pa": "128/76",
+      "fc": "84",
+      "temp": "",
+      "sat": "94",
+      "peso": "78",
+      "altezza": "170",
+      "bmi": "27.0",
+      "esame": "Toni aritmici. Crepitii basali bilaterali. Edemi declivi improntabili (++).",
+      "esami-eseguiti": "ECG: fibrillazione atriale a FC media 84 bpm. NT-proBNP 1850 pg/ml.",
+      "esami-richiesti": "Ecocardiogramma. Rx torace.",
+      "diagnosi": "Scompenso cardiaco in fibrillazione atriale permanente.",
+      "terapia": "Furosemide 50 mg al mattino.\nProsegue la restante terapia.\nPeso quotidiano; restrizione idrica 1,5 L/die.",
+      "prossimo": "Tra 2 settimane con esito ecocardiogramma.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Dispnea da sforzo ingravescente."
+     }
+    },
+    {
+     "id": 1800000000029,
+     "data": "2026-08-21",
+     "ora": "10:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Cardiopatia ischemica (PTCA 2018). Fibrillazione atriale permanente. BPCO.",
+      "anamnesi-prossima": "Netto miglioramento della dispnea, calo ponderale 3 kg.",
+      "farmaci": "Apixaban 5 mg x2, Bisoprololo 2,5 mg, Furosemide 50 mg, Tiotropio inal.",
+      "allergie": "Mezzo di contrasto iodato",
+      "familiarita": "",
+      "pa": "122/74",
+      "fc": "76",
+      "temp": "",
+      "sat": "96",
+      "peso": "75",
+      "altezza": "170",
+      "bmi": "26.0",
+      "esame": "Rari crepitii basali. Edemi ridotti (+).",
+      "esami-eseguiti": "Ecocardiogramma: FE 40%, insufficienza mitralica moderata. Creatinina 1,2 mg/dl, K 4,1.",
+      "esami-richiesti": "Elettroliti e creatinina tra 2 settimane.",
+      "diagnosi": "Scompenso cardiaco a frazione di eiezione lievemente ridotta, in compenso.",
+      "terapia": "Furosemide 25 mg al mattino.\nSi aggiunge Dapagliflozin 10 mg al mattino.",
+      "prossimo": "Tra 1 mese.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Controllo dopo modifica diuretico."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000030,
+     "data": "2026-10-03",
+     "testo": "Controllo elettroliti e creatinina",
+     "automatico": false
+    },
+    {
+     "id": 1800000000031,
+     "data": "2026-10-30",
+     "testo": "Rivalutazione cardiologica",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1800000000033,
+   "nome": "Chiara",
+   "cognome": "Lombardi",
+   "nascita": "1990-03-15",
+   "tel": "+39 340 2237779",
+   "email": "chiara.lombardi@esempio.it",
+   "cf": "",
+   "note": "",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000034,
+     "data": "2026-05-08",
+     "ora": "18:00",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Nessuna patologia di rilievo.",
+      "anamnesi-prossima": "Pirosi e rigurgito acido post-prandiali da 2 mesi, peggiorano in posizione supina.",
+      "farmaci": "Nessuno",
+      "allergie": "Nessuna nota",
+      "familiarita": "",
+      "pa": "112/72",
+      "fc": "66",
+      "temp": "",
+      "sat": "99",
+      "peso": "70",
+      "altezza": "166",
+      "bmi": "25.4",
+      "esame": "Addome trattabile, lievemente dolente in epigastrio alla palpazione profonda. Peristalsi presente.",
+      "esami-eseguiti": "",
+      "esami-richiesti": "Ricerca Helicobacter pylori (breath test).",
+      "diagnosi": "Malattia da reflusso gastroesofageo.",
+      "terapia": "Pantoprazolo 20 mg 1 cp a digiuno per 4 settimane.\nEvitare pasti abbondanti serali, caffè e alcol.",
+      "prossimo": "Tra 2 mesi.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Bruciore gastrico ricorrente."
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1800000000035,
+   "nome": "Davide",
+   "cognome": "Colombo",
+   "nascita": "2001-10-21",
+   "tel": "+39 341 2375310",
+   "email": "davide.colombo@esempio.it",
+   "cf": "",
+   "note": "Sportivo (calcio a livello dilettantistico).",
+   "allergie": "",
+   "visite": [
+    {
+     "id": 1800000000036,
+     "data": "2026-09-10",
+     "ora": "14:30",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Nessuna patologia.",
+      "anamnesi-prossima": "Asintomatico.",
+      "farmaci": "Nessuno",
+      "allergie": "Nessuna nota",
+      "familiarita": "Nessuna morte improvvisa in famiglia.",
+      "pa": "118/72",
+      "fc": "56",
+      "temp": "",
+      "sat": "99",
+      "peso": "74",
+      "altezza": "182",
+      "bmi": "22.3",
+      "esame": "Obiettività cardiovascolare e respiratoria nella norma.",
+      "esami-eseguiti": "ECG a riposo: bradicardia sinusale (FC 56 bpm) da atleta, nessuna anomalia.",
+      "esami-richiesti": "",
+      "diagnosi": "Idoneo all'attività sportiva non agonistica.",
+      "terapia": "",
+      "prossimo": "Rinnovo tra 1 anno.",
+      "note": "Rilasciato certificato.",
+      "consenso-visita": "",
+      "motivo": "Certificato di idoneità sportiva non agonistica."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000037,
+     "data": "2027-09-10",
+     "testo": "Rinnovo certificato sportivo",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1800000000038,
+   "nome": "Anna",
+   "cognome": "Fontana",
+   "nascita": "1957-05-02",
+   "tel": "+39 342 2512841",
+   "email": "anna.fontana@esempio.it",
+   "cf": "",
+   "note": "",
+   "allergie": "Sulfamidici",
+   "visite": [
+    {
+     "id": 1800000000039,
+     "data": "2026-10-04",
+     "ora": "11:30",
+     "tipo": "gen",
+     "genData": {
+      "anamnesi-remota": "Ipertensione arteriosa.",
+      "anamnesi-prossima": "Rigidità mattutina di circa 15 minuti, dolore alle interfalangee distali.",
+      "farmaci": "Amlodipina 5 mg",
+      "allergie": "Sulfamidici",
+      "familiarita": "Madre con artrosi.",
+      "pa": "136/82",
+      "fc": "74",
+      "temp": "",
+      "sat": "98",
+      "peso": "68",
+      "altezza": "158",
+      "bmi": "27.2",
+      "esame": "Noduli di Heberden alle IFD del 2° e 3° dito bilateralmente. Non tumefazioni delle MCF.",
+      "esami-eseguiti": "",
+      "esami-richiesti": "VES, PCR, fattore reumatoide, anti-CCP. Rx mani.",
+      "diagnosi": "Sospetta artrosi delle mani; escludere forma infiammatoria.",
+      "terapia": "Paracetamolo 1000 mg al bisogno.\nEsercizi di mobilizzazione delle mani.",
+      "prossimo": "Con esito esami.",
+      "note": "",
+      "consenso-visita": "",
+      "motivo": "Dolore e rigidità alle mani al mattino."
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1800000000040,
+     "data": "2026-10-25",
+     "testo": "Esito esami reumatologici",
+     "automatico": false
+    }
+   ]
+  }
+ ],
+ "agenda": [],
+ "appuntamenti": [
+  {
+   "id": "app_mywpiww4",
+   "pazienteId": "1800000000000",
+   "pazienteNome": "Rossi Marco",
+   "data": "2026-10-08",
+   "ora": "09:00",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Controllo pressione e terapia",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiww8",
+   "pazienteId": "1800000000005",
+   "pazienteNome": "Ferri Laura",
+   "data": "2026-10-27",
+   "ora": "15:30",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Controllo funzionalità tiroidea",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiwwc",
+   "pazienteId": "1800000000009",
+   "pazienteNome": "Esposito Giuseppe",
+   "data": "2026-10-06",
+   "ora": "11:00",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Controllo diabetologico con HbA1c",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiwwf",
+   "pazienteId": "1800000000013",
+   "pazienteNome": "Conti Sara",
+   "data": "2026-10-14",
+   "ora": "16:30",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Esito spirometria",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiwwp",
+   "pazienteId": "1800000000024",
+   "pazienteNome": "Marino Elena",
+   "data": "2026-10-05",
+   "ora": "17:30",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Prima visita",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiwwq",
+   "pazienteId": "1800000000024",
+   "pazienteNome": "Marino Elena",
+   "data": "2026-10-19",
+   "ora": "10:30",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Esito esami",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiwww",
+   "pazienteId": "1800000000027",
+   "pazienteNome": "Bruno Paolo",
+   "data": "2026-10-07",
+   "ora": "10:00",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Controllo scompenso",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_mywpiwx5",
+   "pazienteId": "1800000000038",
+   "pazienteNome": "Fontana Anna",
+   "data": "2026-10-26",
+   "ora": "11:30",
+   "durata": 30,
+   "tipo": "visita",
+   "stato": "confermato",
+   "note": "Esito esami e Rx mani",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  }
+ ]
+}

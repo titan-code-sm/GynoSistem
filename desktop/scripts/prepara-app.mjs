@@ -6,6 +6,8 @@
 //  - aggiunge desktop-bridge.js, che collega l'app al database interno
 // Se lanciato da un tag "desktop-vX.Y.Z" (GitHub Actions) imposta anche la
 // versione dell'app.
+// Modello (specialità) come primo argomento: "gineco" (predefinito) o "base".
+//   node scripts/prepara-app.mjs base
 import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
@@ -16,12 +18,15 @@ const ROOT = path.resolve(DESK, '..');
 const APP = path.join(DESK, 'app');
 const VENDOR = path.join(APP, 'vendor');
 const CACHE = path.join(DESK, '.vendor-cache');
+const MODELLI = ['gineco', 'base'];
+const MODELLO = process.argv[2] || 'gineco';
+if (!MODELLI.includes(MODELLO)) throw new Error(`Modello sconosciuto: ${MODELLO} (validi: ${MODELLI.join(', ')})`);
 
 await rm(APP, { recursive: true, force: true });
 await mkdir(VENDOR, { recursive: true });
 await mkdir(CACHE, { recursive: true });
 
-for (const f of ['logo.png', 'logo-medsystem.png', 'logo2.png', 'demo-pazienti.json']) {
+for (const f of ['logo.png', 'logo-medsystem.png', 'logo2.png', 'demo-pazienti.json', 'demo-base.json']) {
   if (existsSync(path.join(ROOT, f))) await cp(path.join(ROOT, f), path.join(APP, f));
 }
 if (existsSync(path.join(ROOT, 'consensi-pdf'))) {
@@ -48,6 +53,11 @@ for (const url of urls) {
   console.log(`  libreria locale: vendor/${nome}`);
 }
 
+// Il modello va deciso prima che parta lo script dell'app
+if (!html.includes('<head>')) throw new Error('index.html senza <head>');
+html = html.replace('<head>', `<head>
+<script>window.GS_MODELLO_APP='${MODELLO}';</script>`);
+
 const chiusura = '</body>';
 const pos = html.lastIndexOf(chiusura);
 if (pos < 0) throw new Error('index.html senza </body>');
@@ -63,4 +73,4 @@ if (m) {
   await writeFile(confPath, JSON.stringify(conf, null, 2) + '\n', 'utf8');
   console.log(`  versione app: ${m[1]}`);
 }
-console.log('desktop/app pronta.');
+console.log(`desktop/app pronta (modello: ${MODELLO}).`);

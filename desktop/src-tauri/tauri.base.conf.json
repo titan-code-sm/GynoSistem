@@ -1,0 +1,22 @@
+{
+  "productName": "MED System",
+  "mainBinaryName": "MED System",
+  "identifier": "it.medsystem.base",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "MED System",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1000,
+        "minHeight": 650,
+        "maximized": true
+      }
+    ]
+  },
+  "bundle": {
+    "publisher": "MED System",
+    "shortDescription": "MED System — gestione dello studio medico"
+  }
+}

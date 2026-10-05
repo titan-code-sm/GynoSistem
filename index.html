@@ -1057,8 +1057,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
     <div class="nav-group" id="nav-group-strumenti">
       <div class="nav-group-label">Strumenti</div>
-      <button onclick="naviga('guide')" id="nav-guide"><span class="nav-icon">📋</span>Linee Guida</button>
-      <button onclick="naviga('farmacia')" id="nav-farmacia"><span class="nav-icon">💊</span>Farmacia</button>
+      <button onclick="naviga('guide')" id="nav-guide" data-modelli="gineco"><span class="nav-icon">📋</span>Linee Guida</button>
+      <button onclick="naviga('farmacia')" id="nav-farmacia" data-modelli="gineco"><span class="nav-icon">💊</span>Farmacia</button>
       <button onclick="naviga('utility')" id="nav-utility"><span class="nav-icon">🧮</span>Utility</button>
       <button onclick="naviga('backup')" id="nav-backup"><span class="nav-icon">🗄️</span>Archiviazione</button>
       <button onclick="naviga('impostazioni')" id="nav-impostazioni"><span class="nav-icon">⚙️</span>Impostazioni</button>
@@ -1244,18 +1244,18 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="card">
     <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
       <input type="text" id="search-bar" onkeyup="renderPazienti()" placeholder="🔍  Cerca per nome, cognome, diagnosi, note..." style="flex:1;min-width:200px;margin-bottom:0;">
-      <button class="btn btn-ghost" id="filtro-gravidanze-btn" onclick="toggleFiltroGravidanze()">🤰 Solo gravidanze attive</button>
+      <button class="btn btn-ghost" id="filtro-gravidanze-btn" data-modelli="gineco" onclick="toggleFiltroGravidanze()">🤰 Solo gravidanze attive</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <button class="btn btn-primary btn-sm filtro-cat-btn" data-cat="all" onclick="setFiltroCategoriaPaz('all')">Tutte</button>
-      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="gyno" onclick="setFiltroCategoriaPaz('gyno')">🌸 Ginecologiche</button>
-      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="ob" onclick="setFiltroCategoriaPaz('ob')">🤰 Ostetriche</button>
-      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="eco" onclick="setFiltroCategoriaPaz('eco')">🖥️ Ecografie</button>
+      <button class="btn btn-primary btn-sm filtro-cat-btn" data-cat="all" data-modelli="gineco" onclick="setFiltroCategoriaPaz('all')">Tutte</button>
+      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="gyno" data-modelli="gineco" onclick="setFiltroCategoriaPaz('gyno')">🌸 Ginecologiche</button>
+      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="ob" data-modelli="gineco" onclick="setFiltroCategoriaPaz('ob')">🤰 Ostetriche</button>
+      <button class="btn btn-ghost btn-sm filtro-cat-btn" data-cat="eco" data-modelli="gineco" onclick="setFiltroCategoriaPaz('eco')">🖥️ Ecografie</button>
       <button class="btn btn-ghost btn-sm" onclick="toggleFiltriAvanzati()" id="filtri-avanzati-toggle" style="margin-left:auto;">⚙️ Filtri avanzati</button>
     </div>
     <div id="filtri-avanzati-box" style="display:none;background:var(--surface2);border-radius:10px;padding:14px;margin-bottom:16px;">
       <div class="field-row r3">
-        <div class="form-group"><label class="form-label">Trimestre di gravidanza</label>
+        <div class="form-group" data-modelli="gineco"><label class="form-label">Trimestre di gravidanza</label>
           <select id="filtro-trimestre" onchange="renderPazienti()">
             <option value="">Tutti</option>
             <option value="1">1° trimestre (0-13+6)</option>
@@ -1359,7 +1359,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="page-header">
     <div><div class="page-title">Strumenti Clinici</div><div class="page-subtitle">Calcolatori e valori di riferimento</div></div>
   </div>
-  <div class="g3">
+  <div class="g3" data-modelli="gineco">
     <div class="card">
       <h4 style="font-family:var(--font-serif);font-size:1.1rem;margin-bottom:20px;">🤰 Ruota Ostetrica</h4>
       <div class="form-group">
@@ -1407,9 +1407,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <label class="form-label">Tipo</label>
         <select id="appt-filter-tipo" onchange="renderFBAppts()" style="width:auto">
           <option value="">Tutti</option>
-          <option value="ginecologica">🌸 Ginecologica</option>
-          <option value="ostetrica">🤰 Ostetrica</option>
-          <option value="ecografia">🖥️ Ecografia</option>
+          <option value="visita" data-modelli="base">🩺 Visita</option>
+          <option value="ginecologica" data-modelli="gineco">🌸 Ginecologica</option>
+          <option value="ostetrica" data-modelli="gineco">🤰 Ostetrica</option>
+          <option value="ecografia" data-modelli="gineco">🖥️ Ecografia</option>
           <option value="primo_accesso">🔬 Primo Accesso</option>
           <option value="controllo">💊 Controllo</option>
         </select>
@@ -1482,9 +1483,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <label class="form-label">Tipo Visita *</label>
         <select id="np-tipo">
           <option value="">-- Seleziona --</option>
-          <option value="ginecologica">🌸 Visita Ginecologica</option>
-          <option value="ostetrica">🤰 Visita Ostetrica</option>
-          <option value="ecografia">🖥️ Ecografia</option>
+          <option value="visita" data-modelli="base">🩺 Visita</option>
+          <option value="ginecologica" data-modelli="gineco">🌸 Visita Ginecologica</option>
+          <option value="ostetrica" data-modelli="gineco">🤰 Visita Ostetrica</option>
+          <option value="ecografia" data-modelli="gineco">🖥️ Ecografia</option>
           <option value="primo_accesso">🔬 Primo Accesso</option>
           <option value="controllo">💊 Controllo Farmacologico</option>
           <option value="ritiro_referto">📋 Ritiro Referto</option>
@@ -1534,9 +1536,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <label class="form-label">Tipo Visita *</label>
         <select id="ma-tipo">
           <option value="">-- Seleziona --</option>
-          <option value="ginecologica">🌸 Visita Ginecologica</option>
-          <option value="ostetrica">🤰 Visita Ostetrica</option>
-          <option value="ecografia">🖥️ Ecografia</option>
+          <option value="visita" data-modelli="base">🩺 Visita</option>
+          <option value="ginecologica" data-modelli="gineco">🌸 Visita Ginecologica</option>
+          <option value="ostetrica" data-modelli="gineco">🤰 Visita Ostetrica</option>
+          <option value="ecografia" data-modelli="gineco">🖥️ Ecografia</option>
           <option value="primo_accesso">🔬 Primo Accesso</option>
           <option value="controllo">💊 Controllo Farmacologico</option>
           <option value="ritiro_referto">📋 Ritiro Referto</option>
@@ -1931,7 +1934,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         </div>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost" id="h-grav-conclusa-btn" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna Gravidanza Conclusa</button>
+        <button class="btn btn-ghost" id="h-grav-conclusa-btn" data-modelli="gineco" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna Gravidanza Conclusa</button>
         <button class="btn btn-ghost" onclick="esportaCartellaPDF()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" title="Tutte le visite di questa paziente in un unico PDF">📄 Esporta Cartella</button>
         <button class="btn btn-ghost" onclick="toggleEdit()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;">✏️ Modifica</button>
         <button class="btn" style="background:rgba(255,255,255,0.9);color:var(--label);" onclick="openTypeModal()">+ Nuova Visita</button>
@@ -1985,7 +1988,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
       <button class="paz-tab" data-tab="farmaci" onclick="pazSwitchTab('farmaci')"><span class="pt-ic">💊</span>Farmaci Attuali</button>
       <button class="paz-tab" id="paz-tab-consensi" style="display:none;" data-tab="consensi" onclick="pazSwitchTab('consensi')"><span class="pt-ic">✍️</span>Consensi Firmati<span class="pt-badge" id="pt-badge-consensi"></span></button>
       <button class="paz-tab" data-tab="note" onclick="pazSwitchTab('note')"><span class="pt-ic">📝</span>Note & Anamnesi</button>
-      <button class="paz-tab" data-tab="screening" onclick="pazSwitchTab('screening')"><span class="pt-ic">🔬</span>Screening</button>
+      <button class="paz-tab" data-tab="screening" data-modelli="gineco" onclick="pazSwitchTab('screening')"><span class="pt-ic">🔬</span>Screening</button>
       <button class="paz-tab" data-tab="promemoria" onclick="pazSwitchTab('promemoria')"><span class="pt-ic">🔔</span>Promemoria<span class="pt-badge" id="pt-badge-promemoria"></span></button>
       <button class="paz-tab" data-tab="referti" onclick="pazSwitchTab('referti')"><span class="pt-ic">📎</span>Referti Esterni</button>
     </div>
@@ -2000,7 +2003,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         <div class="paz-pane-header">
           <div><div class="paz-pane-title">💊 Farmaci Attuali</div><div class="paz-pane-sub">Ultima terapia prescritta e storico nel tempo</div></div>
           <div style="display:flex;gap:6px;flex-shrink:0;">
-            <button class="btn btn-ghost btn-sm" onclick="apriSelettoreFarmaciPaziente()" title="Prescrivi farmaci dal prontuario e/o crea la ricetta">💊 Prescrivi</button>
+            <button class="btn btn-ghost btn-sm" data-modelli="gineco" onclick="apriSelettoreFarmaciPaziente()" title="Prescrivi farmaci dal prontuario e/o crea la ricetta">💊 Prescrivi</button>
             <button class="btn btn-ghost btn-sm btn-icon" onclick="apriNuovoFarmacoManuale()" title="Aggiungi farmaco a mano">➕</button>
           </div>
         </div>
@@ -2420,15 +2423,19 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <h3>Nuova Visita</h3>
     <p>Seleziona la tipologia di visita da registrare</p>
     <div class="visit-type-grid">
-      <div class="visit-type-card" onclick="pazChiediConsensoPrimaVisita('gyno')">
+      <div class="visit-type-card" data-modelli="base" onclick="pazChiediConsensoPrimaVisita('gen')">
+        <div class="vt-emoji">🩺</div>
+        <div class="vt-name">Visita</div>
+      </div>
+      <div class="visit-type-card" data-modelli="gineco" onclick="pazChiediConsensoPrimaVisita('gyno')">
         <div class="vt-emoji">🌸</div>
         <div class="vt-name">Ginecologica</div>
       </div>
-      <div class="visit-type-card" onclick="pazChiediConsensoPrimaVisita('ob')">
+      <div class="visit-type-card" data-modelli="gineco" onclick="pazChiediConsensoPrimaVisita('ob')">
         <div class="vt-emoji">🤰</div>
         <div class="vt-name">Ostetrica</div>
       </div>
-      <div class="visit-type-card" onclick="pazChiediConsensoPrimaVisita('eco')">
+      <div class="visit-type-card" data-modelli="gineco" onclick="pazChiediConsensoPrimaVisita('eco')">
         <div class="vt-emoji">🖥️</div>
         <div class="vt-name">Ecografia</div>
       </div>
@@ -2575,6 +2582,12 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-doppler')">〜 Doppler</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-note')">📝 Note Ecografiche</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">2</span>Referto</button>
+      </div>
+      <div class="editor-nav" id="editor-nav-gen" style="display:none">
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'gn-1')"><span class="step-num">1</span>Motivo e anamnesi</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'gn-2')"><span class="step-num">2</span>Esame obiettivo</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'gn-3')"><span class="step-num">3</span>Esami e accertamenti</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'gn-4')"><span class="step-num">4</span>Conclusioni</button>
       </div>
       <div class="editor-content">
         <div id="gyno-panels" style="display:block">
@@ -3538,6 +3551,77 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 
         </div><!-- /eco-panels -->
 
+        <!-- ════════ VISITA GENERICA (modello Base: valida per ogni specialità) ════════ -->
+        <div id="gen-panels" style="display:none">
+          <input type="hidden" id="gn-consenso-visita">
+          <div id="gn-1" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🗒️">Motivo della visita</h4>
+              <div class="form-group"><textarea id="gn-motivo" rows="3" placeholder="Perché la persona si presenta oggi, sintomi riferiti, da quanto tempo…"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="📚">Anamnesi</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Anamnesi patologica remota</label><textarea id="gn-anamnesi-remota" rows="3" placeholder="Patologie, interventi, ricoveri precedenti"></textarea></div>
+                <div class="form-group"><label class="form-label">Anamnesi patologica prossima</label><textarea id="gn-anamnesi-prossima" rows="3" placeholder="Storia del problema attuale"></textarea></div>
+              </div>
+              <div class="field-row r3">
+                <div class="form-group"><label class="form-label">Farmaci in uso</label><textarea id="gn-farmaci" rows="2"></textarea></div>
+                <div class="form-group"><label class="form-label">Allergie</label><textarea id="gn-allergie" rows="2" placeholder="es. nessuna nota"></textarea></div>
+                <div class="form-group"><label class="form-label">Familiarità</label><textarea id="gn-familiarita" rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+          <div id="gn-2" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="📏">Parametri</h4>
+              <div class="field-row r4" style="margin-bottom:10px">
+                <div class="form-group"><label class="form-label">Pressione (mmHg)</label><input id="gn-pa" placeholder="es. 120/80"></div>
+                <div class="form-group"><label class="form-label">Frequenza cardiaca (bpm)</label><input id="gn-fc" placeholder="es. 72"></div>
+                <div class="form-group"><label class="form-label">Temperatura (°C)</label><input id="gn-temp" placeholder="es. 36.6"></div>
+                <div class="form-group"><label class="form-label">Saturazione O₂ (%)</label><input id="gn-sat" placeholder="es. 98"></div>
+              </div>
+              <div class="field-row r3">
+                <div class="form-group"><label class="form-label">Peso (kg)</label><input id="gn-peso" oninput="calcBMIGen()"></div>
+                <div class="form-group"><label class="form-label">Altezza (cm)</label><input id="gn-altezza" oninput="calcBMIGen()"></div>
+                <div class="form-group"><label class="form-label">BMI (automatico)</label><input id="gn-bmi" readonly></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🩺">Esame obiettivo</h4>
+              <div class="form-group"><textarea id="gn-esame" rows="6" placeholder="Esame obiettivo generale e distrettuale"></textarea></div>
+            </div>
+          </div>
+          <div id="gn-3" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🔬">Esami eseguiti / in visione</h4>
+              <div class="form-group"><textarea id="gn-esami-eseguiti" rows="5" placeholder="Esami di laboratorio, strumentali o eseguiti durante la visita, con esito"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="📝">Esami richiesti</h4>
+              <div class="form-group"><textarea id="gn-esami-richiesti" rows="4"></textarea></div>
+            </div>
+          </div>
+          <div id="gn-4" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="✅">Diagnosi / conclusioni</h4>
+              <div class="form-group"><textarea id="gn-diagnosi" rows="5"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="💊">Terapia</h4>
+              <div class="form-group"><textarea id="gn-terapia" rows="4" placeholder="Farmaco, dose, durata…"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔄">Prossimo controllo</h4>
+              <div class="form-group"><textarea id="gn-prossimo" rows="2" placeholder="es. tra 3 mesi, oppure 15/01/2027"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🗒️">Note</h4>
+              <div class="form-group"><textarea id="gn-note" rows="3"></textarea></div>
+            </div>
+          </div>
+        </div><!-- /gen-panels -->
+
       </div>
     </div>
 
@@ -3616,15 +3700,51 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 <div id="gs-toast-container"></div>
 
 <script>
-// Nome dell'app. "MED System" è la famiglia di app per specialità mediche;
-// questa è la versione ginecologica. Per un'altra specialità basta cambiare qui
-// e nelle poche scritte statiche dell'HTML (titolo, barra mobile, login).
-const GS_APP_NOME='MED System', GS_APP_SPECIALITA='Gineco';
-const GS_APP_NOME_COMPLETO=GS_APP_NOME+' '+GS_APP_SPECIALITA;
-const GS_APP_FILE='MEDSystem_'+GS_APP_SPECIALITA; // prefisso dei file scaricati
 // Fuori dall'app desktop (sito web) MED System funziona solo come demo, con
 // pazienti di esempio e senza account: i dati reali vivono solo nell'app.
 const GS_SITO_DEMO = !window.__TAURI__;
+// "MED System" è la famiglia di app per specialità mediche. Il MODELLO decide
+// quale versione è: "gineco" (visite ginecologiche, ostetriche, ecografie,
+// curve, prontuario e linee guida ginecologiche) oppure "base", valida per
+// ogni specialità (visita generica, niente parti ginecologiche).
+// App desktop: il modello è scritto da prepara-app.mjs (window.GS_MODELLO_APP).
+// Sito demo: è quello scelto nel portale (config/demo), ricordato nel browser.
+const GS_MODELLI={
+  gineco:{ nome:'Ginecologia e Ostetricia', specialita:'Gineco', ruolo:'Ginecologia · Ostetricia',
+    spec:'Specialista in Ginecologia e Ostetricia', dati:'demo-pazienti.json' },
+  base:{ nome:'Base (tutte le specialità)', specialita:'', ruolo:'Studio medico',
+    spec:'', dati:'demo-base.json' }
+};
+const GS_MODELLO=(()=>{
+  let m=window.GS_MODELLO_APP;
+  if(!m && GS_SITO_DEMO){ try{ m=localStorage.getItem('gs_modello_demo'); }catch(e){} }
+  return GS_MODELLI[m] ? m : 'gineco';
+})();
+const GS_APP_NOME='MED System', GS_APP_SPECIALITA=GS_MODELLI[GS_MODELLO].specialita;
+const GS_APP_NOME_COMPLETO=GS_APP_SPECIALITA ? GS_APP_NOME+' '+GS_APP_SPECIALITA : GS_APP_NOME;
+const GS_APP_FILE='MEDSystem'+(GS_APP_SPECIALITA?'_'+GS_APP_SPECIALITA:''); // prefisso dei file scaricati
+// Gli elementi con data-modelli="gineco" (o "base") si vedono solo in quel modello.
+(function applicaModello(){
+  const m=GS_MODELLI[GS_MODELLO];
+  const st=document.createElement('style');
+  st.textContent=`[data-modelli]:not([data-modelli~="${GS_MODELLO}"]){display:none!important}`;
+  document.head.appendChild(st);
+  document.documentElement.dataset.modello=GS_MODELLO;
+  document.title=GS_APP_NOME_COMPLETO;
+  const testo=(sel,t)=>document.querySelectorAll(sel).forEach(el=>{ el.textContent=t; });
+  testo('.mob-bar-title', GS_APP_NOME_COMPLETO);
+  testo('.app-brand-spec', m.specialita);
+  testo('.brand-role', m.ruolo);
+  const lv=document.querySelector('#login-overlay .login-version');
+  if(lv) lv.textContent=(m.specialita?m.specialita+' · ':'')+'v15.0 · San Marino';
+  if(GS_MODELLO!=='gineco'){
+    ['rxv-cfg-spec','bv-spec','set-print-spec'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder='es. Specialista in Cardiologia'; });
+    // In Base "paziente" è al maschile/neutro, non solo al femminile
+    const nn=document.getElementById('nav-nuova'); if(nn) nn.lastChild.textContent='Nuovo Paziente';
+    testo('#sec-nuova .page-title','Nuovo Paziente');
+    testo('#sec-archivio .page-header .btn-primary','+ Nuovo Paziente');
+  }
+})();
 // ═══════════════════════════════════════════════════
 //  DATABASE & STATE
 // ═══════════════════════════════════════════════════
@@ -4025,6 +4145,37 @@ function setGynoData(data){
   const chk=document.getElementById('gd-informativa-chk');
   if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   calcGynoBMI();
+}
+
+// ── VISITA GENERICA (modello Base) ──
+const GEN_FIELDS=['motivo','anamnesi-remota','anamnesi-prossima','farmaci','allergie','familiarita',
+  'pa','fc','temp','sat','peso','altezza','bmi','esame','esami-eseguiti','esami-richiesti',
+  'diagnosi','terapia','prossimo','note','consenso-visita'];
+function getGenData(){
+  const d={};
+  GEN_FIELDS.forEach(f=>{ const el=document.getElementById('gn-'+f); if(el) d[f]=el.value; });
+  return d;
+}
+function setGenData(data){
+  if(!data) return;
+  GEN_FIELDS.forEach(f=>{ const el=document.getElementById('gn-'+f); if(el && data[f]!==undefined) el.value=data[f]; });
+  calcBMIGen();
+}
+function calcBMIGen(){
+  const p=parseFloat(String(document.getElementById('gn-peso')?.value||'').replace(',','.'));
+  const h=parseFloat(String(document.getElementById('gn-altezza')?.value||'').replace(',','.'))/100;
+  const out=document.getElementById('gn-bmi'); if(!out) return;
+  out.value=(p>0&&h>0)?(p/(h*h)).toFixed(1):'';
+}
+// Per una nuova visita generica riporta dall'ultima visita dello stesso tipo
+// i dati anamnestici che di solito non cambiano.
+function riportaDatiGen(){
+  const p=DB.pazienti.find(x=>x.id===curPaz); if(!p) return;
+  const ultima=(p.visite||[]).filter(v=>v.tipo==='gen'&&v.genData).sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
+  if(!ultima) return;
+  ['anamnesi-remota','farmaci','allergie','familiarita','altezza'].forEach(f=>{
+    const el=document.getElementById('gn-'+f); if(el && !el.value && ultima.genData[f]) el.value=ultima.genData[f];
+  });
 }
 
 // ── VISITA OSTETRICA ──
@@ -6520,15 +6671,15 @@ async function proseguiDopoCaricamentoDemo(){
 // modello scelto dall'amministratore nel portale (Firestore config/demo,
 // leggibile da tutti, scrivibile solo dalla funzione del portale). Le prove
 // restano nel browser di chi le fa; "Ricomincia la demo" riporta tutto all'inizio.
-const GS_MODELLI_DEMO={
-  gineco:{ nome:'Ginecologia e Ostetricia', dati:'demo-pazienti.json' }
-};
 const GS_CHIAVE_SITO_DEMO='gynoDB_v15_demo_sito';
 async function leggiModelloDemo(){
+  // Solo in locale (prove durante lo sviluppo): ?modello=base forza un modello.
+  const forzato=new URLSearchParams(location.search).get('modello');
+  if(forzato && GS_MODELLI[forzato] && /^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return forzato;
   try{
     const d=await gsDb.collection('config').doc('demo').get();
     const m=d.exists && d.data().modello;
-    if(m && GS_MODELLI_DEMO[m]) return m;
+    if(m && GS_MODELLI[m]) return m;
   }catch(e){ console.warn('Modello della demo non leggibile, uso quello predefinito:', e.message); }
   return 'gineco';
 }
@@ -6539,18 +6690,35 @@ async function avviaSitoDemo(){
   applyNomeMedico('Medico Demo');
   _applicaPreferenzeProfilo(null,'sito-demo');
   const modello=await leggiModelloDemo();
+  // Il modello cambia menu e schede: se nel portale ne è stato scelto un altro
+  // rispetto a quello con cui la pagina si è aperta, la si ricarica una volta.
+  if(modello!==GS_MODELLO){
+    try{ localStorage.setItem('gs_modello_demo', modello); }catch(e){}
+    if(localStorage.getItem('gs_modello_demo')===modello){ location.reload(); return; }
+  }
   gsDbStorageKey=GS_CHIAVE_SITO_DEMO;
   let dati=null;
   try{ const j=await GS_STORAGE.archivio.leggi(GS_CHIAVE_SITO_DEMO); if(j) dati=JSON.parse(j); }catch(e){}
   if(!dati || dati.modelloDemo!==modello){
-    try{ dati=await (await fetch(GS_MODELLI_DEMO[modello].dati)).json(); }catch(e){ dati={pazienti:[],agenda:[]}; }
+    try{ dati=await (await fetch(GS_MODELLI[modello].dati)).json(); }catch(e){ dati={pazienti:[],agenda:[]}; }
     dati.modelloDemo=modello;
+    // Dati con "dataRiferimento": le date si spostano in avanti fino a oggi,
+    // così la demo mostra sempre visite recenti e appuntamenti in arrivo.
+    if(dati.dataRiferimento){
+      const giorni=Math.round((new Date(new Date().toISOString().slice(0,10))-new Date(dati.dataRiferimento))/86400000);
+      const sposta=o=>{ if(o && o.data){ const d=new Date(o.data+'T12:00:00'); d.setDate(d.getDate()+giorni); o.data=d.toISOString().slice(0,10); } };
+      if(giorni){
+        (dati.pazienti||[]).forEach(p=>{ (p.visite||[]).forEach(sposta); (p.alerts||[]).forEach(sposta); });
+        (dati.appuntamenti||[]).forEach(sposta); (dati.agenda||[]).forEach(sposta);
+      }
+      delete dati.dataRiferimento;
+    }
   }
   DB=dati;
   if(!DB.agenda) DB.agenda=[];
   await salvaDBSubito();
   mostraBannerDemo(true);
-  document.getElementById('demo-banner-testo').textContent=`Versione dimostrativa (${GS_MODELLI_DEMO[modello].nome}) — pazienti di esempio, non reali. Le prove restano solo in questo browser.`;
+  document.getElementById('demo-banner-testo').textContent=`Versione dimostrativa · ${GS_MODELLI[modello].nome} — pazienti di esempio, non reali. Le prove restano solo in questo browser.`;
   document.getElementById('demo-banner-reset').style.display='';
   naviga('home');
   caricaAppuntamenti();
@@ -6666,7 +6834,7 @@ function renderAlertsHome(){
   if(!c) return;
   c.innerHTML='';
   const oggi=new Date().toISOString().split('T')[0];
-  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
 
   // Tutti gli appuntamenti da oggi in poi
   const fbProssimi=GS_APPTS.filter(a=>a.data>=oggi && a.stato!=='cancellato').sort((x,y)=>(x.data||'').localeCompare(y.data||''));
@@ -6893,7 +7061,7 @@ function renderCalModalEvents(d){
     c.innerHTML='<div style="text-align:center;padding:16px 0;color:var(--label4);font-size:0.85rem;">Nessun evento per questa giornata</div>';
     return;
   }
-  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   // Appuntamenti dell'agenda
   fbAppts.forEach(a=>{
     const localId=trovaPazienteLocaleId(a.pazienteId);
@@ -7172,8 +7340,8 @@ function resetFiltriAvanzati(){
 // Testo di una visita su cui cercare (diagnosi/conclusioni, terapia, note),
 // indipendentemente dal tipo di visita (ognuno usa nomi di campo diversi).
 function testoRicercabileVisita(v){
-  const d=v.obData||v.ecoData||v.gynoData||{};
-  return [d.diagnosi, d.conclusioni, d.terapia, d['note-eco'], d['counselling-txt']].filter(Boolean).join(' ');
+  const d=v.obData||v.ecoData||v.gynoData||v.genData||{};
+  return [d.diagnosi, d.conclusioni, d.terapia, d.motivo, d.note, d['note-eco'], d['counselling-txt']].filter(Boolean).join(' ');
 }
 
 function renderPazienti(){
@@ -7309,10 +7477,10 @@ const PAZ_TABS_DEFAULT=[
   {id:'farmaci', label:'Farmaci Attuali', icon:'💊', visible:true},
   {id:'consensi', label:'Consensi Firmati', icon:'✍️', visible:true},
   {id:'note', label:'Note & Anamnesi', icon:'📝', visible:true},
-  {id:'screening', label:'Screening', icon:'🔬', visible:true},
+  {id:'screening', label:'Screening', icon:'🔬', visible:true, modelli:'gineco'},
   {id:'promemoria', label:'Promemoria', icon:'🔔', visible:true},
   {id:'referti', label:'Referti Esterni', icon:'📎', visible:true}
-];
+].filter(t=>!t.modelli || t.modelli===GS_MODELLO);
 function _pazTabsKey(){ return 'gs_paz_tabs_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function getPazTabsCfg(){
   try{
@@ -7323,7 +7491,7 @@ function getPazTabsCfg(){
         // fonde con eventuali nuove schede introdotte in futuro, non presenti in un salvataggio vecchio
         const ids=arr.map(x=>x.id);
         PAZ_TABS_DEFAULT.forEach(d=>{ if(!ids.includes(d.id)) arr.push({...d}); });
-        return arr;
+        return arr.filter(x=>PAZ_TABS_DEFAULT.some(d=>d.id===x.id)); // solo le schede del modello
       }
     }
   }catch(e){}
@@ -7407,7 +7575,7 @@ function renderPazRiepilogo(p){
   const settGrav=ga && typeof calcolaSettimaneGravidanza==='function' ? calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date()) : null;
   const visiteOrdinate=[...(p.visite||[])].sort((a,b)=>new Date(b.data)-new Date(a.data));
   const ultima=visiteOrdinate[0];
-  const TIPO_LABEL={gyno:'Ginecologica',ob:'Ostetrica',eco:'Ecografia'};
+  const TIPO_LABEL={gyno:'Ginecologica',ob:'Ostetrica',eco:'Ecografia',gen:'Visita'};
   const oggi=new Date();
   const prossimo=(p.alerts||[]).filter(a=>new Date(a.data)>=oggi).sort((a,b)=>new Date(a.data)-new Date(b.data))[0];
   // "Farmaci in terapia": sia le terapie croniche inserite manualmente, sia
@@ -7440,7 +7608,7 @@ function _allergieAttivePaziente(p){
   const set=new Set();
   if(p.allergie && p.allergie.trim()) set.add(p.allergie.trim());
   (p.visite||[]).forEach(v=>{
-    const val = v.tipo==='ob' ? (v.obData||{}).allergie : v.tipo==='gyno' ? (v.gynoData||{}).allergie : null;
+    const val = v.tipo==='ob' ? (v.obData||{}).allergie : v.tipo==='gyno' ? (v.gynoData||{}).allergie : v.tipo==='gen' ? (v.genData||{}).allergie : null;
     if(val && val.trim()) set.add(val.trim());
   });
   return [...set];
@@ -7469,8 +7637,8 @@ function costruisciRiassuntoPaziente(p){
 
   const visite=[...(p.visite||[])].sort((a,b)=>new Date(a.data)-new Date(b.data));
   if(visite.length){
-    const TIPO_LABEL_SING={gyno:'ginecologica',ob:'ostetrica',eco:'ecografica'};
-    const TIPO_LABEL_PL={gyno:'ginecologiche',ob:'ostetriche',eco:'ecografiche'};
+    const TIPO_LABEL_SING={gyno:'ginecologica',ob:'ostetrica',eco:'ecografica',gen:'generica'};
+    const TIPO_LABEL_PL={gyno:'ginecologiche',ob:'ostetriche',eco:'ecografiche',gen:'generiche'};
     const conteggi={};
     visite.forEach(v=>{ conteggi[v.tipo]=(conteggi[v.tipo]||0)+1; });
     const dettagliTipi=Object.entries(conteggi).map(([t,n])=>`${n} ${n===1?(TIPO_LABEL_SING[t]||t):(TIPO_LABEL_PL[t]||t)}`).join(', ');
@@ -7489,15 +7657,15 @@ function costruisciRiassuntoPaziente(p){
   // ── Sintesi clinica: anamnesi rilevante (da tutte le visite) + dati salienti dell'ultima visita eseguita, di qualunque tipo ──
   const anamnesiPezzi=new Set();
   visite.forEach(v=>{
-    const dati = v.tipo==='ob' ? v.obData : v.tipo==='gyno' ? v.gynoData : null;
+    const dati = v.tipo==='ob' ? v.obData : v.tipo==='gyno' ? v.gynoData : v.tipo==='gen' ? v.genData : null;
     if(!dati) return;
-    [dati.patologie, dati.chirurgia, dati.familiarita].forEach(x=>{ if(x && x.trim()) anamnesiPezzi.add(x.trim()); });
+    [dati.patologie, dati.chirurgia, dati['anamnesi-remota'], dati.familiarita].forEach(x=>{ if(x && x.trim()) anamnesiPezzi.add(x.trim()); });
   });
-  if(anamnesiPezzi.size) pezzi.push(`Anamnesi rilevante: ${[...anamnesiPezzi].join(' · ')}.`);
+  if(anamnesiPezzi.size) pezzi.push(`Anamnesi rilevante: ${[...anamnesiPezzi].map(x=>x.replace(/\.$/,'')).join(' · ')}.`);
 
   if(visite.length){
     const ultima=visite[visite.length-1];
-    const TIPO_LABEL_VISITA={gyno:'visita ginecologica',ob:'visita ostetrica',eco:'ecografia'};
+    const TIPO_LABEL_VISITA={gyno:'visita ginecologica',ob:'visita ostetrica',eco:'ecografia',gen:'visita'};
     const dettagli=[];
     if(ultima.tipo==='gyno'){
       const g=ultima.gynoData||{};
@@ -7515,6 +7683,14 @@ function costruisciRiassuntoPaziente(p){
       const e=ultima.ecoData||{};
       if(e.settimane) dettagli.push(`${e.settimane} sett.`);
       if(e.diagnosi && e.diagnosi.trim()) dettagli.push(e.diagnosi.trim());
+    } else if(ultima.tipo==='gen'){
+      const g=ultima.genData||{};
+      const parametri=[];
+      if(g.pa) parametri.push(`PA ${g.pa}`);
+      if(g.peso) parametri.push(`peso ${g.peso} kg`);
+      if(parametri.length) dettagli.push(parametri.join(', '));
+      if(g.motivo && g.motivo.trim()) dettagli.push(g.motivo.trim());
+      if(g.diagnosi && g.diagnosi.trim()) dettagli.push(g.diagnosi.trim());
     }
     if(dettagli.length){
       const estratto=dettagli.join(' — ');
@@ -7662,7 +7838,7 @@ async function eliminaPaziente(){
 // ── RICERCA NEL CONTENUTO DELLE VISITE ──
 // Cerca in tutti i campi del referto di ogni visita (stessa fonte della stampa,
 // getRefertoSezioni) e mostra paziente, data, tipo e il passaggio trovato.
-const _TIPO_VISITA_NOME={gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica'};
+const _TIPO_VISITA_NOME={gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica', gen:'Visita'};
 function _testoVisita(v){
   try{ return getRefertoSezioni(v).flatMap(s=>s.rows.filter(r=>r[1]&&String(r[1]).trim()).map(r=>[s.title, r[0], String(r[1])])); }
   catch(e){ return []; }
@@ -7739,7 +7915,7 @@ function apriGiornata(date){
   const tb=document.getElementById('day-detail-tbody'); tb.innerHTML='';
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{
     if(v.data===date){
-      const icons={'gyno':'🌸','ob':'🤰','eco':'🖥️'};
+      const icons={'gyno':'🌸','ob':'🤰','eco':'🖥️','gen':'🩺'};
       tb.innerHTML+=`<tr>
         <td class="td-link" onclick="openPaziente(${p.id})">${p.cognome} ${p.nome}</td>
         <td>${icons[v.tipo]||'🩺'} ${v.tipo?.toUpperCase()}</td>
@@ -8373,8 +8549,8 @@ function startEditor(tipo, vid=null){
   }
 
   // Mostra/nasconde nav e pannelli in base al tipo
-  const navs={gyno:'editor-nav-gyno',ob:'editor-nav-ob',eco:'editor-nav-eco'};
-  const panels={gyno:'gyno-panels',ob:'ob-panels',eco:'eco-panels'};
+  const navs={gyno:'editor-nav-gyno',ob:'editor-nav-ob',eco:'editor-nav-eco',gen:'editor-nav-gen'};
+  const panels={gyno:'gyno-panels',ob:'ob-panels',eco:'eco-panels',gen:'gen-panels'};
   Object.values(navs).forEach(id=>document.getElementById(id).style.display='none');
   Object.values(panels).forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(navs[tipo]).style.display='flex';
@@ -8383,7 +8559,8 @@ function startEditor(tipo, vid=null){
   const meta={
     gyno:{badge:'🌸 GINECOLOGICA',label:'Visita Ginecologica',firstTab:'ep-1'},
     ob:{badge:'🤰 OSTETRICA',label:'Visita Ostetrica',firstTab:'ob-anamnesi'},
-    eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-dati'}
+    eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-dati'},
+    gen:{badge:'🩺 VISITA',label:'Visita',firstTab:'gn-1'}
   }[tipo];
   document.getElementById('editor-type-badge').textContent=meta.badge;
   document.getElementById('editor-title').textContent=`${meta.label} – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
@@ -8397,6 +8574,7 @@ function startEditor(tipo, vid=null){
     if(!vid) riportaDatiGyno();
   }
 
+  if(tipo==='gen'){ if(!vid) riportaDatiGen(); calcBMIGen(); }
   // Gravidanza: solo per nuove visite ostetriche/eco (in modifica la gravidanza è già fissata)
   if(!vid && (tipo==='ob'||tipo==='eco')){
     curGravidanzaId = risolviGravidanzaPerNuovaVisita(curPaz);
@@ -8787,7 +8965,7 @@ function creaPromemoriaDaProssimoControllo(p, v, testoProssimo){
   // Rimuove eventuale promemoria automatico generato da questa stessa visita in un salvataggio precedente
   p.alerts=p.alerts.filter(a=>a.visitaId!==v.id);
   if(!dataPromemoria) return;
-  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica'};
+  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica',gen:'Visita'};
   p.alerts.push({
     id:Date.now()+1,
     data:dataPromemoria,
@@ -8809,17 +8987,18 @@ function salvaVisita(){
   };
   if(curMode==='ob'){ v.obData=getObData(); v.gravidanzaId=curGravidanzaId; }
   else if(curMode==='eco'){ v.ecoData=getEcoData(); v.gravidanzaId=curGravidanzaId; }
+  else if(curMode==='gen') v.genData=getGenData();
   else v.gynoData=getGynoData();
 
   const eraNuova=!curVisita;
   if(curVisita) p.visite[p.visite.findIndex(x=>x.id===curVisita)]=v;
   else p.visite.push(v);
 
-  const TIPO_VISITA_LABEL={ob:'ostetrica',eco:'ecografica',gyno:'ginecologica'};
-  registraLog('visita',`Visita ${TIPO_VISITA_LABEL[curMode]||curMode} ${eraNuova?'salvata':'modificata'}`);
+  const TIPO_VISITA_LABEL={ob:'ostetrica',eco:'ecografica',gyno:'ginecologica',gen:''};
+  registraLog('visita',`Visita ${TIPO_VISITA_LABEL[curMode]??curMode} ${eraNuova?'salvata':'modificata'}`.replace('  ',' '));
 
   // Promemoria automatico dal campo "prossimo controllo", se contiene una data riconoscibile
-  const testoProssimo=curMode==='ob'?v.obData.prossimo:curMode==='eco'?v.ecoData.prossimo:v.gynoData.prossimi;
+  const testoProssimo=curMode==='ob'?v.obData.prossimo:curMode==='eco'?v.ecoData.prossimo:curMode==='gen'?v.genData.prossimo:v.gynoData.prossimi;
   creaPromemoriaDaProssimoControllo(p, v, testoProssimo);
 
   salvaDB();
@@ -8879,10 +9058,10 @@ const FEATURE_TOGGLES=[
   {key:'appuntamenti', label:'Appuntamenti', desc:'Agenda delle visite', navId:'nav-appuntamenti'},
   {key:'ricettario', label:'Ricettario', desc:'Elenco di tutte le ricette emesse', navId:'nav-ricettario'},
   {key:'consensi', label:'Consensi', desc:'Moduli di consenso informato pronti da far firmare', navId:'nav-consensi'},
-  {key:'guide', label:'Linee Guida', desc:'Protocolli ACOG · SIGO · FIGO · ISUOG', navId:'nav-guide'},
-  {key:'farmacia', label:'Farmacia', desc:'Prontuario farmaci per patologia', navId:'nav-farmacia'},
+  {key:'guide', label:'Linee Guida', desc:'Protocolli ACOG · SIGO · FIGO · ISUOG', navId:'nav-guide', modelli:'gineco'},
+  {key:'farmacia', label:'Farmacia', desc:'Prontuario farmaci per patologia', navId:'nav-farmacia', modelli:'gineco'},
   {key:'utility', label:'Utility', desc:'Calcolatrici e strumenti vari', navId:'nav-utility'}
-];
+].filter(f=>!f.modelli || f.modelli===GS_MODELLO);
 function featureFlagsKey(){ return 'gs_feature_flags_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function getFeatureFlags(){
   try{
@@ -9265,6 +9444,7 @@ function loadVisita(vid){
   if(!v)return;
   if(v.tipo==='ob'){ setObData(v.obData); curGravidanzaId=v.gravidanzaId||null; }
   else if(v.tipo==='eco'){ setEcoData(v.ecoData); curGravidanzaId=v.gravidanzaId||null; }
+  else if(v.tipo==='gen'){ setGenData(v.genData); }
   else { initGynoSelects(); if(v.gynoData) setGynoData(v.gynoData); }
 }
 
@@ -9277,7 +9457,8 @@ function renderVisiteList(p){
   const TIPO_META={
     gyno:{icon:'🌸',label:'VISITA GINECOLOGICA'},
     ob:{icon:'🤰',label:'VISITA OSTETRICA'},
-    eco:{icon:'🖥️',label:'ECOGRAFIA OSTETRICA'}
+    eco:{icon:'🖥️',label:'ECOGRAFIA OSTETRICA'},
+    gen:{icon:'🩺',label:'VISITA'}
   };
 
   p.visite.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v=>{
@@ -9286,6 +9467,7 @@ function renderVisiteList(p){
     let conclShort='–', terapia='';
     if(tipo==='ob'){ const d=v.obData||{}; conclShort=d.diagnosi||d.esame||'–'; terapia=d.terapia||''; }
     else if(tipo==='eco'){ const d=v.ecoData||{}; conclShort=d.diagnosi||'–'; terapia=d.terapia||''; }
+    else if(tipo==='gen'){ const d=v.genData||{}; conclShort=d.diagnosi||d.motivo||'–'; terapia=d.terapia||''; }
     else { const d=v.gynoData||{}; conclShort=d.conclusioni||d.motivo||'–'; terapia=d.terapia||''; }
     if(conclShort.length>80) conclShort=conclShort.slice(0,80)+'…';
     const haTerapia=terapia&&terapia.trim().length>0;
@@ -9334,6 +9516,7 @@ function formattaTerapiaComeRicetta(nomeCompleto, terapiaGrezza){
 function terapiaDiVisita(v){
   if(v.tipo==='ob') return (v.obData||{}).terapia||'';
   if(v.tipo==='eco') return (v.ecoData||{}).terapia||'';
+  if(v.tipo==='gen') return (v.genData||{}).terapia||'';
   return (v.gynoData||{}).terapia||'';
 }
 
@@ -9343,7 +9526,7 @@ function terapiaDiVisita(v){
 function renderFarmaciAttuali(p){
   const box=document.getElementById('farmaci-attuali-box');
   if(!box)return;
-  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️'};
+  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️',gen:'🩺'};
   if(!p.farmaciManuali) p.farmaciManuali=[];
 
   const conTerapia=(p.visite||[])
@@ -9453,7 +9636,7 @@ function riportaFarmaciAttualiInTerapia(tipo){
   if(!p || !p.farmaciManuali)return;
   const daRiportare=p.farmaciManuali.filter(f=>f.inTerapiaVisite);
   if(!daRiportare.length)return;
-  const campo={ob:'ob-terapia',eco:'ec-terapia',gyno:'gd-terapia'}[tipo];
+  const campo={ob:'ob-terapia',eco:'ec-terapia',gyno:'gd-terapia',gen:'gn-terapia'}[tipo];
   const el=campo && document.getElementById(campo);
   if(!el || el.value.trim())return; // non sovrascrive se già valorizzato
   el.value=daRiportare.map(f=>`${f.farmaco}${f.dosaggio?' ('+f.dosaggio+')':''}${f.note?' — '+f.note:''}`).join('\n');
@@ -9468,7 +9651,7 @@ function riportaFarmaciAttualiInTerapia(tipo){
 // e per le pagine delle curve di crescita / riepilogo gravidanza.
 // Priorità: preferenze personali (localStorage) > default.
 const PRINT_CFG_DEFAULT = {
-  intestazione:{ nome:'', spec:'Specialista in Ginecologia e Ostetricia', indirizzo:'', contatti:'', logo:'' },
+  intestazione:{ nome:'', spec:GS_MODELLI[GS_MODELLO].spec, indirizzo:'', contatti:'', logo:'' },
   firma:'',
   layout:{ margine:15, font:'Georgia', corpo:11, colore:'#c2185b', formato:'A4', logo:true, piePagina:'' }
 };
@@ -9820,13 +10003,21 @@ const CONSENSI_DEFAULT = [
 
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritta {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. Ho diritto di accedere, rettificare e cancellare i propri dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
+// Modello Base: moduli generici validi per ogni specialità, scritti al neutro.
+const CONSENSI_BASE = [
+  { titolo:'Consenso informato alla visita specialistica', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a adeguatamente informato/a dal medico sulle finalità, le modalità di esecuzione, i benefici attesi e gli eventuali fastidi o rischi della visita specialistica (raccolta dell'anamnesi, esame obiettivo ed eventuali accertamenti eseguiti durante la visita), nonché sulle possibili alternative. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter revocare il consenso in qualsiasi momento. Acconsento liberamente all'esecuzione della visita nelle modalità proposte." },
+  { titolo:'Consenso informato a procedura / esame strumentale', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a in modo chiaro e comprensibile sulla procedura/esame proposto (________________________________), sul suo scopo, sulle modalità di esecuzione, sui benefici attesi, sui rischi e sulle possibili complicanze, nonché sulle alternative disponibili e sulle conseguenze di un eventuale rifiuto. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter revocare il consenso in qualsiasi momento prima dell'esecuzione. Acconsento liberamente all'esecuzione della procedura/esame." },
+  { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
+];
+function _consensiPredefiniti(){ return GS_MODELLO==='base' ? CONSENSI_BASE : CONSENSI_DEFAULT; }
 // Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
 // così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
 // non riconosciuti restano comunque selezionabili, solo non in evidenza).
 const CONSENSO_TIPI_VISITA = {
   gyno: ['Visita ginecologica generale','Ecografia ginecologica','Inserimento IUD'],
   ob: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre'],
-  eco: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre']
+  eco: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre'],
+  gen: ['Consenso informato alla visita specialistica','Consenso informato a procedura / esame strumentale']
 };
 function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 // La libreria salvata in localStorage "vince" sempre sui default — corretto
@@ -9839,15 +10030,16 @@ const _CONSENSI_LIB_VERSION = 'minorenne-dinamico-2026-09-16';
 function getConsensi(){
   try{
     const verKey=_consensiKey()+'_ver';
-    if(localStorage.getItem(verKey)!==_CONSENSI_LIB_VERSION){
-      localStorage.setItem(_consensiKey(), JSON.stringify(CONSENSI_DEFAULT));
-      localStorage.setItem(verKey, _CONSENSI_LIB_VERSION);
-      return CONSENSI_DEFAULT.map(x=>({...x}));
+    const versione=_CONSENSI_LIB_VERSION+(GS_MODELLO==='gineco'?'':'-'+GS_MODELLO);
+    if(localStorage.getItem(verKey)!==versione){
+      localStorage.setItem(_consensiKey(), JSON.stringify(_consensiPredefiniti()));
+      localStorage.setItem(verKey, versione);
+      return _consensiPredefiniti().map(x=>({...x}));
     }
     const s = localStorage.getItem(_consensiKey());
     if(s){ const arr = JSON.parse(s); if(Array.isArray(arr)) return arr; }
   }catch(e){}
-  return CONSENSI_DEFAULT.map(x=>({...x}));
+  return _consensiPredefiniti().map(x=>({...x}));
 }
 function saveConsensi(arr){
   try{ localStorage.setItem(_consensiKey(), JSON.stringify(arr)); return true; }catch(e){ return false; }
@@ -10058,8 +10250,8 @@ function apriConsensoConFirma(i, onDone, nomeOverride, isMinore){
 // quanto già firmato o aggiungere un modulo dimenticato.
 let _consensoVisitaTipoPending = null; // tipo della visita da APRIRE dopo la firma (null quando si sta solo rivedendo una visita già aperta)
 let _consensoVisitaSelezionati = new Set();
-const _META_TIPO_VISITA = {gyno:'visita ginecologica', ob:'visita ostetrica', eco:'ecografia ostetrica'};
-function _consensoVisitaPrefix(tipo){ return tipo==='eco' ? 'ec' : (tipo==='ob' ? 'ob' : 'gd'); }
+const _META_TIPO_VISITA = {gyno:'visita ginecologica', ob:'visita ostetrica', eco:'ecografia ostetrica', gen:'visita'};
+function _consensoVisitaPrefix(tipo){ return tipo==='eco' ? 'ec' : (tipo==='ob' ? 'ob' : (tipo==='gen' ? 'gn' : 'gd')); }
 
 function pazChiediConsensoPrimaVisita(tipo){
   _consensoVisitaTipoPending = tipo;
@@ -10236,7 +10428,9 @@ function pazRistampaConsensoVisita(){
 // genitore/tutore legale (paziente minorenne) — sostituisce le clausole
 // minorenni che prima erano scritte a mano dentro un singolo modulo (es.
 // IUD): ora è universale e si applica a tutti.
-const CONSENSO_MINORE_FOOTER = "Essendo la richiedente minorenne i genitori, alla presenza del sottoscritto, firmano per consenso\nDocumento di Identità della Madre\nFirma della Madre\nDocumento di Identità del Padre\nFirma del Padre";
+const CONSENSO_MINORE_FOOTER = GS_MODELLO==='gineco'
+  ? "Essendo la richiedente minorenne i genitori, alla presenza del sottoscritto, firmano per consenso\nDocumento di Identità della Madre\nFirma della Madre\nDocumento di Identità del Padre\nFirma del Padre"
+  : "Essendo la persona assistita minorenne, i genitori o chi esercita la responsabilità genitoriale firmano per consenso alla presenza del medico\nDocumento di identità del genitore/tutore\nFirma del genitore/tutore\nDocumento di identità del secondo genitore\nFirma del secondo genitore";
 function _risolviTestoConsenso(testo, nome, isMinore){
   let out = (testo||'').split('{{NOME}}').join(nome||'________________________');
   if(isMinore) out += '\n\n' + CONSENSO_MINORE_FOOTER;
@@ -10933,7 +11127,7 @@ function renderRicettario(){
     return;
   }
 
-  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️'};
+  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️',gen:'🩺'};
   c.innerHTML=filtrate.map(r=>`
     <div class="visit-item">
       <div class="visit-icon" style="background:var(--primary-dim)">💊</div>
@@ -10971,7 +11165,7 @@ function apriRicettarioVisitaGlobale(pazId,vid){
 // veniva stampata solo la visita ginecologica) e SOLO i campi compilati.
 function buildRefertoBody(v){
   const nl=s=>(s||'').replace(/\n/g,'<br>');
-  const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica'};
+  const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica', gen:'Visita'};
   let body=`<h2 style="margin-bottom:2px;font-family:Georgia,serif;">Referto ${TITOLI[v.tipo]||TITOLI.gyno}</h2>`;
   if(v.ora) body+=`<div style="margin-bottom:14px;font-size:0.82rem;color:#666">Ora di compilazione: ${v.ora}</div>`;
   getRefertoSezioni(v).forEach(s=>{
@@ -11180,6 +11374,24 @@ function esportaCartellaPDF(){
 // così le due non possono disallinearsi. Chi la consuma filtra da sé le
 // righe vuote — qui i valori sono semplicemente presenti o assenti.
 function getRefertoSezioni(v){
+  if(v.tipo==='gen'){
+    const g=v.genData||{};
+    return [
+      {icon:'',title:'Motivo della visita',rows:[['',g.motivo]]},
+      {icon:'',title:'Anamnesi',rows:[
+        ['Patologica remota',g['anamnesi-remota']],['Patologica prossima',g['anamnesi-prossima']],
+        ['Farmaci in uso',g.farmaci],['Allergie',g.allergie],['Familiarità',g.familiarita]
+      ]},
+      {icon:'',title:'Parametri',rows:[
+        ['Pressione arteriosa',g.pa?g.pa+' mmHg':''],['Frequenza cardiaca',g.fc?g.fc+' bpm':''],
+        ['Temperatura',g.temp?g.temp+' °C':''],['Saturazione O₂',g.sat?g.sat+' %':''],
+        ['Peso',g.peso?g.peso+' kg':''],['Altezza',g.altezza?g.altezza+' cm':''],['BMI',g.bmi]
+      ]},
+      {icon:'',title:'Esame obiettivo',rows:[['',g.esame]]},
+      {icon:'',title:'Esami',rows:[['Eseguiti / in visione',g['esami-eseguiti']],['Richiesti',g['esami-richiesti']]]},
+      {icon:'',title:'Conclusioni',rows:[['Diagnosi',g.diagnosi],['Terapia',g.terapia],['Prossimo controllo',g.prossimo],['Note',g.note]]}
+    ];
+  }
   if(v.tipo==='ob'){
     const o=v.obData||{};
     const epoca=parseSettimaneEsatte(o['bio-epoca']);
@@ -11599,7 +11811,7 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     return;
   }
 
-  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica'};
+  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica',gen:'Visita'};
   const grav=p.gravidanze?.find(g=>g.id===gravidanzaId);
   const dataInizio=grav?.dataInizio?new Date(grav.dataInizio).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
   const conclusa=!!grav?.conclusa;
@@ -12545,7 +12757,7 @@ function showApptPopup(appts, oggi){
   if(el) el.textContent=dStr;
   const tit=document.getElementById('popup-appts-title');
   if(tit) tit.textContent=`📅 ${appts.length} Appuntament${appts.length>1?'i':'o'} Oggi`;
-  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   const STATI={confermato:'<span style="color:var(--green);font-size:.72rem;font-weight:700">✅ Confermato</span>',
                in_attesa:'<span style="color:var(--orange);font-size:.72rem;font-weight:700">⏳ In attesa</span>',
                completato:'<span style="color:var(--label4);font-size:.72rem;font-weight:700">✔️ Completato</span>',
@@ -12582,7 +12794,7 @@ function renderFBAppts(){
   const oggi=new Date().toISOString().split('T')[0];
   const filtDate=document.getElementById('appt-filter-date')?.value||'';
   const filtTipo=document.getElementById('appt-filter-tipo')?.value||'';
-  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   const STATI={confermato:'<span class="badge badge-green">✅</span>',in_attesa:'<span class="badge badge-orange">⏳</span>',cancellato:'<span class="badge badge-red">❌</span>',completato:'<span class="badge badge-gray">✔️</span>'};
 
   const apptOggi=GS_APPTS.filter(a=>a.data===oggi);
