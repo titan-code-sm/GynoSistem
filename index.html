@@ -6,15 +6,15 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="GynoSystem">
-<meta name="application-name" content="GynoSystem">
+<meta name="apple-mobile-web-app-title" content="MED System Gineco">
+<meta name="application-name" content="MED System Gineco">
 <meta name="theme-color" content="#1c1c1e">
 <meta name="description" content="Gestione studio ginecologico · Dr.ssa Cristina Guidi">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="apple-touch-icon" sizes="152x152" href="logo.png">
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
 <link rel="icon" type="image/png" href="logo.png">
-<title>GynoSystem v15 · Dr.ssa Cristina Guidi</title>
+<title>MED System Gineco · Dr.ssa Cristina Guidi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <!-- Firebase SDK (solo Firestore, no Storage) -->
@@ -904,7 +904,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <img src="logo.png" class="mob-logo" onerror="this.parentElement.innerHTML='<div class=mob-logo-fb>🩺</div>'">
     </div>
     <div>
-      <div class="mob-bar-title">GynoSystem</div>
+      <div class="mob-bar-title">MED System Gineco</div>
       <div class="mob-bar-sub" id="mob-bar-sub-nome"></div>
     </div>
   </div>
@@ -919,8 +919,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div class="login-avatar-wrap">
       <div class="login-avatar">🩺</div>
     </div>
-    <h1>GynoSystem</h1>
-    <div class="login-version" style="margin-bottom:22px;">v15.0 · San Marino</div>
+    <h1>MED System</h1>
+    <div class="login-version" style="margin-bottom:22px;">Gineco · v15.0 · San Marino</div>
     <form id="login-form" autocomplete="on" onsubmit="event.preventDefault();checkLogin();">
       <input type="email" id="login-email" name="email" class="login-input" placeholder="Email" autocomplete="username" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}">
       <div class="pass-wrap">
@@ -1034,7 +1034,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       </button>
       <div class="opts-divider"></div>
       <button class="opts-item" onclick="logoutGynoSystem()" style="color:var(--red)">
-        <span class="oi">🚪</span>Esci da GynoSystem
+        <span class="oi">🚪</span>Esci da MED System
       </button>
     </div>
     <!-- Trigger button -->
@@ -1047,12 +1047,12 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </aside>
 
-<!-- Prima di uscire da GynoSystem: propone di scaricare un backup completo -->
+<!-- Prima di uscire da MED System: propone di scaricare un backup completo -->
 <div id="modal-esci-backup" class="overlay">
   <div class="modal-sm" style="width:520px;text-align:center;">
     <div style="font-size:2.4rem;margin-bottom:8px;">💾</div>
     <h3>Prima di uscire, scarica una copia dei dati</h3>
-    <p style="color:var(--label4);font-size:.88rem;margin:12px 0 22px;line-height:1.55;">Ti consigliamo di scaricare un backup completo di tutte le pazienti prima di chiudere GynoSystem — una copia di sicurezza in più, oltre al salvataggio automatico cifrato (se collegato).</p>
+    <p style="color:var(--label4);font-size:.88rem;margin:12px 0 22px;line-height:1.55;">Ti consigliamo di scaricare un backup completo di tutte le pazienti prima di chiudere MED System — una copia di sicurezza in più, oltre al salvataggio automatico cifrato (se collegato).</p>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <button class="btn btn-primary" style="justify-content:center;" onclick="confermaEsciConBackup()">📥 Scarica backup ed esci</button>
       <button class="btn btn-ghost" style="justify-content:center;" onclick="confermaEsciSenzaBackup()">Esci senza scaricare</button>
@@ -1453,7 +1453,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
-<!-- Modal Nuova Prenotazione da GynoSystem -->
+<!-- Modal Nuova Prenotazione da MED System -->
 <div id="m-nuova-prenotazione" class="overlay">
   <div class="modal-sm" style="width:520px">
     <h3>📅 Nuova Prenotazione</h3>
@@ -2101,7 +2101,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 <!-- AMMINISTRAZIONE ACCOUNT (visibile solo all'amministratore) -->
 <div id="sec-amministrazione" class="section">
   <div class="page-header">
-    <div><div class="page-title">Account e Accessi</div><div class="page-subtitle">Gestione degli accessi a GynoSystem — visibile solo all'amministratore</div></div>
+    <div><div class="page-title">Account e Accessi</div><div class="page-subtitle">Gestione degli accessi a MED System — visibile solo all'amministratore</div></div>
   </div>
 
   <div style="background:var(--surface2);border:1px solid var(--separator);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.8rem;color:var(--label4);">
@@ -3602,6 +3602,12 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 <div id="gs-toast-container"></div>
 
 <script>
+// Nome dell'app. "MED System" è la famiglia di app per specialità mediche;
+// questa è la versione ginecologica. Per un'altra specialità basta cambiare qui
+// e nelle poche scritte statiche dell'HTML (titolo, barra mobile, login).
+const GS_APP_NOME='MED System', GS_APP_SPECIALITA='Gineco';
+const GS_APP_NOME_COMPLETO=GS_APP_NOME+' '+GS_APP_SPECIALITA;
+const GS_APP_FILE='MEDSystem_'+GS_APP_SPECIALITA; // prefisso dei file scaricati
 // ═══════════════════════════════════════════════════
 //  DATABASE & STATE
 // ═══════════════════════════════════════════════════
@@ -5831,7 +5837,7 @@ let gsDemoMode = false;     // true se l'amministratore ha attivato i dati dimos
 function applyNomeMedico(nome){
   gsUserNome = nome || '';
   if(!gsUserNome) return;
-  document.title = `GynoSystem · ${gsUserNome}`;
+  document.title = `${GS_APP_NOME_COMPLETO} · ${gsUserNome}`;
   const iniziali = gsUserNome.split(/\s+/).filter(Boolean).map(w=>w[0]).slice(0,2).join('').toUpperCase();
   const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
   set('mob-bar-sub-nome', gsUserNome);
@@ -6221,7 +6227,7 @@ async function adminRichiediReset(email){
 }
 
 async function adminEliminaUtente(uid, email){
-  if(!confirm(`Eliminare l'accesso di ${email}? Non potrà più entrare in GynoSystem.\n\nNota: l'utenza resterà comunque elencata in Firebase Console finché non la rimuovi manualmente da lì (Authentication → Users) — qui viene solo bloccato l'accesso all'app.`)) return;
+  if(!confirm(`Eliminare l'accesso di ${email}? Non potrà più entrare in ${GS_APP_NOME}.\n\nNota: l'utenza resterà comunque elencata in Firebase Console finché non la rimuovi manualmente da lì (Authentication → Users) — qui viene solo bloccato l'accesso all'app.`)) return;
   try{
     await gsDb.collection('utenti').doc(uid).update({ attivo:false, eliminato:true, eliminatoAt: new Date().toISOString() });
     gsToast('🗑️ Accesso eliminato', 'gs-success');
@@ -7027,7 +7033,7 @@ async function importaPazientiDaGynobook(){
     const daSegnare=[];
     for(const docSnap of snap.docs){
       const d=docSnap.data();
-      // Solo pazienti create da GynoBook (non quelle sincronizzate da GynoSystem stesso)
+      // Solo pazienti create da GynoBook (non quelle sincronizzate da MED System stesso)
       if(d.source!=='gynobook')continue;
       const giaPresente=DB.pazienti.some(p=>p.fbId===docSnap.id);
       if(!giaPresente){
@@ -9028,7 +9034,7 @@ function aiContestoVisita(){
 }
 
 const AI_SYSTEM_BASE =
-  "Sei l'assistente clinico di GynoSystem: un collega ginecologo e ostetrico esperto e aggiornato alle linee guida (SIGO/AOGOI, AIPE, SIEOG, ISUOG, NICE, ACOG), che dà del tu alla dottoressa. " +
+  "Sei l'assistente clinico di "+GS_APP_NOME_COMPLETO+": un collega ginecologo e ostetrico esperto e aggiornato alle linee guida (SIGO/AOGOI, AIPE, SIEOG, ISUOG, NICE, ACOG), che dà del tu alla dottoressa. " +
   "Ragiona da specialista: collega i dati fra loro, evidenzia incoerenze e red flag, proponi diagnosi differenziali pertinenti, esami mirati e terapie con posologia quando serve, indicando sempre il perché e il quando. " +
   "Sii specifico e concreto, mai generico o burocratico; niente disclaimer inutili. " +
   "Sei un supporto: la decisione finale è della dottoressa. Non inventare dati: se un dato manca o è ambiguo, chiedilo o segnalalo. " +
@@ -9431,7 +9437,7 @@ async function aiInviaChat(){
   }
 }
 
-// Quando una visita viene registrata su GynoSystem, l'appuntamento corrispondente
+// Quando una visita viene registrata su MED System, l'appuntamento corrispondente
 // prenotato da GynoBook (stessa paziente, stessa data) passa automaticamente a "completato".
 // Nessun dato clinico viene scritto su Firestore: solo il campo "stato" dell'appuntamento.
 async function completaAppuntamentoFirebase(p, dataVisita){
@@ -9458,7 +9464,7 @@ async function completaAppuntamentoFirebase(p, dataVisita){
 }
 
 // ═══════════════════════════════════════════════════
-//  NUOVA PRENOTAZIONE DIRETTA DA GYNOSYSTEM
+//  NUOVA PRENOTAZIONE DIRETTA DA MED SYSTEM
 // ═══════════════════════════════════════════════════
 // Salvata nella stessa collection 'appuntamenti' di Firestore usata da GynoBook,
 // con lo stesso formato: appare identica nel calendario di GynoBook, con un
@@ -9646,9 +9652,9 @@ function scaricaVisitaJSON(p, v){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   // Nome richiesto per tutti i file che l'app scarica da sola (es. dopo una
-  // visita): "(progressivo) Salvataggio Gynosistem" — un numero che cresce
+  // visita): "(progressivo) Salvataggio MED System Gineco" — un numero che cresce
   // a ogni salvataggio automatico, sempre lo stesso schema di nome.
-  a.download=`(${_prossimoNumeroSalvataggio()}) Salvataggio Gynosistem.json`;
+  a.download=`(${_prossimoNumeroSalvataggio()}) Salvataggio ${GS_APP_NOME_COMPLETO}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -12010,7 +12016,7 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     </div>`;
   });
 
-  html+=`<div class="fonte">Documento generato da GynoSystem il ${new Date().toLocaleDateString('it-IT')}. Riepilogo a uso clinico/informativo della paziente. Percentili di crescita fetale orientativi (INTERGROWTH-21st) — verificare con il calcolatore ufficiale prima dell'uso clinico.</div>
+  html+=`<div class="fonte">Documento generato da ${GS_APP_NOME_COMPLETO} il ${new Date().toLocaleDateString('it-IT')}. Riepilogo a uso clinico/informativo della paziente. Percentili di crescita fetale orientativi (INTERGROWTH-21st) — verificare con il calcolatore ufficiale prima dell'uso clinico.</div>
     <script>
       function scaricaPdfRiepilogo(btn){
         if(typeof html2pdf==='undefined'){ alert('Libreria PDF non disponibile: verifica la connessione internet e riprova.'); return; }
@@ -12327,7 +12333,7 @@ async function connettiFileLocale(){
   }
   try{
     const handle = await window.showSaveFilePicker({
-      suggestedName: 'GynoSystem_Dati.json',
+      suggestedName: GS_APP_FILE+'_Dati.json',
       types: [{description:'File JSON', accept:{'application/json':['.json']}}]
     });
     gsFsaHandle = handle;
@@ -12422,7 +12428,7 @@ async function ripristinaDaFileCifrato(){
     const [handle] = await window.showOpenFilePicker({types:[{description:'File JSON', accept:{'application/json':['.json']}}]});
     const file = await handle.getFile();
     const payload = JSON.parse(await file.text());
-    if(!payload || !payload.salt || !payload.data){ alert('Questo file non è un backup cifrato di GynoSystem.'); return; }
+    if(!payload || !payload.salt || !payload.data){ alert('Questo file non è un backup cifrato di MED System.'); return; }
     const pass = prompt('Password di cifratura del file selezionato:');
     if(!pass) return;
     const dati = await gsDecryptJSON(payload, pass);
@@ -12463,7 +12469,7 @@ function backupData(){
   const a=document.createElement('a');
   const date=new Date().toISOString().slice(0,10);
   a.href=URL.createObjectURL(blob);
-  a.download=`GynoSystem_Backup_${date}.json`;
+  a.download=`${GS_APP_FILE}_Backup_${date}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
   localStorage.setItem('gyno_ultimo_backup_auto', new Date().toISOString());
@@ -12479,13 +12485,13 @@ function exportCSV(){
   });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download=`GynoSystem_Pazienti_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download=`${GS_APP_FILE}_Pazienti_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
 
 // Bug corretto (2026-09-14): non c'era ALCUN controllo sul file caricato —
 // caricare per sbaglio un JSON di forma diversa da un vero backup (es. il
-// download automatico di UNA sola visita, "(N) Salvataggio Gynosistem.json",
+// download automatico di UNA sola visita, "(N) Salvataggio MED System Gineco.json",
 // che NON è un backup completo: ha forma {paziente,visita,esportato}, non
 // {pazienti:[...],agenda:[...]}) sovrascriveva silenziosamente tutto
 // l'archivio con dati praticamente vuoti. Ora si verifica che il file abbia
@@ -12500,7 +12506,7 @@ function restoreData(input){
     try{ dati=JSON.parse(e.target.result); }
     catch(x){ alert('File non valido: non è un JSON leggibile.'); input.value=''; return; }
     if(!dati || typeof dati!=='object' || !Array.isArray(dati.pazienti)){
-      alert('Questo file non è un backup completo di GynoSystem (manca l\'elenco "pazienti").\n\nUsa solo un file scaricato con "📤 Esporta Backup JSON" — non il download automatico di una singola visita, che ha un altro formato ed è pensato solo come copia di sicurezza di quella visita, non per il ripristino di tutto l\'archivio.');
+      alert('Questo file non è un backup completo di MED System (manca l\'elenco "pazienti").\n\nUsa solo un file scaricato con "📤 Esporta Backup JSON" — non il download automatico di una singola visita, che ha un altro formato ed è pensato solo come copia di sicurezza di quella visita, non per il ripristino di tutto l\'archivio.');
       input.value='';
       return;
     }
@@ -12551,12 +12557,12 @@ function renderBackupStats(){
 function renderBackupGuide(){
   const c=document.getElementById('backup-guide-content'); if(!c)return;
   const steps=[
-    {n:1,t:'Backup JSON Settimanale Locale',d:'Usa il tasto "Esporta Backup" ogni settimana. Il file JSON contiene tutti i dati del DB. Salvalo in una cartella denominata "Backup_GynoSystem" con data (es. 2025-03-10_backup.json).'},
+    {n:1,t:'Backup JSON Settimanale Locale',d:'Usa il tasto "Esporta Backup" ogni settimana. Il file JSON contiene tutti i dati del DB. Salvalo in una cartella denominata "Backup_MEDSystem" con data (es. 2025-03-10_backup.json).'},
     {n:2,t:'Cloud Crittografato (Raccomandato)',d:'Carica il file JSON su un servizio cloud conforme GDPR: OneDrive Healthcare, Google Workspace for Healthcare o un server FTP aziendale dedicato. NON usare Dropbox personale o Gmail.'},
     {n:3,t:'Cartella Clinica Cartacea (Obbligo Legale)',d:'In San Marino e Italia vige l\'obbligo di conservare la documentazione sanitaria per almeno 20 anni. Il referto stampato (con firma e timbro) ha valenza legale. Archiviare per anno e per cognome.'},
     {n:4,t:'Anonimizzazione e GDPR',d:'I dati sanitari sono "dati particolari" ex art. 9 GDPR. Non condividere il file JSON tramite email non cifrata. Per ricerche statistiche anonimizzare i dati o usa la funzione "Esporta CSV".'},
     {n:5,t:'Password e Sicurezza Accesso',d:'Cambiare la password ogni 3 mesi. Non condividerla. In futuro considera l\'adozione di 2FA (autenticazione a 2 fattori) se il sistema viene migrato a un server web.'},
-    {n:6,t:'Migrazione a Software Certificato',d:'Per uno studio ad alta crescita, considera software certificati CE come: Medigest, Galileo (Noemalife), Nemo Web, o EMR cloud specifici per ginecologia. GynoSystem è ottimo per uso personale offline.'},
+    {n:6,t:'Migrazione a Software Certificato',d:'Per uno studio ad alta crescita, considera software certificati CE come: Medigest, Galileo (Noemalife), Nemo Web, o EMR cloud specifici per ginecologia. MED System è ottimo per uso personale offline.'},
   ];
   c.innerHTML=steps.map(s=>`
     <div class="backup-card">
@@ -12657,8 +12663,8 @@ function closeSidebar(){
     if(og) og.content=dataUrl;
     // Genera manifest con icona canvas (nessun file esterno)
     const m={
-      name:"GynoSystem",
-      short_name:"GynoSystem",
+      name:GS_APP_NOME_COMPLETO,
+      short_name:GS_APP_NOME_COMPLETO,
       description:"Gestione studio ginecologico · Dr.ssa Cristina Guidi",
       start_url:"./index.html",
       display:"standalone",
@@ -12883,7 +12889,7 @@ function renderFBAppts(){
 }
 
 // Trova l'id locale (DB.pazienti) corrispondente a un pazienteId Firestore.
-// I documenti creati da GynoSystem usano come id Firestore lo stesso id locale (String(p.id));
+// I documenti creati da MED System usano come id Firestore lo stesso id locale (String(p.id));
 // quelli importati da GynoBook hanno l'id locale salvato in p.fbId.
 function trovaPazienteLocaleId(firestorePazienteId){
   if(!firestorePazienteId)return null;
@@ -13125,7 +13131,7 @@ function initFirebase() {
   }
 }
 
-// Uscire da GynoSystem propone sempre, prima, di scaricare un backup
+// Uscire da MED System propone sempre, prima, di scaricare un backup
 // completo delle pazienti — una rete di sicurezza in più oltre al
 // salvataggio automatico cifrato (se collegato) e al salvataggio locale
 // continuo che l'app fa già da sola a ogni modifica.

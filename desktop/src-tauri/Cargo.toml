@@ -1,11 +1,11 @@
 [package]
-name = "gynosystem"
+name = "medsystem-gineco"
 version = "1.0.0"
-description = "GynoSystem — gestione studio ginecologico (app desktop)"
+description = "MED System Gineco — gestione studio ginecologico (app desktop)"
 edition = "2021"
 
 [lib]
-name = "gynosystem_lib"
+name = "medsystem_gineco_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "GynoSystem",
+  "productName": "MED System Gineco",
   "version": "1.0.0",
-  "identifier": "it.drssaguidi.gynosystem",
+  "identifier": "it.medsystem.gineco",
   "build": {
     "frontendDist": "../app"
   },
@@ -11,7 +11,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "GynoSystem",
+        "title": "MED System Gineco",
         "width": 1400,
         "height": 900,
         "minWidth": 1000,
@@ -27,7 +27,7 @@
     "active": true,
     "targets": ["nsis"],
     "publisher": "Studio Dr.ssa Cristina Guidi",
-    "shortDescription": "Gestione studio ginecologico",
+    "shortDescription": "MED System Gineco — gestione studio ginecologico",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

@@ -1,8 +1,8 @@
 {
-  "name": "gynosystem-desktop",
+  "name": "medsystem-gineco-desktop",
   "private": true,
   "version": "1.0.0",
-  "description": "GynoSystem — app desktop Windows (Tauri) con database interno",
+  "description": "MED System Gineco — app desktop Windows (Tauri) con database interno",
   "scripts": {
     "prepara": "node scripts/prepara-app.mjs",
     "icone": "tauri icon ../logo.png",

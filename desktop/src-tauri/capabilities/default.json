@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Permessi della finestra principale di GynoSystem",
+  "description": "Permessi della finestra principale di MED System Gineco",
   "windows": ["main"],
   "permissions": [
     "core:default",

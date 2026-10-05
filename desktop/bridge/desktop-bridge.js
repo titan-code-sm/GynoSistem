@@ -1,10 +1,10 @@
 // ═══════════════════════════════════════════════════════════════════
-//  GynoSystem DESKTOP — collegamento dell'app al database interno
+//  MED System Gineco DESKTOP — collegamento dell'app al database interno
 // ═══════════════════════════════════════════════════════════════════
 // Caricato SOLO nell'app desktop (Tauri), dopo lo script principale di
 // index.html. Sostituisce il livello di archiviazione del browser
 // (GS_STORAGE: IndexedDB) con un database SQLite interno — un unico file
-// "gynosistem.db" nella cartella dati dell'app — che contiene:
+// "medsystem-gineco.db" nella cartella dati dell'app — che contiene:
 //   · archivio       → l'archivio clinico di ogni medico (JSON)
 //   · archivio_storico → versioni salvate in automatico (max 1 all'ora)
 //   · allegati       → referti esterni e consensi cartacei (PDF/immagini)
@@ -13,9 +13,9 @@
 (function(){
   'use strict';
   const T = window.__TAURI__;
-  if(!T || !T.core){ console.warn('GynoSystem desktop: ambiente Tauri non rilevato, uso archivio del browser'); return; }
+  if(!T || !T.core){ console.warn('MED System desktop: ambiente Tauri non rilevato, uso archivio del browser'); return; }
   const invoke = T.core.invoke;
-  const NOME_DB = 'gynosistem.db';
+  const NOME_DB = 'medsystem-gineco.db';
   const BASE_WEB = 'https://titan-code-sm.github.io/GynoSistem/';
   const STORICO_OGNI_MS = 60*60*1000;
   const STORICO_MAX = 30;
@@ -192,7 +192,7 @@
       try{
         await salvaDBSubito();
         const d = new Date(), z = n=>String(n).padStart(2,'0');
-        const nome = `GynoSystem-database-${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}.db`;
+        const nome = `${GS_APP_FILE}-database-${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}.db`;
         const dest = await T.path.join(await T.path.downloadDir(), nome);
         await esegui('VACUUM INTO $1', [dest]);
         if(typeof registraLog==='function') registraLog('backup', 'Copia del database interno esportata');
@@ -250,7 +250,7 @@
     };
   }
 
-  apriDb().then(()=>console.info('GynoSystem desktop: database interno pronto')).catch(()=>{
+  apriDb().then(()=>console.info('MED System desktop: database interno pronto')).catch(()=>{
     if(typeof gsToast==='function') gsToast('⚠️ Database interno non disponibile','gs-error');
   });
 })();

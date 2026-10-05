@@ -1,4 +1,4 @@
-# Compila l'app desktop Windows (GynoSystem.exe, installer NSIS) dalla versione
+# Compila l'app desktop Windows (MED System Gineco, installer NSIS) dalla versione
 # web attuale. Parte solo:
 #  - con un tag "desktop-vX.Y.Z" (crea una release in BOZZA con l'installer,
 #    visibile solo al proprietario finché non la si pubblica)
@@ -45,7 +45,7 @@ jobs:
       - name: Installer come artefatto
         uses: actions/upload-artifact@v4
         with:
-          name: GynoSystem-installer-windows
+          name: MEDSystem-Gineco-installer-windows
           path: desktop/src-tauri/target/release/bundle/nsis/*.exe
           if-no-files-found: error
 
@@ -54,5 +54,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           draft: true
-          name: GynoSystem Desktop ${{ github.ref_name }}
+          name: MED System Gineco ${{ github.ref_name }}
           files: desktop/src-tauri/target/release/bundle/nsis/*.exe
