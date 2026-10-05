@@ -581,7 +581,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   #print-area,#print-area *{visibility:visible;}
   #print-area{display:block!important;width:auto;font-family:'Times New Roman',serif;color:black;background:white;padding:0;}
   .no-print{display:none!important;}
-  aside,main,.mob-bar,.overlay,.sid-backdrop,#login-overlay,.editor-min-bar,#ai-robot,#ai-chat{display:none!important;}
+  aside,main,.mob-bar,.overlay,.sid-backdrop,#login-overlay,.editor-min-bar{display:none!important;}
 }
 #print-area{display:none;padding:25px;}
 /* Barra editor minimizzato */
@@ -8499,6 +8499,192 @@ function stampaRicettaPostVisita(){
   const dataStr=new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
   stampaRicettaConTesto(`${p.cognome} ${p.nome}`, dataStr, formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`, terapiaDiVisita(v)));
 }
+
+// Cambia scheda nella pagina Impostazioni (Profilo / Stampe / Funzionalità / Cartella)
+function setSettingsTab(btn,id){
+  document.querySelectorAll('#sec-impostazioni .edit-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('#sec-impostazioni .tipo-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════
+//  FUNZIONALITÀ ATTIVABILI/DISATTIVABILI (nascondono voci di menu)
+// ═══════════════════════════════════════════════════
+// Nasconde solo la voce di menu: non tocca né cancella alcun dato, quindi
+// riattivare una funzionalità la ripristina esattamente come prima.
+// Dashboard, Pazienti, Nuova Paziente, Archiviazione e Impostazioni non sono
+// disattivabili: sono l'accesso ai dati clinici e alle funzioni di sicurezza
+// (backup) e alla pagina che permette di riattivare tutto il resto.
+const FEATURE_TOGGLES=[
+  {key:'storico', label:'Storico Visite', desc:'Archivio di tutte le giornate lavorative', navId:'nav-storico-date'},
+  {key:'appuntamenti', label:'Appuntamenti', desc:'Agenda delle visite', navId:'nav-appuntamenti'},
+  {key:'ricettario', label:'Ricettario', desc:'Elenco di tutte le ricette emesse', navId:'nav-ricettario'},
+  {key:'consensi', label:'Consensi', desc:'Moduli di consenso informato pronti da far firmare', navId:'nav-consensi'},
+  {key:'guide', label:'Linee Guida', desc:'Protocolli ACOG · SIGO · FIGO · ISUOG', navId:'nav-guide'},
+  {key:'farmacia', label:'Farmacia', desc:'Prontuario farmaci per patologia', navId:'nav-farmacia'},
+  {key:'utility', label:'Utility', desc:'Calcolatrici e strumenti vari', navId:'nav-utility'}
+];
+function featureFlagsKey(){ return 'gs_feature_flags_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getFeatureFlags(){
+  try{
+    const s=JSON.parse(localStorage.getItem(featureFlagsKey()));
+    if(s && typeof s==='object') return s;
+  }catch(e){}
+  return {};
+}
+function setFeatureFlag(key,enabled){
+  const flags=getFeatureFlags();
+  flags[key]=enabled;
+  try{ localStorage.setItem(featureFlagsKey(), JSON.stringify(flags)); }catch(e){}
+  applyFeatureFlags();
+  // Se si disattiva la sezione in cui ci si trova, torna alla dashboard
+  const t=FEATURE_TOGGLES.find(f=>f.key===key);
+  const secId='sec-'+(t?.navId||'').replace('nav-','');
+  if(t && !enabled && document.getElementById(secId)?.classList.contains('active')) naviga('home');
+}
+function applyFeatureFlags(){
+  const flags=getFeatureFlags();
+  FEATURE_TOGGLES.forEach(f=>{
+    const nav=document.getElementById(f.navId);
+    const enabled=flags[f.key]!==false; // default: attiva
+    if(nav) nav.style.display=enabled?'':'none';
+  });
+}
+function riattivaTutteFunzioni(){
+  try{ localStorage.removeItem(featureFlagsKey()); }catch(e){}
+  applyFeatureFlags();
+  renderFeatureToggles();
+  if(typeof gsToast==='function') gsToast('✅ Tutte le funzionalità riattivate','gs-success');
+}
+function renderFeatureToggles(){
+  const box=document.getElementById('set-funzioni-lista');
+  if(!box)return;
+  const flags=getFeatureFlags();
+  box.innerHTML=FEATURE_TOGGLES.map(f=>{
+    const enabled=flags[f.key]!==false;
+    return `<label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 0;border-bottom:1px solid var(--separator);">
+      <input type="checkbox" ${enabled?'checked':''} onchange="setFeatureFlag('${f.key}',this.checked)" style="width:20px;height:20px;flex-shrink:0;">
+      <span style="flex:1;">
+        <span style="font-weight:600;display:block;">${f.label}</span>
+        <span style="font-size:.78rem;color:var(--label4);">${f.desc}</span>
+      </span>
+    </label>`;
+  }).join('');
+}
+
+function renderImpostazioni(){
+  renderFeatureToggles();
+  if(typeof renderSetPazTabsList==='function') renderSetPazTabsList();
+  const riepChk=document.getElementById('set-paz-riepilogo');
+  if(riepChk) riepChk.checked=getPazRiepilogoVisibile();
+  // ── Personalizzazione stampe ──
+  if(document.getElementById('set-print-nome')){
+    const c = getPrintCfg(), i = c.intestazione, l = c.layout;
+    const V = (id,val)=>{ const e=document.getElementById(id); if(e) e.value = (val==null?'':val); };
+    V('set-print-nome', i.nome); V('set-print-spec', i.spec);
+    V('set-print-indirizzo', i.indirizzo); V('set-print-contatti', i.contatti);
+    V('set-print-firma', c.firma);
+    V('set-print-font', l.font); V('set-print-formato', l.formato);
+    V('set-print-corpo', l.corpo); V('set-print-margine', l.margine);
+    V('set-print-colore', l.colore); V('set-print-piepagina', l.piePagina);
+    const mostra=document.getElementById('set-print-mostralogo'); if(mostra) mostra.checked = !!l.logo;
+    const prev=document.getElementById('set-print-logo-preview');
+    if(prev) prev.innerHTML = i.logo ? `<img src="${i.logo}" style="max-height:46px;border-radius:6px">` : '<span style="font-size:.78rem;color:var(--label4)">nessun logo</span>';
+    const lg=document.getElementById('set-print-logo'); if(lg) delete lg.dataset.base64;
+  }
+}
+
+function caricaLogoImpostazioni(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    input.dataset.base64=e.target.result;
+    const prev=document.getElementById('set-print-logo-preview');
+    if(prev) prev.innerHTML=`<img src="${e.target.result}" style="max-height:46px;border-radius:6px">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function _leggiImpostazioniStampa(){
+  const c = getPrintCfg();
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  const n = (id,def)=>{ const x=parseFloat(document.getElementById(id)?.value); return isNaN(x)?def:x; };
+  c.intestazione.nome = g('set-print-nome') || c.intestazione.nome;
+  c.intestazione.spec = g('set-print-spec');
+  c.intestazione.indirizzo = g('set-print-indirizzo');
+  c.intestazione.contatti = g('set-print-contatti');
+  c.firma = g('set-print-firma') || c.intestazione.nome;
+  const lg = document.getElementById('set-print-logo');
+  if(lg && lg.dataset.base64) c.intestazione.logo = lg.dataset.base64;
+  c.layout.font = g('set-print-font') || 'Georgia';
+  c.layout.formato = g('set-print-formato') || 'A4';
+  c.layout.corpo = Math.min(16, Math.max(9, n('set-print-corpo', 11)));
+  c.layout.margine = Math.min(30, Math.max(8, n('set-print-margine', 15)));
+  c.layout.colore = g('set-print-colore') || '#c2185b';
+  c.layout.piePagina = g('set-print-piepagina');
+  c.layout.logo = !!document.getElementById('set-print-mostralogo')?.checked;
+  return c;
+}
+
+function salvaImpostazioniStampa(){
+  const c = _leggiImpostazioniStampa();
+  const stato = document.getElementById('set-print-stato');
+  if(savePrintCfg(c)){
+    if(typeof gsToast==='function') gsToast('✅ Impostazioni di stampa salvate','gs-success');
+    if(stato) stato.textContent = '✅ Salvate. Valgono da subito su ricetta, referto e informativa.';
+    renderImpostazioni();
+  } else {
+    if(typeof gsToast==='function') gsToast('Errore nel salvataggio','gs-error');
+    if(stato) stato.textContent = '⚠️ Impossibile salvare (spazio locale non disponibile).';
+  }
+}
+
+// Anteprima: apre un referto ostetrico di esempio con la configurazione CORRENTE
+// dei campi (anche non ancora salvata), così si vede subito l'effetto.
+function anteprimaStampa(){
+  const c = _leggiImpostazioniStampa(), i = c.intestazione, l = c.layout;
+  const w = apriFinestraStampa(); if(!w) return;
+  const logo = (l.logo && i.logo) ? `<img src="${i.logo}" style="max-height:64px">` : '';
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Anteprima stampa</title><style>
+    @page{margin:${l.margine}mm;size:${l.formato};}
+    body{font-family:'${l.font}',Georgia,serif;font-size:${l.corpo}pt;color:#1a1a1a;max-width:720px;margin:36px auto;padding:0 20px;line-height:1.6}
+    .ap-bar{position:fixed;top:0;left:0;right:0;background:#fce4ec;padding:10px 16px;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f;display:flex;gap:10px;align-items:center}
+    .ap-bar button{font:inherit;font-weight:600;padding:6px 14px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
+    body{padding-top:64px}
+    .ph{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:22px}
+    .ph h1{font-size:1.3rem;margin:0;color:${l.colore}}
+    .ph .sp{font-size:.85rem;color:#555;margin-top:2px}
+    .ph .ct{font-size:.78rem;color:#777;margin-top:3px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8f8f8;border-radius:8px;padding:14px;margin-bottom:18px;font-size:.9em}
+    .lbl{font-size:.72rem;text-transform:uppercase;color:#777;font-weight:bold}
+    h2{font-size:1.05rem;margin:16px 0 6px}
+    .foot{margin-top:40px;display:flex;justify-content:space-between;align-items:flex-end;font-size:.85rem;color:#555}
+    .pp{margin-top:24px;padding-top:8px;border-top:1px solid #ccc;font-size:.7rem;color:#888;text-align:center}
+    @media print{.ap-bar{display:none}body{padding-top:0;margin:0}}
+  </style></head><body>
+    <div class="ap-bar no-print">👁️ Anteprima con le impostazioni attuali (non ancora salvate).
+      <button onclick="window.print()">🖨️ Prova stampa</button>
+      <button onclick="window.close()" style="background:#fff;color:#880e4f;border:1px solid #f48fb1">Chiudi</button>
+    </div>
+    <div class="ph">${logo}<div><h1>${_escHtml(i.nome)}</h1><div class="sp">${_escHtml(i.spec)}</div><div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div></div></div>
+    <div class="grid">
+      <div><div class="lbl">Paziente</div><div>Mario Rossi (esempio)</div></div>
+      <div style="text-align:right"><div class="lbl">Data visita</div><div>${new Date().toLocaleDateString('it-IT')}</div></div>
+      <div><div class="lbl">Data di nascita</div><div>01/01/1990</div></div>
+      <div style="text-align:right"><div class="lbl">Codice fiscale</div><div>—</div></div>
+    </div>
+    <h2>ANAMNESI</h2>
+    <p>Testo di esempio del referto. Qui compaiono soltanto i campi effettivamente compilati durante la visita, con questo carattere e questo corpo.</p>
+    <h2>CONCLUSIONI</h2>
+    <p>Quadro nella norma. Si consiglia controllo tra 12 mesi.</p>
+    <div class="foot"><div></div><div style="text-align:center"><div style="font-style:italic;margin-bottom:8px">${_escHtml(c.firma)}</div><div>______________________________</div><div style="font-size:.75rem;margin-top:4px">Timbro e Firma</div></div></div>
+    ${l.piePagina?`<div class="pp">${_escHtml(l.piePagina)}</div>`:''}
+  </body></html>`);
+  w.document.close();
+}
+
 
 // Quando una visita viene registrata, l'appuntamento della stessa paziente
 // nello stesso giorno passa automaticamente a "completato".
