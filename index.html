@@ -1118,10 +1118,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <div id="modal-esci-backup" class="overlay">
   <div class="modal-sm" style="width:520px;text-align:center;">
     <div style="font-size:2.4rem;margin-bottom:8px;">💾</div>
-    <h3>Prima di uscire, scarica una copia dei dati</h3>
-    <p style="color:var(--label4);font-size:.88rem;margin:12px 0 22px;line-height:1.55;">Ti consigliamo di scaricare un backup completo di tutte le pazienti prima di chiudere MED System — una copia di sicurezza in più, oltre al salvataggio automatico cifrato (se collegato).</p>
+    <h3>Prima di uscire, fai un backup</h3>
+    <p style="color:var(--label4);font-size:.88rem;margin:12px 0 22px;line-height:1.55;">Se il backup automatico è attivo, la copia cifrata va nella tua cartella dei backup; altrimenti scarichi un backup protetto da password. È una copia di sicurezza in più, oltre al salvataggio continuo che l'app fa da sola.</p>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <button class="btn btn-primary" style="justify-content:center;" onclick="confermaEsciConBackup()">📥 Scarica backup ed esci</button>
+      <button class="btn btn-primary" style="justify-content:center;" onclick="confermaEsciConBackup()">💾 Fai il backup ed esci</button>
       <button class="btn btn-ghost" style="justify-content:center;" onclick="confermaEsciSenzaBackup()">Esci senza scaricare</button>
       <button class="btn btn-ghost" style="justify-content:center;" onclick="closeModal('modal-esci-backup')">Annulla</button>
     </div>
@@ -2088,20 +2088,22 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         <div class="card-header"><div><div class="card-title">💾 Backup completo</div><div class="card-subtitle">Pazienti, visite, appuntamenti, promemoria, allegati, consensi e impostazioni — tutto in un unico file</div></div></div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <button class="btn btn-primary" style="justify-content:flex-start;" onclick="esportaBackupCompleto(true)">🔐 Scarica backup completo (protetto da password)</button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="esportaBackupCompleto(false)">📦 Scarica backup completo (senza password)</button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="if(confirm('Il file senza password contiene tutti i dati clinici IN CHIARO: chiunque lo trovi può leggerli. Usalo solo se sai dove finirà.\n\nScaricarlo comunque?'))esportaBackupCompleto(false)">📦 Scarica backup completo (senza password, sconsigliato)</button>
           <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="document.getElementById('file-upload').click()">📂 Importa un backup</button>
           <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="exportCSV()">📊 Esporta Pazienti in CSV</button>
           <button class="btn" style="justify-content:flex-start;background:var(--red-dim);color:var(--red);border:1px solid var(--red-dim);" onclick="resetDB()">🗑️ Cancella tutti i dati</button>
         </div>
       </div>
       <div class="card" style="margin-bottom:16px;">
-        <div class="card-header"><div><div class="card-title">🔐 Salvataggio Automatico Cifrato</div><div class="card-subtitle">Collega un file sul tuo PC: si aggiorna da solo, cifrato con una password tua (Chrome/Edge)</div></div></div>
-        <div id="fsa-status" style="font-size:0.82rem;color:var(--label4);margin-bottom:12px;">Nessun file collegato.</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <button class="btn btn-primary" id="fsa-btn-connetti" style="justify-content:flex-start;" onclick="connettiFileLocale()">🔗 Collega file locale</button>
-          <button class="btn btn-ghost" id="fsa-btn-sblocca" style="justify-content:flex-start;display:none;" onclick="sbloccaCifratura()">🔓 Sblocca salvataggio (inserisci password)</button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="ripristinaDaFileCifrato()">📂 Ripristina da file locale cifrato</button>
+        <div class="card-header"><div><div class="card-title">🔐 Backup automatico cifrato</div><div class="card-subtitle">Ogni giorno l'app salva da sola un backup completo, cifrato con la tua password, nella cartella che scegli: meglio una chiavetta, un disco esterno o una cartella sincronizzata (es. Google Drive). Tiene gli ultimi 30.</div></div></div>
+        <div id="bka-stato" style="font-size:0.84rem;color:var(--label3);line-height:1.7;margin-bottom:12px;"></div>
+        <div id="bka-azioni" style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="bkaScegliCartella()">📁 Scegli la cartella dei backup</button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="bkaImpostaPassword()">🔑 Imposta / cambia la password dei backup</button>
+          <button class="btn btn-primary" style="justify-content:flex-start;" onclick="eseguiBackupAutomatico(true)">💾 Fai un backup adesso</button>
         </div>
+        <div id="bka-elenco"></div>
+        <div style="font-size:.76rem;color:var(--label4);margin-top:10px;">Per ripristinare: «Importa un backup» qui sopra, scegli il file e inserisci la password dei backup.</div>
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title">📈 Stato Database</div></div>
@@ -2219,6 +2221,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-stampa')">🖨️ Stampe</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-funzioni')">🧩 Funzionalità</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-cartella')">🗂️ Cartella Paziente</button>
+    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-frasi');renderFrasiPronte()">📝 Frasi pronte</button>
   </div>
 
   <div id="set-tab-profilo" class="edit-panel active">
@@ -2234,6 +2237,21 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <div class="card-header"><div><div class="card-title">🪪 Intestazione e logo dei documenti</div><div class="card-subtitle">Nome, specializzazione, contatti e logo su referti, PDF e ricette</div></div></div>
     <button class="btn btn-primary" onclick="apriBenvenuto()">Modifica intestazione e logo</button>
     <span style="font-size:.8rem;color:var(--label4);margin-left:10px">Le opzioni avanzate (carattere, margini, colore) sono nella scheda Stampe.</span>
+  </div>
+  </div>
+
+  <div id="set-tab-frasi" class="edit-panel">
+  <div class="card" style="max-width:980px;">
+    <div class="card-header"><div><div class="card-title">📝 Frasi pronte e testi standard</div><div class="card-subtitle">Le frasi dei pulsanti e i testi delle tendine nelle schede visita: modificale, aggiungine di nuove, eliminale o cambiane l'ordine. Valgono per il tuo account e sono incluse nel backup.</div></div></div>
+    <div class="form-group" style="max-width:480px;margin-bottom:10px"><label class="form-label">Sezione</label><select id="frasi-cat" onchange="renderFrasiPronte()"></select></div>
+    <div id="frasi-descr" style="font-size:.82rem;color:var(--label3);margin-bottom:8px;line-height:1.5"></div>
+    <div id="frasi-lista"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px">
+      <button class="btn btn-ghost" onclick="frasiAggiungi()">+ Aggiungi una voce</button>
+      <button class="btn btn-primary" onclick="frasiSalva()">Salva</button>
+      <button class="btn btn-ghost" onclick="frasiRipristina()">Ripristina le predefinite</button>
+      <span id="frasi-stato" style="font-size:.8rem;color:var(--orange);font-weight:600"></span>
+    </div>
   </div>
   </div>
 
@@ -3588,6 +3606,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
             <div class="section-card">
               <h4 data-icon="🗒️">Motivo della visita</h4>
               <div class="form-group"><textarea id="gn-motivo" rows="3" placeholder="Perché la persona si presenta oggi, sintomi riferiti, da quanto tempo…"></textarea></div>
+              <div class="macro-wrap" id="gn-motivo-btns"></div>
             </div>
             <div class="section-card">
               <h4 data-icon="📚">Anamnesi</h4>
@@ -3620,6 +3639,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
             <div class="section-card">
               <h4 data-icon="🩺">Esame obiettivo</h4>
               <div class="form-group"><textarea id="gn-esame" rows="6" placeholder="Esame obiettivo generale e distrettuale"></textarea></div>
+              <div class="macro-wrap" id="gn-esame-btns"></div>
             </div>
           </div>
           <div id="gn-3" class="edit-panel">
@@ -3630,16 +3650,19 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
             <div class="section-card">
               <h4 data-icon="📝">Esami richiesti</h4>
               <div class="form-group"><textarea id="gn-esami-richiesti" rows="4"></textarea></div>
+              <div class="macro-wrap" id="gn-esami-richiesti-btns"></div>
             </div>
           </div>
           <div id="gn-4" class="edit-panel">
             <div class="section-card">
               <h4 data-icon="✅">Diagnosi / conclusioni</h4>
               <div class="form-group"><textarea id="gn-diagnosi" rows="5"></textarea></div>
+              <div class="macro-wrap" id="gn-diagnosi-btns"></div>
             </div>
             <div class="section-card">
               <h4 data-icon="💊">Terapia</h4>
               <div class="form-group"><textarea id="gn-terapia" rows="4" placeholder="Farmaco, dose, durata…"></textarea></div>
+              <div class="macro-wrap" id="gn-terapia-btns"></div>
             </div>
             <div class="section-card">
               <h4 data-icon="🔄">Prossimo controllo</h4>
@@ -3925,7 +3948,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   <div class="pb-body" id="p-body-print"></div>
   <div class="pb-footer">
     <div></div>
-    <div style="text-align:center;font-size:0.9rem;"><div style="font-style:italic;margin-bottom:10px;" id="ph-firma-nome">Dr.ssa Cristina Guidi</div><div>______________________________</div><div style="font-size:0.75rem;margin-top:4px;">Timbro e Firma</div></div>
+    <div style="text-align:center;font-size:0.9rem;"><div style="font-style:italic;margin-bottom:10px;" id="ph-firma-nome"></div><div>______________________________</div><div style="font-size:0.75rem;margin-top:4px;">Timbro e Firma</div></div>
   </div>
 </div>
 
@@ -4620,6 +4643,143 @@ function riportaDatiProct(){
   ['altezza','fumo','allergie','terapie-atto','anticoagulanti','parti','chirurgia','patologie','familiarita','ecografo','sonda'].forEach(f=>{
     const el=document.getElementById('pr-'+f); if(el && !el.value && ultima.prData[f]) el.value=ultima.prData[f];
   });
+}
+
+// ═══════════════════════════════════════════════════
+//  FRASI PRONTE PERSONALIZZABILI (Impostazioni → Frasi pronte)
+// ═══════════════════════════════════════════════════
+// Le frasi dei pulsanti e i testi standard delle tendine nelle schede visita
+// vivono in GD. Ogni operatore può modificarle: le sue versioni sono salvate
+// per account (gs_frasi_<uid>, incluse nel backup completo) e sostituiscono
+// quelle predefinite all'accesso. "Ripristina" torna ai testi originali.
+// tipo: 'frasi' = pulsanti {titolo: testo}; 'modelli' = tendina testo standard
+// (con la voce vuota iniziale); 'elenco' = pulsanti di sola etichetta.
+Object.assign(GD, {
+  genMotivo: { "Prima visita": "Prima visita.", "Controllo": "Visita di controllo.", "Esito esami": "Visita per la valutazione degli esiti degli esami eseguiti." },
+  genEsame: { "Obiettività nella norma": "Buone condizioni generali. Obiettività cardiaca, polmonare e addominale nella norma." },
+  genDiagnosi: { "Quadro nella norma": "Quadro clinico nella norma." },
+  genEsamiRichiesti: { "Esami di routine": "Emocromo, glicemia, creatinina, elettroliti, transaminasi, profilo lipidico, esame delle urine." },
+  genTerapia: { "Nessuna terapia": "Nessuna terapia farmacologica necessaria al momento." }
+});
+const FRASI_CATEGORIE=[
+  {id:'motivo', nome:'Motivo della visita', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'esameGenerale', nome:'Esame obiettivo generale', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'speculum', nome:'Esame con speculum (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
+  {id:'prelievi', nome:'Prelievi eseguiti', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'bimanuale', nome:'Esame bimanuale (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
+  {id:'ecografia', nome:'Referto ecografico (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
+  {id:'conclusioni', nome:'Conclusioni', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'esamiRichiesti', nome:'Esami richiesti', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'terapia', nome:'Terapia', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'familiarita', nome:'Familiarità (pulsanti)', gruppo:'Visita ginecologica', tipo:'elenco', modello:'gineco'},
+  {id:'prMotivo', nome:'Motivo della visita', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prEsameGenerale', nome:'Esame obiettivo generale', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prIspezione', nome:'Ispezione perianale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prEsplorazione', nome:'Esplorazione rettale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prAnoscopia', nome:'Anoscopia (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prRettoscopia', nome:'Rettoscopia (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prEcografia', nome:'Ecografia endoanale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prConclusioni', nome:'Conclusioni', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prEsamiRichiesti', nome:'Esami richiesti', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prTerapia', nome:'Terapia e indicazioni', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prFamiliarita', nome:'Familiarità (pulsanti)', gruppo:'Visita proctologica', tipo:'elenco', modello:'proct'},
+  {id:'genMotivo', nome:'Motivo della visita', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genEsame', nome:'Esame obiettivo', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genDiagnosi', nome:'Diagnosi / conclusioni', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genEsamiRichiesti', nome:'Esami richiesti', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genTerapia', nome:'Terapia', gruppo:'Visita', tipo:'frasi', modello:'base'}
+].filter(c=>c.modello===GS_MODELLO);
+const _FRASI_PREDEFINITE={};
+function _frasiChiave(){ return 'gs_frasi_'+(gsCurrentUser?gsCurrentUser.uid:'anon'); }
+function _frasiSalvate(){ try{ return JSON.parse(localStorage.getItem(_frasiChiave()))||{}; }catch(e){ return {}; } }
+const _frasiClona=v=>JSON.parse(JSON.stringify(v));
+// All'accesso (dopo i contenuti dello studio): ricorda i testi predefiniti e
+// applica quelli personalizzati dall'operatore.
+function applicaFrasiPersonalizzate(){
+  const salvate=_frasiSalvate();
+  FRASI_CATEGORIE.forEach(c=>{
+    if(!(c.id in _FRASI_PREDEFINITE)) _FRASI_PREDEFINITE[c.id]=_frasiClona(GD[c.id]);
+    GD[c.id] = salvate[c.id]!==undefined ? _frasiClona(salvate[c.id]) : _frasiClona(_FRASI_PREDEFINITE[c.id]);
+  });
+}
+// Visita generica: pulsanti con le frasi pronte
+function initGenSelects(){
+  fillGDMacro('gn-motivo-btns', GD.genMotivo, 'gn-motivo');
+  fillGDMacro('gn-esame-btns', GD.genEsame, 'gn-esame');
+  fillGDMacro('gn-diagnosi-btns', GD.genDiagnosi, 'gn-diagnosi');
+  fillGDMacro('gn-esami-richiesti-btns', GD.genEsamiRichiesti, 'gn-esami-richiesti');
+  fillGDMacro('gn-terapia-btns', GD.genTerapia, 'gn-terapia');
+}
+
+// ── Editor nelle Impostazioni ──
+let _frasiBozza=[], _frasiCat='', _frasiModificata=false;
+function _frasiInBozza(cat, valore){
+  if(cat.tipo==='elenco') return (valore||[]).map(t=>({titolo:t, testo:''}));
+  return Object.entries(valore||{}).filter(([k])=>k!=='').map(([k,v])=>({titolo:k, testo:v}));
+}
+function renderFrasiPronte(forza){
+  const sel=document.getElementById('frasi-cat'); if(!sel) return;
+  if(!sel.options.length){
+    const gruppi=[...new Set(FRASI_CATEGORIE.map(c=>c.gruppo))];
+    sel.innerHTML=gruppi.map(g=>`<optgroup label="${_escHtml(g)}">${FRASI_CATEGORIE.filter(c=>c.gruppo===g).map(c=>`<option value="${c.id}">${_escHtml(c.nome)}</option>`).join('')}</optgroup>`).join('');
+  }
+  if(sel.value!==_frasiCat || forza){
+    if(_frasiModificata && !forza && !confirm('Ci sono modifiche non salvate in questa sezione: andranno perse. Continuare?')){ sel.value=_frasiCat; return; }
+    _frasiCat=sel.value;
+    const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat);
+    _frasiBozza=_frasiInBozza(cat, GD[_frasiCat]);
+    _frasiModificata=false;
+  }
+  const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat); if(!cat) return;
+  const salvate=_frasiSalvate();
+  document.getElementById('frasi-descr').innerHTML=
+    (cat.tipo==='frasi'?'Ogni voce è un <strong>pulsante</strong> nella scheda visita: il titolo è la scritta del pulsante, il testo è ciò che viene inserito.'
+    :cat.tipo==='modelli'?'Ogni voce è un <strong>testo standard</strong> scelto dalla tendina della scheda visita (sostituisce il contenuto del campo).'
+    :'Ogni voce è un <strong>pulsante</strong> che aggiunge la sua scritta al campo.')+
+    (salvate[_frasiCat]!==undefined?' <span style="color:var(--primary);font-weight:600">· Personalizzata</span>':' <span style="color:var(--label4)">· Predefinita</span>');
+  const box=document.getElementById('frasi-lista');
+  box.innerHTML=_frasiBozza.length ? _frasiBozza.map((f,i)=>`
+    <div style="display:grid;grid-template-columns:${cat.tipo==='elenco'?'1fr':'minmax(140px,220px) 1fr'} auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid var(--separator)">
+      <input value="${_escHtml(f.titolo)}" placeholder="${cat.tipo==='elenco'?'Voce':'Titolo del pulsante'}" oninput="_frasiBozza[${i}].titolo=this.value;_frasiModificata=true">
+      ${cat.tipo==='elenco'?'':`<textarea rows="${Math.min(8,Math.max(2,Math.ceil((f.testo||'').length/90)))}" placeholder="Testo inserito nella scheda" oninput="_frasiBozza[${i}].testo=this.value;_frasiModificata=true">${_escHtml(f.testo)}</textarea>`}
+      <div style="display:flex;gap:4px">
+        <button type="button" class="btn btn-ghost btn-sm btn-icon" title="Sposta su" onclick="frasiSposta(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button type="button" class="btn btn-ghost btn-sm btn-icon" title="Sposta giù" onclick="frasiSposta(${i},1)" ${i===_frasiBozza.length-1?'disabled':''}>↓</button>
+        <button type="button" class="btn btn-ghost btn-sm btn-icon" title="Elimina" style="color:var(--red)" onclick="frasiElimina(${i})">✕</button>
+      </div>
+    </div>`).join('') : '<div style="color:var(--label4);font-size:.85rem;padding:10px 0">Nessuna voce: aggiungine una.</div>';
+  document.getElementById('frasi-stato').textContent=_frasiModificata?'Modifiche non salvate':'';
+}
+function frasiAggiungi(){ _frasiBozza.push({titolo:'',testo:''}); _frasiModificata=true; renderFrasiPronte(); const t=document.querySelectorAll('#frasi-lista input'); if(t.length) t[t.length-1].focus(); }
+function frasiElimina(i){ _frasiBozza.splice(i,1); _frasiModificata=true; renderFrasiPronte(); }
+function frasiSposta(i,d){ const j=i+d; if(j<0||j>=_frasiBozza.length) return; [_frasiBozza[i],_frasiBozza[j]]=[_frasiBozza[j],_frasiBozza[i]]; _frasiModificata=true; renderFrasiPronte(); }
+function frasiSalva(){
+  const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat); if(!cat) return;
+  const voci=_frasiBozza.map(f=>({titolo:f.titolo.trim(), testo:(f.testo||'').trim()})).filter(f=>f.titolo||f.testo);
+  if(voci.some(f=>!f.titolo)){ alert('Ogni voce deve avere un titolo.'); return; }
+  if(cat.tipo!=='elenco' && voci.some(f=>!f.testo)){ alert('Ogni voce deve avere un testo.'); return; }
+  const titoli=voci.map(f=>f.titolo.toLowerCase());
+  if(new Set(titoli).size!==titoli.length){ alert('Ci sono due voci con lo stesso titolo: rendile diverse.'); return; }
+  let valore;
+  if(cat.tipo==='elenco') valore=voci.map(f=>f.titolo);
+  else{ valore=cat.tipo==='modelli'?{'':''}:{}; voci.forEach(f=>{ valore[f.titolo]=f.testo; }); }
+  const salvate=_frasiSalvate(); salvate[cat.id]=valore;
+  try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){ alert('Salvataggio non riuscito.'); return; }
+  GD[cat.id]=_frasiClona(valore);
+  _frasiModificata=false;
+  renderFrasiPronte(true);
+  registraLog('impostazioni','Frasi pronte modificate: '+cat.nome);
+  if(typeof gsToast==='function') gsToast('✅ Frasi pronte salvate','gs-success');
+}
+function frasiRipristina(){
+  const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat); if(!cat) return;
+  if(!confirm(`Ripristinare le frasi predefinite di «${cat.nome}»? Le tue modifiche a questa sezione verranno perse.`)) return;
+  const salvate=_frasiSalvate(); delete salvate[cat.id];
+  try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){}
+  GD[cat.id]=_frasiClona(_FRASI_PREDEFINITE[cat.id]);
+  _frasiModificata=false;
+  renderFrasiPronte(true);
+  if(typeof gsToast==='function') gsToast('Frasi predefinite ripristinate','gs-info');
 }
 
 // ── VISITA GENERICA (modello Base) ──
@@ -6402,29 +6562,123 @@ document.addEventListener('DOMContentLoaded', function initApp(){
 });
 
 // ═══════════════════════════════════════════════════
-//  BACKUP AUTOMATICO SETTIMANALE
+//  BACKUP AUTOMATICO CIFRATO (app desktop)
 // ═══════════════════════════════════════════════════
-// Visto che tutti i dati clinici vivono solo in locale (mai su Firestore per
-// motivi di GDPR), un backup periodico è importante. Ogni 7 giorni dall'ultimo,
-// scarica automaticamente un file JSON completo, senza richiedere alcuna azione.
-const BACKUP_INTERVALLO_GIORNI=7;
+// Ogni giorno l'app salva da sola un backup COMPLETO (stesso contenuto di
+// "Scarica backup completo"), cifrato con la password scelta dall'operatore,
+// nella cartella che ha indicato (meglio una chiavetta, un disco esterno o una
+// cartella sincronizzata). Tiene gli ultimi BKA_TIENI file. La password è
+// custodita da Windows (comandi Rust segreto_leggi/salva) ed è la stessa che
+// servirà per importare il backup su un altro PC: senza, non si apre.
+// Sostituisce i vecchi download automatici NON cifrati in Download.
+const BKA_TIENI=30, BKA_OGNI_ORE=24;
+function _bkaChiave(k){ return 'gs_backup_auto_'+k+'_'+(gsCurrentUser?gsCurrentUser.uid:'anon'); }
+function _bkaLeggi(k){ try{ return localStorage.getItem(_bkaChiave(k))||''; }catch(e){ return ''; } }
+function _bkaScrivi(k,v){ try{ localStorage.setItem(_bkaChiave(k), v); }catch(e){} }
+function _bkaInvoke(cmd,args){ return window.__TAURI__.core.invoke(cmd,args||{}); }
+// Serie dei file di questo account: i backup di account diversi nella stessa
+// cartella non si mescolano né si cancellano a vicenda.
+function _bkaPrefisso(){ return GS_APP_FILE+'_'+String(gsCurrentUser?gsCurrentUser.uid:'anon').slice(0,6); }
+async function _bkaPassword(){ try{ return await _bkaInvoke('segreto_leggi',{nome:'password-backup'}); }catch(e){ return null; } }
+let _bkaInCorso=false;
 
-function controllaBackupAutomatico(){
-  if(!DB.pazienti || !DB.pazienti.length) return; // niente da salvare ancora
-  const ultimo=localStorage.getItem('gyno_ultimo_backup_auto');
-  const oggi=new Date();
-  if(ultimo){
-    const giorniTrascorsi=(oggi-new Date(ultimo))/(1000*60*60*24);
-    if(giorniTrascorsi<BACKUP_INTERVALLO_GIORNI) return;
+async function renderBackupAutomatico(){
+  const box=document.getElementById('bka-stato'); if(!box) return;
+  if(!window.__TAURI__){
+    box.innerHTML='Disponibile nell\'app MED System per Windows.';
+    document.getElementById('bka-azioni').style.display='none';
+    return;
   }
-  // Esegue il backup silenzioso e aggiorna la data, con un breve ritardo per
-  // non sommarsi al caricamento iniziale della pagina
-  setTimeout(()=>{
-    backupData();
-    localStorage.setItem('gyno_ultimo_backup_auto', oggi.toISOString());
-    if(typeof gsToast==='function') gsToast('💾 Backup automatico settimanale scaricato','gs-success');
-  },1500);
+  const cartella=_bkaLeggi('cartella'), pass=await _bkaPassword(), ultimo=_bkaLeggi('ultimo'), errore=_bkaLeggi('errore');
+  const righe=[];
+  righe.push(cartella ? `📁 Cartella: <strong>${_escHtml(cartella)}</strong>` : '📁 Cartella: <span style="color:var(--red);font-weight:600">non scelta</span>');
+  righe.push(pass ? '🔑 Password dei backup: <strong>impostata</strong> (custodita da Windows su questo PC)' : '🔑 Password dei backup: <span style="color:var(--red);font-weight:600">non impostata</span>');
+  if(ultimo) righe.push(`✅ Ultimo backup: <strong>${new Date(ultimo).toLocaleString('it-IT',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}</strong>`);
+  if(errore) righe.push(`<span style="color:var(--red)">⚠️ Ultimo tentativo non riuscito: ${_escHtml(errore)}</span>`);
+  if(!cartella || !pass) righe.push('<span style="color:var(--orange);font-weight:600">Il backup automatico non è attivo: scegli la cartella e imposta la password.</span>');
+  box.innerHTML=righe.join('<br>');
+  const el=document.getElementById('bka-elenco');
+  if(el && cartella){
+    try{
+      const lista=await _bkaInvoke('backup_elenca',{cartella, prefisso:_bkaPrefisso()});
+      el.innerHTML=lista.length ? `<div style="font-size:.78rem;color:var(--label4);margin:10px 0 4px">${lista.length} backup nella cartella (si tengono gli ultimi ${BKA_TIENI}):</div>`+
+        lista.slice(0,5).map(f=>`<div style="font-size:.8rem;color:var(--label3)">• ${_escHtml(f.nome)} — ${(f.byte/1024).toFixed(0)} KB</div>`).join('')+(lista.length>5?`<div style="font-size:.78rem;color:var(--label4)">…e altri ${lista.length-5}</div>`:'')
+        : '';
+    }catch(e){ el.innerHTML=''; }
+  }
 }
+async function bkaScegliCartella(){
+  try{
+    const c=await _bkaInvoke('backup_scegli_cartella');
+    if(!c) return;
+    _bkaScrivi('cartella', c);
+    if(typeof gsToast==='function') gsToast('📁 Cartella dei backup impostata','gs-success');
+    await renderBackupAutomatico();
+    if(await _bkaPassword()) eseguiBackupAutomatico(true);
+  }catch(e){ alert('Impossibile scegliere la cartella: '+(e.message||e)); }
+}
+async function bkaImpostaPassword(){
+  const giaImpostata=!!(await _bkaPassword());
+  const p=await chiediPasswordBackup(giaImpostata?'Cambia la password dei backup':'Password dei backup automatici',
+    'Scegli una password (almeno 8 caratteri) e annotala in un posto sicuro: servirà per aprire i backup su un altro PC (per esempio se questo si guasta). Senza password i backup non si possono aprire in alcun modo.'+(giaImpostata?' I backup già fatti restano apribili con la password precedente.':''), true);
+  if(p===null) return;
+  try{
+    await _bkaInvoke('segreto_salva',{nome:'password-backup', valore:p});
+    if(typeof gsToast==='function') gsToast('🔑 Password dei backup salvata','gs-success');
+    await renderBackupAutomatico();
+    if(_bkaLeggi('cartella')) eseguiBackupAutomatico(true);
+  }catch(e){ alert('Password non salvata: '+(e.message||e)); }
+}
+// manuale=true: avvisa sempre dell'esito (pulsante "Fai un backup adesso").
+async function eseguiBackupAutomatico(manuale){
+  if(!window.__TAURI__ || !gsCurrentUser || !gsDbStorageKey || gsDemoMode || _bkaInCorso) return false;
+  const cartella=_bkaLeggi('cartella'), pass=await _bkaPassword();
+  if(!cartella || !pass){
+    if(manuale && typeof gsToast==='function') gsToast('Scegli prima la cartella e la password dei backup','gs-error');
+    return false;
+  }
+  // Un archivio vuoto non sostituisce i backup buoni (es. dopo un problema)
+  if(!manuale && !(DB.pazienti||[]).length) return false;
+  _bkaInCorso=true;
+  try{
+    await salvaDBSubito();
+    const backup=await _creaBackupCompleto();
+    const {key,saltB64}=await gsDeriveKey(pass);
+    const contenuto={ formato:GS_BACKUP_FORMATO+'-cifrato', ...(await gsEncryptJSON(backup,key,saltB64)) };
+    const d=new Date(), z=n=>String(n).padStart(2,'0');
+    const stamp=`${d.getFullYear()}${z(d.getMonth()+1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`;
+    const nome=`${_bkaPrefisso()}_auto_${stamp}.json`;
+    await _bkaInvoke('backup_scrivi',{cartella, nome, contenuto:JSON.stringify(contenuto), tieni:BKA_TIENI});
+    _bkaScrivi('ultimo', d.toISOString()); _bkaScrivi('errore','');
+    try{ localStorage.setItem('gyno_ultimo_backup_auto', d.toISOString()); }catch(e){}
+    registraLog('backup','Backup automatico cifrato salvato');
+    if(manuale && typeof gsToast==='function') gsToast(`✅ Backup cifrato salvato (${DB.pazienti.length} pazienti, ${backup.allegati.length} allegati)`,'gs-success');
+    return true;
+  }catch(e){
+    console.error('Backup automatico:', e);
+    _bkaScrivi('errore', String(e && e.message || e).slice(0,160));
+    if(typeof gsToast==='function') gsToast('⚠️ Backup automatico non riuscito: '+(e && e.message || e),'gs-error');
+    return false;
+  }finally{
+    _bkaInCorso=false;
+    if(document.getElementById('sec-backup')?.classList.contains('active')) renderBackupAutomatico();
+  }
+}
+function _bkaScaduto(){
+  const u=_bkaLeggi('ultimo');
+  return !u || (Date.now()-new Date(u).getTime())/36e5 >= BKA_OGNI_ORE;
+}
+// All'accesso e poi ogni ora: se l'ultimo backup ha più di 24 ore, ne fa uno.
+function controllaBackupAutomatico(){
+  if(!window.__TAURI__ || gsDemoMode) return;
+  setTimeout(async()=>{
+    if(!_bkaScaduto()) return;
+    const ok=await eseguiBackupAutomatico(false);
+    if(!ok && (!_bkaLeggi('cartella') || !(await _bkaPassword())) && (DB.pazienti||[]).length && typeof gsToast==='function')
+      gsToast('💾 Attiva il backup automatico in Archiviazione: è la tua copia di sicurezza','gs-info');
+  }, 6000);
+}
+setInterval(()=>{ if(window.__TAURI__ && gsCurrentUser && gsDbStorageKey && !_gsBloccato && _bkaScaduto()) eseguiBackupAutomatico(false); }, 60*60*1000);
 
 function startClock(){
   setInterval(()=>{
@@ -6763,6 +7017,8 @@ async function handleUserProfile(user){
     demoMode = data.demoMode === true;
     try{ await ref.update({ ultimoAccesso: new Date().toISOString() }); }catch(e){}
   }
+  await _gsRiconosciStudio(user.email);
+  applicaFrasiPersonalizzate();
   _applicaPreferenzeProfilo(snap.exists ? snap.data() : null, user.uid);
   applyNomeMedico(nome);
   gsDemoMode = demoMode;
@@ -7241,6 +7497,8 @@ async function avviaSitoDemo(){
   document.getElementById('login-overlay').style.display='none';
   applyNomeMedico('Medico Demo');
   _applicaPreferenzeProfilo(null,'sito-demo');
+  _applicaContenutiStudio();
+  applicaFrasiPersonalizzate();
   const modello=await leggiModelloDemo();
   // Il modello cambia menu e schede: se nel portale ne è stato scelto un altro
   // rispetto a quello con cui la pagina si è aperta, la si ricarica una volta.
@@ -9131,7 +9389,7 @@ function startEditor(tipo, vid=null){
     if(!vid) riportaDatiGyno();
   }
 
-  if(tipo==='gen'){ if(!vid) riportaDatiGen(); calcBMIGen(); }
+  if(tipo==='gen'){ initGenSelects(); if(!vid) riportaDatiGen(); calcBMIGen(); }
   if(tipo==='pr'){ initProctSelects(); if(!vid) riportaDatiProct(); calcBMIProct(); calcScoreProct(); }
   // Gravidanza: solo per nuove visite ostetriche/eco (in modifica la gravidanza è già fissata)
   if(!vid && (tipo==='ob'||tipo==='eco')){
@@ -9568,7 +9826,6 @@ function salvaVisita(){
   renderAlertsPaz(p);
   _aggiornaAllergieBanner(p);
   if(typeof renderPazRiepilogo==='function') renderPazRiepilogo(p);
-  scaricaVisitaJSON(p, v); // download automatico JSON
   completaAppuntamento(p, v.data);
   apriPostVisita(p, v); // chiede se stampare referto e/o ricetta
 }
@@ -10566,6 +10823,70 @@ const CONSENSI_DEFAULT = [
 
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritta {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. Ho diritto di accedere, rettificare e cancellare i propri dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
+// ═══════════════════════════════════════════════════
+//  CONTENUTI PERSONALI DI UNO STUDIO
+// ═══════════════════════════════════════════════════
+// Alcuni testi sono propri di uno studio (riferimenti all'Ospedale di Rimini,
+// numeri di telefono, consenso IUD firmato col nome della dottoressa, PDF
+// ufficiali SIEOG): restano SOLO sull'account di quello studio, riconosciuto
+// dall'impronta SHA-256 dell'email (così l'indirizzo non compare nel codice).
+// Per tutti gli altri account si usano versioni generiche.
+const GS_STUDI_PERSONALI={
+  '0052127c1e1bf5ab7aced9c67d6f85b122a2e2b63431c1dcdfeb0d1964cc3348':'guidi'
+};
+let gsStudioPersonale='';
+const _STUDIO_SOSTITUZIONI=[
+  ['; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento', '; prenotare presso il centro di riferimento'],
+  [' (contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per prenotare appuntamento c/o ambulatorio GAR Ospedale di Rimini, Scala C piano 1)', ' (da prenotare presso il centro di riferimento)'],
+  ['contattare il centro vaccinale tramite email vaccinazioni.rn@auslromagna.it per programmare', 'contattare il centro vaccinale di riferimento per programmare'],
+  ['contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento AMB. Gravidanza a termine / AMB. Prechirurgico.', 'prenotare l\'appuntamento presso l\'ambulatorio Gravidanza a termine / prechirurgico del punto nascita scelto.'],
+  [' (rivolgersi al centro vaccinale email: vaccinazioni.rn@auslromagna.it per prenotare appuntamento)', ' (rivolgersi al centro vaccinale di riferimento per prenotare l\'appuntamento)'],
+  ['Contattare il centro vaccinale (vaccinazioni.rn@auslromagna.it) per programmare', 'Contattare il centro vaccinale di riferimento per programmare'],
+  ['Contattare il numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per prenotare l\'appuntamento presso l\'ambulatorio Gravidanza a Termine (Ospedale di Rimini, Scala C piano 1) per l\'apertura', 'Prenotare l\'appuntamento presso l\'ambulatorio Gravidanza a Termine del punto nascita scelto per l\'apertura']
+];
+const _STUDIO_ESAMI_GENERICI={
+  'AUB (isteroscopia)':'AUB: Isteroscopia diagnostica con biopsia endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per AUB in menopausa).',
+  'Polipo (isteroscopia)':'POLIPO: Isteroscopia per sospetto polipo endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per sospetto polipo endometriale).',
+  'Eco II livello':'ECO2LIV: Ecografia ginecologica di II livello presso centro di riferimento (con impegnativa del medico curante: ecografia ginecologica e visita ginecologica).'
+};
+const _studioOriginali={ esami:null, schemi:null };
+function _studioGenerico(t){ return _STUDIO_SOSTITUZIONI.reduce((x,[a,b])=>x.split(a).join(b), String(t||'')); }
+function _applicaContenutiStudio(){
+  const personale = gsStudioPersonale==='guidi';
+  // Frasi pronte "Esami richiesti" della visita ginecologica
+  if(!_studioOriginali.esami) _studioOriginali.esami={...GD.esamiRichiesti};
+  Object.keys(_STUDIO_ESAMI_GENERICI).forEach(k=>{
+    if(k in GD.esamiRichiesti) GD.esamiRichiesti[k] = personale ? _studioOriginali.esami[k] : _STUDIO_ESAMI_GENERICI[k];
+  });
+  // Prescrizioni pronte della visita ostetrica (tendine con testo completo)
+  document.querySelectorAll('option[data-full]').forEach(o=>{
+    if(o.dataset.orig===undefined) o.dataset.orig=o.dataset.full;
+    o.dataset.full = personale ? o.dataset.orig : _studioGenerico(o.dataset.orig);
+  });
+  // Schemi di prescrizione predefiniti (quelli già personalizzati dall'operatore non cambiano)
+  if(!_studioOriginali.schemi) _studioOriginali.schemi=SCHEMI_PRESCRIZIONI_DEFAULT.map(x=>x.testo);
+  SCHEMI_PRESCRIZIONI_DEFAULT.forEach((x,i)=>{ x.testo = personale ? _studioOriginali.schemi[i] : _studioGenerico(_studioOriginali.schemi[i]); });
+}
+async function _gsRiconosciStudio(email){
+  gsStudioPersonale='';
+  try{
+    const h=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(email||'').trim().toLowerCase()));
+    const hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    gsStudioPersonale=GS_STUDI_PERSONALI[hex]||'';
+  }catch(e){}
+  _applicaContenutiStudio();
+}
+// Consensi ginecologici per gli studi senza contenuti personali: niente
+// modulo IUD dello studio Guidi, niente PDF ufficiali SIEOG allegati.
+function _consensiGinecoGenerici(){
+  return CONSENSI_DEFAULT.filter(c=>c.titolo!=='Inserimento IUD').map(c=>{
+    const x={...c}; delete x.pdfUfficiale;
+    x.testo=x.testo.split('CONSENSO SIEOG (come per legge)\n\n').join('')
+      .split(' — anche tramite il documento informativo ufficiale SIEOG allegato —').join('');
+    return x;
+  });
+}
+
 // Modello Base: moduli generici validi per ogni specialità, scritti al neutro.
 const CONSENSI_BASE = [
   { titolo:'Consenso informato alla visita specialistica', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a adeguatamente informato/a dal medico sulle finalità, le modalità di esecuzione, i benefici attesi e gli eventuali fastidi o rischi della visita specialistica (raccolta dell'anamnesi, esame obiettivo ed eventuali accertamenti eseguiti durante la visita), nonché sulle possibili alternative. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter revocare il consenso in qualsiasi momento. Acconsento liberamente all'esecuzione della visita nelle modalità proposte." },
@@ -10580,7 +10901,7 @@ const CONSENSI_PROCT = [
   { titolo:'Ecografia endoanale', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a sull'ecografia endoanale: una sonda lubrificata viene introdotta nel canale anale per pochi minuti, per studiare gli sfinteri e i tessuti circostanti. L'esame non utilizza radiazioni, è in genere ben tollerato e può causare un modesto fastidio. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione dell'esame." },
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
-function _consensiPredefiniti(){ return GS_MODELLO==='base' ? CONSENSI_BASE : GS_MODELLO==='proct' ? CONSENSI_PROCT : CONSENSI_DEFAULT; }
+function _consensiPredefiniti(){ return GS_MODELLO==='base' ? CONSENSI_BASE : GS_MODELLO==='proct' ? CONSENSI_PROCT : (gsStudioPersonale==='guidi' ? CONSENSI_DEFAULT : _consensiGinecoGenerici()); }
 // Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
 // così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
 // non riconosciuti restano comunque selezionabili, solo non in evidenza).
@@ -13040,7 +13361,7 @@ async function esportaBackupCompleto(conPassword){
   }
 }
 // Backup senza password: usato dal menu Opzioni, dal promemoria settimanale e all'uscita.
-function backupData(){ return esportaBackupCompleto(false); }
+function backupData(){ return esportaBackupCompleto(true); }
 
 function exportCSV(){
   let csv='Cognome,Nome,DataNascita,Telefono,Email,CF,NumeroVisite,UltimaVisita\n';
@@ -13124,6 +13445,7 @@ async function resetDB(){
 }
 
 function renderBackupStats(){
+  if(typeof renderBackupAutomatico==='function') renderBackupAutomatico();
   const c=document.getElementById('db-stats'); if(!c)return;
   const totalV=DB.pazienti.reduce((s,p)=>s+(p.visite?.length||0),0);
   const totalA=DB.pazienti.reduce((s,p)=>s+(p.alerts?.length||0),0);
@@ -13134,7 +13456,7 @@ function renderBackupStats(){
   if(ultimoBackup){
     const giorni=Math.floor((new Date()-new Date(ultimoBackup))/(1000*60*60*24));
     backupLabel=giorni===0?'Oggi':giorni===1?'Ieri':`${giorni} giorni fa`;
-    backupColor=giorni>BACKUP_INTERVALLO_GIORNI?'var(--red)':'var(--green)';
+    backupColor=giorni>2?'var(--red)':'var(--green)'; // il backup automatico è giornaliero
   }
   c.innerHTML=`
     <div class="alert-item"><span class="alert-date">Pazienti</span><span class="alert-text">${DB.pazienti.length} schede</span></div>
@@ -13515,7 +13837,9 @@ async function _eseguiLogoutGynoSystem(){
 }
 async function confermaEsciConBackup(){
   closeModal('modal-esci-backup');
-  await backupData();
+  // App desktop con backup automatico attivo: lo salva nella cartella; altrimenti
+  // scarica un backup protetto da password (mai più file in chiaro).
+  if(!(await eseguiBackupAutomatico(true))){ if(!(await backupData())) return; }
   // Piccola attesa: lasciare partire il download prima che la pagina cominci a ricaricarsi.
   setTimeout(_eseguiLogoutGynoSystem, 700);
 }
