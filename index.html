@@ -6319,11 +6319,17 @@ async function _idbScrivi(chiave,valore){
     tx.onabort=()=>reject(tx.error||new Error('transazione annullata'));
   });
 }
+// Livello di archiviazione sostituibile: nel browser usa IndexedDB; l'app
+// desktop (cartella desktop/, Tauri) lo rimpiazza col proprio database SQLite.
+const GS_STORAGE={
+  archivio:{ leggi:c=>_idbLeggi(c), scrivi:(c,j)=>_idbScrivi(c,j) },
+  allegati:null // definito nella sezione ALLEGATI
+};
 function _scriviArchivioOra(){
   clearTimeout(_salvaDbTimer); _salvaDbTimer=null;
   if(!gsDbStorageKey) return _salvaDbInCorso;
   const chiave=gsDbStorageKey, json=JSON.stringify(DB);
-  _salvaDbInCorso=_salvaDbInCorso.then(()=>_idbScrivi(chiave,json)).catch(e=>{
+  _salvaDbInCorso=_salvaDbInCorso.then(()=>GS_STORAGE.archivio.scrivi(chiave,json)).catch(e=>{
     console.error('Salvataggio IndexedDB fallito:', e);
     if(typeof gsToast==='function') gsToast('⚠️ Salvataggio locale non riuscito: esporta subito un backup','gs-error');
   });
@@ -6353,12 +6359,12 @@ async function caricaDatiLocaliUtente(uid){
   const chiave='gynoDB_v15_' + uid;
   let json=null;
   try{
-    json=await _idbLeggi(chiave);
+    json=await GS_STORAGE.archivio.leggi(chiave);
     if(json===undefined || json===null){
       const vecchio=localStorage.getItem(chiave);
       if(vecchio){
-        await _idbScrivi(chiave,vecchio);
-        if(await _idbLeggi(chiave)===vecchio){ localStorage.removeItem(chiave); json=vecchio; console.info('Archivio migrato da localStorage a IndexedDB'); }
+        await GS_STORAGE.archivio.scrivi(chiave,vecchio);
+        if(await GS_STORAGE.archivio.leggi(chiave)===vecchio){ localStorage.removeItem(chiave); json=vecchio; console.info('Archivio migrato da localStorage a IndexedDB'); }
         else throw new Error('verifica migrazione fallita');
       } else json=null;
     }
@@ -8504,6 +8510,54 @@ function apriDbAllegati(){
   });
   return _allegatiDbPromise;
 }
+// Operazioni sugli allegati dietro un'unica interfaccia (GS_STORAGE.allegati):
+// nel browser IndexedDB; l'app desktop la sostituisce col database interno.
+// Ogni voce: {id, pazienteId, nomeFile, tipo, dimensione, descrizione,
+// dataCaricamento, [categoria, dataFirma], blob (solo in leggi/aggiungi)}.
+function _idbRichiesta(req){ return new Promise((resolve,reject)=>{ req.onsuccess=()=>resolve(req.result); req.onerror=()=>reject(req.error); }); }
+GS_STORAGE.allegati={
+  async aggiungi(voce){
+    const db=await apriDbAllegati();
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      const req=tx.objectStore('files').add(voce);
+      tx.oncomplete=()=>resolve(req.result); tx.onerror=()=>reject(tx.error);
+    });
+  },
+  async elenco(pazId){
+    const db=await apriDbAllegati();
+    return (await _idbRichiesta(db.transaction('files','readonly').objectStore('files').index('pazienteId').getAll(pazId)))||[];
+  },
+  async leggi(id){
+    const db=await apriDbAllegati();
+    return _idbRichiesta(db.transaction('files','readonly').objectStore('files').get(id));
+  },
+  async elimina(id){
+    const db=await apriDbAllegati();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      tx.objectStore('files').delete(id);
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+  },
+  async eliminaPaziente(pazId){
+    const db=await apriDbAllegati();
+    const ids=(await _idbRichiesta(db.transaction('files','readonly').objectStore('files').index('pazienteId').getAllKeys(pazId)))||[];
+    if(!ids.length)return;
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      const store=tx.objectStore('files');
+      ids.forEach(id=>store.delete(id));
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+  }
+};
+// Apre un file (PDF/immagine) per la consultazione: nel browser una nuova scheda.
+function gsApriBlob(blob){
+  const url=URL.createObjectURL(blob);
+  window.open(url,'_blank');
+  setTimeout(()=>URL.revokeObjectURL(url), 60000);
+}
 async function caricaAllegato(){
   const fileInput=document.getElementById('alg-file');
   const file=fileInput.files[0];
@@ -8511,19 +8565,14 @@ async function caricaAllegato(){
   if(file.size>15*1024*1024){ if(typeof gsToast==='function') gsToast('⚠️ File troppo grande (limite 15 MB)','gs-error'); return; }
   const desc=document.getElementById('alg-desc').value.trim();
   try{
-    const db=await apriDbAllegati();
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readwrite');
-      tx.objectStore('files').add({
-        pazienteId:curPaz,
-        nomeFile:file.name,
-        tipo:file.type,
-        dimensione:file.size,
-        descrizione:desc,
-        dataCaricamento:new Date().toISOString(),
-        blob:file
-      });
-      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    await GS_STORAGE.allegati.aggiungi({
+      pazienteId:curPaz,
+      nomeFile:file.name,
+      tipo:file.type,
+      dimensione:file.size,
+      descrizione:desc,
+      dataCaricamento:new Date().toISOString(),
+      blob:file
     });
     document.getElementById('alg-desc').value='';
     fileInput.value='';
@@ -8538,16 +8587,9 @@ async function renderAllegatiPaziente(pazId){
   const box=document.getElementById('allegati-lista');
   if(!box)return;
   try{
-    const db=await apriDbAllegati();
-    const items=await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readonly');
-      const req=tx.objectStore('files').index('pazienteId').getAll(pazId);
-      // I consensi cartacei caricati dalla scheda "Consensi Firmati" vivono nello
-      // stesso store (stesso meccanismo, stesso IndexedDB) ma non vanno duplicati
-      // qui in Referti Esterni: hanno categoria:'consenso'.
-      req.onsuccess=()=>resolve((req.result||[]).filter(it=>it.categoria!=='consenso'));
-      req.onerror=()=>reject(req.error);
-    });
+    // I consensi cartacei caricati dalla scheda "Consensi Firmati" vivono nello
+    // stesso archivio ma non vanno duplicati qui in Referti Esterni: hanno categoria:'consenso'.
+    const items=(await GS_STORAGE.allegati.elenco(pazId)).filter(it=>it.categoria!=='consenso');
     if(!items.length){
       box.innerHTML='<div style="color:var(--label4);font-size:.8rem">Nessun allegato per questa paziente.</div>';
     } else {
@@ -8571,17 +8613,9 @@ async function renderAllegatiPaziente(pazId){
 }
 async function apriAllegato(id){
   try{
-    const db=await apriDbAllegati();
-    const item=await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readonly');
-      const req=tx.objectStore('files').get(id);
-      req.onsuccess=()=>resolve(req.result);
-      req.onerror=()=>reject(req.error);
-    });
+    const item=await GS_STORAGE.allegati.leggi(id);
     if(!item)return;
-    const url=URL.createObjectURL(item.blob);
-    window.open(url,'_blank');
-    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    gsApriBlob(item.blob);
   }catch(e){
     console.warn('Apertura allegato:',e);
     if(typeof gsToast==='function') gsToast('⚠️ Errore nell\'apertura dell\'allegato','gs-error');
@@ -8590,12 +8624,7 @@ async function apriAllegato(id){
 async function eliminaAllegato(id,pazId){
   if(!confirm('Eliminare questo allegato? L\'operazione non è reversibile.'))return;
   try{
-    const db=await apriDbAllegati();
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readwrite');
-      tx.objectStore('files').delete(id);
-      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
-    });
+    await GS_STORAGE.allegati.elimina(id);
     renderAllegatiPaziente(pazId);
   }catch(e){
     console.warn('Eliminazione allegato:',e);
@@ -8603,7 +8632,7 @@ async function eliminaAllegato(id,pazId){
 }
 // Consenso firmato su carta (non su schermo): un PDF scansionato/fotografato,
 // caricato dalla scheda "Consensi Firmati" della cartella paziente. Stesso
-// store IndexedDB degli allegati di Referti Esterni (categoria:'consenso' li
+// archivio degli allegati di Referti Esterni (categoria:'consenso' li
 // tiene distinti), così restano anch'essi solo su questo dispositivo.
 async function caricaConsensoCartaceo(){
   const fileInput=document.getElementById('cc-file');
@@ -8615,21 +8644,16 @@ async function caricaConsensoCartaceo(){
   const titolo=document.getElementById('cc-titolo').value.trim() || 'Consenso informato';
   const dataFirma=document.getElementById('cc-data').value || new Date().toISOString().split('T')[0];
   try{
-    const db=await apriDbAllegati();
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readwrite');
-      tx.objectStore('files').add({
-        pazienteId:curPaz,
-        nomeFile:file.name,
-        tipo:file.type||'application/pdf',
-        dimensione:file.size,
-        descrizione:titolo,
-        categoria:'consenso',
-        dataFirma,
-        dataCaricamento:new Date().toISOString(),
-        blob:file
-      });
-      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    await GS_STORAGE.allegati.aggiungi({
+      pazienteId:curPaz,
+      nomeFile:file.name,
+      tipo:file.type||'application/pdf',
+      dimensione:file.size,
+      descrizione:titolo,
+      categoria:'consenso',
+      dataFirma,
+      dataCaricamento:new Date().toISOString(),
+      blob:file
     });
     document.getElementById('cc-titolo').value='';
     document.getElementById('cc-data').value='';
@@ -8643,47 +8667,21 @@ async function caricaConsensoCartaceo(){
 }
 async function leggiConsensiCartacei(pazId){
   try{
-    const db=await apriDbAllegati();
-    const items=await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readonly');
-      const req=tx.objectStore('files').index('pazienteId').getAll(pazId);
-      req.onsuccess=()=>resolve((req.result||[]).filter(it=>it.categoria==='consenso'));
-      req.onerror=()=>reject(req.error);
-    });
-    return items;
+    return (await GS_STORAGE.allegati.elenco(pazId)).filter(it=>it.categoria==='consenso');
   }catch(e){ console.warn('Lettura consensi cartacei:',e); return []; }
 }
 async function eliminaConsensoCartaceo(id){
   if(!confirm('Eliminare questo consenso caricato? L\'operazione non è reversibile.'))return;
   try{
-    const db=await apriDbAllegati();
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readwrite');
-      tx.objectStore('files').delete(id);
-      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
-    });
+    await GS_STORAGE.allegati.elimina(id);
     renderConsensiFirmati();
   }catch(e){
     console.warn('Eliminazione consenso cartaceo:',e);
   }
 }
 async function eliminaAllegatiPaziente(pazId){
-  try{
-    const db=await apriDbAllegati();
-    const ids=await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readonly');
-      const req=tx.objectStore('files').index('pazienteId').getAllKeys(pazId);
-      req.onsuccess=()=>resolve(req.result||[]);
-      req.onerror=()=>reject(req.error);
-    });
-    if(!ids.length)return;
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction('files','readwrite');
-      const store=tx.objectStore('files');
-      ids.forEach(id=>store.delete(id));
-      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
-    });
-  }catch(e){ console.warn('Eliminazione allegati paziente:',e); }
+  try{ await GS_STORAGE.allegati.eliminaPaziente(pazId); }
+  catch(e){ console.warn('Eliminazione allegati paziente:',e); }
 }
 async function renderSpazioAllegati(){
   const el=document.getElementById('allegati-spazio');

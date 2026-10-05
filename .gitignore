@@ -1,2 +1,9 @@
 ﻿
 Vecchie versioni e altro/
+
+# App desktop: file generati
+desktop/app/
+desktop/node_modules/
+desktop/.vendor-cache/
+desktop/src-tauri/target/
+desktop/src-tauri/gen/
