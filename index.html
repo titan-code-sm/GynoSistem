@@ -6044,7 +6044,7 @@ async function proceedAfterLogin(){
   mostraBannerDemo(false);
   registraLog('login','Accesso effettuato');
   mostraLogAttivita();
-  caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
+  await caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
   if(typeof aiAvvia==='function') aiAvvia();
   naviga('home');
   controllaBackupAutomatico();
@@ -6280,21 +6280,99 @@ function naviga(id){
   if(id==='impostazioni') renderImpostazioni();
 }
 
+// ── ARCHIVIO CLINICO LOCALE: IndexedDB ──
+// L'archivio (DB) vive in memoria; ogni modifica lo riscrive in IndexedDB
+// (database 'gynosistem-db', store 'archivio', una voce per medico).
+// Prima stava in localStorage (limite ~5 MB, saturato in fretta da firme e
+// consensi): la migrazione è automatica al primo accesso, vedi
+// caricaDatiLocaliUtente(). La scrittura è asincrona e raggruppata (debounce);
+// chi ricarica la pagina subito dopo deve usare salvaDBSubito().
+let _gsIdbPromise=null, _salvaDbTimer=null, _salvaDbInCorso=Promise.resolve();
+function _gsIdb(){
+  if(!_gsIdbPromise){
+    _gsIdbPromise=new Promise((resolve,reject)=>{
+      if(!window.indexedDB){ reject(new Error('IndexedDB non disponibile')); return; }
+      const req=indexedDB.open('gynosistem-db',1);
+      req.onupgradeneeded=()=>{ req.result.createObjectStore('archivio'); };
+      req.onsuccess=()=>resolve(req.result);
+      req.onerror=()=>reject(req.error);
+    });
+    _gsIdbPromise.catch(()=>{ _gsIdbPromise=null; });
+  }
+  return _gsIdbPromise;
+}
+async function _idbLeggi(chiave){
+  const db=await _gsIdb();
+  return new Promise((resolve,reject)=>{
+    const rq=db.transaction('archivio','readonly').objectStore('archivio').get(chiave);
+    rq.onsuccess=()=>resolve(rq.result);
+    rq.onerror=()=>reject(rq.error);
+  });
+}
+async function _idbScrivi(chiave,valore){
+  const db=await _gsIdb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('archivio','readwrite');
+    tx.objectStore('archivio').put(valore,chiave);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+    tx.onabort=()=>reject(tx.error||new Error('transazione annullata'));
+  });
+}
+function _scriviArchivioOra(){
+  clearTimeout(_salvaDbTimer); _salvaDbTimer=null;
+  if(!gsDbStorageKey) return _salvaDbInCorso;
+  const chiave=gsDbStorageKey, json=JSON.stringify(DB);
+  _salvaDbInCorso=_salvaDbInCorso.then(()=>_idbScrivi(chiave,json)).catch(e=>{
+    console.error('Salvataggio IndexedDB fallito:', e);
+    if(typeof gsToast==='function') gsToast('⚠️ Salvataggio locale non riuscito: esporta subito un backup','gs-error');
+  });
+  return _salvaDbInCorso;
+}
 function salvaDB(){
   if(!gsDbStorageKey) return; // nessun utente loggato: non scrivere/mescolare nulla
-  localStorage.setItem(gsDbStorageKey,JSON.stringify(DB));
+  clearTimeout(_salvaDbTimer);
+  _salvaDbTimer=setTimeout(_scriviArchivioOra,250);
   if(typeof scheduleAutoSaveFile==='function') scheduleAutoSaveFile();
 }
+// Scrive subito e attende il termine: da usare prima di location.reload().
+function salvaDBSubito(){
+  if(typeof scheduleAutoSaveFile==='function') scheduleAutoSaveFile();
+  return _scriviArchivioOra();
+}
+window.addEventListener('pagehide',()=>{ if(_salvaDbTimer) _scriviArchivioOra(); });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden' && _salvaDbTimer) _scriviArchivioOra(); });
 
 // Carica l'archivio clinico locale del medico che ha appena fatto login.
 // Ogni account ha la propria chiave ('gynoDB_v15_'+uid): su uno stesso
 // computer condiviso, medici diversi non vedono mai i dati l'uno dell'altro.
-function caricaDatiLocaliUtente(uid){
-  gsDbStorageKey = 'gynoDB_v15_' + uid;
-  const d = localStorage.getItem(gsDbStorageKey);
-  DB = d ? JSON.parse(d) : { pazienti:[], agenda:[] };
+// Se in IndexedDB non c'è ancora nulla ma esiste il vecchio archivio in
+// localStorage, lo migra: il vecchio viene eliminato SOLO dopo aver riletto
+// da IndexedDB una copia identica byte per byte.
+async function caricaDatiLocaliUtente(uid){
+  const chiave='gynoDB_v15_' + uid;
+  let json=null;
+  try{
+    json=await _idbLeggi(chiave);
+    if(json===undefined || json===null){
+      const vecchio=localStorage.getItem(chiave);
+      if(vecchio){
+        await _idbScrivi(chiave,vecchio);
+        if(await _idbLeggi(chiave)===vecchio){ localStorage.removeItem(chiave); json=vecchio; console.info('Archivio migrato da localStorage a IndexedDB'); }
+        else throw new Error('verifica migrazione fallita');
+      } else json=null;
+    }
+  }catch(e){
+    // IndexedDB non utilizzabile: si resta sul vecchio archivio in localStorage, senza perdere nulla
+    console.error('IndexedDB non utilizzabile, uso localStorage:', e);
+    json=localStorage.getItem(chiave);
+    if(typeof gsToast==='function') gsToast('⚠️ Archivio locale in modalità di emergenza (IndexedDB non disponibile)','gs-error');
+  }
+  gsDbStorageKey=chiave;
+  DB = json ? JSON.parse(json) : { pazienti:[], agenda:[] };
   if(!DB.studi) DB.studi=[];
   migraStudiVecchiFormato();
+  if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 }
 
 // Chiamata al logout (o se l'accesso viene bloccato): svuota subito i dati
@@ -12349,7 +12427,7 @@ async function ripristinaDaFileCifrato(){
     if(!confirm(`Questo file contiene ${nPaz} pazient${nPaz===1?'e':'i'}.\n\nSovrascrivere tutti i dati attuali con quelli di questo file? L'operazione non è reversibile.`)) return;
     DB = dati;
     if(!DB.agenda) DB.agenda=[];
-    salvaDB();
+    await salvaDBSubito();
     location.reload();
   }catch(e){
     if(e.name==='AbortError') return;
@@ -12431,16 +12509,15 @@ function restoreData(input){
     DB=dati;
     if(!DB.agenda) DB.agenda=[];
     if(!DB.studi) DB.studi=[];
-    salvaDB();
     registraLog('backup','Dati ripristinati da file');
-    location.reload();
+    salvaDBSubito().then(()=>location.reload());
   };
   r.readAsText(file);
 }
 
 function resetDB(){
   if(confirm('⚠️ Questa operazione cancellerà TUTTI i dati. È irreversibile.\n\nVuoi continuare?')){
-    DB={pazienti:[],agenda:[]};salvaDB();registraLog('backup','Tutti i dati cancellati');location.reload();
+    DB={pazienti:[],agenda:[]};registraLog('backup','Tutti i dati cancellati');salvaDBSubito().then(()=>location.reload());
   }
 }
 
@@ -12461,7 +12538,7 @@ function renderBackupStats(){
     <div class="alert-item"><span class="alert-date">Pazienti</span><span class="alert-text">${DB.pazienti.length} schede</span></div>
     <div class="alert-item"><span class="alert-date">Visite</span><span class="alert-text">${totalV} referti</span></div>
     <div class="alert-item"><span class="alert-date">Promemoria</span><span class="alert-text">${totalA} scadenze</span></div>
-    <div class="alert-item"><span class="alert-date">Dim. DB</span><span class="alert-text">${size} KB (localStorage)</span></div>
+    <div class="alert-item"><span class="alert-date">Dim. DB</span><span class="alert-text">${size} KB (IndexedDB)</span></div>
     <div class="alert-item"><span class="alert-date">Ultima modifica</span><span class="alert-text">${new Date().toLocaleDateString('it-IT')}</span></div>
     <div class="alert-item"><span class="alert-date">💾 Ultimo backup automatico</span><span class="alert-text" style="color:${backupColor};font-weight:600">${backupLabel}</span></div>
   `;
