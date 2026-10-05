@@ -263,6 +263,20 @@
 
   // ── Archiviazione → scheda "Database interno" ──
   const gsDesktop = window.gsDesktop = {
+    // Archivio cifrato con una chiave che non c'è più: i dati NON si cancellano,
+    // le tabelle vengono rinominate (…_illeggibile_<data>) e ne nascono di nuove,
+    // vuote, così si può ripristinare un backup o ripartire. Se la chiave
+    // ricomparisse, i dati messi da parte restano recuperabili dall'assistenza.
+    async mettiDaParteIlleggibili(){
+      await apriDb();
+      const suff = new Date().toISOString().replace(/\D/g,'').slice(0,14);
+      await esegui('DROP INDEX IF EXISTS idx_storico_chiave');
+      await esegui('DROP INDEX IF EXISTS idx_allegati_paz');
+      for(const t of ['archivio','archivio_storico','allegati']) await esegui(`ALTER TABLE ${t} RENAME TO ${t}_illeggibile_${suff}`);
+      _dbPronto = null;
+      await apriDb(); // ricrea le tabelle vuote
+      return suff;
+    },
     async aggiornaInfo(){
       const el = document.getElementById('gsd-info'); if(!el) return;
       try{

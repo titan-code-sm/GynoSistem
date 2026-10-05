@@ -47,6 +47,24 @@ function controllaPassword(password) {
 }
 
 const GENERI = ["f", "m", "n"];
+// Licenze: piano di attivazione e versione dell'app (modello) di ogni account.
+const PIANI = ["prova", "gratis", "mensile", "annuale", "vita"];
+const MODELLI = ["gineco", "base", "proct"];
+const SCONTI = ["", "conoscente", "amico", "personalizzato"];
+const METODI = ["contanti", "bonifico", "altro"];
+const reData = /^\d{4}-\d{2}-\d{2}$/;
+function testo(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : ""; }
+// Campi della licenza ricevuti dal portale, validati (solo quelli presenti).
+function campiLicenza(d) {
+  const c = {};
+  if (PIANI.includes(d.piano)) c.piano = d.piano;
+  if (MODELLI.includes(d.modello)) c.modello = d.modello;
+  if (SCONTI.includes(d.sconto)) c.sconto = d.sconto;
+  if (d.scadenza === "" || (typeof d.scadenza === "string" && reData.test(d.scadenza))) c.scadenza = d.scadenza;
+  if (typeof d.prezzo === "number" && d.prezzo >= 0 && d.prezzo < 100000) c.prezzo = Math.round(d.prezzo * 100) / 100;
+  if (typeof d.noteLicenza === "string") c.noteLicenza = testo(d.noteLicenza, 500);
+  return c;
+}
 
 // ═══════════════════════════════════════════════════════════
 //  PORTALE UTENTI (solo amministratore)
@@ -77,6 +95,13 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
           autorizzato: !!profili[u.uid], // senza profilo l'app nega l'accesso
           passwordProvvisoria: p.mustChangePassword === true,
           demoMode: p.demoMode === true,
+          piano: p.piano || "",
+          modello: p.modello || "",
+          sconto: p.sconto || "",
+          scadenza: p.scadenza || "",
+          prezzo: typeof p.prezzo === "number" ? p.prezzo : null,
+          noteLicenza: p.noteLicenza || "",
+          pagamenti: Array.isArray(p.pagamenti) ? p.pagamenti : [],
           creato: u.metadata.creationTime || "",
           ultimoAccesso: u.metadata.lastSignInTime || "",
           amministratore: u.email === ADMIN_EMAIL,
@@ -104,6 +129,8 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
       attivo: true, eliminato: false,
       mustChangePassword: true, // al primo accesso dovrà sceglierne una sua
       demoMode: false,
+      piano: "prova", modello: "gineco", sconto: "", scadenza: "", prezzo: 0, noteLicenza: "", pagamenti: [],
+      ...campiLicenza(d),
       createdAt: new Date().toISOString(),
       createdBy: request.auth.token.email,
     });
@@ -149,6 +176,36 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     if (!Object.keys(modifiche).length) throw new HttpsError("invalid-argument", "Nessuna modifica.");
     if (modifiche.nome) await auth.updateUser(uid, { displayName: modifiche.nome });
     await db.collection("utenti").doc(uid).set(modifiche, { merge: true });
+    return { ok: true };
+  }
+
+  if (azione === "licenza") {
+    // Piano, versione, scadenza e prezzo; facoltativamente registra un pagamento.
+    const modifiche = campiLicenza(d);
+    const p = d.pagamento;
+    if (p && typeof p === "object") {
+      const importo = typeof p.importo === "number" ? Math.round(p.importo * 100) / 100 : NaN;
+      if (!(importo >= 0 && importo < 100000)) throw new HttpsError("invalid-argument", "Importo non valido.");
+      if (!reData.test(p.data || "")) throw new HttpsError("invalid-argument", "Data del pagamento non valida.");
+      modifiche.pagamenti = FieldValue.arrayUnion({
+        id: Date.now().toString(36),
+        data: p.data, importo,
+        metodo: METODI.includes(p.metodo) ? p.metodo : "altro",
+        fattura: testo(p.fattura, 40),
+        nota: testo(p.nota, 200),
+        piano: modifiche.piano || "",
+      });
+    }
+    if (!Object.keys(modifiche).length) throw new HttpsError("invalid-argument", "Nessuna modifica.");
+    await db.collection("utenti").doc(uid).set(modifiche, { merge: true });
+    return { ok: true };
+  }
+
+  if (azione === "eliminaPagamento") {
+    const ref = db.collection("utenti").doc(uid);
+    const doc = await ref.get();
+    const lista = (doc.exists && Array.isArray(doc.data().pagamenti)) ? doc.data().pagamenti : [];
+    await ref.set({ pagamenti: lista.filter((x) => x.id !== d.idPagamento) }, { merge: true });
     return { ok: true };
   }
 

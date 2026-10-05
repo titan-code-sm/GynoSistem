@@ -498,6 +498,8 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .editor-wrap{position:relative;background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 
 .editor-topbar{background:var(--surface);border-bottom:1px solid var(--separator);padding:16px 28px;display:flex;align-items:center;gap:20px;}
+#archivio-errore{position:fixed;inset:0;z-index:200001;align-items:center;justify-content:center;background:rgba(15,23,42,.55);}
+#archivio-errore .blocco-card{width:min(480px,94vw);text-align:left;}
 #blocco-overlay{position:fixed;inset:0;z-index:200000;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.45);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);}
 .blocco-card{background:var(--surface);border:1px solid var(--separator);border-radius:16px;padding:30px 30px 22px;width:min(360px,92vw);text-align:center;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:10px;}
 .blocco-logo{width:56px;height:56px;margin:0 auto 4px;}
@@ -2124,6 +2126,19 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Sblocca</button>
     <button class="blocco-link" type="button" onclick="bloccoEsci()">Esci e accedi con un altro account</button>
   </form>
+</div>
+
+<!-- ARCHIVIO NON APRIBILE (app desktop): niente lavoro "finto" che poi non viene salvato -->
+<div id="archivio-errore" style="display:none">
+  <div class="blocco-card">
+    <div class="blocco-titolo">⚠️ L'archivio di questo PC non si apre</div>
+    <div class="blocco-istr" style="font-size:.86rem;color:var(--label2)">I dati <strong>non sono stati cancellati</strong>, ma il programma non riesce a leggerli, per cui non può nemmeno salvare: per sicurezza si ferma qui.</div>
+    <div class="blocco-err" id="archivio-errore-motivo" style="min-height:0"></div>
+    <div class="blocco-istr">Come procedere:<br>• <strong>Ripristina un backup completo</strong> (il file «…BackupCompleto….json»): consigliato.<br>• Oppure <strong>ricomincia con un archivio vuoto</strong>.<br>In entrambi i casi i dati illeggibili vengono conservati a parte nel database, non eliminati.</div>
+    <button class="btn btn-primary" type="button" style="width:100%;justify-content:center" onclick="archivioErroreRipristina()">📂 Ripristina un backup completo</button>
+    <button class="btn btn-ghost" type="button" style="width:100%;justify-content:center" onclick="archivioErroreVuoto()">Ricomincia con un archivio vuoto</button>
+    <button class="blocco-link" type="button" onclick="archivioErroreEsci()">Esci</button>
+  </div>
 </div>
 
 <!-- INTERVISTA INIZIALE (primo accesso; riapribile da Impostazioni) -->
@@ -6228,6 +6243,26 @@ function renderImpostazioniProfilo(){
 // stato sospeso, e se deve ancora impostare una password personale al posto
 // di quella provvisoria data dall'amministratore — senza bisogno di Cloud
 // Functions. Ritorna {ok:false} se l'accesso va bloccato (account sospeso).
+// Licenza dell'account (impostata dal portale utenti): la versione dell'app
+// per cui è abilitato (modello) e la scadenza degli abbonamenti / della prova.
+// Account senza piano (es. creati prima delle licenze) e amministratore: liberi.
+const _PIANI_CON_SCADENZA=['prova','mensile','annuale'];
+function _controllaLicenza(d, user){
+  if(!d || user.email===ADMIN_EMAIL) return {};
+  if(d.modello && GS_MODELLI[d.modello] && d.modello!==GS_MODELLO){
+    const nomeApp = 'MED System' + (GS_MODELLI[d.modello].specialita ? ' '+GS_MODELLI[d.modello].specialita : '');
+    return {blocco:`Questo account è abilitato a ${nomeApp}, non a questa versione del programma. Contatta l'amministratore.`};
+  }
+  if(_PIANI_CON_SCADENZA.includes(d.piano) && d.scadenza){
+    const oggi=new Date().toISOString().slice(0,10);
+    const dataIt=new Date(d.scadenza+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    const cosa = d.piano==='prova' ? 'Il periodo di prova' : 'L\'abbonamento';
+    if(d.scadenza < oggi) return {blocco:`${cosa} è scaduto il ${dataIt}. Per continuare a usare MED System contatta l'amministratore. I tuoi dati restano su questo PC.`};
+    const giorni=Math.round((new Date(d.scadenza)-new Date(oggi))/86400000);
+    if(giorni<=10) return {avviso:`⏳ ${cosa} scade il ${dataIt} (tra ${giorni} giorn${giorni===1?'o':'i'}). Contatta l'amministratore per rinnovarlo.`};
+  }
+  return {};
+}
 async function handleUserProfile(user){
   if(!gsDb) return {ok:true, mustChange:false}; // se Firestore non è pronto, non blocchiamo l'accesso
   const ref = gsDb.collection('utenti').doc(user.uid);
@@ -6256,6 +6291,13 @@ async function handleUserProfile(user){
       await gsAuth.signOut();
       return {ok:false, mustChange:false};
     }
+    const licenza = _controllaLicenza(data, user);
+    if(licenza.blocco){
+      gsSuspensionMsg = licenza.blocco;
+      await gsAuth.signOut();
+      return {ok:false, mustChange:false};
+    }
+    if(licenza.avviso) setTimeout(()=>{ if(typeof gsToast==='function') gsToast(licenza.avviso,'gs-info'); }, 4000);
     mustChange = data.mustChangePassword === true;
     nome = data.nome || nome;
     demoMode = data.demoMode === true;
@@ -6384,7 +6426,13 @@ async function proceedAfterLogin(){
   }
 
   mostraBannerDemo(false);
-  await caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
+  try{
+    await caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
+  }catch(e){
+    console.error('Archivio non apribile:', e);
+    mostraArchivioErrore(e);
+    return;
+  }
   registraLog('login','Accesso effettuato');
   naviga('home');
   caricaAppuntamenti(true);
@@ -6578,6 +6626,14 @@ async function caricaDatiLocaliUtente(uid){
       } else json=null;
     }
   }catch(e){
+    // App desktop: il database interno non si legge (es. chiave di cifratura
+    // mancante). Nessun ripiego: senza archivio non si lavora, altrimenti ciò
+    // che si inserisce sembrerebbe salvato e invece andrebbe perso.
+    if(window.__TAURI__){
+      gsDbStorageKey=null;
+      DB={ pazienti:[], agenda:[], appuntamenti:[] }; GS_APPTS=DB.appuntamenti;
+      throw e;
+    }
     // IndexedDB non utilizzabile: si resta sul vecchio archivio in localStorage, senza perdere nulla
     console.error('IndexedDB non utilizzabile, uso localStorage:', e);
     json=localStorage.getItem(chiave);
@@ -6588,6 +6644,42 @@ async function caricaDatiLocaliUtente(uid){
   if(!Array.isArray(DB.appuntamenti)) DB.appuntamenti=[];
   GS_APPTS=DB.appuntamenti;
   if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+}
+
+// ── ARCHIVIO NON APRIBILE (app desktop) ──
+function mostraArchivioErrore(e){
+  document.getElementById('archivio-errore-motivo').textContent='Motivo: '+((e && e.message) || e || 'sconosciuto');
+  document.getElementById('archivio-errore').style.display='flex';
+}
+// Mette da parte i dati illeggibili (non li cancella) e prepara un archivio nuovo.
+async function _archivioErrorePreparaNuovo(){
+  if(!window.gsDesktop || !gsDesktop.mettiDaParteIlleggibili) throw new Error('funzione non disponibile');
+  await gsDesktop.mettiDaParteIlleggibili();
+  gsDbStorageKey='gynoDB_v15_'+gsCurrentUser.uid;
+  DB={ pazienti:[], agenda:[], appuntamenti:[] }; GS_APPTS=DB.appuntamenti;
+}
+async function archivioErroreRipristina(){
+  if(!confirm('I dati illeggibili verranno conservati a parte nel database (non eliminati) e potrai scegliere il file di backup completo da ripristinare.\n\nContinuare?')) return;
+  try{ await _archivioErrorePreparaNuovo(); }
+  catch(e){ alert('Operazione non riuscita: '+(e.message||e)); return; }
+  document.getElementById('archivio-errore').style.display='none';
+  naviga('backup');
+  if(typeof gsToast==='function') gsToast('Scegli il file «…BackupCompleto….json» da ripristinare','gs-info');
+  document.getElementById('file-upload').click();
+}
+async function archivioErroreVuoto(){
+  const r=prompt('Ricominciare con un archivio VUOTO?\n\nI dati illeggibili restano conservati a parte nel database, ma il programma ripartirà senza pazienti.\n\nScrivi RICOMINCIA per confermare:');
+  if(r===null) return;
+  if(r.trim().toUpperCase()!=='RICOMINCIA'){ alert('Conferma non corretta: nessuna modifica.'); return; }
+  try{
+    await _archivioErrorePreparaNuovo();
+    await salvaDBSubito();
+    location.reload();
+  }catch(e){ alert('Operazione non riuscita: '+(e.message||e)); }
+}
+async function archivioErroreEsci(){
+  document.getElementById('archivio-errore').style.display='none';
+  try{ await gsAuth.signOut(); }catch(e){}
 }
 
 // Chiamata al logout (o se l'accesso viene bloccato): svuota subito i dati
