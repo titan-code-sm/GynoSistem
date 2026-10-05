@@ -2,12 +2,13 @@
 rem Ricompila MED System su questo PC dalla versione attuale di index.html.
 rem   compila-app.cmd          ->  MED System Gineco (ginecologia e ostetricia)
 rem   compila-app.cmd base     ->  MED System (versione base, tutte le specialita')
+rem   compila-app.cmd proct    ->  MED System Proct (proctologia)
 rem L'installer finisce in C:\MEDSystemBuild\target\release\bundle\nsis
 cd /d "%~dp0"
 set MODELLO=%1
 if "%MODELLO%"=="" set MODELLO=gineco
 set CONFIG_EXTRA=
-if /i "%MODELLO%"=="base" set CONFIG_EXTRA=--config src-tauri\tauri.base.conf.json
+if /i not "%MODELLO%"=="gineco" set CONFIG_EXTRA=--config src-tauri\tauri.%MODELLO%.conf.json
 if not exist "C:\MEDSystemBuild\tools\node_modules\@tauri-apps\cli" (
   mkdir "C:\MEDSystemBuild\tools" 2>nul
   copy /y package.json "C:\MEDSystemBuild\tools\" >nul

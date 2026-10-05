@@ -1,0 +1,575 @@
+{
+ "dataRiferimento": "2026-10-05",
+ "pazienti": [
+  {
+   "id": 1900000000000,
+   "nome": "Roberto",
+   "cognome": "Galli",
+   "nascita": "1971-03-14",
+   "tel": "+39 340 2000000",
+   "email": "roberto.galli@esempio.it",
+   "cf": "",
+   "note": "Impiegato, sedentario.",
+   "visite": [
+    {
+     "id": 1900000000001,
+     "data": "2026-08-26",
+     "ora": "09:30",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "178",
+      "peso": "86",
+      "pa": "130/85",
+      "alvo": "Stitico",
+      "evacuazioni": "ogni 2 giorni",
+      "bristol": "Tipo 2 – a salsiccia, grumosa",
+      "dieta": "povera di fibre",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "familiarita": "Nega",
+      "motivo": "Riferisce sanguinamento rosso vivo durante/dopo la defecazione. Riferisce fuoriuscita di tessuto dall'ano durante la defecazione.",
+      "sint-sangue": "Gocciolamento nel WC dopo la defecazione",
+      "sint-prolasso": "Durante la defecazione, rientra da solo",
+      "sint-dolore": "Assente",
+      "sint-allarme": "Nessuno",
+      "esame-generale": "Addome trattabile, non dolente alla palpazione superficiale e profonda. Peristalsi presente.",
+      "ispezione": "Regione perianale integra, cute di aspetto normale. Non marische, non ragadi, non orifizi fistolosi visibili. Margine anale regolare.",
+      "esplorazione": "Tono sfinteriale normale a riposo e valida contrazione volontaria. Canale anale e ampolla rettale liberi, mucosa liscia e scorrevole. Non masse palpabili. Dito esploratore con feci normocromiche, senza tracce ematiche.",
+      "anoscopia": "Gavoccioli emorroidari interni ai quadranti 3, 7 e 11 che prolassano al ponzamento con riduzione spontanea (II grado secondo Goligher).",
+      "goligher": "II grado (prolasso con riduzione spontanea)",
+      "conclusioni": "Malattia emorroidaria di II grado secondo Goligher.",
+      "esami-richiesti": "Colonscopia totale con eventuale biopsia/polipectomia.",
+      "terapia": "EMORROIDI: dieta ricca di fibre (25-30 g al giorno) e adeguata idratazione; integratore di fibre (psillio) 1 dose al giorno; flavonoidi nella fase acuta; semicupi tiepidi.",
+      "prossimi": "Controllo tra 6 settimane per valutare legatura elastica.",
+      "eta": "55",
+      "bmi": "27.1"
+     }
+    },
+    {
+     "id": 1900000000002,
+     "data": "2026-10-03",
+     "ora": "10:00",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "178",
+      "peso": "85",
+      "pa": "128/82",
+      "alvo": "Regolare",
+      "evacuazioni": "1 al giorno",
+      "bristol": "Tipo 4 – a salsiccia, liscia e morbida",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "familiarita": "Nega",
+      "motivo": "Visita di controllo. Persistono episodi di sanguinamento.",
+      "sint-sangue": "Striature di sangue rosso vivo sulla carta",
+      "esami-eseguiti": "Colonscopia (settembre 2026): negativa fino al cieco.",
+      "anoscopia": "Gavoccioli emorroidari interni ai quadranti 3 e 7, II grado secondo Goligher.",
+      "goligher": "II grado (prolasso con riduzione spontanea)",
+      "conclusioni": "Malattia emorroidaria di II grado. Eseguita legatura elastica del gavocciolo a ore 7.",
+      "terapia": "DOPO LEGATURA ELASTICA: paracetamolo al bisogno; ammorbidente delle feci; semicupi tiepidi. Contattare subito lo studio in caso di febbre, dolore intenso, sanguinamento abbondante o difficoltà a urinare.",
+      "prossimi": "Controllo tra 4 settimane ed eventuale seconda legatura.",
+      "eta": "55",
+      "bmi": "26.8"
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1900000000003,
+     "data": "2026-10-31",
+     "testo": "Controllo dopo legatura elastica",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1900000000005,
+   "nome": "Giulia",
+   "cognome": "Marchetti",
+   "nascita": "1989-07-02",
+   "tel": "+39 341 2173491",
+   "email": "giulia.marchetti@esempio.it",
+   "cf": "",
+   "note": "",
+   "visite": [
+    {
+     "id": 1900000000006,
+     "data": "2026-09-25",
+     "ora": "15:30",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "165",
+      "peso": "58",
+      "alvo": "Stitico",
+      "evacuazioni": "2 volte a settimana",
+      "bristol": "Tipo 1 – grumi duri separati",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "parti": "1 parto vaginale (2024)",
+      "familiarita": "Nega",
+      "motivo": "Riferisce dolore anale durante e dopo la defecazione, da circa 3 settimane, con tracce di sangue sulla carta.",
+      "sint-dolore": "Durante e dopo la defecazione",
+      "sint-sangue": "Striature di sangue rosso vivo sulla carta",
+      "ispezione": "Alla divaricazione dei glutei si evidenzia ragade anale in sede posteriore (ore 6 in posizione litotomica), a fondo rosso, senza marisca sentinella. Spasmo sfinteriale evocato dalla divaricazione.",
+      "esplorazione": "Ipertono sfinteriale a riposo, esplorazione dolorosa e quindi limitata.",
+      "conclusioni": "Ragade anale acuta.",
+      "terapia": "RAGADE ANALE: pomata miorilassante (nifedipina 0,3% + lidocaina 1,5% galenica) 3 volte al giorno per 6 settimane; macrogol 1 bustina al giorno; semicupi tiepidi dopo la defecazione; dieta ricca di fibre e adeguata idratazione.",
+      "prossimi": "Controllo tra 6 settimane.",
+      "eta": "37",
+      "bmi": "21.3"
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1900000000008,
+   "nome": "Antonio",
+   "cognome": "De Luca",
+   "nascita": "1964-11-20",
+   "tel": "+39 342 2346982",
+   "email": "antonio.deluca@esempio.it",
+   "cf": "",
+   "note": "Diabetico in terapia orale.",
+   "visite": [
+    {
+     "id": 1900000000009,
+     "data": "2026-09-10",
+     "ora": "11:00",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "172",
+      "peso": "90",
+      "pa": "140/88",
+      "alvo": "Regolare",
+      "fumo": "Sì, > 15 sigarette/die",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "patologie": "Diabete mellito tipo 2",
+      "familiarita": "Diabete",
+      "motivo": "Riferisce secrezione perianale siero-purulenta da 2 mesi, dopo un ascesso drenato spontaneamente.",
+      "sint-secrezioni": "Siero-purulente",
+      "ispezione": "Orifizio fistoloso esterno a ore 5, a circa 3 cm dal margine anale, con secrezione siero-purulenta alla spremitura.",
+      "esplorazione": "Tono sfinteriale conservato. Si apprezza cordone fibroso tra l'orifizio esterno e il canale anale.",
+      "ecografia": "Tragitto fistoloso ipoecogeno trans-sfinterico basso, con orifizio interno a ore 6 a livello della linea pettinata. Non raccolte associate.",
+      "ecografo": "Ecografo con sonda endoanale",
+      "sonda": "Endoanale rotante 3D",
+      "conclusioni": "Fistola perianale trans-sfinterica bassa.",
+      "esami-richiesti": "RM della pelvi con mezzo di contrasto per lo studio della fistola perianale.",
+      "prossimi": "Rivalutazione con esito RM per programmare l'intervento.",
+      "eta": "61",
+      "bmi": "30.4"
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1900000000010,
+     "data": "2026-10-20",
+     "testo": "Esito RM pelvi (fistola)",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1900000000012,
+   "nome": "Maria",
+   "cognome": "Fabbri",
+   "nascita": "1952-04-09",
+   "tel": "+39 343 2520473",
+   "email": "maria.fabbri@esempio.it",
+   "cf": "",
+   "note": "Vedova, vive sola.",
+   "visite": [
+    {
+     "id": 1900000000013,
+     "data": "2026-08-06",
+     "ora": "09:00",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "160",
+      "peso": "64",
+      "alvo": "Regolare",
+      "bristol": "Tipo 5 – pezzi morbidi a bordi netti",
+      "fumo": "Nega",
+      "allergie": "Penicillina",
+      "anticoagulanti": "Nega",
+      "parti": "3 parti vaginali, uno con forcipe",
+      "familiarita": "Nega",
+      "motivo": "Riferisce perdita involontaria di gas e/o feci.",
+      "sint-secrezioni": "Imbrattamento della biancheria (soiling)",
+      "wx-solide": "1",
+      "wx-liquide": "3",
+      "wx-gas": "4",
+      "wx-assorbenti": "3",
+      "wx-vita": "2",
+      "wexner": "13/20",
+      "esplorazione": "Ipotono sfinteriale a riposo e ridotta contrazione volontaria. Ampolla rettale libera, mucosa liscia. Non masse palpabili.",
+      "ecografia": "Interruzione dello sfintere anale esterno da ore 11 a ore 1 (circa 60 gradi), estesa ai livelli medio e inferiore del canale anale.",
+      "manometria": "Pressione a riposo e di contrazione volontaria ridotte. Sensibilità rettale conservata.",
+      "conclusioni": "Incontinenza fecale.",
+      "terapia": "Fibre solubili per rendere le feci più formate; riabilitazione del pavimento pelvico (biofeedback) presso centro dedicato.",
+      "prossimi": "Controllo dopo il ciclo di riabilitazione.",
+      "eta": "74",
+      "bmi": "25.0"
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1900000000014,
+     "data": "2026-11-04",
+     "testo": "Rivalutazione dopo biofeedback",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1900000000015,
+   "nome": "Luca",
+   "cognome": "Benedetti",
+   "nascita": "1995-08-30",
+   "tel": "+39 344 2693964",
+   "email": "luca.benedetti@esempio.it",
+   "cf": "",
+   "note": "",
+   "visite": [
+    {
+     "id": 1900000000016,
+     "data": "2026-10-04",
+     "ora": "18:00",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "182",
+      "peso": "77",
+      "alvo": "Regolare",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "familiarita": "Nega",
+      "motivo": "Riferisce comparsa di tumefazione perianale dolente da 2 giorni, dopo sforzo.",
+      "sint-dolore": "Continuo, pulsante, con tumefazione",
+      "ispezione": "Tumefazione perianale bluastra, tesa e dolente a ore 3, compatibile con trombosi emorroidaria esterna.",
+      "conclusioni": "Trombosi emorroidaria esterna.",
+      "terapia": "Semicupi tiepidi 3 volte al giorno; crema lenitiva locale; paracetamolo al bisogno; ammorbidente delle feci. Possibile risoluzione spontanea in 1-2 settimane.",
+      "prossimi": "Controllo tra 10 giorni o prima se il dolore aumenta.",
+      "eta": "31",
+      "bmi": "23.2"
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1900000000018,
+   "nome": "Paola",
+   "cognome": "Ricciardi",
+   "nascita": "1968-01-17",
+   "tel": "+39 345 2867455",
+   "email": "paola.ricciardi@esempio.it",
+   "cf": "",
+   "note": "",
+   "visite": [
+    {
+     "id": 1900000000019,
+     "data": "2026-09-20",
+     "ora": "10:30",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "163",
+      "peso": "61",
+      "alvo": "Stitico",
+      "evacuazioni": "3 volte a settimana",
+      "bristol": "Tipo 2 – a salsiccia, grumosa",
+      "lassativi": "Lassativi stimolanti al bisogno",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "parti": "2 parti vaginali",
+      "familiarita": "Nega",
+      "motivo": "Riferisce stipsi con difficoltà evacuativa, ponzamento prolungato e senso di incompleto svuotamento.",
+      "sint-prolasso": "Assente",
+      "cc-frequenza": "1",
+      "cc-dolore": "3",
+      "cc-incompleta": "4",
+      "cc-addome": "1",
+      "cc-tempo": "3",
+      "cc-aiuto": "2",
+      "cc-tentativi": "1",
+      "cc-durata": "2",
+      "ccs": "17/30",
+      "esplorazione": "Tono sfinteriale conservato. Al ponzamento si apprezza estroflessione della parete rettale anteriore compatibile con rettocele di circa 3 cm.",
+      "conclusioni": "Sindrome da defecazione ostruita. Rettocele anteriore.",
+      "esami-richiesti": "Defecografia con risonanza magnetica (defeco-RM). Manometria anorettale.",
+      "terapia": "STIPSI: macrogol 1-2 bustine al giorno; fibre solubili e adeguata idratazione; posizione corretta in bagno con i piedi rialzati.",
+      "prossimi": "Con esito degli esami.",
+      "eta": "58",
+      "bmi": "23.0"
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1900000000020,
+     "data": "2026-10-30",
+     "testo": "Esito defeco-RM e manometria",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1900000000022,
+   "nome": "Stefano",
+   "cognome": "Morelli",
+   "nascita": "1958-06-25",
+   "tel": "+39 346 3040946",
+   "email": "stefano.morelli@esempio.it",
+   "cf": "",
+   "note": "In terapia anticoagulante per fibrillazione atriale.",
+   "visite": [
+    {
+     "id": 1900000000023,
+     "data": "2026-07-07",
+     "ora": "12:00",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "175",
+      "peso": "82",
+      "pa": "135/80",
+      "alvo": "Regolare",
+      "fumo": "Ex fumatore",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Anticoagulanti orali (DOAC / warfarin); apixaban 5 mg x 2",
+      "patologie": "Fibrillazione atriale",
+      "familiarita": "Carcinoma del colon-retto",
+      "motivo": "Riferisce sanguinamento rosso vivo durante/dopo la defecazione.",
+      "sint-sangue": "Sangue misto alle feci",
+      "sint-allarme": "Familiarità per carcinoma colorettale; Età > 50 anni senza colonscopia",
+      "esame-generale": "Addome trattabile, non dolente alla palpazione superficiale e profonda. Peristalsi presente.",
+      "ispezione": "Regione perianale integra, cute di aspetto normale. Non marische, non ragadi, non orifizi fistolosi visibili. Margine anale regolare.",
+      "esplorazione": "Tono sfinteriale normale a riposo e valida contrazione volontaria. Canale anale e ampolla rettale liberi, mucosa liscia e scorrevole. Non masse palpabili. Dito esploratore con feci normocromiche, senza tracce ematiche.",
+      "anoscopia": "Gavoccioli emorroidari interni congesti ai quadranti 3 e 11, senza prolasso (I grado secondo Goligher).",
+      "goligher": "I grado (nessun prolasso)",
+      "conclusioni": "Malattia emorroidaria di I grado. Sanguinamento con segni di allarme da approfondire.",
+      "esami-richiesti": "Colonscopia totale con eventuale biopsia/polipectomia. Emocromo, sideremia, ferritina, PCR.",
+      "prossimi": "Con esito della colonscopia.",
+      "eta": "68",
+      "bmi": "26.8"
+     }
+    }
+   ],
+   "alerts": [
+    {
+     "id": 1900000000024,
+     "data": "2026-09-30",
+     "testo": "Esito colonscopia da visionare",
+     "automatico": false
+    }
+   ]
+  },
+  {
+   "id": 1900000000026,
+   "nome": "Francesca",
+   "cognome": "Neri",
+   "nascita": "1983-09-12",
+   "tel": "+39 347 3214437",
+   "email": "francesca.neri@esempio.it",
+   "cf": "",
+   "note": "",
+   "visite": [
+    {
+     "id": 1900000000027,
+     "data": "2026-09-15",
+     "ora": "16:30",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "168",
+      "peso": "60",
+      "alvo": "Regolare",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "familiarita": "Nega",
+      "motivo": "Riferisce prurito anale persistente, soprattutto la sera.",
+      "sint-prurito": "Moderato",
+      "ispezione": "Cute perianale arrossata e macerata con segni di grattamento, compatibile con dermatite perianale.",
+      "esplorazione": "Tono sfinteriale normale a riposo e valida contrazione volontaria. Canale anale e ampolla rettale liberi, mucosa liscia e scorrevole. Non masse palpabili. Dito esploratore con feci normocromiche, senza tracce ematiche.",
+      "conclusioni": "Prurito anale. Dermatite perianale.",
+      "terapia": "PRURITO ANALE: igiene con acqua tiepida e detergente delicato, asciugare tamponando; evitare salviette profumate; crema barriera all'ossido di zinco dopo ogni evacuazione; ridurre caffè, alcol e cibi piccanti.",
+      "prossimi": "Controllo tra 1 mese.",
+      "eta": "43",
+      "bmi": "21.3"
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1900000000028,
+   "nome": "Davide",
+   "cognome": "Ferrara",
+   "nascita": "1979-12-03",
+   "tel": "+39 348 3387928",
+   "email": "davide.ferrara@esempio.it",
+   "cf": "",
+   "note": "Operato di emorroidectomia.",
+   "visite": [
+    {
+     "id": 1900000000029,
+     "data": "2026-09-05",
+     "ora": "09:00",
+     "tipo": "pr",
+     "prData": {
+      "altezza": "180",
+      "peso": "79",
+      "alvo": "Regolare",
+      "fumo": "Nega",
+      "allergie": "Nessuna nota",
+      "anticoagulanti": "Nega",
+      "chirurgia": "Emorroidectomia (settembre 2026)",
+      "familiarita": "Nega",
+      "motivo": "Controllo post-operatorio dopo intervento di emorroidectomia eseguito il 1 settembre 2026.",
+      "sint-dolore": "Durante e dopo la defecazione",
+      "ispezione": "Ferite chirurgiche in fase di guarigione, deterse, senza segni di infezione.",
+      "conclusioni": "Decorso post-operatorio regolare.",
+      "terapia": "POST-OPERATORIO: semicupi tiepidi 2-3 volte al giorno e dopo ogni evacuazione; paracetamolo al bisogno; ammorbidente delle feci.",
+      "prossimi": "Controllo tra 3 settimane.",
+      "eta": "46",
+      "bmi": "24.4"
+     }
+    }
+   ],
+   "alerts": []
+  },
+  {
+   "id": 1900000000031,
+   "nome": "Elisa",
+   "cognome": "Conti",
+   "nascita": "1999-02-27",
+   "tel": "+39 349 3561419",
+   "email": "elisa.conti@esempio.it",
+   "cf": "",
+   "note": "",
+   "visite": [],
+   "alerts": []
+  }
+ ],
+ "agenda": [],
+ "appuntamenti": [
+  {
+   "id": "app_o8uixypw",
+   "pazienteId": "1900000000000",
+   "pazienteNome": "Galli Roberto",
+   "data": "2026-10-31",
+   "ora": "10:00",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Controllo dopo legatura elastica",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixypz",
+   "pazienteId": "1900000000005",
+   "pazienteNome": "Marchetti Giulia",
+   "data": "2026-11-06",
+   "ora": "15:30",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Controllo ragade",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixyq3",
+   "pazienteId": "1900000000008",
+   "pazienteNome": "De Luca Antonio",
+   "data": "2026-10-21",
+   "ora": "11:00",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Esito RM e programmazione intervento",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixyq9",
+   "pazienteId": "1900000000015",
+   "pazienteNome": "Benedetti Luca",
+   "data": "2026-10-14",
+   "ora": "18:00",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Controllo trombosi emorroidaria",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixyqd",
+   "pazienteId": "1900000000018",
+   "pazienteNome": "Ricciardi Paola",
+   "data": "2026-11-02",
+   "ora": "10:30",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Esito esami defecazione ostruita",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixyqh",
+   "pazienteId": "1900000000022",
+   "pazienteNome": "Morelli Stefano",
+   "data": "2026-10-08",
+   "ora": "12:00",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Esito colonscopia",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixyqm",
+   "pazienteId": "1900000000028",
+   "pazienteNome": "Ferrara Davide",
+   "data": "2026-10-05",
+   "ora": "17:00",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Controllo post-operatorio",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  },
+  {
+   "id": "app_o8uixyqo",
+   "pazienteId": "1900000000031",
+   "pazienteNome": "Conti Elisa",
+   "data": "2026-10-10",
+   "ora": "16:00",
+   "durata": 30,
+   "tipo": "proctologica",
+   "stato": "confermato",
+   "note": "Prima visita proctologica",
+   "createdBy": "",
+   "createdByOrg": "",
+   "createdAt": "2026-10-05T10:00:00.000Z"
+  }
+ ]
+}

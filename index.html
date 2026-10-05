@@ -1409,7 +1409,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <label class="form-label">Tipo</label>
         <select id="appt-filter-tipo" onchange="renderFBAppts()" style="width:auto">
           <option value="">Tutti</option>
-          <option value="visita" data-modelli="base">🩺 Visita</option>
+          <option value="proctologica" data-modelli="proct">🔍 Visita proctologica</option>
+          <option value="visita" data-modelli="base proct">🩺 Visita</option>
           <option value="ginecologica" data-modelli="gineco">🌸 Ginecologica</option>
           <option value="ostetrica" data-modelli="gineco">🤰 Ostetrica</option>
           <option value="ecografia" data-modelli="gineco">🖥️ Ecografia</option>
@@ -1485,7 +1486,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <label class="form-label">Tipo Visita *</label>
         <select id="np-tipo">
           <option value="">-- Seleziona --</option>
-          <option value="visita" data-modelli="base">🩺 Visita</option>
+          <option value="proctologica" data-modelli="proct">🔍 Visita proctologica</option>
+          <option value="visita" data-modelli="base proct">🩺 Visita</option>
           <option value="ginecologica" data-modelli="gineco">🌸 Visita Ginecologica</option>
           <option value="ostetrica" data-modelli="gineco">🤰 Visita Ostetrica</option>
           <option value="ecografia" data-modelli="gineco">🖥️ Ecografia</option>
@@ -1538,7 +1540,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <label class="form-label">Tipo Visita *</label>
         <select id="ma-tipo">
           <option value="">-- Seleziona --</option>
-          <option value="visita" data-modelli="base">🩺 Visita</option>
+          <option value="proctologica" data-modelli="proct">🔍 Visita proctologica</option>
+          <option value="visita" data-modelli="base proct">🩺 Visita</option>
           <option value="ginecologica" data-modelli="gineco">🌸 Visita Ginecologica</option>
           <option value="ostetrica" data-modelli="gineco">🤰 Visita Ostetrica</option>
           <option value="ecografia" data-modelli="gineco">🖥️ Ecografia</option>
@@ -2442,6 +2445,10 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         <div class="vt-emoji">🩺</div>
         <div class="vt-name">Visita</div>
       </div>
+      <div class="visit-type-card" data-modelli="proct" onclick="pazChiediConsensoPrimaVisita('pr')">
+        <div class="vt-emoji">🔍</div>
+        <div class="vt-name">Visita proctologica</div>
+      </div>
       <div class="visit-type-card" data-modelli="gineco" onclick="pazChiediConsensoPrimaVisita('gyno')">
         <div class="vt-emoji">🌸</div>
         <div class="vt-name">Ginecologica</div>
@@ -2597,6 +2604,14 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-doppler')">〜 Doppler</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-note')">📝 Note Ecografiche</button>
         <button class="editor-nav-btn" onclick="setEditorTab(this,'ec-3')"><span class="step-num">2</span>Referto</button>
+      </div>
+      <div class="editor-nav" id="editor-nav-pr" style="display:none">
+        <button class="editor-nav-btn active" onclick="setEditorTab(this,'pp-1')"><span class="step-num">1</span>Anamnesi</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'pp-2')"><span class="step-num">2</span>Motivo e sintomi</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'pp-3')"><span class="step-num">3</span>Score</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'pp-4')"><span class="step-num">4</span>Esame Obiettivo</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'pp-5')"><span class="step-num">5</span>Esami strumentali</button>
+        <button class="editor-nav-btn" onclick="setEditorTab(this,'pp-6')"><span class="step-num">6</span>Conclusioni</button>
       </div>
       <div class="editor-nav" id="editor-nav-gen" style="display:none">
         <button class="editor-nav-btn active" onclick="setEditorTab(this,'gn-1')"><span class="step-num">1</span>Motivo e anamnesi</button>
@@ -3637,6 +3652,253 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
           </div>
         </div><!-- /gen-panels -->
 
+        <!-- ════════ VISITA PROCTOLOGICA (modello Proct) ════════ -->
+        <div id="pr-panels" style="display:none">
+          <input type="hidden" id="pr-consenso-visita">
+
+          <!-- PANEL 1: ANAMNESI -->
+          <div id="pp-1" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="📋">Dati Generali</h4>
+              <div class="field-row" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+                <div class="form-group"><label class="form-label">Età</label><input type="number" id="pr-eta" placeholder="anni"></div>
+                <div class="form-group"><label class="form-label">Altezza (cm)</label><input type="number" id="pr-altezza" placeholder="170" oninput="calcBMIProct()"></div>
+                <div class="form-group"><label class="form-label">Peso (kg)</label><input type="number" id="pr-peso" placeholder="70" oninput="calcBMIProct()"></div>
+                <div class="form-group"><label class="form-label">BMI (auto)</label><input id="pr-bmi" readonly></div>
+                <div class="form-group"><label class="form-label">PA (mmHg)</label><input id="pr-pa" placeholder="120/80"></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="🚻">Alvo e Abitudini</h4>
+              <div class="field-row r3">
+                <div class="form-group">
+                  <label class="form-label">Alvo</label>
+                  <select onchange="appendGDText('pr-alvo',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Regolare</option><option>Stitico</option><option>Diarroico</option><option>Alterno (stipsi/diarrea)</option>
+                  </select>
+                  <input id="pr-alvo" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+                <div class="form-group"><label class="form-label">Frequenza evacuazioni</label><input id="pr-evacuazioni" placeholder="es. 1 al giorno, 2 a settimana"></div>
+                <div class="form-group">
+                  <label class="form-label">Consistenza feci (scala di Bristol)</label>
+                  <select onchange="appendGDText('pr-bristol',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Tipo 1 – grumi duri separati</option><option>Tipo 2 – a salsiccia, grumosa</option><option>Tipo 3 – a salsiccia con crepe in superficie</option><option>Tipo 4 – a salsiccia, liscia e morbida</option><option>Tipo 5 – pezzi morbidi a bordi netti</option><option>Tipo 6 – pezzi soffici, poltiglia</option><option>Tipo 7 – acquosa, senza pezzi solidi</option>
+                  </select>
+                  <input id="pr-bristol" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+              </div>
+              <div class="field-row r3" style="margin-top:12px;">
+                <div class="form-group"><label class="form-label">Uso di lassativi / clisteri</label><input id="pr-lassativi" placeholder="es. macrogol al bisogno"></div>
+                <div class="form-group"><label class="form-label">Fibre e idratazione</label><input id="pr-dieta" placeholder="es. dieta povera di fibre, 1 L di acqua/die"></div>
+                <div class="form-group">
+                  <label class="form-label">Fumo</label>
+                  <select onchange="appendGDText('pr-fumo',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Nega</option><option>Sì, &gt; 15 sigarette/die</option><option>Sì, &lt; 15 sigarette/die</option><option>Ex fumatore</option>
+                  </select>
+                  <input id="pr-fumo" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="📝">Anamnesi Patologica</h4>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">Allergie</label><textarea id="pr-allergie" rows="2" placeholder="Nessuna nota..."></textarea></div>
+                <div class="form-group"><label class="form-label">Terapie in atto</label><textarea id="pr-terapie-atto" rows="2"></textarea></div>
+              </div>
+              <div class="field-row r2" style="margin-top:10px;">
+                <div class="form-group">
+                  <label class="form-label">Anticoagulanti / antiaggreganti</label>
+                  <select onchange="appendGDText('pr-anticoagulanti',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Nega</option><option>Antiaggreganti (es. acido acetilsalicilico)</option><option>Anticoagulanti orali (DOAC / warfarin)</option><option>Eparina</option>
+                  </select>
+                  <input id="pr-anticoagulanti" placeholder="farmaco e dose..." style="margin-top:6px">
+                </div>
+                <div class="form-group"><label class="form-label">Parti vaginali / traumi perineali (se pertinente)</label><input id="pr-parti" placeholder="es. 2 parti vaginali, lacerazione di II grado"></div>
+              </div>
+              <div class="field-row r2" style="margin-top:10px;">
+                <div class="form-group"><label class="form-label">Interventi pregressi (addominali e proctologici)</label><textarea id="pr-chirurgia" rows="2"></textarea></div>
+                <div class="form-group"><label class="form-label">Patologie croniche</label><textarea id="pr-patologie" rows="2" placeholder="es. malattie infiammatorie intestinali, diabete"></textarea></div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <h4 data-icon="👪">Familiarità</h4>
+              <div class="macro-wrap" id="pr-famil-btns"></div>
+              <textarea id="pr-familiarita" rows="2" style="margin-top:8px" placeholder="Seleziona dai pulsanti sopra o scrivi liberamente..."></textarea>
+            </div>
+          </div>
+
+          <!-- PANEL 2: MOTIVO E SINTOMI -->
+          <div id="pp-2" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🎯">Motivo della Visita</h4>
+              <div class="form-group"><textarea id="pr-motivo" rows="4" placeholder="Descrivere il motivo della visita..."></textarea></div>
+              <div class="macro-wrap" id="pr-motivo-btns"></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🩺">Sintomi Riferiti</h4>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group">
+                  <label class="form-label">Sanguinamento</label>
+                  <select onchange="appendGDText('pr-sint-sangue',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Assente</option><option>Striature di sangue rosso vivo sulla carta</option><option>Gocciolamento nel WC dopo la defecazione</option><option>Sangue misto alle feci</option><option>Sangue scuro / melena</option>
+                  </select>
+                  <input id="pr-sint-sangue" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Dolore anale</label>
+                  <select onchange="appendGDText('pr-sint-dolore',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Assente</option><option>Durante e dopo la defecazione</option><option>Continuo, pulsante, con tumefazione</option><option>Crampiforme, notturno, di breve durata</option><option>Gravativo / senso di peso</option>
+                  </select>
+                  <input id="pr-sint-dolore" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+              </div>
+              <div class="field-row r2" style="margin-bottom:10px">
+                <div class="form-group">
+                  <label class="form-label">Prolasso</label>
+                  <select onchange="appendGDText('pr-sint-prolasso',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Assente</option><option>Durante la defecazione, rientra da solo</option><option>Richiede riduzione manuale</option><option>Permanente, non riducibile</option>
+                  </select>
+                  <input id="pr-sint-prolasso" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Prurito / bruciore</label>
+                  <select onchange="appendGDText('pr-sint-prurito',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Assente</option><option>Lieve</option><option>Moderato</option><option>Severo</option>
+                  </select>
+                  <input id="pr-sint-prurito" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+              </div>
+              <div class="field-row r2">
+                <div class="form-group">
+                  <label class="form-label">Secrezioni / perdite</label>
+                  <select onchange="appendGDText('pr-sint-secrezioni',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Assenti</option><option>Muco</option><option>Siero-purulente</option><option>Imbrattamento della biancheria (soiling)</option>
+                  </select>
+                  <input id="pr-sint-secrezioni" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Segni di allarme</label>
+                  <select onchange="appendGDText('pr-sint-allarme',this.options[this.selectedIndex].text)">
+                    <option value="">-- Seleziona --</option><option>Nessuno</option><option>Calo di peso non intenzionale</option><option>Anemia</option><option>Recente cambiamento dell'alvo</option><option>Sangue misto alle feci</option><option>Familiarità per carcinoma colorettale</option><option>Età &gt; 50 anni senza colonscopia</option>
+                  </select>
+                  <input id="pr-sint-allarme" placeholder="dettagli aggiuntivi..." style="margin-top:6px">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL 3: SCORE -->
+          <div id="pp-3" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🧮">Incontinenza – Wexner (Cleveland Clinic) <span id="pr-wexner-badge" style="margin-left:auto;font-weight:700;color:var(--primary)"></span></h4>
+              <p style="font-size:.78rem;color:var(--label4);margin-bottom:10px;">Frequenza degli episodi: 0 = mai · 1 = raramente (&lt;1/mese) · 2 = a volte (&lt;1/settimana) · 3 = spesso (&lt;1/giorno) · 4 = sempre (≥1/giorno). Punteggio 0-20.</p>
+              <div class="field-row r3" id="pr-wexner-voci"></div>
+              <input type="hidden" id="pr-wexner">
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🧮">Stipsi – Cleveland Clinic Constipation Score (Agachan-Wexner) <span id="pr-ccs-badge" style="margin-left:auto;font-weight:700;color:var(--primary)"></span></h4>
+              <p style="font-size:.78rem;color:var(--label4);margin-bottom:10px;">Punteggio 0-30. Utile per documentare i sintomi e seguirne l'andamento nel tempo.</p>
+              <div class="field-row r2" id="pr-ccs-voci"></div>
+              <input type="hidden" id="pr-ccs">
+            </div>
+          </div>
+
+          <!-- PANEL 4: ESAME OBIETTIVO -->
+          <div id="pp-4" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🔍">Esame Obiettivo Generale</h4>
+              <div class="form-group"><textarea id="pr-esame-generale" rows="2"></textarea></div>
+              <div class="macro-wrap" id="pr-esame-generale-btns"></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="👁️">Ispezione Perianale</h4>
+              <div class="form-group" style="margin-bottom:8px"><label class="form-label">Seleziona template</label>
+                <select id="pr-ispezione-sel" onchange="applyGDTemplate('prIspezione','pr-ispezione-sel','pr-ispezione')"></select></div>
+              <div class="form-group"><textarea id="pr-ispezione" rows="3"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="✋">Esplorazione Rettale Digitale</h4>
+              <div class="form-group" style="margin-bottom:8px"><label class="form-label">Seleziona template</label>
+                <select id="pr-esplorazione-sel" onchange="applyGDTemplate('prEsplorazione','pr-esplorazione-sel','pr-esplorazione')"></select></div>
+              <div class="form-group"><textarea id="pr-esplorazione" rows="3"></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔬">Anoscopia</h4>
+              <div class="form-group" style="margin-bottom:8px"><label class="form-label">Seleziona template</label>
+                <select id="pr-anoscopia-sel" onchange="applyGDTemplate('prAnoscopia','pr-anoscopia-sel','pr-anoscopia')"></select></div>
+              <div class="form-group"><textarea id="pr-anoscopia" rows="3"></textarea></div>
+              <div class="form-group" style="margin-top:10px;max-width:420px"><label class="form-label">Malattia emorroidaria – grado (Goligher)</label>
+                <select id="pr-goligher">
+                  <option value="">-- Non valutato / assente --</option>
+                  <option value="I grado (nessun prolasso)">I grado – nessun prolasso</option>
+                  <option value="II grado (prolasso con riduzione spontanea)">II grado – prolasso con riduzione spontanea</option>
+                  <option value="III grado (prolasso con riduzione manuale)">III grado – prolasso con riduzione manuale</option>
+                  <option value="IV grado (prolasso permanente, irriducibile)">IV grado – prolasso permanente, irriducibile</option>
+                </select></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔦">Rettoscopia / Rettosigmoidoscopia</h4>
+              <div class="form-group" style="margin-bottom:8px"><label class="form-label">Seleziona template</label>
+                <select id="pr-rettoscopia-sel" onchange="applyGDTemplate('prRettoscopia','pr-rettoscopia-sel','pr-rettoscopia')"></select></div>
+              <div class="form-group"><textarea id="pr-rettoscopia" rows="3"></textarea></div>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="apriConsensoVisitaCorrente('Anoscopia e rettoscopia')">✍️ Consenso informato — Anoscopia e rettoscopia</button>
+            </div>
+          </div>
+
+          <!-- PANEL 5: ESAMI STRUMENTALI -->
+          <div id="pp-5" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="🖥️">Strumentazione</h4>
+              <div class="field-row r2">
+                <div class="form-group"><label class="form-label">Ecografo</label><input id="pr-ecografo" placeholder="es. modello dell'ecografo"></div>
+                <div class="form-group"><label class="form-label">Sonda</label><input id="pr-sonda" placeholder="es. endoanale rotante 3D"></div>
+              </div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="📄">Ecografia Endoanale</h4>
+              <div class="form-group" style="margin-bottom:8px"><label class="form-label">Seleziona template</label>
+                <select id="pr-ecografia-sel" onchange="applyGDTemplate('prEcografia','pr-ecografia-sel','pr-ecografia')"></select></div>
+              <div class="form-group"><textarea id="pr-ecografia" rows="6"></textarea></div>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="apriConsensoVisitaCorrente('Ecografia endoanale')">✍️ Consenso informato — Ecografia endoanale</button>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="📈">Manometria Anorettale</h4>
+              <div class="form-group"><textarea id="pr-manometria" rows="3" placeholder="Pressione a riposo, pressione di contrazione volontaria, sensibilità rettale, riflesso inibitorio retto-anale..."></textarea></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🗂️">Altri esami eseguiti</h4>
+              <div class="form-group"><textarea id="pr-esami-eseguiti" rows="3" placeholder="es. colonscopia (data, esito), RM pelvi, defeco-RM..."></textarea></div>
+            </div>
+          </div>
+
+          <!-- PANEL 6: CONCLUSIONI -->
+          <div id="pp-6" class="edit-panel">
+            <div class="section-card">
+              <h4 data-icon="✅">Conclusioni</h4>
+              <div class="form-group"><textarea id="pr-conclusioni" rows="3"></textarea></div>
+              <div class="macro-wrap" id="pr-conclusioni-btns"></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🧾">Esami Richiesti</h4>
+              <div class="form-group"><textarea id="pr-esami-richiesti" rows="3"></textarea></div>
+              <div class="macro-wrap" id="pr-esami-richiesti-btns"></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="💊">Terapia e Indicazioni</h4>
+              <div class="form-group"><textarea id="pr-terapia" rows="5"></textarea></div>
+              <div class="macro-wrap" id="pr-terapia-btns"></div>
+            </div>
+            <div class="section-card">
+              <h4 data-icon="🔄">Prossimi Controlli</h4>
+              <div class="form-group"><textarea id="pr-prossimi" rows="2" placeholder="Indicazioni per il follow-up..."></textarea></div>
+            </div>
+          </div>
+        </div><!-- /pr-panels -->
+
+
       </div>
     </div>
 
@@ -3728,7 +3990,9 @@ const GS_MODELLI={
   gineco:{ nome:'Ginecologia e Ostetricia', specialita:'Gineco', ruolo:'Ginecologia · Ostetricia',
     spec:'Specialista in Ginecologia e Ostetricia', dati:'demo-pazienti.json' },
   base:{ nome:'Base (tutte le specialità)', specialita:'', ruolo:'Studio medico',
-    spec:'', dati:'demo-base.json' }
+    spec:'', dati:'demo-base.json' },
+  proct:{ nome:'Proctologia', specialita:'Proct', ruolo:'Proctologia',
+    spec:'Specialista in Chirurgia – Proctologia', dati:'demo-proct.json' }
 };
 const GS_MODELLO=(()=>{
   let m=window.GS_MODELLO_APP;
@@ -4160,6 +4424,202 @@ function setGynoData(data){
   const chk=document.getElementById('gd-informativa-chk');
   if(chk && data.informativa!==undefined) chk.checked=data.informativa;
   calcGynoBMI();
+}
+
+// ── VISITA PROCTOLOGICA (modello Proct) ──
+// Stessa struttura della visita ginecologica: tendine con testi standard
+// (applyGDTemplate sulle chiavi GD.pr*), pulsanti-frase, familiarità a
+// pulsanti e due punteggi calcolati in automatico. Tutto resta modificabile.
+Object.assign(GD, {
+  prFamiliarita: ["Nega", "Carcinoma del colon-retto", "Polipi del colon", "Malattie infiammatorie intestinali", "Celiachia", "Diabete", "Ipertensione/cardiopatie"],
+  prMotivo: {
+    "Sanguinamento": "Riferisce sanguinamento rosso vivo durante/dopo la defecazione.",
+    "Dolore anale": "Riferisce dolore anale durante e dopo la defecazione.",
+    "Prolasso": "Riferisce fuoriuscita di tessuto dall'ano durante la defecazione.",
+    "Prurito anale": "Riferisce prurito anale persistente.",
+    "Tumefazione dolente": "Riferisce comparsa di tumefazione perianale dolente.",
+    "Secrezione perianale": "Riferisce secrezione perianale siero-purulenta.",
+    "Stipsi / defecazione ostruita": "Riferisce stipsi con difficoltà evacuativa, ponzamento prolungato e senso di incompleto svuotamento.",
+    "Incontinenza": "Riferisce perdita involontaria di gas e/o feci.",
+    "Controllo post-operatorio": "Controllo post-operatorio dopo intervento di ___ eseguito il ___.",
+    "Visita di controllo": "Visita di controllo."
+  },
+  prEsameGenerale: {
+    "Addome trattabile": "Addome trattabile, non dolente alla palpazione superficiale e profonda. Peristalsi presente."
+  },
+  prIspezione: {
+    "": "",
+    "NORMALE": "Regione perianale integra, cute di aspetto normale. Non marische, non ragadi, non orifizi fistolosi visibili. Margine anale regolare.",
+    "MARISCHE": "Presenza di marische perianali a ore ___ (posizione litotomica), senza segni di flogosi. Restante ispezione nella norma.",
+    "RAGADE POSTERIORE": "Alla divaricazione dei glutei si evidenzia ragade anale in sede posteriore (ore 6 in posizione litotomica), a fondo ___, con/senza marisca sentinella. Spasmo sfinteriale evocato dalla divaricazione.",
+    "RAGADE ANTERIORE": "Alla divaricazione dei glutei si evidenzia ragade anale in sede anteriore (ore 12 in posizione litotomica), a fondo ___, con/senza marisca sentinella. Spasmo sfinteriale evocato dalla divaricazione.",
+    "PROLASSO EMORROIDARIO": "Prolasso emorroidario ai quadranti ___, evidente a riposo/dopo ponzamento, con riduzione spontanea/manuale/non riducibile.",
+    "TROMBOSI EMORROIDARIA": "Tumefazione perianale bluastra, tesa e dolente a ore ___, compatibile con trombosi emorroidaria esterna.",
+    "ORIFIZIO FISTOLOSO": "Orifizio fistoloso esterno a ore ___, a circa ___ cm dal margine anale, con/senza secrezione siero-purulenta alla spremitura.",
+    "ASCESSO": "Area perianale tumefatta, arrossata, calda e dolente a ore ___, fluttuante/non fluttuante, compatibile con raccolta ascessuale.",
+    "DERMATITE PERIANALE": "Cute perianale arrossata e macerata con segni di grattamento, compatibile con dermatite perianale.",
+    "CONDILOMI": "Lesioni verrucoidi perianali compatibili con condilomi acuminati, a ore ___, di dimensioni ___."
+  },
+  prEsplorazione: {
+    "": "",
+    "NORMALE": "Tono sfinteriale normale a riposo e valida contrazione volontaria. Canale anale e ampolla rettale liberi, mucosa liscia e scorrevole. Non masse palpabili. Dito esploratore con feci normocromiche, senza tracce ematiche.",
+    "IPERTONO": "Ipertono sfinteriale a riposo, esplorazione dolorosa. Ampolla rettale libera, mucosa liscia. Non masse palpabili. Dito esploratore senza/con tracce ematiche.",
+    "IPOTONO": "Ipotono sfinteriale a riposo e ridotta contrazione volontaria. Ampolla rettale libera, mucosa liscia. Non masse palpabili.",
+    "RETTOCELE": "Tono sfinteriale conservato. Al ponzamento si apprezza estroflessione della parete rettale anteriore compatibile con rettocele di circa ___ cm. Non masse palpabili.",
+    "MASSA PALPABILE": "A circa ___ cm dal margine anale, sulla parete ___, si apprezza formazione di consistenza ___, ___ mobile sui piani profondi. Dito esploratore con/senza tracce ematiche.",
+    "PROSTATA (uomo)": "Prostata di volume ___, a superficie liscia, di consistenza parenchimatosa, solco mediano apprezzabile, non dolente alla palpazione."
+  },
+  prAnoscopia: {
+    "": "",
+    "NORMALE": "Mucosa del canale anale rosea e regolare, cuscinetti emorroidari nella norma, linea pettinata regolare.",
+    "EMORROIDI I GRADO": "Gavoccioli emorroidari interni congesti ai quadranti ___, senza prolasso (I grado secondo Goligher).",
+    "EMORROIDI II GRADO": "Gavoccioli emorroidari interni ai quadranti ___ che prolassano al ponzamento con riduzione spontanea (II grado secondo Goligher).",
+    "EMORROIDI III GRADO": "Gavoccioli emorroidari interni ai quadranti ___ che prolassano al ponzamento e richiedono riduzione manuale (III grado secondo Goligher).",
+    "EMORROIDI IV GRADO": "Prolasso emorroidario permanente, non riducibile, ai quadranti ___ (IV grado secondo Goligher).",
+    "RAGADE": "Esame eseguito con cautela per dolore: ragade del canale anale in sede ___, a fondo ___.",
+    "PAPILLA IPERTROFICA": "Papilla anale ipertrofica a ore ___. Restante mucosa del canale anale regolare.",
+    "ORIFIZIO INTERNO": "Orifizio fistoloso interno a livello della linea pettinata a ore ___."
+  },
+  prRettoscopia: {
+    "": "",
+    "NORMALE": "Esame condotto fino a ___ cm dal margine anale: mucosa rosea, lucente, con normale disegno vascolare. Non lesioni endoluminali. Preparazione buona/discreta.",
+    "PROCTITE": "Esame condotto fino a ___ cm dal margine anale: mucosa iperemica, edematosa e friabile, con perdita del disegno vascolare, compatibile con proctite. Eseguite/non eseguite biopsie.",
+    "POLIPO": "A ___ cm dal margine anale formazione polipoide sessile/peduncolata di circa ___ mm sulla parete ___. Restante mucosa regolare.",
+    "PROLASSO MUCOSO": "Al ponzamento si osserva prolasso mucoso rettale / intussuscezione retto-rettale a circa ___ cm dal margine anale."
+  },
+  prEcografia: {
+    "": "",
+    "NORMALE": "Sfintere anale interno ed esterno integri e di spessore regolare per tutta la circonferenza ai tre livelli del canale anale (superiore, medio, inferiore). Muscolo pubo-rettale regolare. Non raccolte né tragitti fistolosi.",
+    "DIFETTO SFINTERIALE": "Interruzione dello sfintere anale esterno/interno da ore ___ a ore ___ (circa ___ gradi), estesa ai livelli ___ del canale anale. Restanti strutture regolari.",
+    "FISTOLA": "Tragitto fistoloso ipoecogeno inter-/trans-/sovra-sfinterico, con orifizio interno a ore ___ a livello della linea pettinata e decorso ___. Non/presenti raccolte associate.",
+    "ASCESSO": "Raccolta ipo-anecogena di circa ___ mm in sede ___ (perianale/ischio-anale/intersfinterica), con/senza tramite verso il canale anale."
+  },
+  prConclusioni: {
+    "Esame normale": "Esame proctologico nella norma.",
+    "Malattia emorroidaria": "Malattia emorroidaria di ___ grado secondo Goligher.",
+    "Ragade acuta": "Ragade anale acuta.",
+    "Ragade cronica": "Ragade anale cronica.",
+    "Trombosi emorroidaria": "Trombosi emorroidaria esterna.",
+    "Ascesso perianale": "Ascesso perianale.",
+    "Fistola perianale": "Fistola perianale.",
+    "Defecazione ostruita": "Sindrome da defecazione ostruita.",
+    "Incontinenza fecale": "Incontinenza fecale.",
+    "Prurito anale": "Prurito anale."
+  },
+  prEsamiRichiesti: {
+    "Colonscopia": "Colonscopia totale con eventuale biopsia/polipectomia.",
+    "Ecografia endoanale": "Ecografia endoanale.",
+    "Manometria anorettale": "Manometria anorettale.",
+    "Defeco-RM": "Defecografia con risonanza magnetica (defeco-RM).",
+    "RM pelvi (fistola)": "RM della pelvi con mezzo di contrasto per lo studio della fistola perianale.",
+    "Sangue occulto": "Ricerca del sangue occulto nelle feci.",
+    "Esami ematici": "Emocromo, sideremia, ferritina, PCR."
+  },
+  prTerapia: {
+    "Emorroidi": "EMORROIDI: dieta ricca di fibre (25-30 g al giorno) e adeguata idratazione (1,5-2 litri di acqua al giorno); integratore di fibre (es. psillio) 1 dose al giorno; flavonoidi secondo la posologia del prodotto nella fase acuta; crema/pomata lenitiva locale 2 volte al giorno; semicupi in acqua tiepida 2-3 volte al giorno; evitare di trattenersi a lungo in bagno e gli sforzi in defecazione.",
+    "Ragade anale": "RAGADE ANALE: pomata miorilassante (es. nitroglicerina 0,4% oppure nifedipina 0,3% + lidocaina 1,5% galenica) 2-3 volte al giorno per 6-8 settimane; ammorbidente delle feci (es. macrogol) per mantenere feci morbide; semicupi tiepidi dopo la defecazione; dieta ricca di fibre e adeguata idratazione.",
+    "Stipsi": "STIPSI: macrogol 1-2 bustine al giorno da adattare in base alla risposta; fibre solubili e almeno 1,5-2 litri di acqua al giorno; attività fisica regolare; recarsi in bagno a orari regolari, con i piedi rialzati su uno sgabello.",
+    "Prurito anale": "PRURITO ANALE: igiene con acqua tiepida e detergente delicato, asciugare tamponando senza sfregare; evitare salviette profumate e indumenti sintetici; crema barriera all'ossido di zinco dopo ogni evacuazione; ridurre caffè, alcol e cibi piccanti.",
+    "Dopo legatura elastica": "DOPO LEGATURA ELASTICA: senso di peso o fastidio nei primi giorni (paracetamolo al bisogno); ammorbidente delle feci; semicupi tiepidi; un modesto sanguinamento alla caduta dell'elastico (7-10 giorni) è atteso. Contattare subito lo studio o il Pronto Soccorso in caso di febbre, dolore intenso e in aumento, sanguinamento abbondante o difficoltà a urinare.",
+    "Post-operatorio": "POST-OPERATORIO: semicupi tiepidi 2-3 volte al giorno e dopo ogni evacuazione; paracetamolo 1 g fino a 3 volte al giorno al bisogno; ammorbidente delle feci (es. macrogol); medicazione con garza asciutta. Contattare lo studio in caso di febbre, sanguinamento abbondante o difficoltà a urinare."
+  }
+});
+
+// Punteggi
+const PR_WEXNER=[['solide','Feci solide'],['liquide','Feci liquide'],['gas','Gas'],['assorbenti','Uso di assorbenti'],['vita','Alterazione dello stile di vita']];
+const PR_WEXNER_OPZ=['0 – mai','1 – raramente (<1/mese)','2 – a volte (<1/settimana)','3 – spesso (<1/giorno)','4 – sempre (≥1/giorno)'];
+const PR_CCS=[
+  ['frequenza','Frequenza delle evacuazioni',['0 – 1-2 volte ogni 1-2 giorni','1 – 2 volte a settimana','2 – 1 volta a settimana','3 – meno di 1 volta a settimana','4 – meno di 1 volta al mese']],
+  ['dolore','Evacuazione difficoltosa / dolorosa',['0 – mai','1 – raramente','2 – a volte','3 – spesso','4 – sempre']],
+  ['incompleta','Senso di evacuazione incompleta',['0 – mai','1 – raramente','2 – a volte','3 – spesso','4 – sempre']],
+  ['addome','Dolore addominale',['0 – mai','1 – raramente','2 – a volte','3 – spesso','4 – sempre']],
+  ['tempo','Tempo trascorso in bagno per ogni tentativo',['0 – meno di 5 minuti','1 – 5-10 minuti','2 – 10-20 minuti','3 – 20-30 minuti','4 – più di 30 minuti']],
+  ['aiuto','Aiuti per evacuare',['0 – nessuno','1 – lassativi stimolanti','2 – manovre digitali o clisteri']],
+  ['tentativi','Tentativi senza successo nelle 24 ore',['0 – mai','1 – 1-3','2 – 3-6','3 – 6-9','4 – più di 9']],
+  ['durata','Da quanto tempo dura la stipsi',['0 – 0 anni','1 – 1-5 anni','2 – 5-10 anni','3 – 10-20 anni','4 – più di 20 anni']]
+];
+function _prCreaVociScore(){
+  const w=document.getElementById('pr-wexner-voci');
+  if(w && !w.children.length){
+    w.innerHTML=PR_WEXNER.map(([id,lab])=>`<div class="form-group"><label class="form-label">${lab}</label><select id="pr-wx-${id}" onchange="calcScoreProct()"><option value="">--</option>${PR_WEXNER_OPZ.map((t,i)=>`<option value="${i}">${t}</option>`).join('')}</select></div>`).join('');
+  }
+  const c=document.getElementById('pr-ccs-voci');
+  if(c && !c.children.length){
+    c.innerHTML=PR_CCS.map(([id,lab,opz])=>`<div class="form-group"><label class="form-label">${lab}</label><select id="pr-cc-${id}" onchange="calcScoreProct()"><option value="">--</option>${opz.map((t,i)=>`<option value="${i}">${t}</option>`).join('')}</select></div>`).join('');
+  }
+}
+function calcScoreProct(){
+  const somma=(pref,voci,max)=>{
+    const val=voci.map(v=>document.getElementById(pref+v[0])?.value).filter(x=>x!==''&&x!=null);
+    if(!val.length) return '';
+    const tot=val.reduce((t,x)=>t+Number(x),0);
+    return val.length===voci.length ? `${tot}/${max}` : `${tot}/${max} (${val.length} di ${voci.length} voci)`;
+  };
+  const wx=somma('pr-wx-',PR_WEXNER,20), cc=somma('pr-cc-',PR_CCS,30);
+  document.getElementById('pr-wexner').value=wx; document.getElementById('pr-wexner-badge').textContent=wx;
+  document.getElementById('pr-ccs').value=cc; document.getElementById('pr-ccs-badge').textContent=cc;
+}
+function calcBMIProct(){
+  const p=parseFloat(String(document.getElementById('pr-peso')?.value||'').replace(',','.'));
+  const h=parseFloat(String(document.getElementById('pr-altezza')?.value||'').replace(',','.'))/100;
+  const out=document.getElementById('pr-bmi'); if(!out) return;
+  out.value=(p>0&&h>0)?(p/(h*h)).toFixed(1):'';
+}
+function togglePrFamil(btn, value){
+  const ta=document.getElementById('pr-familiarita');
+  btn.classList.toggle('active');
+  if(btn.classList.contains('active')) ta.value += (ta.value?', ':'')+value;
+  else ta.value = ta.value.split(',').map(s=>s.trim()).filter(s=>s!==value).join(', ');
+}
+function initProctSelects(){
+  _prCreaVociScore();
+  fillGDSelect('pr-ispezione-sel', Object.keys(GD.prIspezione));
+  fillGDSelect('pr-esplorazione-sel', Object.keys(GD.prEsplorazione));
+  fillGDSelect('pr-anoscopia-sel', Object.keys(GD.prAnoscopia));
+  fillGDSelect('pr-rettoscopia-sel', Object.keys(GD.prRettoscopia));
+  fillGDSelect('pr-ecografia-sel', Object.keys(GD.prEcografia));
+  fillGDMacro('pr-motivo-btns', GD.prMotivo, 'pr-motivo');
+  fillGDMacro('pr-esame-generale-btns', GD.prEsameGenerale, 'pr-esame-generale');
+  fillGDMacro('pr-conclusioni-btns', GD.prConclusioni, 'pr-conclusioni');
+  fillGDMacro('pr-esami-richiesti-btns', GD.prEsamiRichiesti, 'pr-esami-richiesti');
+  fillGDMacro('pr-terapia-btns', GD.prTerapia, 'pr-terapia');
+  const fc=document.getElementById('pr-famil-btns');
+  if(fc){
+    fc.innerHTML='';
+    GD.prFamiliarita.forEach(v=>{
+      const b=document.createElement('button');
+      b.className='macro-btn'; b.textContent=v; b.type='button';
+      b.onclick=()=>togglePrFamil(b,v);
+      fc.appendChild(b);
+    });
+  }
+}
+const PR_FIELDS=['eta','altezza','peso','bmi','pa','alvo','evacuazioni','bristol','lassativi','dieta','fumo',
+  'allergie','terapie-atto','anticoagulanti','parti','chirurgia','patologie','familiarita',
+  'motivo','sint-sangue','sint-dolore','sint-prolasso','sint-prurito','sint-secrezioni','sint-allarme',
+  ...PR_WEXNER.map(v=>'wx-'+v[0]),'wexner',...PR_CCS.map(v=>'cc-'+v[0]),'ccs',
+  'esame-generale','ispezione','esplorazione','anoscopia','goligher','rettoscopia',
+  'ecografo','sonda','ecografia','manometria','esami-eseguiti',
+  'conclusioni','esami-richiesti','terapia','prossimi','consenso-visita'];
+function getProctData(){
+  const d={};
+  PR_FIELDS.forEach(f=>{ const el=document.getElementById('pr-'+f); if(el) d[f]=el.value; });
+  return d;
+}
+function setProctData(data){
+  if(!data) return;
+  _prCreaVociScore();
+  PR_FIELDS.forEach(f=>{ const el=document.getElementById('pr-'+f); if(el && data[f]!==undefined) el.value=data[f]; });
+  calcBMIProct(); calcScoreProct();
+}
+// Nuova visita proctologica: riporta dall'ultima visita i dati che di solito non cambiano.
+function riportaDatiProct(){
+  const p=DB.pazienti.find(x=>x.id===curPaz); if(!p) return;
+  const ultima=(p.visite||[]).filter(v=>v.tipo==='pr'&&v.prData).sort((a,b)=>new Date(b.data)-new Date(a.data))[0];
+  if(!ultima) return;
+  ['altezza','fumo','allergie','terapie-atto','anticoagulanti','parti','chirurgia','patologie','familiarita','ecografo','sonda'].forEach(f=>{
+    const el=document.getElementById('pr-'+f); if(el && !el.value && ultima.prData[f]) el.value=ultima.prData[f];
+  });
 }
 
 // ── VISITA GENERICA (modello Base) ──
@@ -6926,7 +7386,7 @@ function renderAlertsHome(){
   if(!c) return;
   c.innerHTML='';
   const oggi=new Date().toISOString().split('T')[0];
-  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',proctologica:'🔍',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
 
   // Tutti gli appuntamenti da oggi in poi
   const fbProssimi=GS_APPTS.filter(a=>a.data>=oggi && a.stato!=='cancellato').sort((x,y)=>(x.data||'').localeCompare(y.data||''));
@@ -7153,7 +7613,7 @@ function renderCalModalEvents(d){
     c.innerHTML='<div style="text-align:center;padding:16px 0;color:var(--label4);font-size:0.85rem;">Nessun evento per questa giornata</div>';
     return;
   }
-  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',proctologica:'🔍',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   // Appuntamenti dell'agenda
   fbAppts.forEach(a=>{
     const localId=trovaPazienteLocaleId(a.pazienteId);
@@ -7432,7 +7892,7 @@ function resetFiltriAvanzati(){
 // Testo di una visita su cui cercare (diagnosi/conclusioni, terapia, note),
 // indipendentemente dal tipo di visita (ognuno usa nomi di campo diversi).
 function testoRicercabileVisita(v){
-  const d=v.obData||v.ecoData||v.gynoData||v.genData||{};
+  const d=v.obData||v.ecoData||v.gynoData||v.genData||v.prData||{};
   return [d.diagnosi, d.conclusioni, d.terapia, d.motivo, d.note, d['note-eco'], d['counselling-txt']].filter(Boolean).join(' ');
 }
 
@@ -7667,7 +8127,7 @@ function renderPazRiepilogo(p){
   const settGrav=ga && typeof calcolaSettimaneGravidanza==='function' ? calcolaSettimaneGravidanza(p, ga.gravidanzaId, new Date()) : null;
   const visiteOrdinate=[...(p.visite||[])].sort((a,b)=>new Date(b.data)-new Date(a.data));
   const ultima=visiteOrdinate[0];
-  const TIPO_LABEL={gyno:'Ginecologica',ob:'Ostetrica',eco:'Ecografia',gen:'Visita'};
+  const TIPO_LABEL={gyno:'Ginecologica',ob:'Ostetrica',eco:'Ecografia',gen:'Visita',pr:'Proctologica'};
   const oggi=new Date();
   const prossimo=(p.alerts||[]).filter(a=>new Date(a.data)>=oggi).sort((a,b)=>new Date(a.data)-new Date(b.data))[0];
   // "Farmaci in terapia": sia le terapie croniche inserite manualmente, sia
@@ -7700,7 +8160,7 @@ function _allergieAttivePaziente(p){
   const set=new Set();
   if(p.allergie && p.allergie.trim()) set.add(p.allergie.trim());
   (p.visite||[]).forEach(v=>{
-    const val = v.tipo==='ob' ? (v.obData||{}).allergie : v.tipo==='gyno' ? (v.gynoData||{}).allergie : v.tipo==='gen' ? (v.genData||{}).allergie : null;
+    const val = v.tipo==='ob' ? (v.obData||{}).allergie : v.tipo==='gyno' ? (v.gynoData||{}).allergie : v.tipo==='gen' ? (v.genData||{}).allergie : v.tipo==='pr' ? (v.prData||{}).allergie : null;
     if(val && val.trim()) set.add(val.trim());
   });
   return [...set];
@@ -7729,8 +8189,8 @@ function costruisciRiassuntoPaziente(p){
 
   const visite=[...(p.visite||[])].sort((a,b)=>new Date(a.data)-new Date(b.data));
   if(visite.length){
-    const TIPO_LABEL_SING={gyno:'ginecologica',ob:'ostetrica',eco:'ecografica',gen:'generica'};
-    const TIPO_LABEL_PL={gyno:'ginecologiche',ob:'ostetriche',eco:'ecografiche',gen:'generiche'};
+    const TIPO_LABEL_SING={gyno:'ginecologica',ob:'ostetrica',eco:'ecografica',gen:'generica',pr:'proctologica'};
+    const TIPO_LABEL_PL={gyno:'ginecologiche',ob:'ostetriche',eco:'ecografiche',gen:'generiche',pr:'proctologiche'};
     const conteggi={};
     visite.forEach(v=>{ conteggi[v.tipo]=(conteggi[v.tipo]||0)+1; });
     const dettagliTipi=Object.entries(conteggi).map(([t,n])=>`${n} ${n===1?(TIPO_LABEL_SING[t]||t):(TIPO_LABEL_PL[t]||t)}`).join(', ');
@@ -7749,15 +8209,15 @@ function costruisciRiassuntoPaziente(p){
   // ── Sintesi clinica: anamnesi rilevante (da tutte le visite) + dati salienti dell'ultima visita eseguita, di qualunque tipo ──
   const anamnesiPezzi=new Set();
   visite.forEach(v=>{
-    const dati = v.tipo==='ob' ? v.obData : v.tipo==='gyno' ? v.gynoData : v.tipo==='gen' ? v.genData : null;
+    const dati = v.tipo==='ob' ? v.obData : v.tipo==='gyno' ? v.gynoData : v.tipo==='gen' ? v.genData : v.tipo==='pr' ? v.prData : null;
     if(!dati) return;
-    [dati.patologie, dati.chirurgia, dati['anamnesi-remota'], dati.familiarita].forEach(x=>{ if(x && x.trim()) anamnesiPezzi.add(x.trim()); });
+    [dati.patologie, dati.chirurgia, dati['anamnesi-remota'], dati.familiarita].forEach(x=>{ if(x && x.trim() && !/^(nega|nessuna|no)\.?$/i.test(x.trim())) anamnesiPezzi.add(x.trim()); });
   });
   if(anamnesiPezzi.size) pezzi.push(`Anamnesi rilevante: ${[...anamnesiPezzi].map(x=>x.replace(/\.$/,'')).join(' · ')}.`);
 
   if(visite.length){
     const ultima=visite[visite.length-1];
-    const TIPO_LABEL_VISITA={gyno:'visita ginecologica',ob:'visita ostetrica',eco:'ecografia',gen:'visita'};
+    const TIPO_LABEL_VISITA={gyno:'visita ginecologica',ob:'visita ostetrica',eco:'ecografia',gen:'visita',pr:'visita proctologica'};
     const dettagli=[];
     if(ultima.tipo==='gyno'){
       const g=ultima.gynoData||{};
@@ -7775,6 +8235,10 @@ function costruisciRiassuntoPaziente(p){
       const e=ultima.ecoData||{};
       if(e.settimane) dettagli.push(`${e.settimane} sett.`);
       if(e.diagnosi && e.diagnosi.trim()) dettagli.push(e.diagnosi.trim());
+    } else if(ultima.tipo==='pr'){
+      const r=ultima.prData||{};
+      if(r.motivo && r.motivo.trim()) dettagli.push(r.motivo.trim());
+      if(r.conclusioni && r.conclusioni.trim()) dettagli.push(r.conclusioni.trim());
     } else if(ultima.tipo==='gen'){
       const g=ultima.genData||{};
       const parametri=[];
@@ -7930,7 +8394,7 @@ async function eliminaPaziente(){
 // ── RICERCA NEL CONTENUTO DELLE VISITE ──
 // Cerca in tutti i campi del referto di ogni visita (stessa fonte della stampa,
 // getRefertoSezioni) e mostra paziente, data, tipo e il passaggio trovato.
-const _TIPO_VISITA_NOME={gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica', gen:'Visita'};
+const _TIPO_VISITA_NOME={gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica', gen:'Visita', pr:'Visita proctologica'};
 function _testoVisita(v){
   try{ return getRefertoSezioni(v).flatMap(s=>s.rows.filter(r=>r[1]&&String(r[1]).trim()).map(r=>[s.title, r[0], String(r[1])])); }
   catch(e){ return []; }
@@ -8007,7 +8471,7 @@ function apriGiornata(date){
   const tb=document.getElementById('day-detail-tbody'); tb.innerHTML='';
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{
     if(v.data===date){
-      const icons={'gyno':'🌸','ob':'🤰','eco':'🖥️','gen':'🩺'};
+      const icons={'gyno':'🌸','ob':'🤰','eco':'🖥️','gen':'🩺','pr':'🔍'};
       tb.innerHTML+=`<tr>
         <td class="td-link" onclick="openPaziente(${p.id})">${p.cognome} ${p.nome}</td>
         <td>${icons[v.tipo]||'🩺'} ${v.tipo?.toUpperCase()}</td>
@@ -8641,8 +9105,8 @@ function startEditor(tipo, vid=null){
   }
 
   // Mostra/nasconde nav e pannelli in base al tipo
-  const navs={gyno:'editor-nav-gyno',ob:'editor-nav-ob',eco:'editor-nav-eco',gen:'editor-nav-gen'};
-  const panels={gyno:'gyno-panels',ob:'ob-panels',eco:'eco-panels',gen:'gen-panels'};
+  const navs={gyno:'editor-nav-gyno',ob:'editor-nav-ob',eco:'editor-nav-eco',gen:'editor-nav-gen',pr:'editor-nav-pr'};
+  const panels={gyno:'gyno-panels',ob:'ob-panels',eco:'eco-panels',gen:'gen-panels',pr:'pr-panels'};
   Object.values(navs).forEach(id=>document.getElementById(id).style.display='none');
   Object.values(panels).forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById(navs[tipo]).style.display='flex';
@@ -8652,7 +9116,8 @@ function startEditor(tipo, vid=null){
     gyno:{badge:'🌸 GINECOLOGICA',label:'Visita Ginecologica',firstTab:'ep-1'},
     ob:{badge:'🤰 OSTETRICA',label:'Visita Ostetrica',firstTab:'ob-anamnesi'},
     eco:{badge:'🖥️ ECOGRAFIA OSTETRICA',label:'Ecografia Ostetrica',firstTab:'ec-dati'},
-    gen:{badge:'🩺 VISITA',label:'Visita',firstTab:'gn-1'}
+    gen:{badge:'🩺 VISITA',label:'Visita',firstTab:'gn-1'},
+    pr:{badge:'🔍 PROCTOLOGICA',label:'Visita Proctologica',firstTab:'pp-1'}
   }[tipo];
   document.getElementById('editor-type-badge').textContent=meta.badge;
   document.getElementById('editor-title').textContent=`${meta.label} – ${DB.pazienti.find(x=>x.id===curPaz)?.cognome||''}`;
@@ -8667,6 +9132,7 @@ function startEditor(tipo, vid=null){
   }
 
   if(tipo==='gen'){ if(!vid) riportaDatiGen(); calcBMIGen(); }
+  if(tipo==='pr'){ initProctSelects(); if(!vid) riportaDatiProct(); calcBMIProct(); calcScoreProct(); }
   // Gravidanza: solo per nuove visite ostetriche/eco (in modifica la gravidanza è già fissata)
   if(!vid && (tipo==='ob'||tipo==='eco')){
     curGravidanzaId = risolviGravidanzaPerNuovaVisita(curPaz);
@@ -9057,7 +9523,7 @@ function creaPromemoriaDaProssimoControllo(p, v, testoProssimo){
   // Rimuove eventuale promemoria automatico generato da questa stessa visita in un salvataggio precedente
   p.alerts=p.alerts.filter(a=>a.visitaId!==v.id);
   if(!dataPromemoria) return;
-  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica',gen:'Visita'};
+  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica',gen:'Visita',pr:'Visita Proctologica'};
   p.alerts.push({
     id:Date.now()+1,
     data:dataPromemoria,
@@ -9080,17 +9546,18 @@ function salvaVisita(){
   if(curMode==='ob'){ v.obData=getObData(); v.gravidanzaId=curGravidanzaId; }
   else if(curMode==='eco'){ v.ecoData=getEcoData(); v.gravidanzaId=curGravidanzaId; }
   else if(curMode==='gen') v.genData=getGenData();
+  else if(curMode==='pr') v.prData=getProctData();
   else v.gynoData=getGynoData();
 
   const eraNuova=!curVisita;
   if(curVisita) p.visite[p.visite.findIndex(x=>x.id===curVisita)]=v;
   else p.visite.push(v);
 
-  const TIPO_VISITA_LABEL={ob:'ostetrica',eco:'ecografica',gyno:'ginecologica',gen:''};
+  const TIPO_VISITA_LABEL={ob:'ostetrica',eco:'ecografica',gyno:'ginecologica',gen:'',pr:'proctologica'};
   registraLog('visita',`Visita ${TIPO_VISITA_LABEL[curMode]??curMode} ${eraNuova?'salvata':'modificata'}`.replace('  ',' '));
 
   // Promemoria automatico dal campo "prossimo controllo", se contiene una data riconoscibile
-  const testoProssimo=curMode==='ob'?v.obData.prossimo:curMode==='eco'?v.ecoData.prossimo:curMode==='gen'?v.genData.prossimo:v.gynoData.prossimi;
+  const testoProssimo=curMode==='ob'?v.obData.prossimo:curMode==='eco'?v.ecoData.prossimo:curMode==='gen'?v.genData.prossimo:curMode==='pr'?v.prData.prossimi:v.gynoData.prossimi;
   creaPromemoriaDaProssimoControllo(p, v, testoProssimo);
 
   salvaDB();
@@ -9537,6 +10004,7 @@ function loadVisita(vid){
   if(v.tipo==='ob'){ setObData(v.obData); curGravidanzaId=v.gravidanzaId||null; }
   else if(v.tipo==='eco'){ setEcoData(v.ecoData); curGravidanzaId=v.gravidanzaId||null; }
   else if(v.tipo==='gen'){ setGenData(v.genData); }
+  else if(v.tipo==='pr'){ setProctData(v.prData); }
   else { initGynoSelects(); if(v.gynoData) setGynoData(v.gynoData); }
 }
 
@@ -9550,7 +10018,8 @@ function renderVisiteList(p){
     gyno:{icon:'🌸',label:'VISITA GINECOLOGICA'},
     ob:{icon:'🤰',label:'VISITA OSTETRICA'},
     eco:{icon:'🖥️',label:'ECOGRAFIA OSTETRICA'},
-    gen:{icon:'🩺',label:'VISITA'}
+    gen:{icon:'🩺',label:'VISITA'},
+    pr:{icon:'🔍',label:'PROCTOLOGICA'}
   };
 
   p.visite.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v=>{
@@ -9560,6 +10029,7 @@ function renderVisiteList(p){
     if(tipo==='ob'){ const d=v.obData||{}; conclShort=d.diagnosi||d.esame||'–'; terapia=d.terapia||''; }
     else if(tipo==='eco'){ const d=v.ecoData||{}; conclShort=d.diagnosi||'–'; terapia=d.terapia||''; }
     else if(tipo==='gen'){ const d=v.genData||{}; conclShort=d.diagnosi||d.motivo||'–'; terapia=d.terapia||''; }
+    else if(tipo==='pr'){ const d=v.prData||{}; conclShort=d.conclusioni||d.motivo||'–'; terapia=d.terapia||''; }
     else { const d=v.gynoData||{}; conclShort=d.conclusioni||d.motivo||'–'; terapia=d.terapia||''; }
     if(conclShort.length>80) conclShort=conclShort.slice(0,80)+'…';
     const haTerapia=terapia&&terapia.trim().length>0;
@@ -9609,6 +10079,7 @@ function terapiaDiVisita(v){
   if(v.tipo==='ob') return (v.obData||{}).terapia||'';
   if(v.tipo==='eco') return (v.ecoData||{}).terapia||'';
   if(v.tipo==='gen') return (v.genData||{}).terapia||'';
+  if(v.tipo==='pr') return (v.prData||{}).terapia||'';
   return (v.gynoData||{}).terapia||'';
 }
 
@@ -9618,7 +10089,7 @@ function terapiaDiVisita(v){
 function renderFarmaciAttuali(p){
   const box=document.getElementById('farmaci-attuali-box');
   if(!box)return;
-  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️',gen:'🩺'};
+  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️',gen:'🩺',pr:'🔍'};
   if(!p.farmaciManuali) p.farmaciManuali=[];
 
   const conTerapia=(p.visite||[])
@@ -9728,7 +10199,7 @@ function riportaFarmaciAttualiInTerapia(tipo){
   if(!p || !p.farmaciManuali)return;
   const daRiportare=p.farmaciManuali.filter(f=>f.inTerapiaVisite);
   if(!daRiportare.length)return;
-  const campo={ob:'ob-terapia',eco:'ec-terapia',gyno:'gd-terapia',gen:'gn-terapia'}[tipo];
+  const campo={ob:'ob-terapia',eco:'ec-terapia',gyno:'gd-terapia',gen:'gn-terapia',pr:'pr-terapia'}[tipo];
   const el=campo && document.getElementById(campo);
   if(!el || el.value.trim())return; // non sovrascrive se già valorizzato
   el.value=daRiportare.map(f=>`${f.farmaco}${f.dosaggio?' ('+f.dosaggio+')':''}${f.note?' — '+f.note:''}`).join('\n');
@@ -9745,7 +10216,7 @@ function riportaFarmaciAttualiInTerapia(tipo){
 const PRINT_CFG_DEFAULT = {
   intestazione:{ nome:'', spec:GS_MODELLI[GS_MODELLO].spec, indirizzo:'', contatti:'', logo:'' },
   firma:'',
-  layout:{ margine:15, font:'Georgia', corpo:11, colore:'#c2185b', formato:'A4', logo:true, piePagina:'' }
+  layout:{ margine:15, font:'Georgia', corpo:11, colore:GS_MODELLO==='gineco'?'#c2185b':'#1e40af', formato:'A4', logo:true, piePagina:'' }
 };
 function printCfgKey(){
   return 'gs_print_cfg_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon');
@@ -10101,7 +10572,15 @@ const CONSENSI_BASE = [
   { titolo:'Consenso informato a procedura / esame strumentale', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a in modo chiaro e comprensibile sulla procedura/esame proposto (________________________________), sul suo scopo, sulle modalità di esecuzione, sui benefici attesi, sui rischi e sulle possibili complicanze, nonché sulle alternative disponibili e sulle conseguenze di un eventuale rifiuto. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter revocare il consenso in qualsiasi momento prima dell'esecuzione. Acconsento liberamente all'esecuzione della procedura/esame." },
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
-function _consensiPredefiniti(){ return GS_MODELLO==='base' ? CONSENSI_BASE : CONSENSI_DEFAULT; }
+// Modello Proct: moduli proctologici scritti al neutro, con parole proprie.
+const CONSENSI_PROCT = [
+  { titolo:'Visita proctologica', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a dal medico sulle finalità e sulle modalità della visita proctologica, che comprende la raccolta dell'anamnesi, l'ispezione della regione perianale, l'esplorazione rettale digitale ed eventualmente l'anoscopia. Sono stato/a informato/a che queste manovre possono causare un modesto fastidio e, raramente, un lieve sanguinamento transitorio. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter interrompere la visita in qualsiasi momento. Acconsento liberamente all'esecuzione della visita nelle modalità proposte." },
+  { titolo:'Anoscopia e rettoscopia', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a in modo chiaro sull'anoscopia e sulla rettoscopia: l'esame consiste nell'introduzione nel canale anale e nel retto di uno strumento lubrificato, per osservarne direttamente la mucosa, ed eventualmente nell'esecuzione di piccoli prelievi (biopsie). Sono stato/a informato/a che l'esame può provocare fastidio, senso di peso o stimolo a evacuare e un lieve sanguinamento; che le complicanze importanti (sanguinamento significativo, perforazione) sono rare; e sulle alternative disponibili. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione dell'esame." },
+  { titolo:'Legatura elastica delle emorroidi', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a sulla legatura elastica delle emorroidi: alla base dei gavoccioli emorroidari interni vengono applicati piccoli anelli elastici, che ne riducono l'afflusso di sangue; il tessuto legato cade spontaneamente in circa 7-10 giorni. Sono stato/a informato/a che nei giorni successivi sono possibili senso di peso, fastidio o dolore, e un modesto sanguinamento al distacco dell'elastico; che più raramente possono verificarsi sanguinamento abbondante (più probabile in chi assume farmaci anticoagulanti o antiaggreganti, che ho dichiarato), trombosi emorroidaria, difficoltà a urinare e, molto raramente, infezioni anche gravi. Mi è stato spiegato di contattare subito il medico o il Pronto Soccorso in caso di febbre, dolore intenso e in aumento, sanguinamento abbondante o difficoltà a urinare. Mi sono state illustrate le alternative (terapia medica, altre procedure ambulatoriali, chirurgia). Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente alla procedura." },
+  { titolo:'Ecografia endoanale', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a sull'ecografia endoanale: una sonda lubrificata viene introdotta nel canale anale per pochi minuti, per studiare gli sfinteri e i tessuti circostanti. L'esame non utilizza radiazioni, è in genere ben tollerato e può causare un modesto fastidio. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione dell'esame." },
+  { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
+];
+function _consensiPredefiniti(){ return GS_MODELLO==='base' ? CONSENSI_BASE : GS_MODELLO==='proct' ? CONSENSI_PROCT : CONSENSI_DEFAULT; }
 // Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
 // così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
 // non riconosciuti restano comunque selezionabili, solo non in evidenza).
@@ -10109,7 +10588,8 @@ const CONSENSO_TIPI_VISITA = {
   gyno: ['Visita ginecologica generale','Ecografia ginecologica','Inserimento IUD'],
   ob: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre'],
   eco: ['Ecografia ostetrica I trimestre precoce','Ecografia ostetrica I trimestre 11-13+6 settimane','Ecografia ostetrica II trimestre','Ecografia ostetrica III trimestre'],
-  gen: ['Consenso informato alla visita specialistica','Consenso informato a procedura / esame strumentale']
+  gen: ['Consenso informato alla visita specialistica','Consenso informato a procedura / esame strumentale'],
+  pr: ['Visita proctologica','Anoscopia e rettoscopia','Legatura elastica delle emorroidi','Ecografia endoanale']
 };
 function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 // La libreria salvata in localStorage "vince" sempre sui default — corretto
@@ -10342,8 +10822,8 @@ function apriConsensoConFirma(i, onDone, nomeOverride, isMinore){
 // quanto già firmato o aggiungere un modulo dimenticato.
 let _consensoVisitaTipoPending = null; // tipo della visita da APRIRE dopo la firma (null quando si sta solo rivedendo una visita già aperta)
 let _consensoVisitaSelezionati = new Set();
-const _META_TIPO_VISITA = {gyno:'visita ginecologica', ob:'visita ostetrica', eco:'ecografia ostetrica', gen:'visita'};
-function _consensoVisitaPrefix(tipo){ return tipo==='eco' ? 'ec' : (tipo==='ob' ? 'ob' : (tipo==='gen' ? 'gn' : 'gd')); }
+const _META_TIPO_VISITA = {gyno:'visita ginecologica', ob:'visita ostetrica', eco:'ecografia ostetrica', gen:'visita', pr:'visita proctologica'};
+function _consensoVisitaPrefix(tipo){ return tipo==='eco' ? 'ec' : (tipo==='ob' ? 'ob' : (tipo==='gen' ? 'gn' : (tipo==='pr' ? 'pr' : 'gd'))); }
 
 function pazChiediConsensoPrimaVisita(tipo){
   _consensoVisitaTipoPending = tipo;
@@ -11219,7 +11699,7 @@ function renderRicettario(){
     return;
   }
 
-  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️',gen:'🩺'};
+  const TIPO_ICON={gyno:'🌸',ob:'🤰',eco:'🖥️',gen:'🩺',pr:'🔍'};
   c.innerHTML=filtrate.map(r=>`
     <div class="visit-item">
       <div class="visit-icon" style="background:var(--primary-dim)">💊</div>
@@ -11257,7 +11737,7 @@ function apriRicettarioVisitaGlobale(pazId,vid){
 // veniva stampata solo la visita ginecologica) e SOLO i campi compilati.
 function buildRefertoBody(v){
   const nl=s=>(s||'').replace(/\n/g,'<br>');
-  const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica', gen:'Visita'};
+  const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica', gen:'Visita', pr:'Visita Proctologica'};
   let body=`<h2 style="margin-bottom:2px;font-family:Georgia,serif;">Referto ${TITOLI[v.tipo]||TITOLI.gyno}</h2>`;
   if(v.ora) body+=`<div style="margin-bottom:14px;font-size:0.82rem;color:#666">Ora di compilazione: ${v.ora}</div>`;
   getRefertoSezioni(v).forEach(s=>{
@@ -11466,6 +11946,19 @@ function esportaCartellaPDF(){
 // così le due non possono disallinearsi. Chi la consuma filtra da sé le
 // righe vuote — qui i valori sono semplicemente presenti o assenti.
 function getRefertoSezioni(v){
+  if(v.tipo==='pr'){
+    const r=v.prData||{};
+    return [
+      {icon:'',title:'Dati generali',rows:[['Età',r.eta?r.eta+' anni':''],['Altezza',r.altezza?r.altezza+' cm':''],['Peso',r.peso?r.peso+' kg':''],['BMI',r.bmi],['Pressione arteriosa',r.pa?r.pa+' mmHg':'']]},
+      {icon:'',title:'Alvo e abitudini',rows:[['Alvo',r.alvo],['Frequenza evacuazioni',r.evacuazioni],['Consistenza feci (Bristol)',r.bristol],['Lassativi / clisteri',r.lassativi],['Fibre e idratazione',r.dieta],['Fumo',r.fumo]]},
+      {icon:'',title:'Anamnesi',rows:[['Allergie',r.allergie],['Terapie in atto',r['terapie-atto']],['Anticoagulanti / antiaggreganti',r.anticoagulanti],['Interventi pregressi',r.chirurgia],['Patologie croniche',r.patologie],['Parti / traumi perineali',r.parti],['Familiarità',r.familiarita]]},
+      {icon:'',title:'Motivo della visita',rows:[['',r.motivo],['Sanguinamento',r['sint-sangue']],['Dolore',r['sint-dolore']],['Prolasso',r['sint-prolasso']],['Prurito / bruciore',r['sint-prurito']],['Secrezioni',r['sint-secrezioni']],['Segni di allarme',r['sint-allarme']]]},
+      {icon:'',title:'Punteggi',rows:[['Incontinenza (Wexner)',r.wexner],['Stipsi (Cleveland Clinic Constipation Score)',r.ccs]]},
+      {icon:'',title:'Esame obiettivo',rows:[['Generale',r['esame-generale']],['Ispezione perianale',r.ispezione],['Esplorazione rettale',r.esplorazione],['Anoscopia',r.anoscopia],['Malattia emorroidaria (Goligher)',r.goligher],['Rettoscopia',r.rettoscopia]]},
+      {icon:'',title:'Esami strumentali',rows:[['Ecografo / sonda',[r.ecografo,r.sonda].filter(Boolean).join(' · ')],['Ecografia endoanale',r.ecografia],['Manometria anorettale',r.manometria],['Altri esami eseguiti',r['esami-eseguiti']]]},
+      {icon:'',title:'Conclusioni',rows:[['Conclusioni',r.conclusioni],['Esami richiesti',r['esami-richiesti']],['Terapia e indicazioni',r.terapia],['Prossimi controlli',r.prossimi]]}
+    ];
+  }
   if(v.tipo==='gen'){
     const g=v.genData||{};
     return [
@@ -11903,7 +12396,7 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
     return;
   }
 
-  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica',gen:'Visita'};
+  const TIPO_LABEL={gyno:'Visita Ginecologica',ob:'Visita Ostetrica',eco:'Ecografia Ostetrica',gen:'Visita',pr:'Visita Proctologica'};
   const grav=p.gravidanze?.find(g=>g.id===gravidanzaId);
   const dataInizio=grav?.dataInizio?new Date(grav.dataInizio).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}):'';
   const conclusa=!!grav?.conclusa;
@@ -12849,7 +13342,7 @@ function showApptPopup(appts, oggi){
   if(el) el.textContent=dStr;
   const tit=document.getElementById('popup-appts-title');
   if(tit) tit.textContent=`📅 ${appts.length} Appuntament${appts.length>1?'i':'o'} Oggi`;
-  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',proctologica:'🔍',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   const STATI={confermato:'<span style="color:var(--green);font-size:.72rem;font-weight:700">✅ Confermato</span>',
                in_attesa:'<span style="color:var(--orange);font-size:.72rem;font-weight:700">⏳ In attesa</span>',
                completato:'<span style="color:var(--label4);font-size:.72rem;font-weight:700">✔️ Completato</span>',
@@ -12886,7 +13379,7 @@ function renderFBAppts(){
   const oggi=new Date().toISOString().split('T')[0];
   const filtDate=document.getElementById('appt-filter-date')?.value||'';
   const filtTipo=document.getElementById('appt-filter-tipo')?.value||'';
-  const ICONS={visita:'🩺',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
+  const ICONS={visita:'🩺',proctologica:'🔍',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
   const STATI={confermato:'<span class="badge badge-green">✅</span>',in_attesa:'<span class="badge badge-orange">⏳</span>',cancellato:'<span class="badge badge-red">❌</span>',completato:'<span class="badge badge-gray">✔️</span>'};
 
   const apptOggi=GS_APPTS.filter(a=>a.data===oggi);
