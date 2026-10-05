@@ -11469,7 +11469,13 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
       margin: l.margine||15,
       filename: nomeFile+'.pdf',
       image: {type:'jpeg', quality:0.98},
-      html2canvas: {scale:2, useCORS:true, width:larghezza, height:altezza, windowWidth:larghezza, windowHeight:altezza, scrollX:0, scrollY:0},
+      // windowWidth = larghezza REALE della finestra (non quella dell'area): html2pdf clona
+      // l'area dentro un contenitore centrato (margin:auto) e html2canvas misura la sua
+      // posizione nella finestra reale ma la rilayouta in una finestra di windowWidth px.
+      // Se i due valori differiscono, la cattura parte da un punto sbagliato (spostamento
+      // pari a metà della differenza): il PDF usciva tagliato a sinistra e vuoto a destra
+      // su monitor larghi, perfetto solo con finestre strette.
+      html2canvas: {scale:2, useCORS:true, width:larghezza, height:altezza, windowWidth:document.documentElement.clientWidth, windowHeight:altezza, scrollX:0, scrollY:0},
       jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'},
       pagebreak: {mode:['css','legacy']}
     }).from(area).save().then(()=>{
