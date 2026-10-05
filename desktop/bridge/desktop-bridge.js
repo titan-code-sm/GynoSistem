@@ -284,6 +284,12 @@
         el.innerHTML = `File: <strong>${_escHtml(p)}</strong><br>Dimensione: ${(byte/1024/1024).toFixed(1)} MB · 🔒 cifrato (AES-256)`;
       }catch(e){ el.textContent = 'Database non ancora disponibile.'; }
     },
+    // Versione di sicurezza dello stato attuale (es. prima di importare un backup):
+    // resta in "Versioni salvate automaticamente" e si può ripristinare.
+    async istantanea(){
+      if(!gsDbStorageKey) return;
+      await salvaVersione(gsDbStorageKey, JSON.stringify(DB), true);
+    },
     async mostraStorico(){
       const box = document.getElementById('gsd-storico'); if(!box) return;
       if(!gsDbStorageKey){ box.textContent = 'Accedi prima con il tuo account.'; return; }

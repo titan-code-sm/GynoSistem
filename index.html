@@ -13410,9 +13410,14 @@ async function restoreData(input){
     const righe=[`${nPaz} pazient${nPaz===1?'e':'i'}, ${nVis} visit${nVis===1?'a':'e'}, ${nApp} appuntament${nApp===1?'o':'i'}`];
     if(nAll!==null) righe.push(`${nAll} allegat${nAll===1?'o':'i'} (referti esterni e consensi caricati)`);
     else righe.push('nessun allegato (backup di vecchio formato: gli allegati attuali restano)');
-    if(!confirm(`Il backup contiene:\n• ${righe.join('\n• ')}\n\n⚠️ Importarlo SOSTITUISCE completamente i dati attuali di questo account su questo dispositivo. L'operazione non è reversibile.\n\nContinuare?`)) return;
+    if(!confirm(`Il backup contiene:\n• ${righe.join('\n• ')}\n\n⚠️ Importarlo SOSTITUISCE completamente i dati attuali di questo account: pazienti, visite e allegati inseriti dopo la data del backup non ci saranno più.${window.gsDesktop&&gsDesktop.istantanea?'\n\nPrima dell\'importazione lo stato attuale viene salvato tra le «Versioni salvate automaticamente» (Archiviazione → Database interno): se serve, si può tornare indietro (allegati esclusi).':''}\n\nContinuare?`)) return;
 
     if(typeof gsToast==='function') gsToast('📂 Importazione in corso…','gs-info');
+    // Versione di sicurezza dello stato attuale, per poter annullare l'importazione
+    if(window.gsDesktop && gsDesktop.istantanea){
+      try{ await gsDesktop.istantanea(); }
+      catch(e){ if(!confirm('Non è stato possibile salvare una versione di sicurezza dei dati attuali.\n\nImportare comunque il backup?')) return; }
+    }
     DB=a;
     if(!DB.agenda) DB.agenda=[];
     if(backup.allegati){
