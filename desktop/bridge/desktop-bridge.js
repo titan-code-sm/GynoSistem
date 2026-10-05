@@ -8,6 +8,9 @@
 //   · archivio       → l'archivio clinico di ogni medico (JSON)
 //   · archivio_storico → versioni salvate in automatico (max 1 all'ora)
 //   · allegati       → referti esterni e consensi cartacei (PDF/immagini)
+// Tutto il contenuto (archivio, versioni, allegati con i loro nomi) è cifrato
+// AES-256-GCM con una chiave casuale custodita da Windows (Gestione credenziali,
+// comandi Rust chiave_db_leggi/salva): il file copiato altrove è illeggibile.
 // Inoltre: stampe e anteprime si aprono in un pannello dentro l'app (niente
 // popup), i link esterni nel browser predefinito di Windows.
 (function(){
@@ -22,18 +25,64 @@
 
   document.documentElement.dataset.gsDesktop = '1';
 
+  // ── Cifratura ──
+  const PREFISSO = 'enc1:';
+  let _chiave = null;
+  async function chiave(){
+    if(_chiave) return _chiave;
+    let k = await invoke('chiave_db_leggi');
+    if(!k){
+      k = gsBufToB64(crypto.getRandomValues(new Uint8Array(32)));
+      await invoke('chiave_db_salva', { chiave: k });
+      if(await invoke('chiave_db_leggi') !== k) throw new Error('La chiave di cifratura non è stata salvata da Windows');
+    }
+    _chiave = await crypto.subtle.importKey('raw', gsB64ToBuf(k), 'AES-GCM', false, ['encrypt','decrypt']);
+    return _chiave;
+  }
+  async function cifra(testo){
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name:'AES-GCM', iv }, await chiave(), new TextEncoder().encode(testo));
+    return PREFISSO + gsBufToB64(iv) + ':' + gsBufToB64(new Uint8Array(ct));
+  }
+  async function decifra(v){
+    if(typeof v !== 'string' || !v.startsWith(PREFISSO)) return v; // dato precedente alla cifratura
+    const [ivB64, ctB64] = v.slice(PREFISSO.length).split(':');
+    const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv: gsB64ToBuf(ivB64) }, await chiave(), gsB64ToBuf(ctB64));
+    return new TextDecoder().decode(pt);
+  }
+  // Cifra i dati salvati prima della cifratura. Ogni valore viene riletto e
+  // decifrato per verifica PRIMA di sostituire l'originale in chiaro.
+  async function cifraDatiEsistenti(ex, sel){
+    const passa = async (tabella, idCol, colonne)=>{
+      const righe = await sel(`SELECT ${idCol} AS id, ${colonne.join(', ')} FROM ${tabella}`);
+      for(const r of righe){
+        for(const c of colonne){
+          if(typeof r[c] !== 'string' || r[c].startsWith(PREFISSO)) continue;
+          const enc = await cifra(r[c]);
+          if(await decifra(enc) !== r[c]) throw new Error('Verifica della cifratura fallita');
+          await ex(`UPDATE ${tabella} SET ${c}=$1 WHERE ${idCol}=$2`, [enc, r.id]);
+        }
+      }
+    };
+    await passa('archivio', 'chiave', ['json']);
+    await passa('archivio_storico', 'id', ['json']);
+    await passa('allegati', 'id', ['meta', 'dati']);
+  }
+
   // ── SQLite (tauri-plugin-sql) ──
   let _dbChiave = null, _dbPronto = null;
   function apriDb(){
     if(!_dbPronto){
       _dbPronto = (async()=>{
         _dbChiave = await invoke('plugin:sql|load', { db: 'sqlite:' + NOME_DB });
-        const ex = q => invoke('plugin:sql|execute', { db: _dbChiave, query: q, values: [] });
+        const ex = (q, v) => invoke('plugin:sql|execute', { db: _dbChiave, query: q, values: v||[] });
+        const sel = (q, v) => invoke('plugin:sql|select', { db: _dbChiave, query: q, values: v||[] });
         await ex('CREATE TABLE IF NOT EXISTS archivio (chiave TEXT PRIMARY KEY, json TEXT NOT NULL, aggiornato TEXT NOT NULL)');
         await ex('CREATE TABLE IF NOT EXISTS archivio_storico (id INTEGER PRIMARY KEY AUTOINCREMENT, chiave TEXT NOT NULL, json TEXT NOT NULL, creato TEXT NOT NULL)');
         await ex('CREATE INDEX IF NOT EXISTS idx_storico_chiave ON archivio_storico(chiave, id)');
         await ex('CREATE TABLE IF NOT EXISTS allegati (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT NOT NULL, paziente_id TEXT NOT NULL, meta TEXT NOT NULL, dati TEXT NOT NULL, creato TEXT NOT NULL)');
         await ex('CREATE INDEX IF NOT EXISTS idx_allegati_paz ON allegati(uid, paziente_id)');
+        await cifraDatiEsistenti(ex, sel);
       })();
       _dbPronto.catch(e=>{ console.error('Apertura database interno fallita:', e); _dbPronto = null; });
     }
@@ -56,16 +105,16 @@
     if(/_demo_/.test(chiave)) return; // la demo non tiene uno storico
     const ult = await seleziona('SELECT creato FROM archivio_storico WHERE chiave=$1 ORDER BY id DESC LIMIT 1', [chiave]);
     if(!forza && ult.length && Date.now()-new Date(ult[0].creato).getTime() < STORICO_OGNI_MS) return;
-    await esegui('INSERT INTO archivio_storico (chiave, json, creato) VALUES ($1, $2, $3)', [chiave, json, adesso()]);
+    await esegui('INSERT INTO archivio_storico (chiave, json, creato) VALUES ($1, $2, $3)', [chiave, await cifra(json), adesso()]);
     await esegui('DELETE FROM archivio_storico WHERE chiave=$1 AND id NOT IN (SELECT id FROM archivio_storico WHERE chiave=$2 ORDER BY id DESC LIMIT ' + STORICO_MAX + ')', [chiave, chiave]);
   }
   GS_STORAGE.archivio = {
     async leggi(chiave){
       const r = await seleziona('SELECT json FROM archivio WHERE chiave=$1', [chiave]);
-      return r.length ? r[0].json : null;
+      return r.length ? await decifra(r[0].json) : null;
     },
     async scrivi(chiave, json){
-      await esegui('INSERT INTO archivio (chiave, json, aggiornato) VALUES ($1, $2, $3) ON CONFLICT(chiave) DO UPDATE SET json=excluded.json, aggiornato=excluded.aggiornato', [chiave, json, adesso()]);
+      await esegui('INSERT INTO archivio (chiave, json, aggiornato) VALUES ($1, $2, $3) ON CONFLICT(chiave) DO UPDATE SET json=excluded.json, aggiornato=excluded.aggiornato', [chiave, await cifra(json), adesso()]);
       try{ await salvaVersione(chiave, json, false); }catch(e){ console.warn('Versione automatica non salvata:', e); }
     }
   };
@@ -89,25 +138,29 @@
       const { blob, ...meta } = voce;
       const dati = await blobInBase64(blob);
       const r = await esegui('INSERT INTO allegati (uid, paziente_id, meta, dati, creato) VALUES ($1, $2, $3, $4, $5)',
-        [uid(), String(voce.pazienteId), JSON.stringify(meta), dati, adesso()]);
+        [uid(), String(voce.pazienteId), await cifra(JSON.stringify(meta)), await cifra(dati), adesso()]);
       return r.ultimoId;
     },
     async elenco(pazId){
       const r = await seleziona('SELECT id, meta FROM allegati WHERE uid=$1 AND paziente_id=$2', [uid(), String(pazId)]);
-      return r.map(x=>({ ...JSON.parse(x.meta), id: x.id }));
+      const out = [];
+      for(const x of r) out.push({ ...JSON.parse(await decifra(x.meta)), id: x.id });
+      return out;
     },
     async leggi(id){
       const r = await seleziona('SELECT id, meta, dati FROM allegati WHERE id=$1 AND uid=$2', [id, uid()]);
       if(!r.length) return null;
-      const meta = JSON.parse(r[0].meta);
-      return { ...meta, id: r[0].id, blob: base64InBlob(r[0].dati, meta.tipo) };
+      const meta = JSON.parse(await decifra(r[0].meta));
+      return { ...meta, id: r[0].id, blob: base64InBlob(await decifra(r[0].dati), meta.tipo) };
     },
     async elimina(id){
       await esegui('DELETE FROM allegati WHERE id=$1 AND uid=$2', [id, uid()]);
     },
     async tutti(){
       const r = await seleziona('SELECT id, meta, dati FROM allegati WHERE uid=$1 ORDER BY id', [uid()]);
-      return r.map(x=>{ const meta = JSON.parse(x.meta); return { ...meta, id: x.id, blob: base64InBlob(x.dati, meta.tipo) }; });
+      const out = [];
+      for(const x of r){ const meta = JSON.parse(await decifra(x.meta)); out.push({ ...meta, id: x.id, blob: base64InBlob(await decifra(x.dati), meta.tipo) }); }
+      return out;
     },
     async svuota(){
       await esegui('DELETE FROM allegati WHERE uid=$1', [uid()]);
@@ -192,22 +245,8 @@
       const el = document.getElementById('gsd-info'); if(!el) return;
       try{
         const [p, byte] = await Promise.all([percorsoDb(), dimensioneDb()]);
-        el.innerHTML = `File: <strong>${_escHtml(p)}</strong><br>Dimensione: ${(byte/1024/1024).toFixed(1)} MB`;
+        el.innerHTML = `File: <strong>${_escHtml(p)}</strong><br>Dimensione: ${(byte/1024/1024).toFixed(1)} MB · 🔒 cifrato (AES-256)`;
       }catch(e){ el.textContent = 'Database non ancora disponibile.'; }
-    },
-    async esportaDatabase(){
-      try{
-        await salvaDBSubito();
-        const d = new Date(), z = n=>String(n).padStart(2,'0');
-        const nome = `${GS_APP_FILE}-database-${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}.db`;
-        const dest = await T.path.join(await T.path.downloadDir(), nome);
-        await esegui('VACUUM INTO $1', [dest]);
-        if(typeof registraLog==='function') registraLog('backup', 'Copia del database interno esportata');
-        alert(`Copia completa del database salvata in:\n\n${dest}\n\nContiene cartelle cliniche, allegati e consensi. Conservala in un luogo sicuro (es. disco esterno cifrato).`);
-      }catch(e){
-        console.error('Esportazione database:', e);
-        if(typeof gsToast==='function') gsToast('⚠️ Esportazione non riuscita','gs-error');
-      }
     },
     async mostraStorico(){
       const box = document.getElementById('gsd-storico'); if(!box) return;
@@ -222,7 +261,7 @@
     async ripristinaVersione(id){
       const r = await seleziona('SELECT json, creato FROM archivio_storico WHERE id=$1 AND chiave=$2', [id, gsDbStorageKey]);
       if(!r.length) return;
-      const dati = JSON.parse(r[0].json);
+      const dati = JSON.parse(await decifra(r[0].json));
       const nPaz = (dati.pazienti||[]).length;
       if(!confirm(`Ripristinare la versione del ${new Date(r[0].creato).toLocaleString('it-IT')} (${nPaz} pazienti)?\n\nLo stato attuale viene prima salvato a sua volta tra le versioni, quindi potrai tornare indietro.`)) return;
       await salvaVersione(gsDbStorageKey, JSON.stringify(DB), true);
@@ -238,10 +277,9 @@
     if(!col || document.getElementById('gsd-card')) return;
     const card = document.createElement('div');
     card.className = 'card'; card.id = 'gsd-card'; card.style.marginBottom = '16px';
-    card.innerHTML = `<div class="card-header"><div><div class="card-title">🖥️ Database interno</div><div class="card-subtitle">Cartelle cliniche, allegati e consensi in un unico file su questo PC</div></div></div>
+    card.innerHTML = `<div class="card-header"><div><div class="card-title">🖥️ Database interno</div><div class="card-subtitle">Cartelle cliniche, allegati e consensi in un unico file cifrato su questo PC. Per spostarli usa il backup completo.</div></div></div>
       <div id="gsd-info" style="font-size:.8rem;color:var(--label4);margin-bottom:12px;word-break:break-all">…</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="gsDesktop.esportaDatabase()">💾 Copia grezza del file database (.db)</button>
         <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="gsDesktop.mostraStorico()">🕘 Versioni salvate automaticamente</button>
       </div>
       <div id="gsd-storico" style="margin-top:12px"></div>`;
@@ -257,7 +295,8 @@
     };
   }
 
-  apriDb().then(()=>console.info('MED System desktop: database interno pronto')).catch(()=>{
-    if(typeof gsToast==='function') gsToast('⚠️ Database interno non disponibile','gs-error');
+  apriDb().then(()=>console.info('MED System desktop: database interno pronto (cifrato)')).catch(e=>{
+    console.error(e);
+    if(typeof gsToast==='function') gsToast('⚠️ Database interno non disponibile: '+(e && e.message || e),'gs-error');
   });
 })();

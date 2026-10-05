@@ -110,6 +110,18 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     return { uid: utente.uid };
   }
 
+  if (azione === "modelloDemo") {
+    // Modello (specialità) mostrato dal sito dimostrativo pubblico.
+    const modello = typeof d.modello === "string" ? d.modello.trim() : "";
+    if (!/^[a-z0-9-]{2,30}$/.test(modello)) throw new HttpsError("invalid-argument", "Modello non valido.");
+    await db.collection("config").doc("demo").set({ modello, aggiornato: new Date().toISOString(), da: request.auth.token.email });
+    return { ok: true };
+  }
+  if (azione === "leggiModelloDemo") {
+    const doc = await db.collection("config").doc("demo").get();
+    return { modello: doc.exists ? doc.data().modello : "gineco" };
+  }
+
   if (!uid) throw new HttpsError("invalid-argument", "Account non specificato.");
 
   if (azione === "stato") {

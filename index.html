@@ -393,6 +393,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 .cal-ev-more{font-size:0.66rem;color:var(--label4);padding:1px 5px;font-weight:600;}
 /* Badge percentile biometria fetale */
 .visit-ora{display:inline-block;margin-left:8px;font-size:.72rem;font-weight:600;color:var(--primary);background:var(--primary-dim);padding:1px 8px;border-radius:8px;vertical-align:middle;}
+mark{background:#fef08a;color:inherit;border-radius:3px;padding:0 2px;}
 .perc-badge{display:inline-block;margin-top:5px;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:10px;min-height:0;}
 .perc-badge:empty{display:none;}
 .perc-badge.perc-ok{background:var(--green-dim);color:var(--green);}
@@ -497,6 +498,16 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .editor-wrap{position:relative;background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 
 .editor-topbar{background:var(--surface);border-bottom:1px solid var(--separator);padding:16px 28px;display:flex;align-items:center;gap:20px;}
+#blocco-overlay{position:fixed;inset:0;z-index:200000;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.45);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);}
+.blocco-card{background:var(--surface);border:1px solid var(--separator);border-radius:16px;padding:30px 30px 22px;width:min(360px,92vw);text-align:center;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:10px;}
+.blocco-logo{width:56px;height:56px;margin:0 auto 4px;}
+.blocco-titolo{font-size:1.15rem;font-weight:700;color:var(--label);}
+.blocco-nome{font-size:.86rem;color:var(--primary);font-weight:600;}
+.blocco-istr{font-size:.82rem;color:var(--label4);line-height:1.45;}
+#blocco-pin{text-align:center;font-size:1.1rem;letter-spacing:4px;}
+.blocco-err{font-size:.8rem;color:var(--red);min-height:1.1em;}
+.blocco-link{background:none;border:none;color:var(--label4);font:inherit;font-size:.78rem;cursor:pointer;margin-top:2px;}
+.blocco-link:hover{color:var(--primary);}
 .bv-sez{font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--primary);margin:20px 0 10px;padding-top:14px;border-top:1px solid var(--separator);}
 .bv-logo-box{width:120px;height:80px;border:1px dashed var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.76rem;color:var(--label4);background:var(--surface2);overflow:hidden;flex-shrink:0;}
 .bv-logo-box img{max-width:100%;max-height:100%;object-fit:contain;}
@@ -1066,6 +1077,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <span class="oi">🗓️</span>Vedi Appuntamenti
       </button>
       <div class="opts-divider"></div>
+      <button class="opts-item" onclick="closeOpts();bloccaApp()">
+        <span class="oi">🔒</span>Blocca ora
+      </button>
       <button class="opts-item" onclick="toggleDarkMode();closeOpts()">
         <span class="oi" id="dark-mode-icon">🌙</span><span id="dark-mode-label">Modalità scura</span>
       </button>
@@ -1116,9 +1130,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <main>
 
 <!-- Banner modalità demo: visibile SOLO quando l'account è in modalità dimostrativa -->
-<div id="demo-banner" style="display:none;background:linear-gradient(135deg,#ff9800,#f57c00);color:#fff;padding:10px 20px;border-radius:12px;margin-bottom:18px;font-weight:700;font-size:0.85rem;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(245,124,0,0.35);">
+<div id="demo-banner" style="display:none;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-left:4px solid #f97316;padding:10px 16px;border-radius:12px;margin-bottom:18px;font-weight:600;font-size:0.85rem;align-items:center;gap:10px;flex-wrap:wrap;">
   <span style="font-size:1.1rem;">🎭</span>
-  <span>Modalità dimostrativa — queste pazienti sono di esempio, non reali. Nessun dato viene salvato online.</span>
+  <span id="demo-banner-testo" style="flex:1;min-width:220px">Modalità dimostrativa — queste pazienti sono di esempio, non reali. Nessun dato viene salvato online.</span>
+  <button id="demo-banner-reset" class="btn btn-ghost btn-sm" style="display:none" onclick="ricominciaSitoDemo()">↺ Ricomincia la demo</button>
 </div>
 
 <!-- DASHBOARD -->
@@ -1279,6 +1294,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="page-header">
     <div><div class="page-title">Storico Visite</div><div class="page-subtitle">Tutte le giornate lavorative</div></div>
   </div>
+  <div class="card" style="padding:14px 18px;margin-bottom:18px">
+    <input type="search" id="ricerca-visite" placeholder="🔎 Cerca nelle visite: diagnosi, terapie, referti, note… (almeno 3 lettere)" oninput="cercaNelleVisite(this.value)" autocomplete="off">
+  </div>
+  <div id="ricerca-visite-risultati" style="display:none"></div>
   <div id="view-dates-grid">
     <div id="dates-container"></div>
   </div>
@@ -1676,6 +1695,19 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 
   <!-- MODELLI -->
   <div id="email-pane-modelli" class="email-pane" style="display:none;">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><div><div class="card-title">📅 Promemoria automatici degli appuntamenti</div><div class="card-subtitle">Il giorno prima di ogni appuntamento l'app invia un'email alla paziente (se ha un indirizzo in anagrafica). Funziona quando l'app è aperta: se si apre più tardi, parte comunque prima dell'appuntamento.</div></div></div>
+      <label style="display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer;font-weight:600">
+        <input type="checkbox" id="prom-email-attivo"> Invia automaticamente i promemoria
+      </label>
+      <div class="form-group" style="margin-bottom:10px"><label class="form-label">Oggetto</label><input id="prom-email-oggetto"></div>
+      <div class="form-group" style="margin-bottom:8px"><label class="form-label">Testo</label><textarea id="prom-email-corpo" rows="6"></textarea></div>
+      <div style="font-size:.76rem;color:var(--label4);margin-bottom:12px">Segnaposto: <code>{{NOME}}</code> nome della paziente, <code>{{DATA}}</code> giorno, <code>{{ORA}}</code> orario, <code>{{STUDIO}}</code> nome dello studio.</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="salvaPromemoriaEmail()">Salva</button>
+        <span id="prom-email-stato" style="font-size:.8rem;color:var(--label4)"></span>
+      </div>
+    </div>
     <div class="card">
       <div class="card-header"><div><div class="card-title">🧰 Modelli pronti</div><div class="card-subtitle">Un clic precompila oggetto e testo nella scheda "Nuova Email" — poi scegli le destinatarie e invia</div></div></div>
       <div id="email-modelli-lista" style="display:flex;flex-direction:column;gap:10px;"></div>
@@ -2077,6 +2109,20 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 </div>
 
+<!-- BLOCCO SCHERMO (inattività / apertura app): copre tutto senza chiudere nulla -->
+<div id="blocco-overlay" style="display:none">
+  <form class="blocco-card" onsubmit="event.preventDefault();sbloccaApp()">
+    <img src="logo.png" alt="" class="blocco-logo">
+    <div class="blocco-titolo">MED System è bloccato</div>
+    <div class="blocco-nome" id="blocco-nome"></div>
+    <div class="blocco-istr" id="blocco-istruzioni"></div>
+    <input type="password" id="blocco-pin" autocomplete="off" maxlength="128">
+    <div class="blocco-err" id="blocco-err"></div>
+    <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center">Sblocca</button>
+    <button class="blocco-link" type="button" onclick="bloccoEsci()">Esci e accedi con un altro account</button>
+  </form>
+</div>
+
 <!-- INTERVISTA INIZIALE (primo accesso; riapribile da Impostazioni) -->
 <div id="modal-benvenuto" class="overlay">
   <div class="modal-sm" style="width:640px;max-height:92vh;overflow-y:auto">
@@ -2110,6 +2156,14 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <div id="bv-temi" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
     <div class="form-label" style="margin-bottom:8px">Come si rivolge a te l'app</div>
     <div id="bv-genere" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"></div>
+    <div id="bv-pin-sez">
+      <div class="bv-sez" style="margin-top:0">4 · Sicurezza</div>
+      <div style="font-size:.82rem;color:var(--label3);margin-bottom:10px">Un PIN da 4 a 8 cifre per sbloccare l'app all'apertura e dopo un periodo di inattività.</div>
+      <div class="field-row r2" style="margin-bottom:18px">
+        <div class="form-group"><label class="form-label">PIN</label><input type="password" id="bv-pin" inputmode="numeric" maxlength="8" autocomplete="new-password"></div>
+        <div class="form-group"><label class="form-label">Ripeti il PIN</label><input type="password" id="bv-pin2" inputmode="numeric" maxlength="8" autocomplete="new-password"></div>
+      </div>
+    </div>
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button class="btn btn-ghost" onclick="closeModal('modal-benvenuto')">Più tardi</button>
       <button class="btn btn-primary" onclick="salvaBenvenuto()">Salva e inizia</button>
@@ -2140,6 +2194,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 
   <div class="tipo-pills" style="margin-bottom:20px;">
     <button class="tipo-pill active" onclick="setSettingsTab(this,'set-tab-profilo')">👤 Profilo e aspetto</button>
+    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-sicurezza');renderImpostazioniSicurezza()">🔒 Sicurezza</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-stampa')">🖨️ Stampe</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-funzioni')">🧩 Funzionalità</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-cartella')">🗂️ Cartella Paziente</button>
@@ -2158,6 +2213,29 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <div class="card-header"><div><div class="card-title">🪪 Intestazione e logo dei documenti</div><div class="card-subtitle">Nome, specializzazione, contatti e logo su referti, PDF e ricette</div></div></div>
     <button class="btn btn-primary" onclick="apriBenvenuto()">Modifica intestazione e logo</button>
     <span style="font-size:.8rem;color:var(--label4);margin-left:10px">Le opzioni avanzate (carattere, margini, colore) sono nella scheda Stampe.</span>
+  </div>
+  </div>
+
+  <div id="set-tab-sicurezza" class="edit-panel">
+  <div class="card" style="max-width:720px;margin-bottom:16px;">
+    <div class="card-header"><div><div class="card-title">🔢 PIN di sblocco</div><div class="card-subtitle">Si chiede all'apertura dell'app e dopo il periodo di inattività</div></div></div>
+    <div id="sic-pin-stato" style="font-size:.84rem;color:var(--label3);margin-bottom:12px"></div>
+    <div class="field-row r3" style="margin-bottom:12px">
+      <div class="form-group" id="sic-pin-attuale-wrap"><label class="form-label">PIN attuale</label><input type="password" id="sic-pin-attuale" inputmode="numeric" maxlength="8" autocomplete="off"></div>
+      <div class="form-group"><label class="form-label">Nuovo PIN (4–8 cifre)</label><input type="password" id="sic-pin-nuovo" inputmode="numeric" maxlength="8" autocomplete="new-password"></div>
+      <div class="form-group"><label class="form-label">Ripeti il nuovo PIN</label><input type="password" id="sic-pin-nuovo2" inputmode="numeric" maxlength="8" autocomplete="new-password"></div>
+    </div>
+    <button class="btn btn-primary" onclick="salvaPinImpostazioni()">Salva PIN</button>
+  </div>
+  <div class="card" style="max-width:720px;">
+    <div class="card-header"><div><div class="card-title">⏱️ Blocco automatico</div><div class="card-subtitle">Dopo quanto tempo senza attività l'app si blocca. Una visita aperta resta intatta sotto il blocco.</div></div></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <select id="sic-minuti" style="width:auto" onchange="salvaMinutiBlocco(this.value)">
+        <option value="5">dopo 5 minuti</option><option value="10">dopo 10 minuti</option><option value="15">dopo 15 minuti</option>
+        <option value="30">dopo 30 minuti</option><option value="60">dopo 60 minuti</option>
+      </select>
+      <button class="btn btn-ghost" onclick="bloccaApp()">🔒 Blocca ora</button>
+    </div>
   </div>
   </div>
 
@@ -3544,6 +3622,9 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 const GS_APP_NOME='MED System', GS_APP_SPECIALITA='Gineco';
 const GS_APP_NOME_COMPLETO=GS_APP_NOME+' '+GS_APP_SPECIALITA;
 const GS_APP_FILE='MEDSystem_'+GS_APP_SPECIALITA; // prefisso dei file scaricati
+// Fuori dall'app desktop (sito web) MED System funziona solo come demo, con
+// pazienti di esempio e senza account: i dati reali vivono solo nell'app.
+const GS_SITO_DEMO = !window.__TAURI__;
 // ═══════════════════════════════════════════════════
 //  DATABASE & STATE
 // ═══════════════════════════════════════════════════
@@ -5794,6 +5875,117 @@ function _applicaPreferenzeProfilo(d, uid){
   gsUserGenere = ['f','m','n'].includes(g) ? g : 'n';
   applicaTema(t || 'blu');
 }
+// ── BLOCCO SCHERMO E PIN ──
+// Il PIN (4-8 cifre) è salvato solo come impronta PBKDF2 (mai in chiaro), per
+// account e dispositivo. Il blocco copre l'app senza toccare nulla di ciò che
+// è aperto (anche una visita in compilazione) e scatta all'apertura dell'app
+// con una sessione già attiva e dopo N minuti senza attività (default 10).
+// Dopo 5 PIN errati serve la password dell'account (verificata da Firebase).
+const GS_BLOCCO_MINUTI_DEFAULT=10;
+let _gsUltimaAttivita=Date.now(), _gsBloccato=false, _gsTentativiPin=0, _gsLoginManuale=false;
+function _pinChiave(){ return 'gs_pin_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function _minutiChiave(){ return 'gs_blocco_min_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function minutiBlocco(){ const v=parseInt(localStorage.getItem(_minutiChiave()),10); return v>0 ? v : GS_BLOCCO_MINUTI_DEFAULT; }
+function haPin(){ try{ return !!JSON.parse(localStorage.getItem(_pinChiave())); }catch(e){ return false; } }
+async function _impronta(segreto, saltB64){
+  const salt = saltB64 ? gsB64ToBuf(saltB64) : crypto.getRandomValues(new Uint8Array(16));
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(segreto), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({name:'PBKDF2', salt, iterations:200000, hash:'SHA-256'}, base, 256);
+  return { salt:gsBufToB64(salt), hash:gsBufToB64(bits) };
+}
+async function impostaPin(pin){
+  if(!/^\d{4,8}$/.test(pin)) throw new Error('Il PIN deve avere da 4 a 8 cifre');
+  localStorage.setItem(_pinChiave(), JSON.stringify(await _impronta(pin)));
+}
+async function verificaPin(pin){
+  let s=null; try{ s=JSON.parse(localStorage.getItem(_pinChiave())); }catch(e){}
+  if(!s) return false;
+  return (await _impronta(pin, s.salt)).hash === s.hash;
+}
+function _bloccoModoPassword(){ return !haPin() || _gsTentativiPin>=5; }
+function _bloccoAggiornaTesti(){
+  const pwd=_bloccoModoPassword(), inp=document.getElementById('blocco-pin');
+  inp.placeholder = pwd ? 'Password dell\'account' : 'PIN';
+  inp.inputMode = pwd ? 'text' : 'numeric';
+  document.getElementById('blocco-istruzioni').textContent = pwd
+    ? (haPin() ? 'Troppi tentativi con il PIN: inserisci la password del tuo account (serve internet).' : 'Inserisci la password del tuo account (serve internet). Puoi impostare un PIN in Impostazioni → Sicurezza.')
+    : 'Inserisci il PIN per continuare.';
+}
+function bloccaApp(){
+  if(_gsBloccato || !gsCurrentUser || !gsDbStorageKey || GS_SITO_DEMO) return;
+  _gsBloccato=true; _gsTentativiPin=0;
+  document.getElementById('blocco-nome').textContent = gsUserNome || gsCurrentUser.email || '';
+  document.getElementById('blocco-err').textContent='';
+  document.getElementById('blocco-pin').value='';
+  _bloccoAggiornaTesti();
+  document.getElementById('blocco-overlay').style.display='flex';
+  setTimeout(()=>document.getElementById('blocco-pin').focus(),60);
+}
+async function sbloccaApp(){
+  const inp=document.getElementById('blocco-pin'), err=document.getElementById('blocco-err');
+  const v=inp.value; if(!v) return;
+  let ok=false;
+  try{
+    if(!_bloccoModoPassword()) ok = await verificaPin(v);
+    else{
+      const cred=firebase.auth.EmailAuthProvider.credential(gsCurrentUser.email, v);
+      await gsCurrentUser.reauthenticateWithCredential(cred);
+      ok=true;
+    }
+  }catch(e){
+    if(e && e.code==='auth/network-request-failed'){ err.textContent='Nessuna connessione: impossibile verificare la password.'; return; }
+    if(e && e.code==='auth/too-many-requests'){ err.textContent='Troppi tentativi: riprova tra qualche minuto.'; return; }
+  }
+  if(ok){
+    _gsBloccato=false; _gsTentativiPin=0; _gsUltimaAttivita=Date.now();
+    document.getElementById('blocco-overlay').style.display='none';
+    return;
+  }
+  inp.value='';
+  if(!_bloccoModoPassword()){
+    _gsTentativiPin++;
+    if(_gsTentativiPin>=5){ _bloccoAggiornaTesti(); err.textContent='PIN errato per 5 volte.'; return; }
+    err.textContent=`PIN errato (${5-_gsTentativiPin} tentativ${5-_gsTentativiPin===1?'o':'i'} rimast${5-_gsTentativiPin===1?'o':'i'}).`;
+  } else err.textContent='Password non corretta.';
+}
+async function bloccoEsci(){
+  if(document.getElementById('editor-overlay').classList.contains('show')
+     && !confirm('C\'è una visita aperta non ancora salvata: uscendo andrà persa.\n\nUscire comunque?')) return;
+  try{ await salvaDBSubito(); }catch(e){}
+  _eseguiLogoutGynoSystem();
+}
+['mousemove','mousedown','keydown','wheel','touchstart','input'].forEach(ev=>
+  document.addEventListener(ev, ()=>{ if(!_gsBloccato) _gsUltimaAttivita=Date.now(); }, {passive:true, capture:true}));
+setInterval(()=>{
+  if(_gsBloccato || !gsCurrentUser || !gsDbStorageKey || GS_SITO_DEMO) return;
+  if(Date.now()-_gsUltimaAttivita >= minutiBlocco()*60000) bloccaApp();
+}, 15000);
+
+function renderImpostazioniSicurezza(){
+  const pin=haPin();
+  document.getElementById('sic-pin-stato').innerHTML = pin
+    ? '✅ PIN impostato. Per cambiarlo inserisci quello attuale e il nuovo.'
+    : '⚠️ Nessun PIN impostato: per sbloccare l\'app serve la password dell\'account (e internet). Imposta un PIN.';
+  document.getElementById('sic-pin-attuale-wrap').style.display = pin ? '' : 'none';
+  ['sic-pin-attuale','sic-pin-nuovo','sic-pin-nuovo2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sic-minuti').value = String(minutiBlocco());
+}
+async function salvaPinImpostazioni(){
+  const att=document.getElementById('sic-pin-attuale').value, n1=document.getElementById('sic-pin-nuovo').value, n2=document.getElementById('sic-pin-nuovo2').value;
+  const t=(m,tipo)=>{ if(typeof gsToast==='function') gsToast(m,tipo||'gs-error'); };
+  if(haPin() && !(await verificaPin(att))) return t('PIN attuale non corretto');
+  if(!/^\d{4,8}$/.test(n1)) return t('Il nuovo PIN deve avere da 4 a 8 cifre');
+  if(n1!==n2) return t('I due PIN non coincidono');
+  await impostaPin(n1);
+  registraLog('login','PIN di sblocco modificato');
+  t('✅ PIN salvato','gs-success');
+  renderImpostazioniSicurezza();
+}
+function salvaMinutiBlocco(v){
+  try{ localStorage.setItem(_minutiChiave(), String(parseInt(v,10)||GS_BLOCCO_MINUTI_DEFAULT)); }catch(e){}
+  if(typeof gsToast==='function') gsToast('✅ Blocco automatico aggiornato','gs-success');
+}
+
 // ── INTERVISTA INIZIALE ──
 // Al primo accesso di un account (su questo dispositivo) chiede intestazione,
 // logo dei documenti, tema e genere. Riapribile da Impostazioni → Profilo.
@@ -5809,6 +6001,8 @@ function apriBenvenuto(){
   document.getElementById('bv-contatti').value = i.contatti||'';
   _bvLogo = (c.layout.logo && i.logo) ? i.logo : '';
   _bvTema = gsUserTema; _bvGenere = gsUserGenere;
+  document.getElementById('bv-pin-sez').style.display = haPin() ? 'none' : '';
+  document.getElementById('bv-pin').value=''; document.getElementById('bv-pin2').value='';
   _bvDisegna();
   document.getElementById('modal-benvenuto').classList.add('show');
 }
@@ -5825,7 +6019,13 @@ async function bvCaricaLogo(input){
   input.value='';
 }
 function bvRimuoviLogo(){ _bvLogo=''; _bvDisegna(); }
-function salvaBenvenuto(){
+async function salvaBenvenuto(){
+  if(!haPin()){
+    const p1=document.getElementById('bv-pin').value, p2=document.getElementById('bv-pin2').value;
+    if(!/^\d{4,8}$/.test(p1)){ if(typeof gsToast==='function') gsToast('Il PIN deve avere da 4 a 8 cifre','gs-error'); return; }
+    if(p1!==p2){ if(typeof gsToast==='function') gsToast('I due PIN non coincidono','gs-error'); return; }
+    await impostaPin(p1);
+  }
   const c=getPrintCfg();
   const v=id=>(document.getElementById(id).value||'').trim();
   c.intestazione.nome=v('bv-nome') || gsUserNome || '';
@@ -6037,7 +6237,15 @@ async function proceedAfterLogin(){
   registraLog('login','Accesso effettuato');
   naviga('home');
   caricaAppuntamenti(true);
-  try{ if(!localStorage.getItem(_bvChiave())) setTimeout(apriBenvenuto, 400); }catch(e){}
+  try{
+    if(!localStorage.getItem(_bvChiave())) setTimeout(apriBenvenuto, 400);
+    else if(!haPin()){ if(typeof gsToast==='function') gsToast('🔒 Imposta un PIN di sblocco in Impostazioni → Sicurezza','gs-info'); }
+  }catch(e){}
+  setTimeout(()=>inviaPromemoriaAppuntamenti(false), 8000);
+  // Sessione già attiva all'apertura dell'app (nessuna password digitata): chiedi il PIN.
+  if(!_gsLoginManuale && haPin()) bloccaApp();
+  _gsLoginManuale = false;
+  _gsUltimaAttivita = Date.now();
   controllaBackupAutomatico();
 }
 
@@ -6051,6 +6259,7 @@ async function checkLogin(){
     // oppure valida solo per questa scheda/finestra se la checkbox è deselezionata.
     const resta = document.getElementById('login-remember-chk')?.checked !== false;
     await gsAuth.setPersistence(resta ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION);
+    _gsLoginManuale = true;
     await gsAuth.signInWithEmailAndPassword(email,pass);
     // Il listener onAuthStateChanged (più sotto) gestisce l'accesso effettivo
   }catch(e){
@@ -6304,6 +6513,53 @@ function caricaFileDemoPersonalizzato(input){
 async function proseguiDopoCaricamentoDemo(){
   naviga('home');
   caricaAppuntamenti();
+}
+
+// ── SITO DIMOSTRATIVO ──
+// Sul sito web MED System si apre senza account con pazienti di esempio del
+// modello scelto dall'amministratore nel portale (Firestore config/demo,
+// leggibile da tutti, scrivibile solo dalla funzione del portale). Le prove
+// restano nel browser di chi le fa; "Ricomincia la demo" riporta tutto all'inizio.
+const GS_MODELLI_DEMO={
+  gineco:{ nome:'Ginecologia e Ostetricia', dati:'demo-pazienti.json' }
+};
+const GS_CHIAVE_SITO_DEMO='gynoDB_v15_demo_sito';
+async function leggiModelloDemo(){
+  try{
+    const d=await gsDb.collection('config').doc('demo').get();
+    const m=d.exists && d.data().modello;
+    if(m && GS_MODELLI_DEMO[m]) return m;
+  }catch(e){ console.warn('Modello della demo non leggibile, uso quello predefinito:', e.message); }
+  return 'gineco';
+}
+async function avviaSitoDemo(){
+  gsCurrentUser={ uid:'sito-demo', email:'' };
+  gsDemoMode=true;
+  document.getElementById('login-overlay').style.display='none';
+  applyNomeMedico('Medico Demo');
+  _applicaPreferenzeProfilo(null,'sito-demo');
+  const modello=await leggiModelloDemo();
+  gsDbStorageKey=GS_CHIAVE_SITO_DEMO;
+  let dati=null;
+  try{ const j=await GS_STORAGE.archivio.leggi(GS_CHIAVE_SITO_DEMO); if(j) dati=JSON.parse(j); }catch(e){}
+  if(!dati || dati.modelloDemo!==modello){
+    try{ dati=await (await fetch(GS_MODELLI_DEMO[modello].dati)).json(); }catch(e){ dati={pazienti:[],agenda:[]}; }
+    dati.modelloDemo=modello;
+  }
+  DB=dati;
+  if(!DB.agenda) DB.agenda=[];
+  await salvaDBSubito();
+  mostraBannerDemo(true);
+  document.getElementById('demo-banner-testo').textContent=`Versione dimostrativa (${GS_MODELLI_DEMO[modello].nome}) — pazienti di esempio, non reali. Le prove restano solo in questo browser.`;
+  document.getElementById('demo-banner-reset').style.display='';
+  naviga('home');
+  caricaAppuntamenti();
+}
+async function ricominciaSitoDemo(){
+  if(!confirm('Ricominciare la demo? Le modifiche fatte in questa prova vengono cancellate.')) return;
+  await GS_STORAGE.archivio.scrivi(GS_CHIAVE_SITO_DEMO, JSON.stringify({pazienti:[],agenda:[],modelloDemo:'_'}));
+  try{ await GS_STORAGE.allegati.svuota(); }catch(e){}
+  location.reload();
 }
 
 function mostraBannerDemo(mostra){
@@ -7403,6 +7659,50 @@ async function eliminaPaziente(){
 // ═══════════════════════════════════════════════════
 //  STORICO
 // ═══════════════════════════════════════════════════
+// ── RICERCA NEL CONTENUTO DELLE VISITE ──
+// Cerca in tutti i campi del referto di ogni visita (stessa fonte della stampa,
+// getRefertoSezioni) e mostra paziente, data, tipo e il passaggio trovato.
+const _TIPO_VISITA_NOME={gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica'};
+function _testoVisita(v){
+  try{ return getRefertoSezioni(v).flatMap(s=>s.rows.filter(r=>r[1]&&String(r[1]).trim()).map(r=>[s.title, r[0], String(r[1])])); }
+  catch(e){ return []; }
+}
+function cercaNelleVisite(q){
+  const box=document.getElementById('ricerca-visite-risultati');
+  const griglia=document.getElementById('view-dates-grid');
+  q=(q||'').trim();
+  if(q.length<3){ box.style.display='none'; griglia.style.display='block'; return; }
+  const ql=q.toLowerCase();
+  const risultati=[];
+  DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{
+    const trovati=_testoVisita(v).filter(([,,val])=>val.toLowerCase().includes(ql));
+    if(trovati.length) risultati.push({p,v,trovati});
+  }));
+  risultati.sort((a,b)=>new Date(b.v.data)-new Date(a.v.data));
+  const evidenzia=testo=>{
+    const i=testo.toLowerCase().indexOf(ql);
+    const da=Math.max(0,i-60), a=Math.min(testo.length,i+ql.length+80);
+    const pezzo=(da>0?'…':'')+testo.slice(da,a)+(a<testo.length?'…':'');
+    const j=pezzo.toLowerCase().indexOf(ql);
+    return _escHtml(pezzo.slice(0,j))+'<mark>'+_escHtml(pezzo.slice(j,j+ql.length))+'</mark>'+_escHtml(pezzo.slice(j+ql.length));
+  };
+  griglia.style.display='none';
+  box.style.display='block';
+  box.innerHTML=`<div style="font-size:.84rem;color:var(--label4);margin-bottom:10px">${risultati.length} visit${risultati.length===1?'a':'e'} trovat${risultati.length===1?'a':'e'} per «${_escHtml(q)}»</div>`+
+    (risultati.slice(0,200).map(({p,v,trovati})=>`<div class="visit-item" style="cursor:pointer;align-items:flex-start" onclick="apriVisitaDaRicerca(${p.id},${JSON.stringify(v.id).replace(/"/g,'&quot;')})">
+      <div class="visit-info">
+        <div class="visit-date">${_escHtml(p.cognome+' '+p.nome)} · ${new Date(v.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div class="visit-type">${_TIPO_VISITA_NOME[v.tipo]||v.tipo}</div>
+        ${trovati.slice(0,3).map(([sez,campo,val])=>`<div class="visit-diag" style="margin-top:4px"><strong>${_escHtml(campo)}:</strong> ${evidenzia(val)}</div>`).join('')}
+        ${trovati.length>3?`<div style="font-size:.74rem;color:var(--label4);margin-top:3px">e altri ${trovati.length-3} campi</div>`:''}
+      </div>
+    </div>`).join('') || '<div class="empty-state" style="padding:30px 0"><div class="es-icon">🔎</div><p>Nessuna visita contiene questo testo</p></div>');
+}
+function apriVisitaDaRicerca(pazId, vid){
+  openPaziente(pazId);
+  setTimeout(()=>{ closeModal('modal-promemoria-scaduti'); visualizzaVisita(vid); }, 150);
+}
+
 function renderStorico(){
   document.getElementById('view-dates-grid').style.display='block';
   document.getElementById('view-day-detail').style.display='none';
@@ -10031,7 +10331,77 @@ const EMAIL_MODELLI=[
     corpo:"Gentile {{NOME}},\n\n[scrivi qui la comunicazione]\n\nCordiali saluti,\n{{STUDIO}}" }
 ];
 
+// ── PROMEMORIA EMAIL AUTOMATICI (giorno prima dell'appuntamento) ──
+// I dati restano sul PC: l'app, quando è aperta, invia tramite la funzione
+// inviaEmail solo nome ed email della paziente con il testo del promemoria,
+// una volta per appuntamento (segnato con promemoriaInviato).
+const PROM_EMAIL_DEFAULT={
+  attivo:false,
+  oggetto:'Promemoria appuntamento di domani — {{STUDIO}}',
+  corpo:'Gentile {{NOME}},\n\nLe ricordiamo l\'appuntamento fissato per domani, {{DATA}}, alle ore {{ORA}}.\n\nSe non potesse essere presente, La preghiamo di avvisarci per tempo.\n\nCordiali saluti,\n{{STUDIO}}'
+};
+function _promEmailChiave(){ return 'gs_promemoria_email_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getPromemoriaEmail(){
+  try{ return Object.assign({}, PROM_EMAIL_DEFAULT, JSON.parse(localStorage.getItem(_promEmailChiave()))||{}); }
+  catch(e){ return Object.assign({}, PROM_EMAIL_DEFAULT); }
+}
+function _renderPromemoriaEmail(){
+  const c=getPromemoriaEmail();
+  document.getElementById('prom-email-attivo').checked=!!c.attivo;
+  document.getElementById('prom-email-oggetto').value=c.oggetto;
+  document.getElementById('prom-email-corpo').value=c.corpo;
+  const inviati=(DB.appuntamenti||[]).filter(a=>a.promemoriaInviato).length;
+  document.getElementById('prom-email-stato').textContent = c.attivo ? `Attivi · ${inviati} promemoria inviati finora` : 'Disattivati';
+}
+function salvaPromemoriaEmail(){
+  const c={ attivo:document.getElementById('prom-email-attivo').checked,
+    oggetto:document.getElementById('prom-email-oggetto').value.trim()||PROM_EMAIL_DEFAULT.oggetto,
+    corpo:document.getElementById('prom-email-corpo').value.trim()||PROM_EMAIL_DEFAULT.corpo };
+  try{ localStorage.setItem(_promEmailChiave(), JSON.stringify(c)); }catch(e){}
+  _renderPromemoriaEmail();
+  if(typeof gsToast==='function') gsToast('✅ Promemoria salvati','gs-success');
+  if(c.attivo) inviaPromemoriaAppuntamenti(true);
+}
+let _promEmailInCorso=false, _promEmailErroreMostrato=false;
+async function inviaPromemoriaAppuntamenti(avvisa){
+  const c=getPromemoriaEmail();
+  if(!c.attivo || _promEmailInCorso || gsDemoMode || !gsCurrentUser || !gsDbStorageKey || !gsFunctions) return;
+  const dom=new Date(); dom.setDate(dom.getDate()+1);
+  const domani=dom.toISOString().split('T')[0], oggi=new Date().toISOString().split('T')[0];
+  // Domani, oppure oggi se l'app non era aperta ieri (purché l'ora non sia passata).
+  const adesso=new Date().toTimeString().slice(0,5);
+  const daInviare=(DB.appuntamenti||[]).filter(a=>!a.promemoriaInviato && a.stato!=='cancellato' && a.stato!=='completato'
+    && (a.data===domani || (a.data===oggi && (a.ora||'99:99')>adesso)));
+  if(!daInviare.length){ if(avvisa && typeof gsToast==='function') gsToast('Nessun promemoria da inviare per ora','gs-info'); return; }
+  _promEmailInCorso=true;
+  const fn=gsFunctions.httpsCallable('inviaEmail'), studio=_emailNomeStudio();
+  let inviati=0;
+  try{
+    for(const a of daInviare){
+      const p=DB.pazienti.find(x=>String(x.id)===String(a.pazienteId) || x.fbId===a.pazienteId);
+      if(!p || !(p.email||'').trim()) continue;
+      const dataStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+      const sost=t=>t.split('{{DATA}}').join(dataStr).split('{{ORA}}').join(a.ora||'').split('{{STUDIO}}').join(studio);
+      try{
+        const r=await fn({ oggetto:sost(c.oggetto), corpo:sost(c.corpo), destinatari:[{ pazienteId:String(p.id), nome:`${p.nome} ${p.cognome}`, email:p.email.trim() }] });
+        if((r.data||{}).inviateOk){ a.promemoriaInviato=new Date().toISOString(); inviati++; }
+      }catch(e){
+        console.warn('Promemoria email:', e);
+        if(!_promEmailErroreMostrato && typeof gsToast==='function'){ gsToast('⚠️ Promemoria email non inviati: servizio email non disponibile','gs-error'); _promEmailErroreMostrato=true; }
+        break;
+      }
+    }
+  }finally{ _promEmailInCorso=false; }
+  if(inviati){
+    salvaDB();
+    registraLog('email', `Promemoria appuntamento inviati: ${inviati}`);
+    if(typeof gsToast==='function') gsToast(`📧 ${inviati} promemoria inviat${inviati===1?'o':'i'} alle pazienti`,'gs-success');
+  }
+}
+setInterval(()=>inviaPromemoriaAppuntamenti(false), 60*60*1000);
+
 function renderEmailSezione(){
+  _renderPromemoriaEmail();
   renderEmailModelli();
   _emailAggiornaInfoDestinatari();
   _emailSwitchTab(_emailTabCorrente);
@@ -12298,6 +12668,7 @@ function initFirebase() {
     gsAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); // persiste tra le visite, ma solo per questo file
     gsFirebaseReady = true;
     setFbStatus('connected', 'Connesso');
+    if(GS_SITO_DEMO){ avviaSitoDemo(); return; } // sito web: solo demo, nessun account
 
     // L'accesso ai dati avviene SOLO dopo che Firebase Auth confirma l'utente.
     // Questo sostituisce il vecchio controllo password manuale: ora è Firebase
