@@ -26,22 +26,6 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.token.email == 'titancodesm@gmail.com';
     }
 
-    // ── DATI DELLA VECCHIA VERSIONE (solo lettura, solo per la migrazione) ──
-    // L'app li copia una volta nel database interno al primo accesso; poi
-    // vengono cancellati da Firebase. Nessuna nuova scrittura è ammessa.
-    match /appuntamenti/{doc} {
-      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
-    }
-    match /pazienti/{doc} {
-      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
-    }
-    match /logAttivita/{doc} {
-      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
-    }
-    match /emailInviate/{doc} {
-      allow read: if request.auth != null && resource.data.ownerUid == request.auth.uid;
-    }
-
     // ── Tutto il resto: bloccato ──
     match /{document=**} {
       allow read, write: if false;

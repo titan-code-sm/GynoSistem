@@ -126,7 +126,9 @@ h1,h2,h3,h4{letter-spacing:-0.01em;}
 #login-overlay{position:fixed;inset:0;background:linear-gradient(180deg,var(--l-bg1) 0%,#f7f9fc 100%);z-index:9999;display:flex;align-items:center;justify-content:center;}
 #login-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 15%,var(--l-glow1) 0%,transparent 50%),radial-gradient(ellipse at 85% 90%,var(--l-glow2) 0%,transparent 50%);pointer-events:none;opacity:.7;}
 .login-card{position:relative;background:#fff;border:1px solid #e4e8ef;padding:40px 38px 32px;border-radius:16px;text-align:center;width:400px;box-shadow:0 24px 60px rgba(15,23,42,0.08);}
-.login-avatar-wrap{margin-bottom:22px;}
+.login-avatar-wrap{margin-bottom:14px;}
+.login-logo{width:150px;height:auto;display:inline-block;}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 .login-avatar{width:58px;height:58px;border-radius:14px;background:var(--l-btn2);display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;color:#fff;box-shadow:0 8px 20px rgba(var(--l-acc-rgb),0.28);}
 .login-card h1{font-family:var(--font);font-weight:700;font-size:1.6rem;color:#0f172a;margin-bottom:4px;letter-spacing:-0.02em;}
 .login-card .login-version{font-size:0.76rem;color:#64748b;margin-bottom:6px;}
@@ -169,8 +171,12 @@ h1,h2,h3,h4{letter-spacing:-0.01em;}
 .badge-login{display:none;}
 
 /* ─── SIDEBAR ─── */
-aside{width:248px;background:var(--sidebar);display:flex;flex-direction:column;padding:0;z-index:100;flex-shrink:0;border-right:1px solid var(--separator);}
-.brand-area{padding:20px 18px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--separator);}
+aside{width:248px;background:linear-gradient(180deg,var(--primary-dim) 0,transparent 300px),var(--sidebar);display:flex;flex-direction:column;padding:0;z-index:100;flex-shrink:0;border-right:1px solid var(--separator);}
+.app-brand{display:flex;align-items:center;gap:10px;padding:16px 18px 6px;}
+.app-brand img{width:34px;height:34px;flex-shrink:0;}
+.app-brand-nome{font-weight:700;font-size:.98rem;letter-spacing:-.01em;color:var(--label);line-height:1.1;}
+.app-brand-spec{font-size:.72rem;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;}
+.brand-area{margin:10px 12px 8px;padding:10px 12px;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--separator);border-radius:12px;}
 .brand-avatar{width:40px;height:40px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:0.95rem;color:#fff;flex-shrink:0;}
 .brand-name{color:var(--label);font-weight:600;font-size:0.9rem;line-height:1.3;}
 .brand-role{color:var(--label4);font-size:0.74rem;}
@@ -182,9 +188,9 @@ nav button{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;
 nav button:hover{background:var(--surface2);color:var(--label);}
 nav button.active{background:var(--primary-dim);color:var(--primary);font-weight:600;}
 nav button.active::before{content:'';position:absolute;left:-10px;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--primary);}
-nav button.active .nav-icon{filter:none;opacity:1;}
-.nav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;background:transparent;flex-shrink:0;filter:grayscale(1);opacity:0.65;transition:filter 0.12s,opacity 0.12s;}
-nav button:hover .nav-icon{opacity:0.9;}
+nav button.active .nav-icon{background:var(--surface);border-color:var(--primary-ring);box-shadow:0 1px 3px rgba(15,23,42,0.08);}
+.nav-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;background:var(--surface2);border:1px solid var(--separator);flex-shrink:0;transition:background 0.12s,border-color 0.12s;}
+nav button:hover .nav-icon{background:var(--surface);}
 .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:10px;}
 
 .sidebar-footer{padding:12px 10px 20px;border-top:1px solid var(--separator);}
@@ -192,7 +198,7 @@ nav button:hover .nav-icon{opacity:0.9;}
 .sidebar-footer button:hover{background:var(--surface2);color:var(--label);}
 
 /* ─── MAIN ─── */
-main{flex:1;overflow-y:auto;background:var(--bg);}
+main{flex:1;overflow-y:auto;background:radial-gradient(1100px 340px at 85% -120px,var(--primary-dim),transparent 70%),var(--bg);}
 .section{display:none;padding:36px 40px;animation:fadeUp 0.3s var(--transition);}
 .section.active{display:block;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -206,6 +212,7 @@ main{flex:1;overflow-y:auto;background:var(--bg);}
 .card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;border:1px solid var(--separator);}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
 .card-title{font-size:0.95rem;font-weight:600;color:var(--label);}
+.card-header{position:relative;}
 .card-subtitle{font-size:0.8rem;color:var(--label4);margin-top:2px;}
 
 /* ─── GRIDS ─── */
@@ -289,7 +296,7 @@ input[type="radio"]:checked::after{
 /* ─── BUTTONS ─── */
 .btn{padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600;font-family:var(--font);font-size:0.86rem;border:1px solid transparent;transition:background 0.15s,border-color 0.15s,filter 0.15s,box-shadow 0.15s;display:inline-flex;align-items:center;gap:8px;white-space:nowrap;}
 .btn:active{filter:brightness(0.95);}
-.btn-primary{background:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(15,23,42,0.12);}
+.btn-primary{background:linear-gradient(180deg,color-mix(in srgb,var(--primary) 86%,#fff),var(--primary));color:#fff;box-shadow:0 1px 2px rgba(15,23,42,0.12),inset 0 1px 0 rgba(255,255,255,0.18);}
 .btn-primary:hover{filter:brightness(0.92);}
 .btn-green{background:var(--green);color:#fff;}
 .btn-green:hover{filter:brightness(0.92);}
@@ -301,7 +308,10 @@ input[type="radio"]:checked::after{
 .btn-orange{background:var(--orange);color:#fff;}
 
 /* ─── STAT CARDS ─── */
-.stat-card{background:var(--surface);border-radius:var(--radius);padding:20px;border:1px solid var(--separator);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:20px;border:1px solid var(--separator);border-top:3px solid var(--primary);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+.g4>.stat-card:nth-child(2){border-top-color:var(--green);}
+.g4>.stat-card:nth-child(3){border-top-color:var(--orange);}
+.g4>.stat-card:nth-child(4){border-top-color:var(--purple);}
 .stat-card:hover{box-shadow:var(--shadow-md);border-color:var(--primary-ring);}
 .stat-card .stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
 .stat-card .stat-value{font-size:1.85rem;font-weight:700;color:var(--label);line-height:1;letter-spacing:-0.02em;}
@@ -441,7 +451,7 @@ tbody td{padding:14px 16px;font-size:0.875rem;color:var(--label2);}
 @keyframes overlayIn{from{background:rgba(15,23,42,0)}to{background:rgba(15,23,42,0.45)}}
 @keyframes modalPop{from{opacity:0;transform:translateY(6px) scale(.99)}to{opacity:1;transform:none}}
 /* Modali aperte DA DENTRO l'editor visita: devono stare sopra l'editor stesso (z-index 2000) */
-#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay,#modal-score-tev.overlay,#modal-scelta-curve.overlay{z-index:2600;}
+#modal-farmaci-visita.overlay,#modal-post-visita.overlay,#modal-schemi-prescrizioni.overlay,#modal-consenso-visita.overlay,#modal-firma.overlay,#modal-score-tev.overlay{z-index:2600;}
 .mfv-box{width:min(760px,95vw);max-height:90vh;padding:22px 22px 0;display:flex;flex-direction:column;}
 .mfv-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .mfv-x{border:none;background:var(--surface2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:0.9rem;color:var(--label4);flex-shrink:0;}
@@ -487,6 +497,14 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .editor-wrap{position:relative;background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 
 .editor-topbar{background:var(--surface);border-bottom:1px solid var(--separator);padding:16px 28px;display:flex;align-items:center;gap:20px;}
+.bv-sez{font-size:.74rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--primary);margin:20px 0 10px;padding-top:14px;border-top:1px solid var(--separator);}
+.bv-logo-box{width:120px;height:80px;border:1px dashed var(--border-strong);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.76rem;color:var(--label4);background:var(--surface2);overflow:hidden;flex-shrink:0;}
+.bv-logo-box img{max-width:100%;max-height:100%;object-fit:contain;}
+.bv-opz{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:1px solid var(--border-strong);border-radius:8px;background:var(--surface);cursor:pointer;font-size:.84rem;font-weight:500;color:var(--label2);}
+.bv-opz.sel{border-color:var(--primary);background:var(--primary-dim);color:var(--primary);font-weight:600;}
+.bv-opz .pallino{width:16px;height:16px;border-radius:50%;}
+.editor-data-wrap{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--label3);background:var(--surface2);border:1px solid var(--separator);border-radius:8px;padding:4px 6px 4px 10px;}
+.editor-data-wrap input{width:auto;padding:5px 8px;font-size:.84rem;}
 .editor-topbar h3{font-family:var(--font);font-weight:700;font-size:1.05rem;flex:1;}
 .editor-body{display:flex;flex:1;min-width:0;overflow:hidden;}
 .editor-nav{width:200px;background:var(--surface);border-right:1px solid var(--separator);padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
@@ -506,7 +524,7 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .edit-panel .macro-wrap{margin-top:6px;}
 .edit-panel .macro-btn{padding:3px 9px;font-size:0.72rem;}
 .section-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--separator);padding:16px 18px;margin-bottom:12px;}
-.section-card h4{font-size:0.82rem;font-weight:700;color:var(--label);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--separator);display:flex;align-items:center;gap:6px;letter-spacing:0.2px;}
+.section-card h4{font-size:0.82rem;font-weight:700;color:var(--primary);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--separator);display:flex;align-items:center;gap:8px;}
 .section-card h4::before{content:attr(data-icon);font-size:0.9rem;}
 
 /* ─── MACRO BUTTONS ─── */
@@ -515,7 +533,7 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .macro-btn:hover{background:var(--primary-dim);color:var(--primary);border-color:var(--primary);}
 
 /* ─── DETTAGLIO PAZIENTE ─── */
-.patient-hero{background:var(--surface);border:1px solid var(--separator);border-left:4px solid var(--primary);border-radius:var(--radius);padding:24px 28px;color:var(--label);margin-bottom:20px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.patient-hero{background:linear-gradient(120deg,var(--primary-dim),transparent 55%),var(--surface);border:1px solid var(--separator);border-left:4px solid var(--primary);border-radius:var(--radius);padding:24px 28px;color:var(--label);margin-bottom:20px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
 .patient-hero .btn-ghost{background:var(--surface)!important;border:1px solid var(--border-strong)!important;color:var(--label2)!important;}
 .patient-hero .btn-ghost:hover{background:var(--surface2)!important;}
 .patient-hero .btn:not(.btn-ghost){background:var(--primary)!important;color:#fff!important;}
@@ -953,9 +971,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <div id="login-overlay">
   <div class="login-card">
     <div class="login-avatar-wrap">
-      <div class="login-avatar">🩺</div>
+      <img src="logo-medsystem.png" alt="MED System" class="login-logo">
     </div>
-    <h1>MED System</h1>
+    <h1 class="sr-only">MED System</h1>
     <div class="login-version" style="margin-bottom:22px;">Gineco · v15.0 · San Marino</div>
     <form id="login-form" autocomplete="on" onsubmit="event.preventDefault();checkLogin();">
       <input type="email" id="login-email" name="email" class="login-input" placeholder="Email" autocomplete="username" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}">
@@ -996,6 +1014,10 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
 <!-- SIDEBAR -->
 <aside>
+  <div class="app-brand">
+    <img src="logo.png" alt="">
+    <div><div class="app-brand-nome">MED System</div><div class="app-brand-spec">Gineco</div></div>
+  </div>
   <div class="brand-area">
     <div class="brand-avatar" id="sidebar-brand-avatar">🩺</div>
     <div>
@@ -1007,7 +1029,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <!-- Firebase Status -->
   <div class="fb-status-bar">
     <div class="fb-dot loading" id="gs-fb-dot"></div>
-    <span id="gs-fb-txt">Connessione Firebase...</span>
+    <span id="gs-fb-txt">Connessione…</span>
   </div>
 
   <nav>
@@ -2055,6 +2077,46 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 </div>
 
+<!-- INTERVISTA INIZIALE (primo accesso; riapribile da Impostazioni) -->
+<div id="modal-benvenuto" class="overlay">
+  <div class="modal-sm" style="width:640px;max-height:92vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
+      <img src="logo.png" alt="" style="width:52px;height:52px;flex-shrink:0">
+      <div><h3 style="margin:0">Ti diamo il benvenuto in MED System</h3>
+        <div style="font-size:.85rem;color:var(--label4)">Due minuti per preparare l'app e i tuoi documenti. Puoi cambiare tutto in seguito dalle Impostazioni.</div></div>
+    </div>
+    <div class="bv-sez">1 · Intestazione di referti e ricette</div>
+    <div class="field-row r2" style="margin-bottom:10px">
+      <div class="form-group"><label class="form-label">Nome come comparirà nei documenti</label><input id="bv-nome" placeholder="es. Dott.ssa Maria Rossi"></div>
+      <div class="form-group"><label class="form-label">Specializzazione</label><input id="bv-spec" placeholder="es. Specialista in Ginecologia e Ostetricia"></div>
+    </div>
+    <div class="field-row r2" style="margin-bottom:6px">
+      <div class="form-group"><label class="form-label">Indirizzo dello studio</label><input id="bv-indirizzo" placeholder="es. Via Roma 1, Città"></div>
+      <div class="form-group"><label class="form-label">Contatti</label><input id="bv-contatti" placeholder="es. Tel. 0549 000000 · studio@email.it"></div>
+    </div>
+    <div class="bv-sez">2 · Il tuo logo</div>
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div id="bv-logo-anteprima" class="bv-logo-box">Nessun logo</div>
+      <div style="flex:1;min-width:220px">
+        <div style="font-size:.82rem;color:var(--label3);margin-bottom:8px">Comparirà in alto su referti stampati, PDF e ricette. Facoltativo.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">📁 Scegli immagine<input type="file" id="bv-logo" accept="image/*" style="display:none" onchange="bvCaricaLogo(this)"></label>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="bvRimuoviLogo()">Rimuovi</button>
+        </div>
+      </div>
+    </div>
+    <div class="bv-sez">3 · Aspetto e linguaggio</div>
+    <div class="form-label" style="margin-bottom:8px">Colore dell'app</div>
+    <div id="bv-temi" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
+    <div class="form-label" style="margin-bottom:8px">Come si rivolge a te l'app</div>
+    <div id="bv-genere" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('modal-benvenuto')">Più tardi</button>
+      <button class="btn btn-primary" onclick="salvaBenvenuto()">Salva e inizia</button>
+    </div>
+  </div>
+</div>
+
 <!-- PASSWORD DEL BACKUP -->
 <div id="modal-password-backup" class="overlay">
   <div class="modal-sm" style="width:440px">
@@ -2091,6 +2153,11 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   <div class="card" style="max-width:720px;">
     <div class="card-header"><div><div class="card-title">👤 Come si rivolge a te l'app</div><div class="card-subtitle">Usato nei messaggi dell'app</div></div></div>
     <div id="set-genere" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+  <div class="card" style="max-width:720px;margin-top:16px;">
+    <div class="card-header"><div><div class="card-title">🪪 Intestazione e logo dei documenti</div><div class="card-subtitle">Nome, specializzazione, contatti e logo su referti, PDF e ricette</div></div></div>
+    <button class="btn btn-primary" onclick="apriBenvenuto()">Modifica intestazione e logo</button>
+    <span style="font-size:.8rem;color:var(--label4);margin-left:10px">Le opzioni avanzate (carattere, margini, colore) sono nella scheda Stampe.</span>
   </div>
   </div>
 
@@ -2376,35 +2443,6 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 </div>
 
-<!-- SELEZIONE CURVE DI CRESCITA DA STAMPARE -->
-<div id="modal-scelta-curve" class="overlay">
-  <div class="modal-sm" style="width:380px;">
-    <h3>📈 Curve da Stampare</h3>
-    <p style="font-size:.82rem;color:var(--label4);margin-bottom:12px">Seleziona quali curve includere nella stampa (puoi sceglierne più di una).</p>
-    <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:16px;">
-      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
-        <input type="checkbox" id="curve-sel-bpd" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">BPD — Diametro Biparietale</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
-        <input type="checkbox" id="curve-sel-hc" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">CC — Circonferenza Cranica</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
-        <input type="checkbox" id="curve-sel-ac" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">CA — Circonferenza Addominale</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;border-bottom:1px solid var(--separator);cursor:pointer;">
-        <input type="checkbox" id="curve-sel-fl" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">LF — Lunghezza Femore</span>
-      </label>
-      <label style="display:flex;align-items:center;gap:10px;padding:7px 4px;cursor:pointer;">
-        <input type="checkbox" id="curve-sel-peso" checked style="width:18px;height:18px;flex-shrink:0;"><span style="flex:1;font-size:.86rem;">Peso Fetale Stimato (EFW)</span>
-      </label>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button class="btn btn-ghost" onclick="closeModal('modal-scelta-curve')">Annulla</button>
-      <button class="btn btn-primary" onclick="_confermaScelteCurve()">🖨️ Genera e Stampa</button>
-    </div>
-  </div>
-</div>
-
 <!-- EDITOR REFERTO -->
 <!-- BARRA EDITOR MINIMIZZATO -->
 <div id="editor-min-bar" class="editor-min-bar" onclick="restoreEditor()">
@@ -2422,6 +2460,10 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
       <div style="display:flex;align-items:center;gap:12px;">
         <span id="editor-type-badge" class="badge badge-blue">🌸 GINECOLOGICA</span>
         <h3 id="editor-title">Compilazione Referto</h3>
+        <label class="editor-data-wrap" title="Data in cui è stata eseguita la visita: modificabile per inserire una visita passata">
+          <span>📅 Data visita</span>
+          <input type="date" id="editor-data-visita" onchange="cambiaDataVisitaEditor()">
+        </label>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost" onclick="apriConsensoVisitaCorrente()" title="Consenso/i informato/i per questa visita">✍️ Consenso</button>
@@ -4325,7 +4367,7 @@ function apriCurveCrescitaOb(){
   // Salva temporaneamente i dati biometrici come se fossero una eco, per riusare la pagina curve esistente
   const epoca=document.getElementById('ob-bio-epoca')?.value;
   if(!epoca){ if(typeof gsToast==='function')gsToast('Inserisci prima l epoca gestazionale','gs-error'); return; }
-  _apriModalSceltaCurve(curPaz, curGravidanzaId, {
+  apriCurveCrescitaDaOb(curPaz, curGravidanzaId, {
     settimane:epoca,
     bpd:document.getElementById('ob-bio-bpd')?.value,
     hc:document.getElementById('ob-bio-hc')?.value,
@@ -4428,7 +4470,7 @@ function apriCurveCrescitaEco(){
   if(!parseSettimaneEsatte(sett)){ if(typeof gsToast==='function')gsToast('Inserisci prima l\'epoca gestazionale','gs-error'); return; }
   const p=DB.pazienti.find(x=>x.id===curPaz);
   if(!p) return;
-  _apriModalSceltaCurve(curPaz, curGravidanzaId, {
+  apriCurveCrescitaDaOb(curPaz, curGravidanzaId, {
     settimane:sett,
     bpd:document.getElementById('ec-bpd')?.value,
     hc:document.getElementById('ec-hc')?.value,
@@ -4436,25 +4478,6 @@ function apriCurveCrescitaEco(){
     fl:document.getElementById('ec-fl')?.value,
     peso:(document.getElementById('ec-efw')?.value||'').replace(/[^\d.]/g,'')
   });
-}
-
-// Apre il modal di selezione curve (BPD/CC/CA/LF/Peso) prima di generare la
-// pagina di stampa: memorizza il contesto (paziente/gravidanza/dato corrente
-// non ancora salvato) e lo riprende in _confermaScelteCurve() dopo la scelta.
-let _curveContestoPendente=null;
-function _apriModalSceltaCurve(pazId, gravidanzaId, datiCorrente){
-  _curveContestoPendente={pazId, gravidanzaId, datiCorrente};
-  ['bpd','hc','ac','fl','peso'].forEach(k=>{ const c=document.getElementById('curve-sel-'+k); if(c) c.checked=true; });
-  document.getElementById('modal-scelta-curve').classList.add('show');
-}
-function _confermaScelteCurve(){
-  const ctx=_curveContestoPendente;
-  if(!ctx) return;
-  const sel=['bpd','hc','ac','fl','peso'].filter(k=>document.getElementById('curve-sel-'+k)?.checked);
-  if(!sel.length){ if(typeof gsToast==='function')gsToast('Seleziona almeno una curva','gs-error'); return; }
-  closeModal('modal-scelta-curve');
-  apriCurveCrescitaDaOb(ctx.pazId, ctx.gravidanzaId, ctx.datiCorrente, sel);
-  _curveContestoPendente=null;
 }
 
 // ═══════════════════════════════════════════════════
@@ -4674,11 +4697,25 @@ function calcolaSettimaneGravidanza(p, gravidanzaId, dataRif, extra){
 
 // Ricalcola e scrive il campo "Settimane di gravidanza" nella scheda visita OB.
 // force=true sovrascrive anche un valore già presente (es. dopo modifica di UM).
+// Data scelta nella barra dell'editor (AAAA-MM-GG), se valida e non futura.
+function dataVisitaEditor(){
+  const v=document.getElementById('editor-data-visita')?.value;
+  if(!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
+  return v>new Date().toISOString().split('T')[0] ? null : v;
+}
+function cambiaDataVisitaEditor(){
+  const el=document.getElementById('editor-data-visita');
+  if(el && el.value && !dataVisitaEditor()){
+    if(typeof gsToast==='function') gsToast('La data della visita non può essere nel futuro','gs-error');
+    el.value=new Date().toISOString().split('T')[0];
+  }
+  if(curMode==='ob') ricalcolaSettimaneOb(true); // settimane di gestazione alla data della visita
+}
 function ricalcolaSettimaneOb(force){
   const campo = document.getElementById('ob-settimane');
   if(!campo) return;
   const p = DB.pazienti.find(x=>x.id===curPaz);
-  const sett = calcolaSettimaneGravidanza(p, curGravidanzaId, new Date(), {
+  const sett = calcolaSettimaneGravidanza(p, curGravidanzaId, dataVisitaEditor()||new Date(), {
     um: document.getElementById('ob-um')?.value,
     umEco: document.getElementById('ob-um-eco')?.value,
     durata: document.getElementById('ob-durata-ciclo')?.value,
@@ -5757,6 +5794,56 @@ function _applicaPreferenzeProfilo(d, uid){
   gsUserGenere = ['f','m','n'].includes(g) ? g : 'n';
   applicaTema(t || 'blu');
 }
+// ── INTERVISTA INIZIALE ──
+// Al primo accesso di un account (su questo dispositivo) chiede intestazione,
+// logo dei documenti, tema e genere. Riapribile da Impostazioni → Profilo.
+function _bvChiave(){ return 'gs_configurato_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+let _bvLogo, _bvTema, _bvGenere;
+function apriBenvenuto(){
+  const c=getPrintCfg(), i=c.intestazione;
+  const nomeSalvato=(()=>{ try{ return (JSON.parse(localStorage.getItem(printCfgKey()))||{}).intestazione?.nome; }catch(e){ return ''; } })();
+  const titolo=gsG('Dott.ssa ','Dott. ','');
+  document.getElementById('bv-nome').value = nomeSalvato || (gsUserNome ? titolo+gsUserNome : '');
+  document.getElementById('bv-spec').value = i.spec||'';
+  document.getElementById('bv-indirizzo').value = i.indirizzo||'';
+  document.getElementById('bv-contatti').value = i.contatti||'';
+  _bvLogo = (c.layout.logo && i.logo) ? i.logo : '';
+  _bvTema = gsUserTema; _bvGenere = gsUserGenere;
+  _bvDisegna();
+  document.getElementById('modal-benvenuto').classList.add('show');
+}
+function _bvDisegna(){
+  const prev=document.getElementById('bv-logo-anteprima');
+  prev.innerHTML=_bvLogo ? `<img src="${_bvLogo}" alt="">` : 'Nessun logo';
+  document.getElementById('bv-temi').innerHTML=GS_TEMI.map(t=>`<span class="bv-opz${t.id===_bvTema?' sel':''}" onclick="_bvTema='${t.id}';applicaTema('${t.id}');_bvDisegna()"><span class="pallino" style="background:${t.colore}"></span>${t.nome}</span>`).join('');
+  document.getElementById('bv-genere').innerHTML=[['f','Al femminile (dottoressa)'],['m','Al maschile (dottore)'],['n','Neutro (medico)']]
+    .map(([v,t])=>`<span class="bv-opz${v===_bvGenere?' sel':''}" onclick="_bvGenere='${v}';_bvDisegna()">${t}</span>`).join('');
+}
+async function bvCaricaLogo(input){
+  try{ _bvLogo=await ridimensionaLogo(input.files[0]); _bvDisegna(); }
+  catch(e){ if(typeof gsToast==='function') gsToast('⚠️ '+e.message,'gs-error'); }
+  input.value='';
+}
+function bvRimuoviLogo(){ _bvLogo=''; _bvDisegna(); }
+function salvaBenvenuto(){
+  const c=getPrintCfg();
+  const v=id=>(document.getElementById(id).value||'').trim();
+  c.intestazione.nome=v('bv-nome') || gsUserNome || '';
+  c.intestazione.spec=v('bv-spec');
+  c.intestazione.indirizzo=v('bv-indirizzo');
+  c.intestazione.contatti=v('bv-contatti');
+  c.firma=c.intestazione.nome;
+  c.intestazione.logo=_bvLogo||'';
+  c.layout.logo=!!_bvLogo;
+  if(!savePrintCfg(c)){ if(typeof gsToast==='function') gsToast('⚠️ Impossibile salvare le impostazioni','gs-error'); return; }
+  salvaPreferenzaProfilo('tema', _bvTema);
+  salvaPreferenzaProfilo('genere', _bvGenere);
+  try{ localStorage.setItem(_bvChiave(), new Date().toISOString()); }catch(e){}
+  closeModal('modal-benvenuto');
+  registraLog('login','Configurazione iniziale completata');
+  if(typeof gsToast==='function') gsToast('✅ Configurazione salvata','gs-success');
+}
+
 async function salvaPreferenzaProfilo(campo, valore){
   if(campo==='tema') applicaTema(valore);
   if(campo==='genere'){
@@ -5921,46 +6008,6 @@ function mostraLogAttivita(){
   box.innerHTML=html;
 }
 
-// ── Migrazione una tantum dalla versione che usava Firebase ──
-// Copia nel database interno ciò che la versione precedente teneva su
-// Firebase per questo account: appuntamenti, pazienti inserite da GynoBook,
-// registro attività, archivio email. Dopo la copia questi dati non vengono
-// più letti da Firebase (e vanno cancellati dal progetto).
-async function migraDatiDaFirebase(){
-  if(!gsDb||!gsCurrentUser||gsDemoMode||DB.migrazioneFirebase) return;
-  const uid=gsCurrentUser.uid;
-  const leggi=async nome=>{
-    try{ return (await gsDb.collection(nome).where('ownerUid','==',uid).get()).docs.map(d=>({id:d.id,...d.data()})); }
-    catch(e){ console.warn('Migrazione '+nome+':',e); return null; }
-  };
-  const [appts,paz,log,email]=await Promise.all([leggi('appuntamenti'),leggi('pazienti'),leggi('logAttivita'),leggi('emailInviate')]);
-  if(appts===null||paz===null||log===null||email===null) return; // riprova al prossimo accesso
-  if(!Array.isArray(DB.appuntamenti)) DB.appuntamenti=[];
-  const giaPresenti=new Set(DB.appuntamenti.map(a=>a.id));
-  appts.forEach(a=>{ if(!giaPresenti.has(a.id)){ const {ownerUid,source,...resto}=a; DB.appuntamenti.push(resto); } });
-  let nuovePaz=0;
-  paz.filter(d=>d.source==='gynobook' && !DB.pazienti.some(p=>p.fbId===d.id)).forEach(d=>{
-    DB.pazienti.push({id:Date.now()+nuovePaz, fbId:d.id, nome:d.nome||'', cognome:d.cognome||'', nascita:d.nascita||'',
-      tel:d.tel||'', email:d.email||'', cf:(d.cf||'').toUpperCase(), note:d.note||'', visite:[], alerts:[],
-      importataDaGynobook:true, dataImport:new Date().toISOString()});
-    nuovePaz++;
-  });
-  if(!Array.isArray(DB.logAttivita)) DB.logAttivita=[];
-  log.forEach(l=>DB.logAttivita.push({tipo:l.tipo, descrizione:l.descrizione, data:l.data}));
-  DB.logAttivita.sort((a,b)=>new Date(a.data)-new Date(b.data));
-  if(!Array.isArray(DB.emailInviate)) DB.emailInviate=[];
-  email.forEach(e=>{
-    const {ownerUid,...resto}=e;
-    resto.data=(e.data&&e.data.toDate)?e.data.toDate().toISOString():(e.data||'');
-    DB.emailInviate.push(resto);
-  });
-  DB.migrazioneFirebase=new Date().toISOString();
-  await salvaDBSubito();
-  if(appts.length||nuovePaz||log.length||email.length){
-    if(typeof gsToast==='function') gsToast(`📥 Dati della versione precedente copiati nel database interno (${appts.length} appuntamenti, ${nuovePaz} pazienti)`,'gs-success');
-  }
-}
-
 // Sequenza post-login "normale" (nessun cambio password in sospeso)
 async function proceedAfterLogin(){
   document.getElementById('login-overlay').style.display='none';
@@ -5987,10 +6034,10 @@ async function proceedAfterLogin(){
 
   mostraBannerDemo(false);
   await caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
-  await migraDatiDaFirebase(); // una tantum: copia nel database interno ciò che stava su Firebase
   registraLog('login','Accesso effettuato');
   naviga('home');
   caricaAppuntamenti(true);
+  try{ if(!localStorage.getItem(_bvChiave())) setTimeout(apriBenvenuto, 400); }catch(e){}
   controllaBackupAutomatico();
 }
 
@@ -8014,6 +8061,17 @@ function startEditor(tipo, vid=null){
     else el.value='';
   });
 
+  // Data della visita: oggi per una visita nuova (modificabile per inserirne una
+  // passata), quella salvata per una visita esistente.
+  const _oggiStr=new Date().toISOString().split('T')[0];
+  const dataEl=document.getElementById('editor-data-visita');
+  if(dataEl){
+    const pz=DB.pazienti.find(x=>x.id===curPaz);
+    const vEs=vid&&pz?pz.visite.find(x=>x.id===vid):null;
+    dataEl.value=vEs?vEs.data:_oggiStr;
+    dataEl.max=_oggiStr;
+  }
+
   // Mostra/nasconde nav e pannelli in base al tipo
   const navs={gyno:'editor-nav-gyno',ob:'editor-nav-ob',eco:'editor-nav-eco'};
   const panels={gyno:'gyno-panels',ob:'ob-panels',eco:'eco-panels'};
@@ -8445,7 +8503,7 @@ function salvaVisita(){
   const esistente=curVisita?p.visite.find(x=>x.id===curVisita):null;
   const v={
     id:curVisita||Date.now(),
-    data:esistente?esistente.data:new Date().toISOString().split('T')[0],
+    data:dataVisitaEditor()||(esistente?esistente.data:new Date().toISOString().split('T')[0]),
     ora:esistente?.ora||new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}),
     tipo:curMode
   };
@@ -8595,16 +8653,36 @@ function renderImpostazioni(){
   }
 }
 
-function caricaLogoImpostazioni(input){
-  const file=input.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    input.dataset.base64=e.target.result;
+// Riduce il logo a massimo 600×600 px (PNG): resta nitido su referti e
+// ricette ma non appesantisce le impostazioni e i backup.
+function ridimensionaLogo(file){
+  return new Promise((resolve,reject)=>{
+    if(!file || !/^image\//.test(file.type)){ reject(new Error('Il file deve essere un\'immagine (PNG o JPG)')); return; }
+    const r=new FileReader();
+    r.onerror=()=>reject(r.error);
+    r.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('Immagine non leggibile'));
+      img.onload=()=>{
+        const k=Math.min(1, 600/Math.max(img.width,img.height));
+        const c=document.createElement('canvas');
+        c.width=Math.max(1,Math.round(img.width*k)); c.height=Math.max(1,Math.round(img.height*k));
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        resolve(c.toDataURL('image/png'));
+      };
+      img.src=r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+async function caricaLogoImpostazioni(input){
+  try{
+    const dataUrl=await ridimensionaLogo(input.files[0]);
+    input.dataset.base64=dataUrl;
     const prev=document.getElementById('set-print-logo-preview');
-    if(prev) prev.innerHTML=`<img src="${e.target.result}" style="max-height:46px;border-radius:6px">`;
-  };
-  reader.readAsDataURL(file);
+    if(prev) prev.innerHTML=`<img src="${dataUrl}" style="max-height:46px;border-radius:6px">`;
+    const mostra=document.getElementById('set-print-mostralogo'); if(mostra) mostra.checked=true;
+  }catch(e){ if(typeof gsToast==='function') gsToast('⚠️ '+e.message,'gs-error'); }
 }
 
 function _leggiImpostazioniStampa(){
@@ -9090,8 +9168,8 @@ function riportaFarmaciAttualiInTerapia(tipo){
 // e per le pagine delle curve di crescita / riepilogo gravidanza.
 // Priorità: preferenze personali (localStorage) > default.
 const PRINT_CFG_DEFAULT = {
-  intestazione:{ nome:'Dr.ssa Cristina Guidi', spec:'Specialista in Ginecologia e Ostetricia', indirizzo:'', contatti:'', logo:'' },
-  firma:'Dr.ssa Cristina Guidi',
+  intestazione:{ nome:'', spec:'Specialista in Ginecologia e Ostetricia', indirizzo:'', contatti:'', logo:'' },
+  firma:'',
   layout:{ margine:15, font:'Georgia', corpo:11, colore:'#c2185b', formato:'A4', logo:true, piePagina:'' }
 };
 function printCfgKey(){
@@ -9112,6 +9190,9 @@ function getPrintCfg(){
       if(old) Object.assign(cfg.intestazione, JSON.parse(old)||{});
     }
   }catch(e){}
+  if(!cfg.firma) cfg.firma = cfg.intestazione.nome;
+  // Senza intestazione salvata: il nome dell'account che ha fatto l'accesso.
+  if(!cfg.intestazione.nome) cfg.intestazione.nome = (typeof gsUserNome!=='undefined' && gsUserNome) || '';
   if(!cfg.firma) cfg.firma = cfg.intestazione.nome;
   return cfg;
 }
@@ -10930,7 +11011,7 @@ function buildRefertoView(v){
 // ═══════════════════════════════════════════════════
 // Variante per le visite ostetriche: raccoglie i dati biometrici da tutte le visite
 // ostetriche della stessa gravidanza (+ quello corrente non ancora salvato) e disegna le curve.
-function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente, curveSelezionate){
+function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente){
   const p=DB.pazienti.find(x=>x.id===pazId);
   if(!p){ return; }
   // Raccoglie i punti dalle visite ostetriche salvate (campi biometria) della stessa gravidanza
@@ -10948,67 +11029,84 @@ function apriCurveCrescitaDaOb(pazId, gravidanzaId, datiCorrente, curveSeleziona
   }
   if(!punti.length){ if(typeof gsToast==='function')gsToast('Nessun dato biometrico valido (epoca 14-40 sett.)','gs-error'); return; }
   punti.sort((a,b)=>a.settimane-b.settimane);
-  generaPaginaCurve(p, punti, curveSelezionate);
+  generaPaginaCurve(p, punti);
 }
 
-// Genera e stampa la pagina con i grafici selezionati. Accetta una lista di punti
-// {settimane,bpd,hc,ac,fl,peso} e l'elenco delle curve da includere fra
-// 'bpd','hc','ac','fl','peso' (default: tutte, per compatibilità con chiamate esterne).
-function generaPaginaCurve(p, punti, curveSelezionate){
-  const sel=(curveSelezionate&&curveSelezionate.length)?curveSelezionate:['bpd','hc','ac','fl','peso'];
+// Apre l'anteprima con TUTTI i grafici (BPD, CC, CA, LF, peso fetale stimato):
+// dopo averli visti, si spuntano quelli da stampare e si stampa solo quelli.
+// Accetta una lista di punti {settimane,bpd,hc,ac,fl,peso}.
+function generaPaginaCurve(p, punti){
   const parametri=[
     {key:'bpd',dataset:INTERGROWTH_BPD},{key:'hc',dataset:INTERGROWTH_HC},
     {key:'ac',dataset:INTERGROWTH_AC},{key:'fl',dataset:INTERGROWTH_FL}
-  ].filter(par=>sel.includes(par.key));
+  ];
+  const legenda=(basso,alto)=>`<div class="legend">
+        <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
+        <span><span class="dot" style="background:#fb8c00"></span>${basso}</span>
+        <span><span class="dot" style="background:#42a5f5"></span>50° percentile (mediana)</span>
+        <span><span class="dot" style="background:#8e24aa"></span>${alto}</span>
+      </div>`;
+  const box=(titolo,svg,extra)=>`<div class="chart-box">
+      <div class="chart-head"><h3>${titolo}</h3>
+        <label class="sel no-print"><input type="checkbox" checked onchange="this.closest('.chart-box').classList.toggle('escluso',!this.checked);aggiornaConteggio()"> Stampa</label></div>
+      ${svg}${extra}
+    </div>`;
   const w=apriFinestraStampa(); if(!w) return;
-  let html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
+  let grafici='';
+  parametri.forEach(par=>{
+    const pts=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e[par.key])})).filter(pt=>!isNaN(pt.valore));
+    grafici+=box(INTERGROWTH_LABELS[par.key], svgCurvaCrescita(par.dataset,pts), legenda('3° percentile (limite basso)','97° percentile (limite alto)'));
+  });
+  const ptsEfw=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e.peso)})).filter(pt=>!isNaN(pt.valore));
+  grafici+=box('Peso Fetale Stimato (g) — orientativo', svgCurva5(INTERGROWTH_EFW,ptsEfw),
+    legenda('3° percentile','97° percentile')+'<div style="font-size:.68rem;color:#999;margin-top:4px">Percentili peso INTERGROWTH-21st (EFW): valori orientativi — verificare con il calcolatore ufficiale.</div>');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Curve di Crescita Fetale</title>
   <style>
     ${printStyleComune()}
-    body{color:#1a1a1a;max-width:1000px;margin:30px auto;padding:0 20px}
+    body{color:#1a1a1a;max-width:1000px;margin:30px auto;padding:64px 20px 0}
     h1{font-size:1.3rem;color:var(--print-acc);border-bottom:3px solid var(--print-acc);padding-bottom:14px;margin-bottom:6px}
     .sub{color:#666;font-size:.85rem;margin-bottom:24px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-    .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px}
-    .chart-box h3{font-size:.95rem;margin:0 0 8px;color:#333}
+    .chart-box{border:1px solid #ddd;border-radius:10px;padding:14px;break-inside:avoid;transition:opacity .15s}
+    .chart-box.escluso{opacity:.35}
+    .chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+    .chart-box h3{font-size:.95rem;margin:0;color:#333}
+    .sel{display:inline-flex;align-items:center;gap:6px;font:600 .8rem system-ui,sans-serif;color:#334155;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:4px 10px;cursor:pointer}
+    .sel input{width:16px;height:16px;cursor:pointer}
     .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:#555;margin-top:6px}
     .legend span{display:inline-flex;align-items:center;gap:4px}
     .dot{width:9px;height:9px;border-radius:50%;display:inline-block}
     .fonte{margin-top:24px;font-size:.72rem;color:#999;border-top:1px solid #eee;padding-top:10px}
-    @media print{.grid{grid-template-columns:1fr 1fr}}
+    .barra{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font:500 .85rem system-ui,sans-serif;color:#334155;z-index:10}
+    .barra .info{flex:1}
+    .barra button{font:600 .82rem system-ui,sans-serif;padding:7px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer}
+    .barra button.pri{background:var(--print-acc);border-color:transparent;color:#fff}
+    @media print{
+      body{margin:0 auto;padding:0}
+      .no-print,.barra{display:none!important}
+      .chart-box.escluso{display:none}
+      .grid{grid-template-columns:1fr 1fr}
+    }
   </style></head><body>
+    <div class="barra no-print">
+      <span class="info">Guarda i grafici e togli la spunta a quelli da non stampare. <strong id="conta"></strong></span>
+      <button onclick="seleziona(true)">Tutte</button>
+      <button onclick="seleziona(false)">Nessuna</button>
+      <button class="pri" onclick="stampaSelezionate()">🖨️ Stampa le curve selezionate</button>
+    </div>
     <h1>📈 Curve di Crescita Fetale — INTERGROWTH-21st</h1>
-    <div class="sub"><strong>${p.cognome} ${p.nome}</strong> · ${punti.length} rilevazion${punti.length>1?'i':'e'} per questa gravidanza</div>
-    <div class="grid">`;
-  parametri.forEach(par=>{
-    const pts=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e[par.key])})).filter(pt=>!isNaN(pt.valore));
-    html+=`<div class="chart-box"><h3>${INTERGROWTH_LABELS[par.key]}</h3>${svgCurvaCrescita(par.dataset,pts)}
-      <div class="legend">
-        <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
-        <span><span class="dot" style="background:#fb8c00"></span>3° percentile (limite basso)</span>
-        <span><span class="dot" style="background:#42a5f5"></span>50° percentile (mediana)</span>
-        <span><span class="dot" style="background:#8e24aa"></span>97° percentile (limite alto)</span>
-      </div>
-    </div>`;
-  });
-  // 5° grafico: Peso Fetale Stimato (EFW) — curve INTERGROWTH-21st (solo se selezionato)
-  if(sel.includes('peso')){
-    const ptsEfw=punti.map(e=>({settimane:e.settimane, valore:parseFloat(e.peso)})).filter(pt=>!isNaN(pt.valore));
-    html+=`<div class="chart-box"><h3>Peso Fetale Stimato (g) — orientativo</h3>${svgCurva5(INTERGROWTH_EFW,ptsEfw)}
-      <div class="legend">
-        <span><span class="dot" style="background:#c2185b"></span>Valori della paziente</span>
-        <span><span class="dot" style="background:#fb8c00"></span>3° percentile</span>
-        <span><span class="dot" style="background:#42a5f5"></span>50° percentile</span>
-        <span><span class="dot" style="background:#8e24aa"></span>97° percentile</span>
-      </div>
-      <div style="font-size:.68rem;color:#999;margin-top:4px">Percentili peso INTERGROWTH-21st (EFW): valori orientativi — verificare con il calcolatore ufficiale.</div>
-    </div>`;
-  }
-  html+=`</div>
+    <div class="sub"><strong>${_escHtml(p.cognome+' '+p.nome)}</strong> · ${punti.length} rilevazion${punti.length>1?'i':'e'} per questa gravidanza</div>
+    <div class="grid">${grafici}</div>
     <div class="fonte">Curve di riferimento biometria: Papageorghiou AT, Ohuma EO, Altman DG, et al. "International standards for fetal growth based on serial ultrasound measurements: the Fetal Growth Longitudinal Study of the INTERGROWTH-21st Project." Lancet 2014;384(9946):869-79. © University of Oxford.<br>Curve del peso fetale stimato: Stirnemann J, Villar J, Salomon LJ, et al. "International estimated fetal weight standards of the INTERGROWTH-21st Project." Ultrasound Obstet Gynecol 2017;49:478-486. I valori di peso e i relativi percentili qui riportati sono orientativi: per il referto clinico confrontare con il calcolatore ufficiale (fetalmedicinebarcelona.org/calc).</div>
-  </body></html>`;
-  w.document.write(html);
+    <script>
+      function scelte(){ return [...document.querySelectorAll('.chart-box input[type=checkbox]')]; }
+      function aggiornaConteggio(){ const n=scelte().filter(c=>c.checked).length; document.getElementById('conta').textContent='Selezionate: '+n+' di '+scelte().length; }
+      function seleziona(v){ scelte().forEach(c=>{ c.checked=v; c.closest('.chart-box').classList.toggle('escluso',!v); }); aggiornaConteggio(); }
+      function stampaSelezionate(){ if(!scelte().some(c=>c.checked)){ alert('Seleziona almeno una curva da stampare.'); return; } window.print(); }
+      aggiornaConteggio();
+    <\/script>
+  </body></html>`);
   w.document.close();
-  setTimeout(()=>w.print(),400);
 }
 
 // Variante di svgCurvaCrescita per tabelle a 5 centili [3°,10°,50°,90°,97°]
@@ -12199,7 +12297,7 @@ function initFirebase() {
     try{ gsFunctions = app.functions('europe-west1'); }catch(e){ console.warn('Functions non inizializzate:', e.message); }
     gsAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); // persiste tra le visite, ma solo per questo file
     gsFirebaseReady = true;
-    setFbStatus('connected', 'Firebase connesso');
+    setFbStatus('connected', 'Connesso');
 
     // L'accesso ai dati avviene SOLO dopo che Firebase Auth confirma l'utente.
     // Questo sostituisce il vecchio controllo password manuale: ora è Firebase
@@ -12282,9 +12380,7 @@ function applyPrintCfgReferto(){
   if (logoEl){
     if (l.logo && i.logo){
       logoEl.style.display='';
-      logoEl.innerHTML = `<img src="${i.logo}" style="width:65px;height:65px;border-radius:10px;object-fit:contain;filter:grayscale(100%)">`;
-    } else if (l.logo){
-      logoEl.style.display='';
+      logoEl.innerHTML = `<img src="${i.logo}" style="max-width:90px;max-height:65px;object-fit:contain">`;
     } else {
       logoEl.style.display='none';
     }
