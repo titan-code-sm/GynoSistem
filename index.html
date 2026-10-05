@@ -9,12 +9,12 @@
 <meta name="apple-mobile-web-app-title" content="MED System Gineco">
 <meta name="application-name" content="MED System Gineco">
 <meta name="theme-color" content="#1c1c1e">
-<meta name="description" content="Gestione studio ginecologico · Dr.ssa Cristina Guidi">
+<meta name="description" content="MED System Gineco · gestione studio ginecologico">
 <link rel="apple-touch-icon" href="logo.png">
 <link rel="apple-touch-icon" sizes="152x152" href="logo.png">
 <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
 <link rel="icon" type="image/png" href="logo.png">
-<title>MED System Gineco · Dr.ssa Cristina Guidi</title>
+<title>MED System Gineco</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <!-- Firebase SDK (solo Firestore, no Storage) -->
@@ -76,6 +76,38 @@ body.dark-mode{
   --shadow-md:0 8px 30px rgba(0,0,0,0.45);
   --shadow-lg:0 20px 60px rgba(0,0,0,0.55);
 }
+/* Temi colore — scelti in Impostazioni → Profilo e aspetto (per account).
+   --primary colora tutta l'app; le variabili --l-* la schermata di accesso.
+   Senza data-tema sull'<html> vale il blu predefinito. */
+:root{
+  --l-bg1:#eef4ff;--l-bg2:#e2ecff;--l-bg3:#d4e3ff;--l-acc1:#3d8bfd;--l-acc2:#6c7cf5;--l-acc-rgb:61,139,253;
+  --l-glow1:rgba(122,170,250,0.25);--l-glow2:rgba(150,140,240,0.18);--l-deep:#1f3a68;--l-soft:#5b78a8;--l-ph:#9db2d4;--l-btn2:#2f6fe0;
+}
+:root[data-tema="rosa"]{
+  --primary:#d81b60;--primary-dim:rgba(216,27,96,0.12);
+  --l-bg1:#fdf0f5;--l-bg2:#fce4ec;--l-bg3:#f8d7e3;--l-acc1:#ec407a;--l-acc2:#ba68c8;--l-acc-rgb:236,64,122;
+  --l-glow1:rgba(244,143,177,0.25);--l-glow2:rgba(206,147,216,0.18);--l-deep:#7a2d4f;--l-soft:#b06a86;--l-ph:#c99bb0;--l-btn2:#d81b60;
+}
+:root[data-tema="verde"]{
+  --primary:#17936b;--primary-dim:rgba(23,147,107,0.12);
+  --l-bg1:#eefaf5;--l-bg2:#e0f4ea;--l-bg3:#d0ecdf;--l-acc1:#26a69a;--l-acc2:#66bb6a;--l-acc-rgb:38,166,154;
+  --l-glow1:rgba(110,200,170,0.25);--l-glow2:rgba(140,200,120,0.18);--l-deep:#1e4d3c;--l-soft:#5f8f7c;--l-ph:#9cc2b2;--l-btn2:#17936b;
+}
+:root[data-tema="viola"]{
+  --primary:#7e57c2;--primary-dim:rgba(126,87,194,0.12);
+  --l-bg1:#f6f1fd;--l-bg2:#ece3fa;--l-bg3:#e1d4f7;--l-acc1:#9575cd;--l-acc2:#ba68c8;--l-acc-rgb:149,117,205;
+  --l-glow1:rgba(170,140,230,0.25);--l-glow2:rgba(200,150,220,0.18);--l-deep:#3f2a6b;--l-soft:#8a76b0;--l-ph:#b8a8d6;--l-btn2:#7e57c2;
+}
+:root[data-tema="turchese"]{
+  --primary:#0097a7;--primary-dim:rgba(0,151,167,0.12);
+  --l-bg1:#ebf9fb;--l-bg2:#dcf2f5;--l-bg3:#cbeaee;--l-acc1:#26c6da;--l-acc2:#4db6ac;--l-acc-rgb:38,198,218;
+  --l-glow1:rgba(100,200,215,0.25);--l-glow2:rgba(110,190,180,0.18);--l-deep:#12464f;--l-soft:#5a8f97;--l-ph:#98c4ca;--l-btn2:#0097a7;
+}
+:root[data-tema="grafite"]{
+  --primary:#455a64;--primary-dim:rgba(69,90,100,0.14);
+  --l-bg1:#f3f4f6;--l-bg2:#e7eaed;--l-bg3:#dbe0e4;--l-acc1:#607d8b;--l-acc2:#78909c;--l-acc-rgb:96,125,139;
+  --l-glow1:rgba(140,160,175,0.25);--l-glow2:rgba(160,170,180,0.18);--l-deep:#263238;--l-soft:#6b7c85;--l-ph:#a7b3ba;--l-btn2:#455a64;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 body{font-family:var(--font);background:var(--bg);color:var(--label);display:flex;height:100vh;overflow:hidden;}
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -84,36 +116,36 @@ body{font-family:var(--font);background:var(--bg);color:var(--label);display:fle
 ::selection{background:var(--primary-dim);color:var(--primary)}
 
 /* ─── LOGIN REDESIGN ─── */
-#login-overlay{position:fixed;inset:0;background:linear-gradient(160deg,#fdf0f5 0%,#fce4ec 45%,#f8d7e3 100%);z-index:9999;display:flex;align-items:center;justify-content:center;}
-#login-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 30%,rgba(244,143,177,0.25) 0%,transparent 55%),radial-gradient(ellipse at 75% 75%,rgba(206,147,216,0.18) 0%,transparent 55%);pointer-events:none;}
-.login-card{position:relative;background:rgba(255,255,255,0.78);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.9);padding:44px 42px 36px;border-radius:32px;text-align:center;width:400px;box-shadow:0 24px 70px rgba(216,112,147,0.28);}
+#login-overlay{position:fixed;inset:0;background:linear-gradient(160deg,var(--l-bg1) 0%,var(--l-bg2) 45%,var(--l-bg3) 100%);z-index:9999;display:flex;align-items:center;justify-content:center;}
+#login-overlay::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 30%,var(--l-glow1) 0%,transparent 55%),radial-gradient(ellipse at 75% 75%,var(--l-glow2) 0%,transparent 55%);pointer-events:none;}
+.login-card{position:relative;background:rgba(255,255,255,0.78);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.9);padding:44px 42px 36px;border-radius:32px;text-align:center;width:400px;box-shadow:0 24px 70px rgba(var(--l-acc-rgb),0.22);}
 .login-avatar-wrap{margin-bottom:22px;}
-.login-avatar{width:74px;height:74px;border-radius:22px;background:linear-gradient(135deg,#ec407a,#ba68c8);display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.6rem;color:#fff;box-shadow:0 10px 30px rgba(236,64,122,0.40);}
-.login-card h1{font-family:var(--font-serif);font-size:1.8rem;color:#7a2d4f;margin-bottom:4px;letter-spacing:-0.3px;}
-.login-card .login-version{font-size:0.72rem;color:#b06a86;margin-bottom:6px;letter-spacing:0.5px;}
-.login-profile-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.6);border:1px solid rgba(236,64,122,0.15);border-radius:14px;padding:10px 14px;margin:18px 0 22px;text-align:left;}
-.lpc-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#ec407a,#ba68c8);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
-.lpc-name{color:#7a2d4f;font-weight:600;font-size:0.88rem;line-height:1.2;}
-.lpc-role{color:#b06a86;font-size:0.7rem;margin-top:2px;}
+.login-avatar{width:74px;height:74px;border-radius:22px;background:linear-gradient(135deg,var(--l-acc1),var(--l-acc2));display:inline-flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.6rem;color:#fff;box-shadow:0 10px 30px rgba(var(--l-acc-rgb),0.40);}
+.login-card h1{font-family:var(--font-serif);font-size:1.8rem;color:var(--l-deep);margin-bottom:4px;letter-spacing:-0.3px;}
+.login-card .login-version{font-size:0.72rem;color:var(--l-soft);margin-bottom:6px;letter-spacing:0.5px;}
+.login-profile-chip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.6);border:1px solid rgba(var(--l-acc-rgb),0.15);border-radius:14px;padding:10px 14px;margin:18px 0 22px;text-align:left;}
+.lpc-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--l-acc1),var(--l-acc2));display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;}
+.lpc-name{color:var(--l-deep);font-weight:600;font-size:0.88rem;line-height:1.2;}
+.lpc-role{color:var(--l-soft);font-size:0.7rem;margin-top:2px;}
 .pass-wrap{position:relative;margin-bottom:10px;}
 .pass-wrap .login-input{padding-right:50px;text-align:left;letter-spacing:0;}
 .pass-wrap .login-input[type=password]{letter-spacing:4px;}
 .pass-wrap .login-input[type=password]::placeholder{letter-spacing:0;}
-.eye-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#c77b97;padding:4px;display:flex;align-items:center;transition:color 0.15s;}
-.eye-toggle:hover{color:#ec407a;}
-.login-input{width:100%;padding:14px 18px;background:rgba(255,255,255,0.75);border:1.5px solid rgba(236,64,122,0.20);border-radius:14px;font-size:0.95rem;color:#5a2440;font-family:var(--font);transition:0.2s;}
-.login-input:focus{outline:none;border-color:#ec407a;background:#fff;box-shadow:0 0 0 4px rgba(236,64,122,0.12);}
-.login-input::placeholder{color:#c99bb0;letter-spacing:0;}
+.eye-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--l-soft);padding:4px;display:flex;align-items:center;transition:color 0.15s;}
+.eye-toggle:hover{color:var(--l-acc1);}
+.login-input{width:100%;padding:14px 18px;background:rgba(255,255,255,0.75);border:1.5px solid rgba(var(--l-acc-rgb),0.20);border-radius:14px;font-size:0.95rem;color:var(--l-deep);font-family:var(--font);transition:0.2s;}
+.login-input:focus{outline:none;border-color:var(--l-acc1);background:#fff;box-shadow:0 0 0 4px rgba(var(--l-acc-rgb),0.12);}
+.login-input::placeholder{color:var(--l-ph);letter-spacing:0;}
 .login-remember{display:flex;align-items:center;gap:9px;margin-top:14px;padding:0 2px;cursor:pointer;user-select:none;}
-.login-remember input{width:18px;height:18px;accent-color:#ec407a;cursor:pointer;flex-shrink:0;}
-.login-remember label{font-size:0.82rem;color:#8a5470;cursor:pointer;}
-.login-btn{width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#ec407a,#d81b60);border:none;border-radius:14px;font-family:var(--font);font-size:0.95rem;font-weight:700;color:#fff;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
-.login-btn:hover{background:linear-gradient(135deg,#e91e63,#c2185b);transform:translateY(-1px);box-shadow:0 8px 24px rgba(236,64,122,0.40);}
+.login-remember input{width:18px;height:18px;accent-color:var(--l-acc1);cursor:pointer;flex-shrink:0;}
+.login-remember label{font-size:0.82rem;color:var(--l-soft);cursor:pointer;}
+.login-btn{width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,var(--l-acc1),var(--l-btn2));border:none;border-radius:14px;font-family:var(--font);font-size:0.95rem;font-weight:700;color:#fff;cursor:pointer;transition:all 0.2s;letter-spacing:0.2px;}
+.login-btn:hover{background:linear-gradient(135deg,var(--l-acc1),var(--l-btn2));filter:brightness(0.94);transform:translateY(-1px);box-shadow:0 8px 24px rgba(var(--l-acc-rgb),0.40);}
 .login-btn:active{transform:scale(0.98);}
-.login-err{color:#d81b60;font-size:0.82rem;margin-top:10px;display:none;animation:errShake 0.3s ease;}
+.login-err{color:var(--l-btn2);font-size:0.82rem;margin-top:10px;display:none;animation:errShake 0.3s ease;}
 @keyframes errShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.forgot-link{background:none;border:none;color:#b06a86;font-size:0.8rem;cursor:pointer;font-family:var(--font);margin-top:16px;display:block;width:100%;text-align:center;transition:color 0.15s;text-decoration:none;}
-.forgot-link:hover{color:#ec407a;}
+.forgot-link{background:none;border:none;color:var(--l-soft);font-size:0.8rem;cursor:pointer;font-family:var(--font);margin-top:16px;display:block;width:100%;text-align:center;transition:color 0.15s;text-decoration:none;}
+.forgot-link:hover{color:var(--l-acc1);}
 
 /* ─── FORGOT PASSWORD MODAL ─── */
 #forgot-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:10000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
@@ -226,6 +258,18 @@ input[type="checkbox"]:checked::after{
   content:'';position:absolute;left:50%;top:46%;width:5px;height:10px;
   border:solid #fff;border-width:0 2px 2px 0;
   transform:translate(-50%,-50%) rotate(45deg);
+}
+/* Radio: stesso problema delle checkbox, stesso rimedio (pallino pieno). */
+input[type="radio"]{
+  width:20px;height:20px;min-width:20px;padding:0;flex-shrink:0;border-radius:50%;
+  border:1.5px solid var(--separator);background:var(--surface2);
+  cursor:pointer;position:relative;display:inline-block;vertical-align:middle;
+}
+input[type="radio"]:hover,input[type="radio"]:focus{outline:none;border-color:var(--primary);}
+input[type="radio"]:checked{border-color:var(--primary);background:var(--surface);}
+input[type="radio"]:checked::after{
+  content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;
+  background:var(--primary);transform:translate(-50%,-50%);
 }
 .form-hint{font-size:0.75rem;color:var(--label4);}
 .field-row{display:grid;gap:14px;}
@@ -892,7 +936,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 </style>
 </head>
 <body>
-<script>if(localStorage.getItem('gs_dark_mode')==='1')document.body.classList.add('dark-mode');</script>
+<script>if(localStorage.getItem('gs_dark_mode')==='1')document.body.classList.add('dark-mode');try{var gsT=localStorage.getItem('gs_tema_ultimo');if(gsT&&gsT!=='blu')document.documentElement.dataset.tema=gsT;}catch(e){}</script>
 
 <!-- MOBILE TOP BAR -->
 <div class="mob-bar" id="mob-bar">
@@ -932,7 +976,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       </div>
       <div class="login-remember">
         <input type="checkbox" id="login-remember-chk" checked>
-        <label for="login-remember-chk">Resta collegata su questo dispositivo</label>
+        <label for="login-remember-chk">Ricordami su questo dispositivo</label>
       </div>
       <button class="login-btn" type="submit">Accedi</button>
     </form>
@@ -1075,7 +1119,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="page-header">
     <div>
       <div class="page-title">Dashboard</div>
-      <div class="page-subtitle" id="dash-welcome">Benvenuta</div>
+      <div class="page-subtitle" id="dash-welcome">Ciao</div>
     </div>
     <div style="text-align:right">
       <div id="clock-time" style="font-family:var(--font-serif);font-size:2rem;color:var(--primary);line-height:1;">--:--</div>
@@ -2112,8 +2156,16 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   <div class="card" style="margin-bottom:24px;">
     <div class="card-header"><div><div class="card-title">➕ Nuovo Account</div><div class="card-subtitle">Crea un accesso email+password per un nuovo membro dello studio</div></div></div>
     <div class="field-row r2" style="margin-bottom:10px;">
-      <div class="form-group"><label class="form-label">Nome e Cognome</label><input type="text" id="adm-new-nome" placeholder="es. Dr.ssa Maria Rossi"></div>
+      <div class="form-group"><label class="form-label">Nome e Cognome</label><input type="text" id="adm-new-nome" placeholder="es. Maria Rossi"></div>
       <div class="form-group"><label class="form-label">Email</label><input type="email" id="adm-new-email" placeholder="nome@esempio.it" autocomplete="off"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label class="form-label">Come si rivolge l'app a questa persona</label>
+      <select id="adm-new-genere">
+        <option value="f">Al femminile (es. "la dottoressa")</option>
+        <option value="m">Al maschile (es. "il dottore")</option>
+        <option value="n" selected>In modo neutro (es. "il medico")</option>
+      </select>
     </div>
     <div class="form-group" style="margin-bottom:12px;">
       <label class="form-label">Password provvisoria</label>
@@ -2138,13 +2190,25 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 
   <div class="tipo-pills" style="margin-bottom:20px;">
-    <button class="tipo-pill active" onclick="setSettingsTab(this,'set-tab-ai')">🤖 Assistente AI</button>
+    <button class="tipo-pill active" onclick="setSettingsTab(this,'set-tab-profilo')">👤 Profilo e aspetto</button>
+    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-ai')">🤖 Assistente AI</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-stampa')">🖨️ Stampe</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-funzioni')">🧩 Funzionalità</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-cartella')">🗂️ Cartella Paziente</button>
   </div>
 
-  <div id="set-tab-ai" class="edit-panel active">
+  <div id="set-tab-profilo" class="edit-panel active">
+  <div class="card" style="max-width:720px;margin-bottom:16px;">
+    <div class="card-header"><div><div class="card-title">🎨 Tema</div><div class="card-subtitle">Colore dell'app e della schermata di accesso per il tuo account</div></div></div>
+    <div id="set-temi" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+  </div>
+  <div class="card" style="max-width:720px;">
+    <div class="card-header"><div><div class="card-title">👤 Come si rivolge a te l'app</div><div class="card-subtitle">Usato nei messaggi e dall'assistente AI</div></div></div>
+    <div id="set-genere" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
+  </div>
+
+  <div id="set-tab-ai" class="edit-panel">
   <div class="card" style="max-width:720px;">
     <div class="card-header"><div><div class="card-title">🤖 Assistente clinico</div><div class="card-subtitle">Sempre disponibile: durante la visita ti segnala i passi giusti; sulla dashboard ti fa il punto della giornata, ti ricorda le cose importanti e ti propone di ripassare i casi in arrivo</div></div></div>
     <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 0;">
@@ -5848,6 +5912,75 @@ function applyNomeMedico(nome){
   if(avatar && iniziali) avatar.textContent = iniziali;
 }
 
+// ── PROFILO OPERATORE: genere (come si rivolge l'app) e tema colore ──
+// Impostati alla creazione dell'account (amministrazione) e modificabili in
+// Impostazioni → Profilo e aspetto. Salvati in utenti/{uid} (nessun dato
+// clinico) con una copia locale, così valgono anche se Firestore non risponde.
+let gsUserGenere = 'n'; // 'f' femminile, 'm' maschile, 'n' neutro
+function gsG(f, m, n){ return gsUserGenere==='f' ? f : (gsUserGenere==='m' ? m : n); }
+// Come l'app (e l'assistente AI) nomina l'operatore: forma 'art' | 'a' | 'di' | 'da'
+function gsOperatore(forma){
+  const T={
+    f:{art:'la dottoressa', a:'alla dottoressa', di:'della dottoressa', da:'dalla dottoressa'},
+    m:{art:'il dottore', a:'al dottore', di:'del dottore', da:'dal dottore'},
+    n:{art:'il medico', a:'al medico', di:'del medico', da:'dal medico'}
+  };
+  return (T[gsUserGenere]||T.n)[forma||'art'];
+}
+function gsIconaOperatore(){ return gsG('👩‍⚕️','👨‍⚕️','🧑‍⚕️'); }
+const GS_TEMI=[
+  {id:'blu', nome:'Blu', colore:'#007AFF'},
+  {id:'rosa', nome:'Rosa', colore:'#d81b60'},
+  {id:'verde', nome:'Verde', colore:'#17936b'},
+  {id:'viola', nome:'Viola', colore:'#7e57c2'},
+  {id:'turchese', nome:'Turchese', colore:'#0097a7'},
+  {id:'grafite', nome:'Grafite', colore:'#455a64'}
+];
+let gsUserTema = 'blu';
+function applicaTema(id){
+  gsUserTema = GS_TEMI.some(t=>t.id===id) ? id : 'blu';
+  if(gsUserTema==='blu') delete document.documentElement.dataset.tema;
+  else document.documentElement.dataset.tema = gsUserTema;
+  try{ localStorage.setItem('gs_tema_ultimo', gsUserTema); }catch(e){}
+  renderImpostazioniProfilo();
+}
+function _applicaPreferenzeProfilo(d, uid){
+  let g = d && d.genere, t = d && d.tema;
+  try{
+    if(!g) g = localStorage.getItem('gs_genere_'+uid);
+    if(!t) t = localStorage.getItem('gs_tema_'+uid);
+  }catch(e){}
+  gsUserGenere = ['f','m','n'].includes(g) ? g : 'n';
+  applicaTema(t || 'blu');
+}
+async function salvaPreferenzaProfilo(campo, valore){
+  if(campo==='tema') applicaTema(valore);
+  if(campo==='genere'){
+    gsUserGenere = valore;
+    renderImpostazioniProfilo();
+    if(typeof renderFBAppts==='function'){ try{ renderFBAppts(); }catch(e){} }
+  }
+  if(!gsCurrentUser) return;
+  try{ localStorage.setItem('gs_'+campo+'_'+gsCurrentUser.uid, valore); }catch(e){}
+  try{ await gsDb.collection('utenti').doc(gsCurrentUser.uid).update({ [campo]: valore }); }
+  catch(e){ console.warn('Preferenza salvata solo su questo dispositivo:', e); }
+}
+function renderImpostazioniProfilo(){
+  const boxT = document.getElementById('set-temi');
+  if(boxT) boxT.innerHTML = GS_TEMI.map(t=>`<button type="button" onclick="salvaPreferenzaProfilo('tema','${t.id}')"
+      style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:12px;cursor:pointer;font:inherit;font-weight:600;font-size:.85rem;
+      background:var(--surface2);color:var(--label);border:2px solid ${t.id===gsUserTema?t.colore:'var(--separator)'};">
+      <span style="width:20px;height:20px;border-radius:50%;background:${t.colore};flex-shrink:0;"></span>${t.nome}${t.id===gsUserTema?' ✓':''}</button>`).join('');
+  const boxG = document.getElementById('set-genere');
+  if(boxG) boxG.innerHTML = [
+    ['f','Al femminile','"la dottoressa", "la decisione finale è della dottoressa"'],
+    ['m','Al maschile','"il dottore", "la decisione finale è del dottore"'],
+    ['n','In modo neutro','"il medico", senza riferimenti al genere']
+  ].map(([v,tit,es])=>`<label style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--separator);border-radius:10px;cursor:pointer;">
+      <input type="radio" name="set-genere-opt" value="${v}" ${gsUserGenere===v?'checked':''} onchange="salvaPreferenzaProfilo('genere','${v}')" style="width:18px;height:18px;flex-shrink:0;">
+      <span><span style="font-weight:600;">${tit}</span><br><span style="font-size:.76rem;color:var(--label4);">es. ${es}</span></span></label>`).join('');
+}
+
 // Chiamata dopo ogni login riuscito. Crea/legge il "profilo applicativo"
 // dell'utente in Firestore (utenti/{uid}): serve a sapere chi esiste, se è
 // stato sospeso, e se deve ancora impostare una password personale al posto
@@ -5894,6 +6027,7 @@ async function handleUserProfile(user){
     demoMode = data.demoMode === true;
     try{ await ref.update({ ultimoAccesso: new Date().toISOString(), email: user.email }); }catch(e){}
   }
+  _applicaPreferenzeProfilo(snap.exists ? snap.data() : null, user.uid);
   applyNomeMedico(nome);
   gsDemoMode = demoMode;
 
@@ -5907,8 +6041,9 @@ async function handleUserProfile(user){
     if(d.attivo === false){
       gsSuspensionMsg = 'Il tuo accesso è stato sospeso dall\'amministratore.';
       gsAuth.signOut();
-    }else if(d.nome){
-      applyNomeMedico(d.nome);
+    }else{
+      _applicaPreferenzeProfilo(d, gsCurrentUser.uid);
+      if(d.nome) applyNomeMedico(d.nome);
     }
   });
 
@@ -6144,6 +6279,11 @@ async function renderAdminUtenti(){
             ${u.demoMode
               ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', false)">🎭 Disattiva demo</button>`
               : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', true)">🎭 Attiva demo${isSelf?' (per me)':''}</button>`}
+            <select style="width:auto;padding:6px 10px;font-size:0.8rem;" title="Come si rivolge l'app a questa persona" onchange="adminImpostaGenere('${uid}', this.value)">
+              <option value="f" ${u.genere==='f'?'selected':''}>Femminile</option>
+              <option value="m" ${u.genere==='m'?'selected':''}>Maschile</option>
+              <option value="n" ${(u.genere!=='f'&&u.genere!=='m')?'selected':''}>Neutro</option>
+            </select>
             <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminRichiediReset('${u.email}')">Richiedi cambio password</button>
             ${!isSelf && !u.eliminato ? `<button class="btn" style="padding:6px 12px;font-size:0.8rem;background:var(--red-dim);color:var(--red);" onclick="adminEliminaUtente('${uid}','${u.email}')">Elimina</button>` : ''}
           </div>
@@ -6155,17 +6295,28 @@ async function renderAdminUtenti(){
   }
 }
 
+async function adminImpostaGenere(uid, genere){
+  try{
+    await gsDb.collection('utenti').doc(uid).update({ genere });
+    if(typeof gsToast==='function') gsToast('✅ Preferenza aggiornata','gs-success');
+  }catch(e){
+    console.warn('Aggiornamento genere:', e);
+    if(typeof gsToast==='function') gsToast('⚠️ Aggiornamento non riuscito','gs-error');
+  }
+}
+
 async function adminCreaUtente(){
   const nome = document.getElementById('adm-new-nome').value.trim();
   const email = document.getElementById('adm-new-email').value.trim();
   const pass = document.getElementById('adm-new-pass').value;
+  const genere = document.getElementById('adm-new-genere')?.value || 'n';
   const msg = document.getElementById('adm-new-msg');
   const showMsg = (text, ok) => {
     msg.textContent = text;
     msg.style.display = 'block';
     msg.style.color = ok ? '#2e7d32' : '#c62828';
   };
-  if(!gsCurrentUser || gsCurrentUser.email !== ADMIN_EMAIL){ showMsg('Non autorizzata.', false); return; }
+  if(!gsCurrentUser || gsCurrentUser.email !== ADMIN_EMAIL){ showMsg(gsG('Non autorizzata.','Non autorizzato.','Accesso non autorizzato.'), false); return; }
   if(!nome || !email || !pass){ showMsg('Compila tutti i campi.', false); return; }
   if(pass.length < 6){ showMsg('La password deve avere almeno 6 caratteri.', false); return; }
 
@@ -6180,7 +6331,7 @@ async function adminCreaUtente(){
     await secAuth.signOut();
 
     await gsDb.collection('utenti').doc(newUid).set({
-      email, nome, attivo:true, eliminato:false,
+      email, nome, genere, attivo:true, eliminato:false,
       mustChangePassword:true, // al primo accesso dovrà impostarne una sua, al posto di quella provvisoria
       createdAt: new Date().toISOString(),
       createdBy: gsCurrentUser.email
@@ -6190,6 +6341,7 @@ async function adminCreaUtente(){
     document.getElementById('adm-new-nome').value='';
     document.getElementById('adm-new-email').value='';
     document.getElementById('adm-new-pass').value='';
+    document.getElementById('adm-new-genere').value='n';
     renderAdminUtenti();
   }catch(e){
     let m = 'Errore nella creazione dell\'account.';
@@ -6283,7 +6435,7 @@ function naviga(id){
   if(id==='email') renderEmailSezione();
   if(id==='utility') caricaDiarioPersonale();
   if(id==='amministrazione') renderAdminUtenti();
-  if(id==='impostazioni') renderImpostazioni();
+  if(id==='impostazioni'){ renderImpostazioni(); renderImpostazioniProfilo(); }
 }
 
 // ── ARCHIVIO CLINICO LOCALE: IndexedDB ──
@@ -9033,21 +9185,22 @@ function aiContestoVisita(){
   return txt.trim();
 }
 
-const AI_SYSTEM_BASE =
-  "Sei l'assistente clinico di "+GS_APP_NOME_COMPLETO+": un collega ginecologo e ostetrico esperto e aggiornato alle linee guida (SIGO/AOGOI, AIPE, SIEOG, ISUOG, NICE, ACOG), che dà del tu alla dottoressa. " +
+function aiSystemBase(){ return (
+  "Sei l'assistente clinico di "+GS_APP_NOME_COMPLETO+": un collega ginecologo e ostetrico esperto e aggiornato alle linee guida (SIGO/AOGOI, AIPE, SIEOG, ISUOG, NICE, ACOG), che dà del tu "+gsOperatore('a')+". " +
   "Ragiona da specialista: collega i dati fra loro, evidenzia incoerenze e red flag, proponi diagnosi differenziali pertinenti, esami mirati e terapie con posologia quando serve, indicando sempre il perché e il quando. " +
   "Sii specifico e concreto, mai generico o burocratico; niente disclaimer inutili. " +
-  "Sei un supporto: la decisione finale è della dottoressa. Non inventare dati: se un dato manca o è ambiguo, chiedilo o segnalalo. " +
-  "Rispondi in italiano, breve e denso. Non ripetere pari pari ciò che è già scritto.";
+  "Sei un supporto: la decisione finale è "+gsOperatore('di')+". Non inventare dati: se un dato manca o è ambiguo, chiedilo o segnalalo. " +
+  "Rispondi in italiano, breve e denso. Non ripetere pari pari ciò che è già scritto.");
+}
 
 function aiSystemPrompt(mode){
   const flussi = {
     gyno: "Contesto: visita ginecologica in compilazione. Flusso ideale: anamnesi (dati generali, ciclo, sintomi, screening, familiarità) → motivo della visita → esame obiettivo (generale, speculum, prelievi, bimanuale) → ecografia → eventuale colposcopia/HPV → conclusioni (diagnosi, esami richiesti, terapia, prossimo controllo).",
     ob: "Contesto: visita ostetrica in compilazione. Flusso ideale: anamnesi (età, PARA, emogruppo, tipo gravidanza, datazione UM/EPP, dati pregravidici, screening, stile di vita, familiarità) → visita ed eco (settimane, PA, peso/incremento, referto) → biometria fetale con percentili → note eco → counselling → prescrizioni esami → conclusioni (diagnosi, terapia, prossimo controllo).",
     eco: "Contesto: ecografia ostetrica in compilazione. Flusso ideale: tipo di esame → età gestazionale → biometria fetale (con flussimetria Doppler) → referto conclusivo, terapia, prossimo controllo.",
-    dashboard: "Contesto: nessuna visita aperta — stai affiancando la dottoressa nella gestione della giornata. Aiutala a prepararsi agli appuntamenti, a non dimenticare promemoria e controlli scaduti o imminenti, e a ripassare la storia clinica delle pazienti che vedrà a breve (red flag, cosa chiedere, quali esami controllare). Parla in modo naturale, come un collega che dà una mano."
+    dashboard: "Contesto: nessuna visita aperta — stai affiancando "+gsOperatore('art')+" nella gestione della giornata. "+gsG('Aiutala','Aiutalo','Aiutalo')+" a prepararsi agli appuntamenti, a non dimenticare promemoria e controlli scaduti o imminenti, e a ripassare la storia clinica delle pazienti che vedrà a breve (red flag, cosa chiedere, quali esami controllare). Parla in modo naturale, come un collega che dà una mano."
   };
-  return AI_SYSTEM_BASE + "\n\n" + (flussi[mode] || flussi.gyno);
+  return aiSystemBase() + "\n\n" + (flussi[mode] || flussi.gyno);
 }
 
 // ── Robottino: visibilità e ciclo di vita ──────────────────────────
@@ -9419,8 +9572,8 @@ async function aiInviaChat(){
     const ctx = aiInVisita ? aiContestoVisita() : aiAgendaContesto();
     const sys = aiSystemPrompt(aiInVisita ? curMode : 'dashboard') +
       (ctx ? "\n\n" + (aiInVisita
-        ? "Dati della visita che la dottoressa sta compilando in questo momento (usali come contesto, non ripeterli):"
-        : "Agenda e situazione attuale della dottoressa (contesto, dati de-identificati):") + "\n" + ctx : "");
+        ? "Dati della visita che "+gsOperatore('art')+" sta compilando in questo momento (usali come contesto, non ripeterli):"
+        : "Agenda e situazione attuale "+gsOperatore('di')+" (contesto, dati de-identificati):") + "\n" + ctx : "");
     const testo = await aiChiama('chat', aiChatStoria.slice(-10), sys);
     if(attesa) attesa.remove();
     const risp = testo || 'Scusa, non sono riuscito a rispondere. Riprova tra un attimo.';
@@ -10723,23 +10876,23 @@ let _emailSelezionate=new Set();
 
 const EMAIL_MODELLI=[
   { titolo:'Promemoria appuntamento', icona:'📅',
-    oggetto:'Promemoria appuntamento — Studio Dr.ssa Cristina Guidi',
-    corpo:"Gentile {{NOME}},\n\nLe ricordiamo il Suo prossimo appuntamento presso il nostro studio.\n\nIn caso di impedimento La preghiamo di avvisarci con anticipo per poter riorganizzare l'agenda.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+    oggetto:'Promemoria appuntamento — {{STUDIO}}',
+    corpo:"Gentile {{NOME}},\n\nLe ricordiamo il Suo prossimo appuntamento presso il nostro studio.\n\nIn caso di impedimento La preghiamo di avvisarci con anticipo per poter riorganizzare l'agenda.\n\nCordiali saluti,\n{{STUDIO}}" },
   { titolo:'Richiamo screening (Pap-test/HPV/Mammografia)', icona:'🔬',
-    oggetto:'Promemoria controllo periodico — Studio Dr.ssa Cristina Guidi',
-    corpo:"Gentile {{NOME}},\n\nDai nostri controlli risulta che è consigliabile programmare il Suo prossimo screening periodico (Pap-test/HPV o mammografia).\n\nLa invitiamo a contattare lo studio per fissare un appuntamento quando Le è comodo.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+    oggetto:'Promemoria controllo periodico — {{STUDIO}}',
+    corpo:"Gentile {{NOME}},\n\nDai nostri controlli risulta che è consigliabile programmare il Suo prossimo screening periodico (Pap-test/HPV o mammografia).\n\nLa invitiamo a contattare lo studio per fissare un appuntamento quando Le è comodo.\n\nCordiali saluti,\n{{STUDIO}}" },
   { titolo:'Referto pronto', icona:'📄',
-    oggetto:'Il Suo referto è disponibile — Studio Dr.ssa Cristina Guidi',
-    corpo:"Gentile {{NOME}},\n\nLa informiamo che il referto del Suo recente esame/visita è pronto.\n\nPuò ritirarlo in studio oppure concordare con noi le modalità di consegna preferite.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+    oggetto:'Il Suo referto è disponibile — {{STUDIO}}',
+    corpo:"Gentile {{NOME}},\n\nLa informiamo che il referto del Suo recente esame/visita è pronto.\n\nPuò ritirarlo in studio oppure concordare con noi le modalità di consegna preferite.\n\nCordiali saluti,\n{{STUDIO}}" },
   { titolo:'Richiamo controllo post-intervento', icona:'🩹',
-    oggetto:'Promemoria controllo post-intervento — Studio Dr.ssa Cristina Guidi',
-    corpo:"Gentile {{NOME}},\n\nCome da indicazioni, Le ricordiamo di programmare il controllo post-intervento presso il nostro studio.\n\nLa invitiamo a contattarci per fissare l'appuntamento più adatto.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+    oggetto:'Promemoria controllo post-intervento — {{STUDIO}}',
+    corpo:"Gentile {{NOME}},\n\nCome da indicazioni, Le ricordiamo di programmare il controllo post-intervento presso il nostro studio.\n\nLa invitiamo a contattarci per fissare l'appuntamento più adatto.\n\nCordiali saluti,\n{{STUDIO}}" },
   { titolo:'Benvenuto nuova paziente', icona:'🌸',
-    oggetto:'Benvenuta nello Studio Dr.ssa Cristina Guidi',
-    corpo:"Gentile {{NOME}},\n\nLe diamo il benvenuto presso il nostro studio. Siamo a disposizione per qualsiasi informazione riguardo ai nostri servizi e agli orari di ricevimento.\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" },
+    oggetto:'Benvenuta nello {{STUDIO}}',
+    corpo:"Gentile {{NOME}},\n\nLe diamo il benvenuto presso il nostro studio. Siamo a disposizione per qualsiasi informazione riguardo ai nostri servizi e agli orari di ricevimento.\n\nCordiali saluti,\n{{STUDIO}}" },
   { titolo:'Comunicazione generale dello studio', icona:'📢',
-    oggetto:'Comunicazione dallo Studio Dr.ssa Cristina Guidi',
-    corpo:"Gentile {{NOME}},\n\n[scrivi qui la comunicazione]\n\nCordiali saluti,\nStudio Dr.ssa Cristina Guidi" }
+    oggetto:'Comunicazione dallo {{STUDIO}}',
+    corpo:"Gentile {{NOME}},\n\n[scrivi qui la comunicazione]\n\nCordiali saluti,\n{{STUDIO}}" }
 ];
 
 function renderEmailSezione(){
@@ -10809,6 +10962,11 @@ function _emailRaccogliDestinatari(){
     .filter(p=>(p.email||'').trim())
     .map(p=>({ pazienteId:String(p.id), nome:`${p.nome} ${p.cognome}`, email:p.email.trim() }));
 }
+// "Studio <nome>" preso dall'intestazione delle stampe (Impostazioni → Stampe).
+function _emailNomeStudio(){
+  const nome=(getPrintCfg().intestazione||{}).nome||gsUserNome||'';
+  return nome?('Studio '+nome):'Lo Studio';
+}
 function renderEmailModelli(){
   const box=document.getElementById('email-modelli-lista'); if(!box) return;
   box.innerHTML = EMAIL_MODELLI.map((m,i)=>`
@@ -10816,15 +10974,16 @@ function renderEmailModelli(){
       <span style="font-size:1.4rem;flex-shrink:0;">${m.icona}</span>
       <div style="flex:1;">
         <div style="font-weight:600;font-size:.88rem;">${_escHtml(m.titolo)}</div>
-        <div style="font-size:.76rem;color:var(--label4);">${_escHtml(m.oggetto)}</div>
+        <div style="font-size:.76rem;color:var(--label4);">${_escHtml(m.oggetto.split('{{STUDIO}}').join(_emailNomeStudio()))}</div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="_emailApplicaModello(${i})">Usa questo modello</button>
     </div>`).join('');
 }
 function _emailApplicaModello(i){
   const m=EMAIL_MODELLI[i]; if(!m) return;
-  document.getElementById('email-oggetto').value=m.oggetto;
-  document.getElementById('email-corpo').value=m.corpo;
+  const studio=_emailNomeStudio();
+  document.getElementById('email-oggetto').value=m.oggetto.split('{{STUDIO}}').join(studio);
+  document.getElementById('email-corpo').value=m.corpo.split('{{STUDIO}}').join(studio);
   _emailSwitchTab('nuova');
   if(typeof gsToast==='function') gsToast('✅ Modello caricato — scegli le destinatarie e invia','gs-success');
 }
@@ -12665,7 +12824,7 @@ function closeSidebar(){
     const m={
       name:GS_APP_NOME_COMPLETO,
       short_name:GS_APP_NOME_COMPLETO,
-      description:"Gestione studio ginecologico · Dr.ssa Cristina Guidi",
+      description:"MED System Gineco · gestione studio ginecologico",
       start_url:"./index.html",
       display:"standalone",
       orientation:"any",
@@ -12846,7 +13005,7 @@ function renderFBAppts(){
   function apptRow(a,showDate=false){
     const dStr=showDate?new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' ':'';
     const nomeClick=`onclick="apriModificaAppuntamento('${a.id}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" title="Modifica questo appuntamento"`;
-    const centroHtml=a.createdByOrg?`<span class="badge badge-blue" style="margin-left:6px">🏥 ${a.createdByOrg}</span>`:'<span class="badge badge-purple" style="margin-left:6px">👩‍⚕️ Dr.ssa Guidi</span>';
+    const centroHtml=a.createdByOrg?`<span class="badge badge-blue" style="margin-left:6px">🏥 ${a.createdByOrg}</span>`:`<span class="badge badge-purple" style="margin-left:6px">${gsIconaOperatore()} ${_escHtml(gsUserNome||'Studio')}</span>`;
     return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px;border-bottom:1px solid var(--separator)">
       <div style="min-width:58px;text-align:center;flex-shrink:0">
         ${showDate?`<div style="font-size:.65rem;color:var(--label4);font-weight:700;margin-bottom:3px">${dStr}</div>`:''}
@@ -12876,7 +13035,7 @@ function renderFBAppts(){
   if(!filtered.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--label4);padding:24px">Nessun appuntamento con questi filtri</td></tr>';return;}
   tb.innerHTML=filtered.map(a=>{
     const nomeClick=`onclick="apriModificaAppuntamento('${a.id}')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted" title="Modifica questo appuntamento"`;
-    const centroHtml=a.createdByOrg?`<div style="font-size:.7rem;color:var(--primary);font-weight:600">🏥 ${a.createdByOrg}</div>`:`<div style="font-size:.7rem;color:var(--purple);font-weight:600">👩‍⚕️ Dr.ssa Guidi</div>`;
+    const centroHtml=a.createdByOrg?`<div style="font-size:.7rem;color:var(--primary);font-weight:600">🏥 ${a.createdByOrg}</div>`:`<div style="font-size:.7rem;color:var(--purple);font-weight:600">${gsIconaOperatore()} ${_escHtml(gsUserNome||'Studio')}</div>`;
     return `<tr>
     <td><strong>${new Date(a.data+'T12:00:00').toLocaleDateString('it-IT')}</strong><br><span style="color:var(--label4);font-size:.8rem">${a.ora||'–'}</span></td>
     <td class="td-name"><span ${nomeClick}>${a.pazienteNome||'–'}</span>${centroHtml}</td>

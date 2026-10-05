@@ -127,7 +127,7 @@ service cloud.firestore {
       allow update: if request.auth != null
         && (request.auth.token.email == 'titancodesm@gmail.com'
             || (request.auth.uid == uid
-                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome','ultimoAccesso','mustChangePassword'])));
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome','ultimoAccesso','mustChangePassword','genere','tema'])));
 
       allow delete: if request.auth != null && request.auth.token.email == 'titancodesm@gmail.com';
     }
