@@ -105,6 +105,13 @@
     async elimina(id){
       await esegui('DELETE FROM allegati WHERE id=$1 AND uid=$2', [id, uid()]);
     },
+    async tutti(){
+      const r = await seleziona('SELECT id, meta, dati FROM allegati WHERE uid=$1 ORDER BY id', [uid()]);
+      return r.map(x=>{ const meta = JSON.parse(x.meta); return { ...meta, id: x.id, blob: base64InBlob(x.dati, meta.tipo) }; });
+    },
+    async svuota(){
+      await esegui('DELETE FROM allegati WHERE uid=$1', [uid()]);
+    },
     async eliminaPaziente(pazId){
       await esegui('DELETE FROM allegati WHERE uid=$1 AND paziente_id=$2', [uid(), String(pazId)]);
     }
@@ -234,7 +241,7 @@
     card.innerHTML = `<div class="card-header"><div><div class="card-title">🖥️ Database interno</div><div class="card-subtitle">Cartelle cliniche, allegati e consensi in un unico file su questo PC</div></div></div>
       <div id="gsd-info" style="font-size:.8rem;color:var(--label4);margin-bottom:12px;word-break:break-all">…</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-primary" style="justify-content:flex-start;" onclick="gsDesktop.esportaDatabase()">💾 Esporta copia del database (.db)</button>
+        <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="gsDesktop.esportaDatabase()">💾 Copia grezza del file database (.db)</button>
         <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="gsDesktop.mostraStorico()">🕘 Versioni salvate automaticamente</button>
       </div>
       <div id="gsd-storico" style="margin-top:12px"></div>`;

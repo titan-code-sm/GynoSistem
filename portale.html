@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>MED System · Portale utenti</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+<style>
+:root{
+  --bg:#f4f6f9;--surface:#fff;--surface2:#f8fafc;--primary:#2563eb;--primary-dim:rgba(37,99,235,.08);--primary-ring:rgba(37,99,235,.18);
+  --label:#0f172a;--label2:#334155;--label3:#475569;--label4:#64748b;--separator:#e4e8ef;--border:#d5dbe5;
+  --green:#16a34a;--green-dim:rgba(22,163,74,.10);--red:#dc2626;--red-dim:rgba(220,38,38,.08);--orange:#d97706;--orange-dim:rgba(217,119,6,.10);
+  --font:'Inter','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--label);font-size:14px;min-height:100vh}
+button,input,select{font:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 24px 60px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+header h1{font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+header .sub{color:var(--label4);font-size:.82rem}
+header .spazio{flex:1}
+.card{background:var(--surface);border:1px solid var(--separator);border-radius:12px;padding:22px;box-shadow:0 1px 2px rgba(15,23,42,.04);margin-bottom:18px}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:4px}
+.card .sub{color:var(--label4);font-size:.82rem;margin-bottom:16px}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--label3);margin-bottom:5px}
+input,select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--label)}
+input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-ring)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:end}
+.btn{padding:9px 16px;border-radius:8px;border:1px solid transparent;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:filter .15s,background .15s}
+.btn:disabled{opacity:.6;cursor:default}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{filter:brightness(.92)}
+.btn-ghost{background:#fff;color:var(--label2);border-color:var(--border)}
+.btn-ghost:hover{background:var(--surface2)}
+.btn-danger{background:var(--red-dim);color:var(--red);border-color:rgba(220,38,38,.2)}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-sm{padding:5px 10px;font-size:.78rem}
+.msg{font-size:.84rem;margin-top:10px;min-height:1.2em}
+.msg.ok{color:var(--green)}.msg.err{color:var(--red)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.72rem;font-weight:600;color:var(--label4);text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--separator)}
+td{padding:12px 10px;border-bottom:1px solid var(--separator);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.nome{font-weight:600}
+.email{color:var(--label4);font-size:.8rem}
+.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:600;margin:2px 4px 2px 0}
+.b-ok{background:var(--green-dim);color:#15803d}.b-ko{background:var(--red-dim);color:#b91c1c}.b-warn{background:var(--orange-dim);color:#b45309}.b-info{background:var(--primary-dim);color:var(--primary)}
+.azioni{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+td select{width:auto;padding:5px 8px;font-size:.8rem}
+.login{max-width:380px;margin:12vh auto 0}
+.login .card{padding:30px}
+.login h1{font-size:1.4rem;font-weight:700;margin:14px 0 4px}
+.campo{margin-bottom:12px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:14px;padding:24px;width:min(440px,92vw);box-shadow:0 18px 44px rgba(15,23,42,.18)}
+.modal h3{font-size:1.1rem;margin-bottom:6px}
+.modal p{color:var(--label4);font-size:.85rem;margin-bottom:14px;line-height:1.5}
+.riga{display:flex;gap:8px}
+.vuoto{text-align:center;color:var(--label4);padding:30px 0}
+@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.nascondi-mobile{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ACCESSO -->
+<div class="login" id="vista-login">
+  <div class="card">
+    <div class="logo">MS</div>
+    <h1>Portale utenti</h1>
+    <div style="color:var(--label4);font-size:.85rem;margin-bottom:20px">MED System · riservato all'amministratore</div>
+    <form onsubmit="event.preventDefault();accedi()">
+      <div class="campo"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="username" required></div>
+      <div class="campo"><label for="l-pass">Password</label><input id="l-pass" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:6px" id="l-btn">Accedi</button>
+    </form>
+    <div class="msg err" id="l-msg"></div>
+  </div>
+</div>
+
+<!-- PORTALE -->
+<div class="wrap" id="vista-portale" style="display:none">
+  <header>
+    <div class="logo">MS</div>
+    <div><h1>Portale utenti</h1><div class="sub">Account di accesso a MED System. Nessun dato clinico passa da qui.</div></div>
+    <div class="spazio"></div>
+    <span class="sub" id="io"></span>
+    <button class="btn btn-ghost btn-sm" onclick="esci()">Esci</button>
+  </header>
+
+  <div class="card">
+    <h2>Nuovo account</h2>
+    <div class="sub">La persona entrerà con questa email e la password provvisoria; al primo accesso dovrà sceglierne una sua.</div>
+    <div class="grid">
+      <div><label for="n-nome">Nome e cognome</label><input id="n-nome" placeholder="es. Maria Rossi"></div>
+      <div><label for="n-email">Email</label><input id="n-email" type="email" placeholder="nome@esempio.it" autocomplete="off"></div>
+      <div><label for="n-genere">Come si rivolge l'app</label>
+        <select id="n-genere"><option value="f">Al femminile</option><option value="m">Al maschile</option><option value="n" selected>Neutro</option></select></div>
+      <div><label for="n-pass">Password provvisoria</label>
+        <div class="riga"><input id="n-pass" autocomplete="off"><button class="btn btn-ghost btn-sm" type="button" onclick="document.getElementById('n-pass').value=generaPassword()" title="Genera">🎲</button></div></div>
+    </div>
+    <div style="margin-top:14px"><button class="btn btn-primary" id="n-btn" onclick="creaAccount()">Crea account</button></div>
+    <div class="msg" id="n-msg"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="flex:1"><h2>Account</h2><div class="sub" style="margin:0">Blocca o sblocca l'accesso, imposta una password provvisoria se è stata dimenticata, elimina.</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="caricaUtenti()">↻ Aggiorna</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Utente</th><th>Stato</th><th class="nascondi-mobile">Ultimo accesso</th><th>Genere</th><th class="nascondi-mobile">Demo</th><th></th></tr></thead>
+        <tbody id="lista"><tr><td colspan="6" class="vuoto">Caricamento…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD PROVVISORIA -->
+<div class="overlay" id="m-pass">
+  <div class="modal">
+    <h3>Password provvisoria</h3>
+    <p id="m-pass-testo"></p>
+    <label for="m-pass-val">Nuova password provvisoria</label>
+    <div class="riga"><input id="m-pass-val" autocomplete="off"><button class="btn btn-ghost btn-sm" type="button" onclick="document.getElementById('m-pass-val').value=generaPassword()" title="Genera">🎲</button></div>
+    <div class="msg" id="m-pass-msg"></div>
+    <div class="riga" style="justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="chiudiPass()">Annulla</button>
+      <button class="btn btn-primary" id="m-pass-btn" onclick="confermaPass()">Imposta</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_EMAIL='titancodesm@gmail.com';
+const app=firebase.initializeApp({
+  apiKey:"AIzaSyChOT7bJfATOF-qsWIb1fFXtme3nsvUxi4",
+  authDomain:"gynosistem.firebaseapp.com",
+  projectId:"gynosistem",
+  messagingSenderId:"355036111162",
+  appId:"1:355036111162:web:dfe1e1aa73a1086d4ab003"
+},'medsystem-portale');
+const auth=app.auth();
+const portale=app.functions('europe-west1').httpsCallable('portaleUtenti');
+// Sessione valida solo finché la scheda resta aperta.
+auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+
+let utenti=[], _uidPass=null;
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function msg(el,testo,ok){ el.textContent=testo; el.className='msg '+(ok?'ok':'err'); }
+function errore(e){ return (e && e.message) ? e.message.replace(/^.*?:\s*/,'') : 'Operazione non riuscita.'; }
+
+function generaPassword(){
+  const caratteri='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  const v=crypto.getRandomValues(new Uint32Array(12));
+  return Array.from(v,n=>caratteri[n%caratteri.length]).join('');
+}
+
+async function accedi(){
+  const btn=$('l-btn'); btn.disabled=true;
+  try{ await auth.signInWithEmailAndPassword($('l-email').value.trim(), $('l-pass').value); }
+  catch(e){ msg($('l-msg'),'Email o password non corretti.'); }
+  btn.disabled=false;
+}
+function esci(){ auth.signOut(); }
+
+auth.onAuthStateChanged(async user=>{
+  if(user && user.email!==ADMIN_EMAIL){
+    await auth.signOut();
+    msg($('l-msg'),'Questo portale è riservato all\'amministratore.');
+    return;
+  }
+  $('vista-login').style.display=user?'none':'';
+  $('vista-portale').style.display=user?'':'none';
+  $('l-pass').value='';
+  if(user){ $('io').textContent=user.email; caricaUtenti(); }
+});
+
+async function caricaUtenti(){
+  $('lista').innerHTML='<tr><td colspan="6" class="vuoto">Caricamento…</td></tr>';
+  try{
+    utenti=(await portale({azione:'elenco'})).data.utenti
+      .sort((a,b)=>(b.amministratore-a.amministratore)||a.nome.localeCompare(b.nome));
+    disegna();
+  }catch(e){
+    $('lista').innerHTML=`<tr><td colspan="6" class="vuoto">⚠️ ${esc(errore(e))}</td></tr>`;
+  }
+}
+
+function dataBreve(s){
+  if(!s) return 'mai';
+  const d=new Date(s);
+  return isNaN(d)?'—':d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+
+function disegna(){
+  if(!utenti.length){ $('lista').innerHTML='<tr><td colspan="6" class="vuoto">Nessun account.</td></tr>'; return; }
+  $('lista').innerHTML=utenti.map(u=>{
+    const stato=[];
+    if(u.amministratore) stato.push('<span class="badge b-info">Amministratore</span>');
+    if(!u.autorizzato && !u.amministratore) stato.push('<span class="badge b-warn">Non abilitato all\'app</span>');
+    stato.push(u.bloccato?'<span class="badge b-ko">Bloccato</span>':'<span class="badge b-ok">Attivo</span>');
+    if(u.passwordProvvisoria) stato.push('<span class="badge b-warn">Password provvisoria</span>');
+    const io=u.amministratore;
+    const id=esc(u.uid);
+    return `<tr>
+      <td><div class="nome">${esc(u.nome||'—')}</div><div class="email">${esc(u.email)}</div></td>
+      <td>${stato.join('')}</td>
+      <td class="nascondi-mobile" style="color:var(--label3);font-size:.82rem">${dataBreve(u.ultimoAccesso)}</td>
+      <td><select onchange="aggiorna('${id}',{genere:this.value})">
+        <option value="f" ${u.genere==='f'?'selected':''}>Femminile</option>
+        <option value="m" ${u.genere==='m'?'selected':''}>Maschile</option>
+        <option value="n" ${u.genere==='n'?'selected':''}>Neutro</option></select></td>
+      <td class="nascondi-mobile"><input type="checkbox" ${u.demoMode?'checked':''} title="Modalità dimostrativa con pazienti di esempio" onchange="aggiorna('${id}',{demoMode:this.checked})" style="width:auto"></td>
+      <td><div class="azioni">
+        ${!u.autorizzato && !u.amministratore ? `<button class="btn btn-ghost btn-sm" onclick="azione('${id}','autorizza')">Abilita all'app</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="apriPass('${id}')">Password provvisoria</button>
+        ${io?'':(u.bloccato
+          ? `<button class="btn btn-ghost btn-sm" onclick="azione('${id}','stato',{attivo:true})">Sblocca</button>`
+          : `<button class="btn btn-ghost btn-sm" onclick="azione('${id}','stato',{attivo:false})">Blocca</button>`)}
+        ${io?'':`<button class="btn btn-danger btn-sm" onclick="elimina('${id}')">Elimina</button>`}
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+async function azione(uid, nome, extra){
+  try{ await portale({azione:nome, uid, ...(extra||{})}); await caricaUtenti(); }
+  catch(e){ alert(errore(e)); }
+}
+async function aggiorna(uid, modifiche){
+  try{ await portale({azione:'aggiorna', uid, ...modifiche}); }
+  catch(e){ alert(errore(e)); caricaUtenti(); }
+}
+async function elimina(uid){
+  const u=utenti.find(x=>x.uid===uid); if(!u) return;
+  const conferma=prompt(`Eliminare definitivamente l'account di ${u.nome||u.email}?\n\nNon potrà più accedere. I dati clinici restano solo sui PC dove sono stati inseriti.\n\nScrivi l'email dell'account per confermare:`);
+  if(conferma===null) return;
+  if(conferma.trim().toLowerCase()!==u.email.toLowerCase()){ alert('Email non corrispondente: account non eliminato.'); return; }
+  await azione(uid,'elimina');
+}
+
+async function creaAccount(){
+  const btn=$('n-btn'), m=$('n-msg');
+  const dati={azione:'crea', nome:$('n-nome').value.trim(), email:$('n-email').value.trim(), genere:$('n-genere').value, password:$('n-pass').value};
+  if(!dati.nome||!dati.email||!dati.password){ msg(m,'Compila nome, email e password provvisoria.'); return; }
+  btn.disabled=true;
+  try{
+    await portale(dati);
+    msg(m,`✅ Account creato. Comunica a ${dati.nome} l'email e la password provvisoria: ${dati.password}`,true);
+    $('n-nome').value=''; $('n-email').value=''; $('n-pass').value=''; $('n-genere').value='n';
+    caricaUtenti();
+  }catch(e){ msg(m,errore(e)); }
+  btn.disabled=false;
+}
+
+function apriPass(uid){
+  const u=utenti.find(x=>x.uid===uid); if(!u) return;
+  _uidPass=uid;
+  $('m-pass-testo').textContent=u.amministratore
+    ? 'Imposta una nuova password per il tuo account.'
+    : `Per ${u.nome||u.email}. Le sessioni aperte vengono chiuse; al prossimo accesso dovrà scegliere una password sua.`;
+  $('m-pass-val').value=generaPassword();
+  $('m-pass-msg').textContent='';
+  $('m-pass').classList.add('show');
+}
+function chiudiPass(){ $('m-pass').classList.remove('show'); _uidPass=null; }
+async function confermaPass(){
+  const pass=$('m-pass-val').value, m=$('m-pass-msg'), btn=$('m-pass-btn');
+  if(pass.length<8){ msg(m,'Almeno 8 caratteri.'); return; }
+  btn.disabled=true;
+  try{
+    await portale({azione:'password', uid:_uidPass, password:pass});
+    msg(m,`✅ Password impostata: ${pass} — comunicala alla persona.`,true);
+    caricaUtenti();
+  }catch(e){ msg(m,errore(e)); }
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>

@@ -254,7 +254,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
    (-webkit-appearance:none) per uniformare l'aspetto, ma senza uno stato
    ":checked" disegnato esplicitamente il quadratino risultava identico
    spuntato o no — invisibile quando selezionato. Spunta bene visibile,
-   uguale per ogni checkbox dell'app (assistente, informativa, funzionalità...). */
+   uguale per ogni checkbox dell'app (informativa, funzionalità...). */
 input[type="checkbox"]{
   width:20px;height:20px;min-width:20px;padding:0;flex-shrink:0;
   border:1.5px solid var(--border-strong);background:var(--surface);border-radius:5px;
@@ -486,30 +486,6 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 
 .editor-wrap{position:relative;background:var(--bg);width:96vw;height:94vh;border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);}
 
-/* ── Assistente AI: robottino, fumetto, chat ── */
-#ai-robot{position:fixed;right:24px;bottom:22px;z-index:5000;display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
-.ai-robot-btn{position:relative;width:54px;height:54px;border-radius:50%;border:none;background:var(--primary);box-shadow:0 8px 22px rgba(15,23,42,0.22);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s;animation:ai-bob 3s ease-in-out infinite;}
-.ai-robot-btn:hover{transform:scale(1.08);}
-.ai-robot-face{font-size:1.7rem;line-height:1;}
-@keyframes ai-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.ai-robot-dot{position:absolute;top:2px;right:2px;width:13px;height:13px;border-radius:50%;background:#ff5252;border:2px solid #fff;}
-.ai-fumetto{max-width:320px;background:var(--surface);border:1px solid var(--separator);border-radius:14px;border-bottom-right-radius:4px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,0.18);font-size:0.84rem;line-height:1.5;color:var(--label);position:relative;animation:ai-pop .2s ease;}
-@keyframes ai-pop{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
-.ai-fumetto-x{position:absolute;top:6px;right:8px;border:none;background:none;color:var(--label4);cursor:pointer;font-size:0.75rem;}
-#ai-fumetto-testo{padding-right:14px;white-space:pre-wrap;}
-.ai-fumetto-azioni{display:flex;flex-direction:column;gap:6px;margin-top:10px;}
-.ai-fumetto-azioni button{font:inherit;font-size:0.78rem;font-weight:600;text-align:left;padding:7px 10px;border:1px solid var(--separator);border-radius:9px;background:var(--surface2);color:var(--label);cursor:pointer;transition:0.15s;}
-.ai-fumetto-azioni button:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
-.ai-chat{position:fixed;right:24px;bottom:22px;z-index:5001;width:min(380px,90vw);height:min(520px,80vh);background:var(--surface);border:1px solid var(--separator);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,0.28);display:flex;flex-direction:column;overflow:hidden;animation:ai-pop .2s ease;}
-.ai-chat-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--separator);font-weight:700;font-size:0.9rem;}
-.ai-chat-head button{border:none;background:var(--surface2);width:26px;height:26px;border-radius:50%;cursor:pointer;color:var(--label4);}
-.ai-chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
-.ai-msg{max-width:85%;padding:9px 12px;border-radius:12px;font-size:0.83rem;line-height:1.5;white-space:pre-wrap;}
-.ai-msg.bot{background:var(--surface2);align-self:flex-start;border-bottom-left-radius:4px;}
-.ai-msg.user{background:var(--primary);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
-.ai-msg.pending{opacity:0.6;font-style:italic;}
-.ai-chat-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--separator);}
-.ai-chat-input input{flex:1;margin:0;}
 .editor-topbar{background:var(--surface);border-bottom:1px solid var(--separator);padding:16px 28px;display:flex;align-items:center;gap:20px;}
 .editor-topbar h3{font-family:var(--font);font-weight:700;font-size:1.05rem;flex:1;}
 .editor-body{display:flex;flex:1;min-width:0;overflow:hidden;}
@@ -1008,7 +984,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <h1>Crea la tua password</h1>
     <div class="login-version" style="margin-bottom:18px;">Per motivi di sicurezza, imposta una password personale prima di continuare</div>
     <div class="pass-wrap" style="margin-bottom:10px;">
-      <input type="password" id="force-pwd-new" class="login-input" placeholder="Nuova password (min. 6 caratteri)" autocomplete="new-password">
+      <input type="password" id="force-pwd-new" class="login-input" placeholder="Nuova password (min. 8 caratteri)" autocomplete="new-password">
     </div>
     <div class="pass-wrap">
       <input type="password" id="force-pwd-confirm" class="login-input" placeholder="Conferma password" autocomplete="new-password" onkeydown="if(event.key==='Enter')submitForcePasswordChange()">
@@ -1056,7 +1032,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
     <div class="nav-group" id="nav-group-admin" style="display:none">
       <div class="nav-group-label">Amministrazione</div>
-      <button onclick="naviga('amministrazione')" id="nav-amministrazione"><span class="nav-icon">🛡️</span>Account e Accessi</button>
+      <button onclick="window.open('portale.html','_blank')" id="nav-portale" title="Gestione degli account (si apre a parte)"><span class="nav-icon">🛡️</span>Portale utenti ↗</button>
     </div>
   </nav>
 
@@ -1064,15 +1040,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="sidebar-footer-new">
     <!-- Popover menu -->
     <div class="opts-popover" id="opts-popover">
-      <button class="opts-item accent" onclick="window.open('GynoBook.html','_blank');closeOpts()">
-        <span class="oi">📅</span>Apri GynoBook (Prenotazioni)
-      </button>
-      <div class="opts-divider"></div>
       <button class="opts-item" onclick="naviga('appuntamenti');closeOpts()">
         <span class="oi">🗓️</span>Vedi Appuntamenti
-      </button>
-      <button class="opts-item" onclick="naviga('disponibilita');closeOpts()">
-        <span class="oi">🏥</span>Disponibilità Studi
       </button>
       <div class="opts-divider"></div>
       <button class="opts-item" onclick="toggleDarkMode();closeOpts()">
@@ -1103,7 +1072,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       Opzioni
       <span class="ot-arrow">‹</span>
     </button>
-    <input type="file" id="file-upload" style="display:none" onchange="restoreData(this)">
+    <input type="file" id="file-upload" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
   </div>
 </aside>
 
@@ -1374,17 +1343,15 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
-<!-- APPUNTAMENTI FIREBASE -->
+<!-- APPUNTAMENTI -->
 <div id="sec-appuntamenti" class="section">
   <div class="page-header">
     <div>
       <div class="page-title">Appuntamenti</div>
-      <div class="page-subtitle">Sincronizzati da Firebase · Creati con GynoBook</div>
+      <div class="page-subtitle">Agenda delle visite, salvata in questo dispositivo</div>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-ghost" onclick="loadFBAppuntamenti()">🔄 Sincronizza</button>
       <button class="btn btn-primary" onclick="apriNuovaPrenotazioneGS()">+ Nuovo Appuntamento</button>
-      <button class="btn btn-primary" onclick="window.open('https://titan-code-sm.github.io/Gynobook/','_blank')">↗ Apri GynoBook</button>
     </div>
   </div>
 
@@ -1442,82 +1409,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
-<!-- DISPONIBILITÀ STUDI -->
-<div id="sec-disponibilita" class="section">
-  <div class="page-header">
-    <div>
-      <div class="page-title">Disponibilità Studi</div>
-      <div class="page-subtitle">Giorni e orari di ricevimento, letti automaticamente da GynoBook</div>
-    </div>
-  </div>
-
-  <!-- Lista studi -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header">
-      <div><div class="card-title">I Tuoi Studi</div><div class="card-subtitle">Aggiungi gli studi dove ricevi e i relativi giorni/orari ricorrenti</div></div>
-      <button class="btn btn-primary btn-sm" onclick="apriNuovoStudio()">+ Nuovo Studio</button>
-    </div>
-    <div id="studi-list"></div>
-  </div>
-</div>
-
-<!-- Modal Studio (crea/modifica) -->
-<div id="m-studio" class="overlay">
-  <div class="modal-sm" style="width:560px">
-    <h3 id="ms-title">Nuovo Studio</h3>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Nome Studio *</label>
-      <input type="text" id="ms-nome" placeholder="es. Novelune, Studio Dr.ssa Guidi...">
-    </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Indirizzo / Luogo</label>
-      <input type="text" id="ms-luogo" placeholder="es. Via Roma 12, San Marino">
-    </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Email Account di Accesso *</label>
-      <input type="email" id="ms-email" placeholder="es. novelune@gynosistem.it">
-      <div style="font-size:.75rem;color:var(--label4);margin-top:6px">
-        Questa email deve corrispondere a un account creato manualmente in
-        <strong>Firebase Console → Authentication → Users → Add user</strong>.
-        Lo studio accederà a GynoBook con questa email + la password che imposterai lì.
-      </div>
-    </div>
-    <div class="form-group" style="margin-bottom:14px">
-      <label class="form-label">Durata Slot Visita</label>
-      <select id="ms-durata-slot">
-        <option value="15">15 minuti</option>
-        <option value="20">20 minuti</option>
-        <option value="30" selected>30 minuti</option>
-        <option value="45">45 minuti</option>
-        <option value="60">60 minuti</option>
-        <option value="90">90 minuti</option>
-      </select>
-      <div style="font-size:.75rem;color:var(--label4);margin-top:6px">Su GynoBook gli orari prenotabili per questo studio saranno spezzettati con questo intervallo.</div>
-    </div>
-    <div class="form-group" style="margin-bottom:14px;background:var(--surface-2);border-radius:var(--radius);padding:14px">
-      <label style="display:flex;align-items:center;gap:12px;cursor:pointer">
-        <span class="dispo-switch"><input type="checkbox" id="ms-orari-limitati"><span class="dispo-slider"></span></span>
-        <span>
-          <div style="font-weight:700;font-size:.88rem">Limita ai giorni/orari indicati</div>
-          <div style="font-size:.75rem;color:var(--label4)">Se disattivato, questo studio può prenotare in qualsiasi giorno e orario</div>
-        </span>
-      </label>
-    </div>
-    <div style="font-weight:700;font-size:.85rem;margin-bottom:10px">Giorni e Fasce Orarie (si ripetono ogni settimana)</div>
-    <div id="ms-fasce-list" style="margin-bottom:10px"></div>
-    <button class="btn btn-ghost btn-sm" onclick="aggiungiFasciaForm()" style="margin-bottom:18px">+ Aggiungi Fascia Oraria</button>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closeModal('m-studio')">Annulla</button>
-      <button class="btn btn-primary" onclick="salvaStudio()">💾 Salva Studio</button>
-    </div>
-  </div>
-</div>
-
 <!-- Modal Nuova Prenotazione da MED System -->
 <div id="m-nuova-prenotazione" class="overlay">
   <div class="modal-sm" style="width:520px">
     <h3>📅 Nuova Prenotazione</h3>
-    <p style="color:var(--label4);font-size:.85rem;margin-bottom:16px">Apparirà anche su GynoBook, con l'indicazione che è stata creata da te.</p>
+    <p style="color:var(--label4);font-size:.85rem;margin-bottom:16px">Salvato nell'agenda di questo dispositivo.</p>
 
     <div class="form-group" style="margin-bottom:14px">
       <label class="form-label">Paziente *</label>
@@ -2127,10 +2023,11 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   <div class="g2" style="margin-bottom:24px;align-items:start;">
     <div>
       <div class="card" style="margin-bottom:16px;">
-        <div class="card-header"><div><div class="card-title">💾 Azioni Immediate</div><div class="card-subtitle">Backup e ripristino del database</div></div></div>
+        <div class="card-header"><div><div class="card-title">💾 Backup completo</div><div class="card-subtitle">Pazienti, visite, appuntamenti, promemoria, allegati, consensi e impostazioni — tutto in un unico file</div></div></div>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <button class="btn btn-primary" style="justify-content:flex-start;" onclick="backupData()">📤 Esporta Backup JSON (locale)</button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="document.getElementById('file-upload').click()">📂 Ripristina da file JSON</button>
+          <button class="btn btn-primary" style="justify-content:flex-start;" onclick="esportaBackupCompleto(true)">🔐 Scarica backup completo (protetto da password)</button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="esportaBackupCompleto(false)">📦 Scarica backup completo (senza password)</button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="document.getElementById('file-upload').click()">📂 Importa un backup</button>
           <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="exportCSV()">📊 Esporta Pazienti in CSV</button>
           <button class="btn" style="justify-content:flex-start;background:var(--red-dim);color:var(--red);border:1px solid var(--red-dim);" onclick="resetDB()">🗑️ Cancella tutti i dati</button>
         </div>
@@ -2158,43 +2055,17 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 </div>
 
-<!-- AMMINISTRAZIONE ACCOUNT (visibile solo all'amministratore) -->
-<div id="sec-amministrazione" class="section">
-  <div class="page-header">
-    <div><div class="page-title">Account e Accessi</div><div class="page-subtitle">Gestione degli accessi a MED System — visibile solo all'amministratore</div></div>
-  </div>
-
-  <div style="background:var(--surface2);border:1px solid var(--separator);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.8rem;color:var(--label4);">
-    ℹ️ "Elimina" blocca subito e per sempre l'accesso all'app. L'utenza tecnica resta comunque elencata in Firebase finché non la rimuovi anche da lì:
-    <a href="https://console.firebase.google.com/project/gynosistem/authentication/users" target="_blank" rel="noopener" style="color:var(--primary);">apri Firebase Console →</a>
-  </div>
-
-  <div class="card" style="margin-bottom:24px;">
-    <div class="card-header"><div><div class="card-title">➕ Nuovo Account</div><div class="card-subtitle">Crea un accesso email+password per un nuovo membro dello studio</div></div></div>
-    <div class="field-row r2" style="margin-bottom:10px;">
-      <div class="form-group"><label class="form-label">Nome e Cognome</label><input type="text" id="adm-new-nome" placeholder="es. Maria Rossi"></div>
-      <div class="form-group"><label class="form-label">Email</label><input type="email" id="adm-new-email" placeholder="nome@esempio.it" autocomplete="off"></div>
-    </div>
-    <div class="form-group" style="margin-bottom:10px;">
-      <label class="form-label">Come si rivolge l'app a questa persona</label>
-      <select id="adm-new-genere">
-        <option value="f">Al femminile (es. "la dottoressa")</option>
-        <option value="m">Al maschile (es. "il dottore")</option>
-        <option value="n" selected>In modo neutro (es. "il medico")</option>
-      </select>
-    </div>
-    <div class="form-group" style="margin-bottom:12px;">
-      <label class="form-label">Password provvisoria</label>
-      <input type="text" id="adm-new-pass" placeholder="Almeno 6 caratteri (potrà cambiarla dopo)" autocomplete="off">
-    </div>
-    <button class="btn btn-primary" onclick="adminCreaUtente()" style="width:100%;justify-content:center;">Crea Account</button>
-    <div id="adm-new-msg" style="font-size:0.82rem;margin-top:10px;display:none;"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-header"><div><div class="card-title">👥 Account Esistenti</div><div class="card-subtitle">Sospendi, riattiva, richiedi cambio password o rimuovi un accesso</div></div></div>
-    <div id="adm-utenti-list" style="display:flex;flex-direction:column;gap:10px;">
-      <div style="color:var(--label4);font-size:0.85rem;">Caricamento...</div>
+<!-- PASSWORD DEL BACKUP -->
+<div id="modal-password-backup" class="overlay">
+  <div class="modal-sm" style="width:440px">
+    <h3 id="pwb-titolo">Password del backup</h3>
+    <p id="pwb-testo" style="margin-bottom:14px"></p>
+    <div class="form-group" style="margin-bottom:10px"><label class="form-label">Password</label><input type="password" id="pwb-1" autocomplete="new-password"></div>
+    <div class="form-group" id="pwb-2-wrap" style="margin-bottom:10px"><label class="form-label">Ripeti la password</label><input type="password" id="pwb-2" autocomplete="new-password"></div>
+    <div id="pwb-err" style="color:var(--red);font-size:.82rem;min-height:1.2em;margin-bottom:8px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" id="pwb-annulla">Annulla</button>
+      <button class="btn btn-primary" id="pwb-ok">Conferma</button>
     </div>
   </div>
 </div>
@@ -2207,7 +2078,6 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 
   <div class="tipo-pills" style="margin-bottom:20px;">
     <button class="tipo-pill active" onclick="setSettingsTab(this,'set-tab-profilo')">👤 Profilo e aspetto</button>
-    <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-ai')">🤖 Assistente AI</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-stampa')">🖨️ Stampe</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-funzioni')">🧩 Funzionalità</button>
     <button class="tipo-pill" onclick="setSettingsTab(this,'set-tab-cartella')">🗂️ Cartella Paziente</button>
@@ -2219,25 +2089,8 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <div id="set-temi" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
   </div>
   <div class="card" style="max-width:720px;">
-    <div class="card-header"><div><div class="card-title">👤 Come si rivolge a te l'app</div><div class="card-subtitle">Usato nei messaggi e dall'assistente AI</div></div></div>
+    <div class="card-header"><div><div class="card-title">👤 Come si rivolge a te l'app</div><div class="card-subtitle">Usato nei messaggi dell'app</div></div></div>
     <div id="set-genere" style="display:flex;flex-direction:column;gap:8px;"></div>
-  </div>
-  </div>
-
-  <div id="set-tab-ai" class="edit-panel">
-  <div class="card" style="max-width:720px;">
-    <div class="card-header"><div><div class="card-title">🤖 Assistente clinico</div><div class="card-subtitle">Sempre disponibile: durante la visita ti segnala i passi giusti; sulla dashboard ti fa il punto della giornata, ti ricorda le cose importanti e ti propone di ripassare i casi in arrivo</div></div></div>
-    <label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px 0;">
-      <input type="checkbox" id="set-ai-enabled" onchange="toggleAiAssistente(this.checked)" style="width:20px;height:20px;flex-shrink:0;">
-      <span style="font-weight:600;">Attiva l'assistente</span>
-    </label>
-    <div style="background:var(--surface2);border:1px solid var(--separator);border-radius:10px;padding:12px 14px;font-size:0.8rem;color:var(--label4);line-height:1.55;">
-      ⚠️ <strong>Privacy:</strong> con l'assistente attivo, i dati inviati al fornitore AI sono:
-      <br>• <strong>durante la visita</strong>: solo il testo clinico che scrivi (sintomi, esame obiettivo, diagnosi…), <strong>senza</strong> nome, data di nascita, codice fiscale o contatti;
-      <br>• <strong>sulla dashboard</strong> (punto della giornata e ripasso dei casi): anche <strong>cognome e nome</strong> delle pazienti in agenda e nei promemoria, la loro età e la storia clinica — così l'assistente può dirti chiaramente di chi sta parlando. <strong>Non</strong> vengono comunque inviati codice fiscale né contatti.
-      <br>Se preferisci che nessun dato esca dal dispositivo, lascia l'assistente spento.
-    </div>
-    <div id="ai-stato-riga" style="font-size:0.8rem;color:var(--label4);margin-top:10px;"></div>
   </div>
   </div>
 
@@ -3571,30 +3424,6 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 </div>
 
-<!-- Assistente AI: robottino + fumetto + chat — sempre disponibile (dashboard e visita), se attivo in Impostazioni -->
-<div id="ai-robot" style="display:none">
-  <div id="ai-fumetto" class="ai-fumetto">
-    <button class="ai-fumetto-x" onclick="aiChiudiFumetto()" title="Chiudi">✕</button>
-    <div id="ai-fumetto-testo"></div>
-  </div>
-  <button id="ai-robot-btn" class="ai-robot-btn" onclick="aiToggleChat()" title="Assistente">
-    <span class="ai-robot-face">🤖</span>
-    <span id="ai-robot-dot" class="ai-robot-dot" style="display:none"></span>
-  </button>
-</div>
-
-<div id="ai-chat" class="ai-chat" style="display:none">
-  <div class="ai-chat-head">
-    <span>🤖 Assistente</span>
-    <button onclick="aiToggleChat()" title="Chiudi">✕</button>
-  </div>
-  <div id="ai-chat-msgs" class="ai-chat-msgs"></div>
-  <div class="ai-chat-input">
-    <input id="ai-chat-txt" placeholder="Chiedi un consiglio…" onkeydown="if(event.key==='Enter')aiInviaChat()">
-    <button class="btn btn-primary btn-sm" onclick="aiInviaChat()">Invia</button>
-  </div>
-</div>
-
 <!-- PRINT AREA -->
 <div id="print-area">
   <div class="ph">
@@ -3636,21 +3465,6 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
       <button class="btn btn-ghost" id="vv-riepilogo-btn" style="display:none" title="Genera un documento stampabile o salvabile come PDF con tutte le visite della gravidanza">📑 Riepilogo Gravidanza (PDF)</button>
       <button class="btn btn-ghost" id="vv-edit-btn">✏️ Modifica</button>
       <button class="btn btn-ghost" onclick="closeModal('view-visita')">Chiudi</button>
-    </div>
-  </div>
-</div>
-
-<!-- POPUP NUOVA PRENOTAZIONE (realtime da GynoBook) -->
-<div id="nuova-pren-popup" class="overlay" style="align-items:center;justify-content:center">
-  <div style="background:var(--surface);border-radius:24px;padding:0;width:460px;max-width:95vw;max-height:85vh;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2);display:flex;flex-direction:column;">
-    <div style="background:linear-gradient(135deg,var(--orange),var(--primary));padding:20px 24px;color:#fff;flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
-      <div style="font-family:var(--font-serif);font-size:1.3rem;font-weight:700" id="nuova-pren-title">🔔 Nuova Prenotazione</div>
-      <button onclick="closeModal('nuova-pren-popup')" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;font-size:1rem;cursor:pointer;flex-shrink:0">✕</button>
-    </div>
-    <div id="nuova-pren-list" style="overflow-y:auto;padding:18px 20px;flex:1"></div>
-    <div style="padding:12px 20px 18px;border-top:1px solid var(--separator);display:flex;gap:8px;flex-shrink:0">
-      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="naviga('appuntamenti');closeModal('nuova-pren-popup')">Vedi tutti</button>
-      <button class="btn btn-ghost" onclick="closeModal('nuova-pren-popup')">OK</button>
     </div>
   </div>
 </div>
@@ -5868,23 +5682,6 @@ function controllaBackupAutomatico(){
   },1500);
 }
 
-// Inizializza durataSlot/orariLimitati sugli studi creati prima di questi campi,
-// e segnala (in console) gli studi che non hanno ancora un'email di accesso collegata
-// (necessaria per il login Firebase Auth su GynoBook).
-async function migraStudiVecchiFormato(){
-  let cambiato=false;
-  for(const s of DB.studi){
-    if(typeof s.durataSlot!=='number'){ s.durataSlot=30; cambiato=true; }
-    if(typeof s.orariLimitati!=='boolean'){ s.orariLimitati=false; cambiato=true; }
-    if(s.password){ delete s.password; cambiato=true; } // campo obsoleto, sostituito da email+Firebase Auth
-    if(!s.email) console.warn(`Studio "${s.nome}" non ha un'email di accesso collegata. Aggiungila in Disponibilità Studi.`);
-  }
-  if(cambiato){
-    salvaDB();
-    console.log('Studi migrati al nuovo formato (durataSlot/orariLimitati, rimossa password obsoleta).');
-  }
-}
-
 function startClock(){
   setInterval(()=>{
     const n=new Date();
@@ -5934,15 +5731,6 @@ function applyNomeMedico(nome){
 // clinico) con una copia locale, così valgono anche se Firestore non risponde.
 let gsUserGenere = 'n'; // 'f' femminile, 'm' maschile, 'n' neutro
 function gsG(f, m, n){ return gsUserGenere==='f' ? f : (gsUserGenere==='m' ? m : n); }
-// Come l'app (e l'assistente AI) nomina l'operatore: forma 'art' | 'a' | 'di' | 'da'
-function gsOperatore(forma){
-  const T={
-    f:{art:'la dottoressa', a:'alla dottoressa', di:'della dottoressa', da:'dalla dottoressa'},
-    m:{art:'il dottore', a:'al dottore', di:'del dottore', da:'dal dottore'},
-    n:{art:'il medico', a:'al medico', di:'del medico', da:'dal medico'}
-  };
-  return (T[gsUserGenere]||T.n)[forma||'art'];
-}
 function gsIconaOperatore(){ return gsG('👩‍⚕️','👨‍⚕️','🧑‍⚕️'); }
 const GS_TEMI=[
   {id:'blu', nome:'Blu', colore:'#2563eb'},
@@ -6018,19 +5806,11 @@ async function handleUserProfile(user){
   let demoMode = false;
 
   if(!snap.exists){
-    // Nessun profilo ancora: account creato prima di questo sistema (o a mano
-    // da Console), non forziamo il cambio password perché non è "provvisoria".
-    try{
-      await ref.set({
-        email: user.email,
-        nome,
-        attivo: true,
-        mustChangePassword: false,
-        demoMode: false,
-        createdAt: new Date().toISOString(),
-        ultimoAccesso: new Date().toISOString()
-      });
-    }catch(e){ console.warn('Errore creazione profilo utente:', e); }
+    // Solo gli account creati dal portale dell'amministratore hanno un profilo:
+    // senza, l'accesso all'app è negato.
+    gsSuspensionMsg = 'Questo account non è abilitato a MED System. Contatta l\'amministratore.';
+    await gsAuth.signOut();
+    return {ok:false, mustChange:false};
   }else{
     const data = snap.data();
     if(data.attivo === false){
@@ -6041,7 +5821,7 @@ async function handleUserProfile(user){
     mustChange = data.mustChangePassword === true;
     nome = data.nome || nome;
     demoMode = data.demoMode === true;
-    try{ await ref.update({ ultimoAccesso: new Date().toISOString(), email: user.email }); }catch(e){}
+    try{ await ref.update({ ultimoAccesso: new Date().toISOString() }); }catch(e){}
   }
   _applicaPreferenzeProfilo(snap.exists ? snap.data() : null, user.uid);
   applyNomeMedico(nome);
@@ -6080,7 +5860,7 @@ async function submitForcePasswordChange(){
   const p2 = document.getElementById('force-pwd-confirm').value;
   const err = document.getElementById('force-pwd-err');
   const showErr = m=>{ err.textContent=m; err.style.display='block'; setTimeout(()=>err.style.display='none',4000); };
-  if(!p1 || p1.length<6){ showErr('La password deve avere almeno 6 caratteri.'); return; }
+  if(!p1 || p1.length<8){ showErr('La password deve avere almeno 8 caratteri.'); return; }
   if(p1!==p2){ showErr('Le due password non coincidono.'); return; }
   try{
     await gsCurrentUser.updatePassword(p1);
@@ -6099,78 +5879,85 @@ async function submitForcePasswordChange(){
 // ═══════════════════════════════════════════════════
 //  REGISTRO ATTIVITÀ (log azioni sull'account)
 // ═══════════════════════════════════════════════════
-// Traccia SOLO azioni generiche (login, paziente creata/eliminata, visita
-// salvata, stampe, backup...) con data/ora — MAI nomi di pazienti o dati
-// clinici: quelli restano solo in locale (vedi firestore.rules, regola
-// generale dell'app "dati clinici mai online"). Salvato su Firestore così
-// è consultabile da qualunque dispositivo con cui si accede allo stesso
-// account. Registro append-only: nessuna modifica o cancellazione dei log.
+// Traccia SOLO azioni generiche (accesso, paziente creata/eliminata, visita
+// salvata, stampe, backup...) con data/ora. Sta nell'archivio locale
+// dell'operatore (DB.logAttivita, ultime 1000 voci), quindi anche nei backup.
 function registraLog(tipo, descrizione){
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return; // mai in demo
-  gsDb.collection('logAttivita').add({
-    ownerUid: gsCurrentUser.uid,
-    tipo,
-    descrizione,
-    data: new Date().toISOString()
-  }).catch(e=>console.warn('Log attività:',e));
+  if(!gsCurrentUser||!gsDbStorageKey||gsDemoMode) return;
+  if(!Array.isArray(DB.logAttivita)) DB.logAttivita=[];
+  DB.logAttivita.push({tipo, descrizione, data:new Date().toISOString()});
+  if(DB.logAttivita.length>1000) DB.logAttivita.splice(0, DB.logAttivita.length-1000);
+  salvaDB();
 }
 
-const LOG_TIPO_ICON={login:'🔑',paziente:'👩‍⚕️',visita:'📋',stampa:'🖨️',backup:'💾',email:'📧'};
+const LOG_TIPO_ICON={login:'🔑',paziente:'👩‍⚕️',visita:'📋',stampa:'🖨️',backup:'💾',email:'📧',appuntamento:'📅'};
 
-async function mostraLogAttivita(){
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return;
+function mostraLogAttivita(){
   const box=document.getElementById('log-attivita-lista');
-  if(!box)return;
-  box.innerHTML='<div style="padding:16px 0;text-align:center;color:var(--label4);font-size:.85rem">Caricamento…</div>';
+  if(!box) return;
   document.getElementById('modal-log-attivita').classList.add('show');
-  try{
-    // Query con un solo filtro di uguaglianza (ownerUid): non richiede alcun
-    // indice composito su Firestore. Ordine e limite ai 30 più recenti si
-    // applicano qui nel codice, dopo aver scaricato i risultati.
-    const snap=await gsDb.collection('logAttivita')
-      .where('ownerUid','==',gsCurrentUser.uid)
-      .get();
-    if(snap.empty){
-      box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📜</div><p style="font-size:.85rem">Nessuna attività registrata</p></div>';
-      return;
+  const recenti=(DB.logAttivita||[]).slice().sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,100);
+  if(!recenti.length){
+    box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📜</div><p style="font-size:.85rem">Nessuna attività registrata</p></div>';
+    return;
+  }
+  // Raggruppate per giorno: un'intestazione di data seguita dalle sue voci.
+  let html='', giornoCorrente=null;
+  recenti.forEach(d=>{
+    const dt=new Date(d.data);
+    const chiaveGiorno=dt.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const dataStr=dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    const oraStr=dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    if(chiaveGiorno!==giornoCorrente){
+      giornoCorrente=chiaveGiorno;
+      html+=`<div style="font-size:.72rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 4px;${html?'':'margin-top:4px;'}">${dataStr}</div>`;
     }
-    const recenti=snap.docs
-      .sort((a,b)=>new Date(b.data().data)-new Date(a.data().data))
-      .slice(0,30);
-    // Raggruppate per giorno (giorno/mese/anno): un'intestazione di data
-    // seguita dalle sue voci, che mostrano solo l'ora (la data è già nel titolo).
-    let html='', giornoCorrente=null;
-    recenti.forEach(docSnap=>{
-      const d=docSnap.data();
-      const dt=new Date(d.data);
-      const chiaveGiorno=dt.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'});
-      const dataStr=dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
-      const oraStr=dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-      if(chiaveGiorno!==giornoCorrente){
-        giornoCorrente=chiaveGiorno;
-        html+=`<div style="font-size:.72rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 4px;${html?'':'margin-top:4px;'}">${dataStr}</div>`;
-      }
-      html+=`<details style="border-bottom:1px solid var(--separator);padding:10px 0">
-        <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
-          <span style="font-size:1.1rem">${LOG_TIPO_ICON[d.tipo]||'•'}</span>
-          <span style="flex:1;font-size:.85rem">${_escHtml(d.descrizione)}</span>
-          <span style="font-size:.74rem;color:var(--label4);white-space:nowrap">${oraStr}</span>
-        </summary>
-        <div style="padding:8px 0 0 30px;font-size:.78rem;color:var(--label3)">
-          <strong>Cosa è stato fatto:</strong> ${_escHtml(d.descrizione)}<br>
-          <strong>Quando:</strong> ${dataStr} alle ${oraStr}
-        </div>
-      </details>`;
-    });
-    box.innerHTML=html;
-  }catch(e){
-    console.warn('Lettura log attività:',e);
-    // Firestore richiede un indice composito per where+orderBy insieme: se manca,
-    // l'errore contiene un link che lo crea in automatico con un clic.
-    const urlMatch = /(https:\/\/console\.firebase\.google\.com\S+)/.exec(e.message||'');
-    box.innerHTML = urlMatch
-      ? `<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Manca un indice del database, necessario una sola volta.</p><a href="${urlMatch[1]}" target="_blank" class="btn btn-primary btn-sm" style="margin-top:8px;display:inline-flex">Crea l'indice ↗</a><p style="font-size:.74rem;color:var(--label4);margin-top:8px">Dopo aver cliccato "Crea indice" nella pagina che si apre, attendi un minuto e riprova ad aprire il registro.</p></div>`
-      : '<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Impossibile caricare il registro attività</p></div>';
+    html+=`<div style="display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--separator);padding:10px 0">
+      <span style="font-size:1.1rem">${LOG_TIPO_ICON[d.tipo]||'•'}</span>
+      <span style="flex:1;font-size:.85rem">${_escHtml(d.descrizione)}</span>
+      <span style="font-size:.74rem;color:var(--label4);white-space:nowrap">${oraStr}</span>
+    </div>`;
+  });
+  box.innerHTML=html;
+}
+
+// ── Migrazione una tantum dalla versione che usava Firebase ──
+// Copia nel database interno ciò che la versione precedente teneva su
+// Firebase per questo account: appuntamenti, pazienti inserite da GynoBook,
+// registro attività, archivio email. Dopo la copia questi dati non vengono
+// più letti da Firebase (e vanno cancellati dal progetto).
+async function migraDatiDaFirebase(){
+  if(!gsDb||!gsCurrentUser||gsDemoMode||DB.migrazioneFirebase) return;
+  const uid=gsCurrentUser.uid;
+  const leggi=async nome=>{
+    try{ return (await gsDb.collection(nome).where('ownerUid','==',uid).get()).docs.map(d=>({id:d.id,...d.data()})); }
+    catch(e){ console.warn('Migrazione '+nome+':',e); return null; }
+  };
+  const [appts,paz,log,email]=await Promise.all([leggi('appuntamenti'),leggi('pazienti'),leggi('logAttivita'),leggi('emailInviate')]);
+  if(appts===null||paz===null||log===null||email===null) return; // riprova al prossimo accesso
+  if(!Array.isArray(DB.appuntamenti)) DB.appuntamenti=[];
+  const giaPresenti=new Set(DB.appuntamenti.map(a=>a.id));
+  appts.forEach(a=>{ if(!giaPresenti.has(a.id)){ const {ownerUid,source,...resto}=a; DB.appuntamenti.push(resto); } });
+  let nuovePaz=0;
+  paz.filter(d=>d.source==='gynobook' && !DB.pazienti.some(p=>p.fbId===d.id)).forEach(d=>{
+    DB.pazienti.push({id:Date.now()+nuovePaz, fbId:d.id, nome:d.nome||'', cognome:d.cognome||'', nascita:d.nascita||'',
+      tel:d.tel||'', email:d.email||'', cf:(d.cf||'').toUpperCase(), note:d.note||'', visite:[], alerts:[],
+      importataDaGynobook:true, dataImport:new Date().toISOString()});
+    nuovePaz++;
+  });
+  if(!Array.isArray(DB.logAttivita)) DB.logAttivita=[];
+  log.forEach(l=>DB.logAttivita.push({tipo:l.tipo, descrizione:l.descrizione, data:l.data}));
+  DB.logAttivita.sort((a,b)=>new Date(a.data)-new Date(b.data));
+  if(!Array.isArray(DB.emailInviate)) DB.emailInviate=[];
+  email.forEach(e=>{
+    const {ownerUid,...resto}=e;
+    resto.data=(e.data&&e.data.toDate)?e.data.toDate().toISOString():(e.data||'');
+    DB.emailInviate.push(resto);
+  });
+  DB.migrazioneFirebase=new Date().toISOString();
+  await salvaDBSubito();
+  if(appts.length||nuovePaz||log.length||email.length){
+    if(typeof gsToast==='function') gsToast(`📥 Dati della versione precedente copiati nel database interno (${appts.length} appuntamenti, ${nuovePaz} pazienti)`,'gs-success');
   }
 }
 
@@ -6199,17 +5986,12 @@ async function proceedAfterLogin(){
   }
 
   mostraBannerDemo(false);
-  registraLog('login','Accesso effettuato');
-  mostraLogAttivita();
   await caricaDatiLocaliUtente(gsCurrentUser.uid); // archivio clinico SOLO di questo medico
-  if(typeof aiAvvia==='function') aiAvvia();
+  await migraDatiDaFirebase(); // una tantum: copia nel database interno ciò che stava su Firebase
+  registraLog('login','Accesso effettuato');
   naviga('home');
+  caricaAppuntamenti(true);
   controllaBackupAutomatico();
-
-  loadAdminConfig();
-  loadFBAppuntamenti(); // carica gli appuntamenti — SOLO i propri (vedi ownerUid)
-  importaPazientiDaGynobook(); // crea le cartelle locali per le pazienti inserite da GynoBook — SOLO le proprie
-  syncDisponibilitaFirebase(); // pubblica/aggiorna gli orari di ricevimento per GynoBook
 }
 
 async function checkLogin(){
@@ -6254,156 +6036,6 @@ async function resetPasswordEmail(){
   }
 }
 
-// ═══════════════════════════════════════════════════
-//  PANNELLO AMMINISTRAZIONE (solo ADMIN_EMAIL)
-// ═══════════════════════════════════════════════════
-// Nessuna Cloud Function: tutto qui gira sull'SDK client di Firebase.
-// Per questo "Elimina" non cancella davvero l'utenza da Firebase
-// Authentication (serve l'Admin SDK lato server) — blocca invece
-// definitivamente l'accesso all'app tramite il profilo su Firestore.
-// L'utenza resta visibile in Console finché non la si rimuove a mano.
-
-async function renderAdminUtenti(){
-  const box = document.getElementById('adm-utenti-list');
-  if(!box) return;
-  if(!gsCurrentUser || gsCurrentUser.email !== ADMIN_EMAIL){
-    box.innerHTML = '<div style="color:var(--label4);font-size:0.85rem;">Accesso non autorizzato.</div>';
-    return;
-  }
-  box.innerHTML = '<div style="color:var(--label4);font-size:0.85rem;">Caricamento...</div>';
-  try{
-    const snap = await gsDb.collection('utenti').orderBy('createdAt','desc').get();
-    if(snap.empty){ box.innerHTML = '<div style="color:var(--label4);font-size:0.85rem;">Nessun account trovato.</div>'; return; }
-    box.innerHTML = snap.docs.map(d=>{
-      const u = d.data();
-      const uid = d.id;
-      let stato='Attivo', colore='#2e7d32';
-      if(u.eliminato){ stato='Eliminato'; colore='#c62828'; }
-      else if(u.attivo===false){ stato='Sospeso'; colore='#b26a00'; }
-      const isSelf = uid === gsCurrentUser.uid;
-      const demoBadge = u.demoMode ? ' · <span style="color:#e65100;font-weight:600;">🎭 Demo attiva</span>' : '';
-      return `
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--surface2);border:1px solid var(--separator);border-radius:10px;flex-wrap:wrap;">
-          <div>
-            <div style="font-weight:600;">${u.nome||u.email}${isSelf?' <span style="font-weight:400;color:var(--label4);font-size:0.75rem;">(tu)</span>':''}</div>
-            <div style="font-size:0.78rem;color:var(--label4);">${u.email} · <span style="color:${colore};font-weight:600;">${stato}</span>${u.ultimoAccesso?` · ultimo accesso ${new Date(u.ultimoAccesso).toLocaleDateString('it-IT')}`:''}${demoBadge}</div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${!isSelf ? (u.attivo===false
-              ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', true)">Riattiva</button>`
-              : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminImpostaStato('${uid}', false)">Sospendi</button>`) : ''}
-            ${u.demoMode
-              ? `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', false)">🎭 Disattiva demo</button>`
-              : `<button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminToggleDemo('${uid}', true)">🎭 Attiva demo${isSelf?' (per me)':''}</button>`}
-            <select style="width:auto;padding:6px 10px;font-size:0.8rem;" title="Come si rivolge l'app a questa persona" onchange="adminImpostaGenere('${uid}', this.value)">
-              <option value="f" ${u.genere==='f'?'selected':''}>Femminile</option>
-              <option value="m" ${u.genere==='m'?'selected':''}>Maschile</option>
-              <option value="n" ${(u.genere!=='f'&&u.genere!=='m')?'selected':''}>Neutro</option>
-            </select>
-            <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.8rem;" onclick="adminRichiediReset('${u.email}')">Richiedi cambio password</button>
-            ${!isSelf && !u.eliminato ? `<button class="btn" style="padding:6px 12px;font-size:0.8rem;background:var(--red-dim);color:var(--red);" onclick="adminEliminaUtente('${uid}','${u.email}')">Elimina</button>` : ''}
-          </div>
-        </div>`;
-    }).join('');
-  }catch(e){
-    console.warn('Errore caricamento utenti:', e);
-    box.innerHTML = '<div style="color:var(--red);font-size:0.85rem;">Errore nel caricamento degli account. Verifica le regole Firestore.</div>';
-  }
-}
-
-async function adminImpostaGenere(uid, genere){
-  try{
-    await gsDb.collection('utenti').doc(uid).update({ genere });
-    if(typeof gsToast==='function') gsToast('✅ Preferenza aggiornata','gs-success');
-  }catch(e){
-    console.warn('Aggiornamento genere:', e);
-    if(typeof gsToast==='function') gsToast('⚠️ Aggiornamento non riuscito','gs-error');
-  }
-}
-
-async function adminCreaUtente(){
-  const nome = document.getElementById('adm-new-nome').value.trim();
-  const email = document.getElementById('adm-new-email').value.trim();
-  const pass = document.getElementById('adm-new-pass').value;
-  const genere = document.getElementById('adm-new-genere')?.value || 'n';
-  const msg = document.getElementById('adm-new-msg');
-  const showMsg = (text, ok) => {
-    msg.textContent = text;
-    msg.style.display = 'block';
-    msg.style.color = ok ? '#2e7d32' : '#c62828';
-  };
-  if(!gsCurrentUser || gsCurrentUser.email !== ADMIN_EMAIL){ showMsg(gsG('Non autorizzata.','Non autorizzato.','Accesso non autorizzato.'), false); return; }
-  if(!nome || !email || !pass){ showMsg('Compila tutti i campi.', false); return; }
-  if(pass.length < 6){ showMsg('La password deve avere almeno 6 caratteri.', false); return; }
-
-  try{
-    // Istanza Firebase separata e "usa e getta": crea il nuovo utente senza
-    // toccare la sessione dell'amministratore collegato in questo momento.
-    const secApp = firebase.apps.find(a=>a.name==='gynosystem-admin-temp') || firebase.initializeApp(GS_FIREBASE_CONFIG, 'gynosystem-admin-temp');
-    const secAuth = secApp.auth();
-    await secAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
-    const cred = await secAuth.createUserWithEmailAndPassword(email, pass);
-    const newUid = cred.user.uid;
-    await secAuth.signOut();
-
-    await gsDb.collection('utenti').doc(newUid).set({
-      email, nome, genere, attivo:true, eliminato:false,
-      mustChangePassword:true, // al primo accesso dovrà impostarne una sua, al posto di quella provvisoria
-      createdAt: new Date().toISOString(),
-      createdBy: gsCurrentUser.email
-    });
-
-    showMsg(`✅ Account creato per ${email}.`, true);
-    document.getElementById('adm-new-nome').value='';
-    document.getElementById('adm-new-email').value='';
-    document.getElementById('adm-new-pass').value='';
-    document.getElementById('adm-new-genere').value='n';
-    renderAdminUtenti();
-  }catch(e){
-    let m = 'Errore nella creazione dell\'account.';
-    if(e.code==='auth/email-already-in-use') m='Esiste già un account con questa email.';
-    if(e.code==='auth/weak-password') m='Password troppo debole (minimo 6 caratteri).';
-    if(e.code==='auth/invalid-email') m='Email non valida.';
-    showMsg(m, false);
-  }
-}
-
-async function adminImpostaStato(uid, attivo){
-  try{
-    await gsDb.collection('utenti').doc(uid).update({ attivo, eliminato:false });
-    gsToast(attivo ? '✅ Account riattivato' : '⛔ Account sospeso', 'gs-success');
-    renderAdminUtenti();
-  }catch(e){ console.warn(e); gsToast('Errore nell\'operazione', 'gs-info'); }
-}
-
-// Attiva/disattiva la modalità dimostrativa per un account: al prossimo
-// login vedrà (o smetterà di vedere) le 30 pazienti di esempio, in una
-// sandbox locale separata dal proprio archivio reale e da Firestore.
-async function adminToggleDemo(uid, valore){
-  try{
-    await gsDb.collection('utenti').doc(uid).update({ demoMode: valore });
-    gsToast(valore ? '🎭 Modalità demo attivata (dal prossimo login)' : '🎭 Modalità demo disattivata (dal prossimo login)', 'gs-success');
-    renderAdminUtenti();
-  }catch(e){ console.warn(e); gsToast('Errore nell\'operazione', 'gs-info'); }
-}
-
-async function adminRichiediReset(email){
-  try{
-    await gsAuth.sendPasswordResetEmail(email);
-    gsToast(`📧 Email di reset inviata a ${email}`, 'gs-success');
-  }catch(e){ console.warn(e); gsToast('Impossibile inviare l\'email di reset', 'gs-info'); }
-}
-
-async function adminEliminaUtente(uid, email){
-  if(!confirm(`Eliminare l'accesso di ${email}? Non potrà più entrare in ${GS_APP_NOME}.\n\nNota: l'utenza resterà comunque elencata in Firebase Console finché non la rimuovi manualmente da lì (Authentication → Users) — qui viene solo bloccato l'accesso all'app.`)) return;
-  try{
-    await gsDb.collection('utenti').doc(uid).update({ attivo:false, eliminato:true, eliminatoAt: new Date().toISOString() });
-    gsToast('🗑️ Accesso eliminato', 'gs-success');
-    renderAdminUtenti();
-  }catch(e){ console.warn(e); gsToast('Errore nell\'eliminazione', 'gs-info'); }
-}
-
-// ── Mostra/Nascondi password ──
 function toggleEye(inputId, btn){
   const inp = document.getElementById(inputId);
   if(!inp) return;
@@ -6437,20 +6069,16 @@ function naviga(id){
   // Render sezione
   if(id==='home'){
     renderCalendar();renderDashboard();
-    if(typeof aiSyncVisibilita==='function') aiSyncVisibilita();
-    if(typeof aiBriefingDashboard==='function' && !aiInVisita) setTimeout(()=>aiBriefingDashboard(false), 1200);
   }
   if(id==='archivio') renderPazienti();
   if(id==='storico-date') renderStorico();
   if(id==='farmacia') renderFarmaci();
   if(id==='backup') renderBackupStats();
-  if(id==='appuntamenti') loadFBAppuntamenti();
-  if(id==='disponibilita') renderDisponibilita();
+  if(id==='appuntamenti') caricaAppuntamenti();
   if(id==='ricettario') renderRicettario();
   if(id==='consensi') renderConsensi();
   if(id==='email') renderEmailSezione();
   if(id==='utility') caricaDiarioPersonale();
-  if(id==='amministrazione') renderAdminUtenti();
   if(id==='impostazioni'){ renderImpostazioni(); renderImpostazioniProfilo(); }
 }
 
@@ -6550,8 +6178,8 @@ async function caricaDatiLocaliUtente(uid){
   }
   gsDbStorageKey=chiave;
   DB = json ? JSON.parse(json) : { pazienti:[], agenda:[] };
-  if(!DB.studi) DB.studi=[];
-  migraStudiVecchiFormato();
+  if(!Array.isArray(DB.appuntamenti)) DB.appuntamenti=[];
+  GS_APPTS=DB.appuntamenti;
   if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
 }
 
@@ -6577,7 +6205,6 @@ async function caricaDatiDemo(uid){
     console.warn('Errore caricamento dati demo:', e);
     DB = { pazienti:[], agenda:[] };
   }
-  if(!DB.studi) DB.studi=[];
   if(!DB.agenda) DB.agenda=[];
   salvaDB(); // sovrascrive eventuali resti di una demo precedente: sempre puliti
 }
@@ -6618,7 +6245,6 @@ function caricaFileDemoPersonalizzato(input){
     }
     gsDbStorageKey='gynoDB_v15_demo_'+gsCurrentUser.uid;
     DB=dati;
-    if(!DB.studi) DB.studi=[];
     if(!DB.agenda) DB.agenda=[];
     salvaDB();
     closeModal('modal-scelta-demo');
@@ -6629,9 +6255,8 @@ function caricaFileDemoPersonalizzato(input){
 }
 
 async function proseguiDopoCaricamentoDemo(){
-  if(typeof aiAvvia==='function') aiAvvia();
   naviga('home');
-  loadAdminConfig(); // solo contenuti di servizio condivisi (farmaci, linee guida), nessun dato paziente
+  caricaAppuntamenti();
 }
 
 function mostraBannerDemo(mostra){
@@ -6731,7 +6356,7 @@ function renderDashboard(){
   renderPromemoriaScaduti();
 }
 
-// Widget "Appuntamenti": SOLO le visite/prenotazioni delle pazienti (GynoBook),
+// Widget "Appuntamenti": SOLO le visite/prenotazioni delle pazienti,
 // niente promemoria — quelli hanno il loro widget dedicato (renderPromemoriaHome).
 function renderAlertsHome(){
   const c=document.getElementById('dashboard-alerts');
@@ -6740,7 +6365,7 @@ function renderAlertsHome(){
   const oggi=new Date().toISOString().split('T')[0];
   const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
 
-  // Tutti gli appuntamenti GynoBook da oggi in poi (nessun limite di quantità)
+  // Tutti gli appuntamenti da oggi in poi
   const fbProssimi=GS_APPTS.filter(a=>a.data>=oggi && a.stato!=='cancellato').sort((x,y)=>(x.data||'').localeCompare(y.data||''));
 
   if(!fbProssimi.length){
@@ -6884,7 +6509,7 @@ function renderCalendar(){
 
     // ── Eventi del giorno, con i NOMI delle pazienti ──
     const eventi=[];
-    // 1) Appuntamenti GynoBook / creati dalla dottoressa (Firestore)
+    // 1) Appuntamenti dell'agenda
     (typeof GS_APPTS!=='undefined'?GS_APPTS:[])
       .filter(a=>a.data===str && a.stato!=='cancellato')
       .sort((x,y)=>(x.ora||'99:99').localeCompare(y.ora||'99:99'))
@@ -6966,7 +6591,7 @@ function renderCalModalEvents(d){
     return;
   }
   const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
-  // Appuntamenti Firebase da GynoBook
+  // Appuntamenti dell'agenda
   fbAppts.forEach(a=>{
     const localId=trovaPazienteLocaleId(a.pazienteId);
     const pazClick=localId?`onclick="closeModal('cal-day-modal');openPaziente(${localId})" style="cursor:pointer"`:'';
@@ -6975,7 +6600,7 @@ function renderCalModalEvents(d){
       <div class="cal-event-body">
         <div class="cal-event-text">${a.pazienteNome||'Paziente'} ${localId?'<span style="color:var(--primary);font-size:.7rem">↗ cartella</span>':''}</div>
         <div class="cal-event-meta">
-          <span class="badge badge-green" style="font-size:0.65rem;padding:2px 8px">📅 GynoBook</span>
+          <span class="badge badge-green" style="font-size:0.65rem;padding:2px 8px">📅 Appuntamento</span>
           ${a.ora?'🕐 '+a.ora:''} ${ICONS[a.tipo]||''} ${a.tipo||''}
         </div>
       </div>
@@ -7165,82 +6790,8 @@ function creaPaziente(){
   if(!confermaSalvaConProblemi(problemi)) return;
   const p={id:Date.now(),nome:n,cognome:c,nascita,tel,email:document.getElementById('n-email').value,cf:document.getElementById('n-cf').value.toUpperCase(),note:document.getElementById('n-note').value,visite:[],alerts:[]};
   DB.pazienti.push(p);salvaDB();
-  // Sync anagrafica su Firebase (no dati clinici)
-  syncPazienteFirebase(p);
   registraLog('paziente','Nuova paziente creata');
   openPaziente(p.id);
-}
-
-function syncPazienteFirebase(p){
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser||gsDemoMode)return; // in demo: mai toccare Firestore
-  const data={nome:p.nome,cognome:p.cognome,nascita:p.nascita||'',tel:p.tel||'',email:p.email||'',cf:p.cf||'',updatedAt:new Date().toISOString(),source:'gynosystem',ownerUid:gsCurrentUser.uid};
-  gsDb.collection('pazienti').doc(String(p.id)).set(data,{merge:true})
-    .then(()=>gsToast('Anagrafica sincronizzata su Firebase','gs-success'))
-    .catch(e=>console.warn('Firebase sync:',e));
-}
-
-// ═══════════════════════════════════════════════════
-//  IMPORT AUTOMATICO PAZIENTI DA GYNOBOOK
-// ═══════════════════════════════════════════════════
-// Quando una paziente viene creata su GynoBook, il documento su
-// Firestore nasce con importedToGynoSystem=false. Qui leggiamo
-// quei documenti, creiamo la cartella anagrafica locale (vuota,
-// pronta per visite/alerts) e segniamo il documento come importato
-// così non viene mai più riprocessato. Nessun dato clinico transita
-// mai su Firestore: solo nome, cognome, nascita, tel, email, cf, note.
-// NOTA: filtriamo per ownerUid come per tutto il resto — se in futuro
-// GynoBook viene collegato dovrà anche lui scrivere ownerUid sui documenti
-// che crea (a quale medico/studio appartiene la prenotazione), altrimenti
-// le regole Firestore li bloccheranno comunque per chiunque.
-async function importaPazientiDaGynobook(){
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser)return;
-  try{
-    const snap=await gsDb.collection('pazienti').where('ownerUid','==',gsCurrentUser.uid).get();
-    if(snap.empty)return;
-    let importate=0;
-    const daSegnare=[];
-    for(const docSnap of snap.docs){
-      const d=docSnap.data();
-      // Solo pazienti create da GynoBook (non quelle sincronizzate da MED System stesso)
-      if(d.source!=='gynobook')continue;
-      const giaPresente=DB.pazienti.some(p=>p.fbId===docSnap.id);
-      if(!giaPresente){
-        const p={
-          id:Date.now()+importate,
-          fbId:docSnap.id,
-          nome:d.nome||'',
-          cognome:d.cognome||'',
-          nascita:d.nascita||'',
-          tel:d.tel||'',
-          email:d.email||'',
-          cf:(d.cf||'').toUpperCase(),
-          note:d.note||'',
-          visite:[],
-          alerts:[],
-          importataDaGynobook:true,
-          dataImport:new Date().toISOString()
-        };
-        const problemiImport=validaAnagrafica({nascita:p.nascita, tel:p.tel});
-        if(problemiImport.length) console.warn(`Paziente importata da GynoBook "${p.cognome} ${p.nome}" con dati anagrafici da verificare:`,problemiImport);
-        DB.pazienti.push(p);
-        importate++;
-      }
-      if(d.importedToGynoSystem!==true) daSegnare.push(docSnap.id);
-    }
-    // Segna come importate su Firestore (a prescindere) per non riprocessarle mai più.
-    // Non richiamiamo syncPazienteFirebase: il documento originale resta quello creato da GynoBook.
-    for(const docId of daSegnare){
-      await gsDb.collection('pazienti').doc(docId).update({importedToGynoSystem:true}).catch(e=>console.warn('Flag import:',e));
-    }
-    if(importate>0){
-      salvaDB();
-      if(typeof renderPazienti==='function')renderPazienti();
-      if(typeof renderDashboard==='function')renderDashboard();
-      gsToast(`📥 ${importate} nuova/e cartella/e creata/e da GynoBook`,'gs-success');
-    }
-  }catch(e){
-    console.error('Errore import pazienti da GynoBook:',e);
-  }
 }
 
 let filtroGravidanzeAttive=false;
@@ -7607,7 +7158,7 @@ function _aggiornaAllergieBanner(p){
 
 // Piccolo riassunto testuale (non un referto: solo un paio di righe per
 // ricordarsi in fretta la storia della paziente) messo insieme dai dati già
-// in cartella — nessuna chiamata esterna, nessun uso dell'assistente AI.
+// in cartella — nessuna chiamata esterna.
 function costruisciRiassuntoPaziente(p){
   const pezzi=[];
   const eta=p.nascita?(new Date().getFullYear()-new Date(p.nascita).getFullYear()):null;
@@ -7764,7 +7315,6 @@ function updateAnagrafica(){
   p.cf=document.getElementById('e-cf').value.toUpperCase();
   p.allergie=document.getElementById('e-allergie').value.trim();
   salvaDB();
-  syncPazienteFirebase(p); // sync su Firebase
   openPaziente(curPaz);
 }
 
@@ -7795,13 +7345,6 @@ async function eliminaPaziente(){
   DB.pazienti=DB.pazienti.filter(x=>x.id!==curPaz);
   salvaDB();
   eliminaAllegatiPaziente(curPaz); // rimuove anche i referti esterni allegati (IndexedDB)
-  // Rimuove anche l'anagrafica corrispondente su Firestore, se presente (mai in demo)
-  if(gsFirebaseReady&&gsDb&&!gsDemoMode){
-    try{ await gsDb.collection('pazienti').doc(String(curPaz)).delete(); }catch(e){ console.warn('Eliminazione Firebase:',e); }
-    if(p.fbId){
-      try{ await gsDb.collection('pazienti').doc(p.fbId).delete(); }catch(e){ console.warn('Eliminazione Firebase (fbId):',e); }
-    }
-  }
   curPaz=null;
   registraLog('paziente','Paziente eliminata');
   naviga('archivio');
@@ -8401,7 +7944,6 @@ function confermaAnnullaVisita(){
   if(confirm('⚠️ Vuoi annullare la visita?\n\nLe modifiche non salvate andranno perse.')){
     document.getElementById('editor-overlay').classList.remove('show');
     document.getElementById('editor-min-bar').classList.remove('show');
-    if(typeof aiNascondiRobot==='function') aiNascondiRobot();
   }
 }
 
@@ -8515,7 +8057,6 @@ function startEditor(tipo, vid=null){
   // valore già registrato), poi resta modificabile a mano.
   if(tipo==='ob' && typeof ricalcolaSettimaneOb==='function') ricalcolaSettimaneOb(!vid);
   if(tipo==='eco' && typeof riportaDatiEco==='function') riportaDatiEco(!vid);
-  if(typeof aiMostraRobot==='function') aiMostraRobot();
   }catch(e){
     console.error('[DEBUG startEditor] Errore con tipo=',tipo,'vid=',vid,':',e);
     alert('Errore apertura editor ('+tipo+'): '+e.message);
@@ -8527,7 +8068,6 @@ function setEditorTab(btn,id){
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.editor-nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if(typeof aiSuggerimentoProattivo==='function') aiSuggerimentoProattivo(); // spunto dell'assistente al cambio scheda
 }
 
 // ═══════════════════════════════════════════════════
@@ -8711,6 +8251,18 @@ GS_STORAGE.allegati={
     await new Promise((resolve,reject)=>{
       const tx=db.transaction('files','readwrite');
       tx.objectStore('files').delete(id);
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+  },
+  async tutti(){
+    const db=await apriDbAllegati();
+    return (await _idbRichiesta(db.transaction('files','readonly').objectStore('files').getAll()))||[];
+  },
+  async svuota(){
+    const db=await apriDbAllegati();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('files','readwrite');
+      tx.objectStore('files').clear();
       tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
     });
   },
@@ -8914,7 +8466,6 @@ function salvaVisita(){
 
   salvaDB();
   closeModal('editor-overlay');
-  if(typeof aiNascondiRobot==='function') aiNascondiRobot();
   document.getElementById('editor-min-bar').classList.remove('show');
   renderVisiteList(p);
   renderFarmaciAttuali(p);
@@ -8922,7 +8473,7 @@ function salvaVisita(){
   _aggiornaAllergieBanner(p);
   if(typeof renderPazRiepilogo==='function') renderPazRiepilogo(p);
   scaricaVisitaJSON(p, v); // download automatico JSON
-  completaAppuntamentoFirebase(p, v.data); // segna come completato l'eventuale prenotazione GynoBook collegata
+  completaAppuntamento(p, v.data);
   apriPostVisita(p, v); // chiede se stampare referto e/o ricetta
 }
 
@@ -8949,695 +8500,25 @@ function stampaRicettaPostVisita(){
   stampaRicettaConTesto(`${p.cognome} ${p.nome}`, dataStr, formattaTerapiaComeRicetta(`${p.nome} ${p.cognome}`, terapiaDiVisita(v)));
 }
 
-// ═══════════════════════════════════════════════════
-//  ASSISTENTE AI (robottino nell'editor visita)
-// ═══════════════════════════════════════════════════
-// Attivabile in Impostazioni (per account). Quando è attivo, un robottino
-// nell'editor propone spunti mentre compili e risponde a domande libere.
-// Le chiamate passano dalla Cloud Function "assistenteAI": la chiave API
-// Anthropic non è mai nel browser. Viene inviato SOLO il testo clinico che
-// hai scritto (mai nome, cognome, data di nascita, codice fiscale, contatti).
-
-let aiAbilitato = false;
-let aiChatAperta = false;
-let aiChatStoria = [];          // [{role,content}] della conversazione libera
-let aiPending = false;
-let aiUltimoContesto = '';      // per non richiamare l'AI se non è cambiato nulla
-let aiTimerProattivo = null;
-let aiUltimoProattivoTs = 0;
-let aiInVisita = false;         // true quando l'editor visita è aperto
-let aiBriefingTimer = null;     // loop periodico del "punto della giornata"
-let aiUltimoBriefingTs = 0;
-let _aiCasiImminenti = [];      // [{pazId,label,et}] pazienti in arrivo/da rivedere
-
-function aiKey(){ return 'gs_ai_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
-function aiCaricaPreferenza(){
-  try{ aiAbilitato = localStorage.getItem(aiKey()) === '1'; }catch(e){ aiAbilitato = false; }
-}
-
-// Cambia scheda nella pagina Impostazioni (Assistente AI / Stampe / Funzionalità)
-function setSettingsTab(btn,id){
-  document.querySelectorAll('#sec-impostazioni .edit-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('#sec-impostazioni .tipo-pill').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// ═══════════════════════════════════════════════════
-//  FUNZIONALITÀ ATTIVABILI/DISATTIVABILI (nascondono voci di menu)
-// ═══════════════════════════════════════════════════
-// Nasconde solo la voce di menu: non tocca né cancella alcun dato, quindi
-// riattivare una funzionalità la ripristina esattamente come prima.
-// Dashboard, Pazienti, Nuova Paziente, Archiviazione e Impostazioni non sono
-// disattivabili: sono l'accesso ai dati clinici e alle funzioni di sicurezza
-// (backup) e alla pagina che permette di riattivare tutto il resto.
-const FEATURE_TOGGLES=[
-  {key:'storico', label:'Storico Visite', desc:'Archivio di tutte le giornate lavorative', navId:'nav-storico-date'},
-  {key:'appuntamenti', label:'Appuntamenti', desc:'Prenotazioni GynoBook e promemoria', navId:'nav-appuntamenti'},
-  {key:'ricettario', label:'Ricettario', desc:'Elenco di tutte le ricette emesse', navId:'nav-ricettario'},
-  {key:'consensi', label:'Consensi', desc:'Moduli di consenso informato pronti da far firmare', navId:'nav-consensi'},
-  {key:'guide', label:'Linee Guida', desc:'Protocolli ACOG · SIGO · FIGO · ISUOG', navId:'nav-guide'},
-  {key:'farmacia', label:'Farmacia', desc:'Prontuario farmaci per patologia', navId:'nav-farmacia'},
-  {key:'utility', label:'Utility', desc:'Calcolatrici e strumenti vari', navId:'nav-utility'}
-];
-function featureFlagsKey(){ return 'gs_feature_flags_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
-function getFeatureFlags(){
-  try{
-    const s=JSON.parse(localStorage.getItem(featureFlagsKey()));
-    if(s && typeof s==='object') return s;
-  }catch(e){}
-  return {};
-}
-function setFeatureFlag(key,enabled){
-  const flags=getFeatureFlags();
-  flags[key]=enabled;
-  try{ localStorage.setItem(featureFlagsKey(), JSON.stringify(flags)); }catch(e){}
-  applyFeatureFlags();
-  // Se si disattiva la sezione in cui ci si trova, torna alla dashboard
-  const t=FEATURE_TOGGLES.find(f=>f.key===key);
-  const secId='sec-'+(t?.navId||'').replace('nav-','');
-  if(t && !enabled && document.getElementById(secId)?.classList.contains('active')) naviga('home');
-}
-function applyFeatureFlags(){
-  const flags=getFeatureFlags();
-  FEATURE_TOGGLES.forEach(f=>{
-    const nav=document.getElementById(f.navId);
-    const enabled=flags[f.key]!==false; // default: attiva
-    if(nav) nav.style.display=enabled?'':'none';
+// Quando una visita viene registrata, l'appuntamento della stessa paziente
+// nello stesso giorno passa automaticamente a "completato".
+function completaAppuntamento(p, dataVisita){
+  if(!p||!Array.isArray(DB.appuntamenti)) return;
+  let n=0;
+  DB.appuntamenti.forEach(a=>{
+    if(a.data===dataVisita && trovaPazienteLocaleId(a.pazienteId)===p.id && a.stato!=='completato' && a.stato!=='cancellato'){ a.stato='completato'; n++; }
   });
-}
-function riattivaTutteFunzioni(){
-  try{ localStorage.removeItem(featureFlagsKey()); }catch(e){}
-  applyFeatureFlags();
-  renderFeatureToggles();
-  if(typeof gsToast==='function') gsToast('✅ Tutte le funzionalità riattivate','gs-success');
-}
-function renderFeatureToggles(){
-  const box=document.getElementById('set-funzioni-lista');
-  if(!box)return;
-  const flags=getFeatureFlags();
-  box.innerHTML=FEATURE_TOGGLES.map(f=>{
-    const enabled=flags[f.key]!==false;
-    return `<label style="display:flex;align-items:center;gap:12px;cursor:pointer;padding:10px 0;border-bottom:1px solid var(--separator);">
-      <input type="checkbox" ${enabled?'checked':''} onchange="setFeatureFlag('${f.key}',this.checked)" style="width:20px;height:20px;flex-shrink:0;">
-      <span style="flex:1;">
-        <span style="font-weight:600;display:block;">${f.label}</span>
-        <span style="font-size:.78rem;color:var(--label4);">${f.desc}</span>
-      </span>
-    </label>`;
-  }).join('');
-}
-
-function renderImpostazioni(){
-  renderFeatureToggles();
-  if(typeof renderSetPazTabsList==='function') renderSetPazTabsList();
-  const riepChk=document.getElementById('set-paz-riepilogo');
-  if(riepChk) riepChk.checked=getPazRiepilogoVisibile();
-  const chk = document.getElementById('set-ai-enabled');
-  if(chk) chk.checked = aiAbilitato;
-  const riga = document.getElementById('ai-stato-riga');
-  if(riga){
-    riga.textContent = aiAbilitato
-      ? '🟢 Assistente attivo — il robottino è sempre disponibile (dashboard e visite) e ogni tanto ti fa il punto della giornata.'
-      : '⚪ Assistente spento.';
-  }
-  // ── Personalizzazione stampe ──
-  if(document.getElementById('set-print-nome')){
-    const c = getPrintCfg(), i = c.intestazione, l = c.layout;
-    const V = (id,val)=>{ const e=document.getElementById(id); if(e) e.value = (val==null?'':val); };
-    V('set-print-nome', i.nome); V('set-print-spec', i.spec);
-    V('set-print-indirizzo', i.indirizzo); V('set-print-contatti', i.contatti);
-    V('set-print-firma', c.firma);
-    V('set-print-font', l.font); V('set-print-formato', l.formato);
-    V('set-print-corpo', l.corpo); V('set-print-margine', l.margine);
-    V('set-print-colore', l.colore); V('set-print-piepagina', l.piePagina);
-    const mostra=document.getElementById('set-print-mostralogo'); if(mostra) mostra.checked = !!l.logo;
-    const prev=document.getElementById('set-print-logo-preview');
-    if(prev) prev.innerHTML = i.logo ? `<img src="${i.logo}" style="max-height:46px;border-radius:6px">` : '<span style="font-size:.78rem;color:var(--label4)">nessun logo</span>';
-    const lg=document.getElementById('set-print-logo'); if(lg) delete lg.dataset.base64;
-  }
-}
-
-function caricaLogoImpostazioni(input){
-  const file=input.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    input.dataset.base64=e.target.result;
-    const prev=document.getElementById('set-print-logo-preview');
-    if(prev) prev.innerHTML=`<img src="${e.target.result}" style="max-height:46px;border-radius:6px">`;
-  };
-  reader.readAsDataURL(file);
-}
-
-function _leggiImpostazioniStampa(){
-  const c = getPrintCfg();
-  const g = id => (document.getElementById(id)?.value || '').trim();
-  const n = (id,def)=>{ const x=parseFloat(document.getElementById(id)?.value); return isNaN(x)?def:x; };
-  c.intestazione.nome = g('set-print-nome') || c.intestazione.nome;
-  c.intestazione.spec = g('set-print-spec');
-  c.intestazione.indirizzo = g('set-print-indirizzo');
-  c.intestazione.contatti = g('set-print-contatti');
-  c.firma = g('set-print-firma') || c.intestazione.nome;
-  const lg = document.getElementById('set-print-logo');
-  if(lg && lg.dataset.base64) c.intestazione.logo = lg.dataset.base64;
-  c.layout.font = g('set-print-font') || 'Georgia';
-  c.layout.formato = g('set-print-formato') || 'A4';
-  c.layout.corpo = Math.min(16, Math.max(9, n('set-print-corpo', 11)));
-  c.layout.margine = Math.min(30, Math.max(8, n('set-print-margine', 15)));
-  c.layout.colore = g('set-print-colore') || '#c2185b';
-  c.layout.piePagina = g('set-print-piepagina');
-  c.layout.logo = !!document.getElementById('set-print-mostralogo')?.checked;
-  return c;
-}
-
-function salvaImpostazioniStampa(){
-  const c = _leggiImpostazioniStampa();
-  const stato = document.getElementById('set-print-stato');
-  if(savePrintCfg(c)){
-    if(typeof gsToast==='function') gsToast('✅ Impostazioni di stampa salvate','gs-success');
-    if(stato) stato.textContent = '✅ Salvate. Valgono da subito su ricetta, referto e informativa.';
-    renderImpostazioni();
-  } else {
-    if(typeof gsToast==='function') gsToast('Errore nel salvataggio','gs-error');
-    if(stato) stato.textContent = '⚠️ Impossibile salvare (spazio locale non disponibile).';
-  }
-}
-
-// Anteprima: apre un referto ostetrico di esempio con la configurazione CORRENTE
-// dei campi (anche non ancora salvata), così si vede subito l'effetto.
-function anteprimaStampa(){
-  const c = _leggiImpostazioniStampa(), i = c.intestazione, l = c.layout;
-  const w = apriFinestraStampa(); if(!w) return;
-  const logo = (l.logo && i.logo) ? `<img src="${i.logo}" style="max-height:64px">` : '';
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Anteprima stampa</title><style>
-    @page{margin:${l.margine}mm;size:${l.formato};}
-    body{font-family:'${l.font}',Georgia,serif;font-size:${l.corpo}pt;color:#1a1a1a;max-width:720px;margin:36px auto;padding:0 20px;line-height:1.6}
-    .ap-bar{position:fixed;top:0;left:0;right:0;background:#fce4ec;padding:10px 16px;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f;display:flex;gap:10px;align-items:center}
-    .ap-bar button{font:inherit;font-weight:600;padding:6px 14px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
-    body{padding-top:64px}
-    .ph{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:22px}
-    .ph h1{font-size:1.3rem;margin:0;color:${l.colore}}
-    .ph .sp{font-size:.85rem;color:#555;margin-top:2px}
-    .ph .ct{font-size:.78rem;color:#777;margin-top:3px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8f8f8;border-radius:8px;padding:14px;margin-bottom:18px;font-size:.9em}
-    .lbl{font-size:.72rem;text-transform:uppercase;color:#777;font-weight:bold}
-    h2{font-size:1.05rem;margin:16px 0 6px}
-    .foot{margin-top:40px;display:flex;justify-content:space-between;align-items:flex-end;font-size:.85rem;color:#555}
-    .pp{margin-top:24px;padding-top:8px;border-top:1px solid #ccc;font-size:.7rem;color:#888;text-align:center}
-    @media print{.ap-bar{display:none}body{padding-top:0;margin:0}}
-  </style></head><body>
-    <div class="ap-bar no-print">👁️ Anteprima con le impostazioni attuali (non ancora salvate).
-      <button onclick="window.print()">🖨️ Prova stampa</button>
-      <button onclick="window.close()" style="background:#fff;color:#880e4f;border:1px solid #f48fb1">Chiudi</button>
-    </div>
-    <div class="ph">${logo}<div><h1>${_escHtml(i.nome)}</h1><div class="sp">${_escHtml(i.spec)}</div><div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div></div></div>
-    <div class="grid">
-      <div><div class="lbl">Paziente</div><div>Mario Rossi (esempio)</div></div>
-      <div style="text-align:right"><div class="lbl">Data visita</div><div>${new Date().toLocaleDateString('it-IT')}</div></div>
-      <div><div class="lbl">Data di nascita</div><div>01/01/1990</div></div>
-      <div style="text-align:right"><div class="lbl">Codice fiscale</div><div>—</div></div>
-    </div>
-    <h2>ANAMNESI</h2>
-    <p>Testo di esempio del referto. Qui compaiono soltanto i campi effettivamente compilati durante la visita, con questo carattere e questo corpo.</p>
-    <h2>CONCLUSIONI</h2>
-    <p>Quadro nella norma. Si consiglia controllo tra 12 mesi.</p>
-    <div class="foot"><div></div><div style="text-align:center"><div style="font-style:italic;margin-bottom:8px">${_escHtml(c.firma)}</div><div>______________________________</div><div style="font-size:.75rem;margin-top:4px">Timbro e Firma</div></div></div>
-    ${l.piePagina?`<div class="pp">${_escHtml(l.piePagina)}</div>`:''}
-  </body></html>`);
-  w.document.close();
-}
-
-function toggleAiAssistente(on){
-  aiAbilitato = !!on;
-  try{ localStorage.setItem(aiKey(), aiAbilitato ? '1' : '0'); }catch(e){}
-  renderImpostazioni();
-  if(aiAbilitato) aiAvvia(); else aiFerma();
-}
-
-// ── Chiamata alla Cloud Function ──
-async function aiChiama(mode, messages, system){
-  if(!gsFunctions) throw new Error('Assistente non disponibile (funzioni non inizializzate).');
-  const fn = gsFunctions.httpsCallable('assistenteAI');
-  const res = await fn({ mode, messages, system });
-  return (res && res.data && res.data.text) ? res.data.text.trim() : '';
-}
-
-// ── Contesto clinico della visita in corso (nessun dato identificativo) ──
-function aiContestoVisita(){
-  if(typeof getRefertoSezioni !== 'function' || !curMode) return '';
-  const fakeV = { tipo: curMode };
-  if(curMode==='ob') fakeV.obData = getObData();
-  else if(curMode==='eco') fakeV.ecoData = getEcoData();
-  else fakeV.gynoData = getGynoData();
-  const boilerplate = (typeof GD!=='undefined' && GD.informativa) ? GD.informativa : '__nope__';
-  let txt = '';
-  getRefertoSezioni(fakeV).forEach(s=>{
-    const righe = s.rows.filter(r=>r[1] && String(r[1]).trim() && String(r[1]) !== boilerplate);
-    if(!righe.length) return;
-    txt += `\n[${s.title}]\n`;
-    righe.forEach(r=> txt += `- ${r[0]}: ${String(r[1]).replace(/\s+/g,' ').trim()}\n`);
-  });
-  return txt.trim();
-}
-
-function aiSystemBase(){ return (
-  "Sei l'assistente clinico di "+GS_APP_NOME_COMPLETO+": un collega ginecologo e ostetrico esperto e aggiornato alle linee guida (SIGO/AOGOI, AIPE, SIEOG, ISUOG, NICE, ACOG), che dà del tu "+gsOperatore('a')+". " +
-  "Ragiona da specialista: collega i dati fra loro, evidenzia incoerenze e red flag, proponi diagnosi differenziali pertinenti, esami mirati e terapie con posologia quando serve, indicando sempre il perché e il quando. " +
-  "Sii specifico e concreto, mai generico o burocratico; niente disclaimer inutili. " +
-  "Sei un supporto: la decisione finale è "+gsOperatore('di')+". Non inventare dati: se un dato manca o è ambiguo, chiedilo o segnalalo. " +
-  "Rispondi in italiano, breve e denso. Non ripetere pari pari ciò che è già scritto.");
-}
-
-function aiSystemPrompt(mode){
-  const flussi = {
-    gyno: "Contesto: visita ginecologica in compilazione. Flusso ideale: anamnesi (dati generali, ciclo, sintomi, screening, familiarità) → motivo della visita → esame obiettivo (generale, speculum, prelievi, bimanuale) → ecografia → eventuale colposcopia/HPV → conclusioni (diagnosi, esami richiesti, terapia, prossimo controllo).",
-    ob: "Contesto: visita ostetrica in compilazione. Flusso ideale: anamnesi (età, PARA, emogruppo, tipo gravidanza, datazione UM/EPP, dati pregravidici, screening, stile di vita, familiarità) → visita ed eco (settimane, PA, peso/incremento, referto) → biometria fetale con percentili → note eco → counselling → prescrizioni esami → conclusioni (diagnosi, terapia, prossimo controllo).",
-    eco: "Contesto: ecografia ostetrica in compilazione. Flusso ideale: tipo di esame → età gestazionale → biometria fetale (con flussimetria Doppler) → referto conclusivo, terapia, prossimo controllo.",
-    dashboard: "Contesto: nessuna visita aperta — stai affiancando "+gsOperatore('art')+" nella gestione della giornata. "+gsG('Aiutala','Aiutalo','Aiutalo')+" a prepararsi agli appuntamenti, a non dimenticare promemoria e controlli scaduti o imminenti, e a ripassare la storia clinica delle pazienti che vedrà a breve (red flag, cosa chiedere, quali esami controllare). Parla in modo naturale, come un collega che dà una mano."
-  };
-  return aiSystemBase() + "\n\n" + (flussi[mode] || flussi.gyno);
-}
-
-// ── Robottino: visibilità e ciclo di vita ──────────────────────────
-// Il robottino è SEMPRE disponibile quando l'assistente è attivo (dashboard
-// e visita). aiAvvia/aiFerma gestiscono il ciclo di vita globale; aiEntraVisita
-// e aiEsciVisita cambiano solo il "contesto" (visita ↔ giornata).
-function aiSyncVisibilita(){
-  const r = document.getElementById('ai-robot');
-  if(r) r.style.display = aiAbilitato ? 'flex' : 'none';
-  if(!aiAbilitato){ const c=document.getElementById('ai-chat'); if(c) c.style.display='none'; }
-}
-function aiAvvia(){
-  aiCaricaPreferenza();
-  if(!aiAbilitato){ aiFerma(); return; }
-  aiInVisita = false;
-  aiChatStoria = [];
-  aiRenderChat();
-  aiUltimoBriefingTs = 0;
-  aiSyncVisibilita();
-  aiChiudiFumetto();
-  aiLoopBriefing();
-  clearTimeout(aiTimerProattivo);
-  aiTimerProattivo = setTimeout(()=>aiBriefingDashboard(true), 3500); // primo "saluto della giornata"
-}
-function aiFerma(){
-  aiInVisita = false;
-  aiChatAperta = false;
-  clearTimeout(aiBriefingTimer);
-  clearTimeout(aiTimerProattivo);
-  ['ai-robot','ai-chat'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
-}
-// Compat: vecchi nomi usati altrove
-function aiMostraRobot(){ aiEntraVisita(); }
-function aiNascondiRobot(){ aiEsciVisita(); }
-
-function aiEntraVisita(){
-  if(!aiAbilitato) return;
-  aiInVisita = true;
-  aiChatAperta = false;
-  const c = document.getElementById('ai-chat'); if(c) c.style.display = 'none';
-  aiUltimoContesto = '';
-  aiUltimoProattivoTs = 0;
-  aiSyncVisibilita();
-  aiChiudiFumetto();
-}
-function aiEsciVisita(){
-  aiInVisita = false;
-  aiChatAperta = false;
-  const c = document.getElementById('ai-chat'); if(c) c.style.display = 'none';
-  aiChiudiFumetto();
-  if(!aiAbilitato){ aiFerma(); return; }
-  aiSyncVisibilita();
-  aiUltimoBriefingTs = 0; // permetti subito un nuovo punto della giornata
-  clearTimeout(aiTimerProattivo);
-  aiTimerProattivo = setTimeout(()=>aiBriefingDashboard(true), 2500);
-}
-function aiChiudiFumetto(){
-  const f = document.getElementById('ai-fumetto'); if(f) f.style.display='none';
-  const box = document.getElementById('ai-fumetto-azioni'); if(box) box.remove();
-  const d = document.getElementById('ai-robot-dot'); if(d) d.style.display='none';
-}
-function aiMostraFumetto(testo, azioni, noStore){
-  const f = document.getElementById('ai-fumetto');
-  const t = document.getElementById('ai-fumetto-testo');
-  if(!f || !t) return;
-  t.textContent = testo;
-  const vecchio = document.getElementById('ai-fumetto-azioni');
-  if(vecchio) vecchio.remove();
-  if(azioni && azioni.length){
-    const box = document.createElement('div');
-    box.id = 'ai-fumetto-azioni';
-    box.className = 'ai-fumetto-azioni';
-    azioni.forEach(a=>{
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = a.label;
-      b.addEventListener('click', ()=>{ try{ a.fn(); }catch(e){ console.warn(e); } });
-      box.appendChild(b);
-    });
-    t.after(box);
-  }
-  f.style.display = 'block';
-  if(!aiChatAperta){ const d=document.getElementById('ai-robot-dot'); if(d) d.style.display='block'; }
-  // Memorizza il messaggio spontaneo nella conversazione: se chiudi il fumetto e
-  // poi riapri la chat, ritrovi quello che ti aveva detto.
-  if(!noStore && testo){
-    const ultimo = aiChatStoria[aiChatStoria.length-1];
-    if(!ultimo || ultimo.content !== testo) aiChatStoria.push({ role:'assistant', content:testo });
-  }
-}
-// Ricostruisce la finestra di chat dalla conversazione salvata (aiChatStoria).
-function aiRenderChat(){
-  const box = document.getElementById('ai-chat-msgs');
-  if(!box) return;
-  box.innerHTML = '';
-  if(!aiChatStoria.length){
-    const d = document.createElement('div');
-    d.className = 'ai-msg bot';
-    d.textContent = aiInVisita
-      ? 'Ciao! 👋 Sono qui per la visita. Chiedimi quello che vuoi o continua a compilare: ti segnalo se noto qualcosa.'
-      : 'Ciao! 👋 Posso darti una mano con la giornata: prova con "cosa ho in programma oggi", "ripassa la prossima paziente", oppure chiedimi un parere clinico.';
-    box.appendChild(d);
-    return;
-  }
-  aiChatStoria.forEach(m=>{
-    const d = document.createElement('div');
-    d.className = 'ai-msg ' + (m.role==='user' ? 'user' : 'bot');
-    d.textContent = m.content;
-    box.appendChild(d);
-  });
-  box.scrollTop = box.scrollHeight;
-}
-
-// ── Contesto: agenda della giornata + prossimi giorni (con i nomi delle pazienti) ──
-function _aiDataRel(dstr){
-  if(!dstr) return '';
-  const oggi = new Date(); oggi.setHours(0,0,0,0);
-  const d = new Date(dstr + 'T12:00:00'); d.setHours(0,0,0,0);
-  const gg = Math.round((d - oggi)/86400000);
-  if(gg===0) return 'oggi';
-  if(gg===1) return 'domani';
-  if(gg===-1) return 'ieri';
-  if(gg>1 && gg<=10) return 'tra ' + gg + ' giorni';
-  if(gg<0) return Math.abs(gg) + ' giorni fa';
-  return new Date(dstr + 'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-}
-// La dottoressa ha scelto (Impostazioni) che l'assistente usi i NOMI delle
-// pazienti nel punto della giornata e nel ripasso dei casi, altrimenti non si
-// capisce di chi si parla. Restano esclusi codice fiscale e contatti.
-function _aiNomePaz(pazId){
-  const p = DB.pazienti.find(x=>x.id===pazId);
-  if(!p) return 'paziente';
-  return `${p.cognome||''} ${p.nome||''}`.trim() || 'paziente';
-}
-function _aiEtichettaCaso(pazId, label){
-  const gia = _aiCasiImminenti.find(c=>c.pazId===pazId);
-  if(gia) return gia.et;
-  const et = _aiNomePaz(pazId);
-  _aiCasiImminenti.push({ pazId, label, et });
-  return et;
-}
-function aiRiassuntoBreveCartella(pazId){
-  const p = DB.pazienti.find(x=>x.id===pazId);
-  if(!p) return '';
-  const bits = [];
-  if(p.nascita){ const e = new Date().getFullYear() - new Date(p.nascita).getFullYear(); if(e>0 && e<120) bits.push(e + ' anni'); }
-  const vis = (p.visite||[]).slice().sort((a,b)=>(b.data||'').localeCompare(a.data||''));
-  if(vis.length){
-    const u = vis[0];
-    const TL = {gyno:'gin.', ob:'ost.', eco:'eco'};
-    bits.push('ultima visita ' + (TL[u.tipo]||u.tipo) + ' ' + _aiDataRel(u.data));
-  } else bits.push('nessuna visita in archivio');
-  const na = (p.alerts||[]).length;
-  if(na) bits.push(na + ' promemoria attiv' + (na===1?'o':'i'));
-  return bits.join(', ');
-}
-function aiAgendaContesto(){
-  const oggi = new Date().toISOString().split('T')[0];
-  const fra = n => new Date(Date.now() + n*86400000).toISOString().split('T')[0];
-  _aiCasiImminenti = [];
-  let txt = '';
-
-  const appts = (typeof GS_APPTS!=='undefined' ? GS_APPTS : [])
-    .filter(a=>a.data>=oggi && a.data<=fra(4) && a.stato!=='cancellato')
-    .sort((x,y)=>((x.data||'')+(x.ora||'')).localeCompare((y.data||'')+(y.ora||'')));
-  if(appts.length){
-    txt += 'APPUNTAMENTI IN PROGRAMMA (oggi e prossimi giorni):\n';
-    appts.forEach(a=>{
-      const localId = (typeof trovaPazienteLocaleId==='function') ? trovaPazienteLocaleId(a.pazienteId) : null;
-      let riga = `- ${_aiDataRel(a.data)}${a.ora?' '+a.ora:''} · ${a.tipo||'visita'}`;
-      if(localId){
-        const et = _aiEtichettaCaso(localId, `${a.ora||''} ${a.tipo||'visita'}`.trim());
-        riga += ` · ${et} — ${aiRiassuntoBreveCartella(localId)}`;
-      } else {
-        riga += (a.pazienteNome ? ` · ${a.pazienteNome}` : '') + ' (non ancora in archivio)';
-      }
-      txt += riga + '\n';
-    });
-  }
-
-  const ag = (DB.agenda||[]).filter(e=>e.data>=oggi && e.data<=fra(4));
-  if(ag.length){
-    txt += '\nAGENDA / NOTE PERSONALI:\n';
-    ag.forEach(e=> txt += `- ${_aiDataRel(e.data)} · ${e.tipo||'nota'}: ${e.testo||e.text||''}\n`);
-  }
-
-  const scaduti = [], arrivo = [];
-  DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
-    if(!a.data) return;
-    if(a.data < oggi) scaduti.push({p,a});
-    else if(a.data <= fra(7)) arrivo.push({p,a});
-  }));
-  if(scaduti.length){
-    scaduti.sort((x,y)=>x.a.data.localeCompare(y.a.data));
-    txt += `\nPROMEMORIA SCADUTI (${scaduti.length}) — nessun controllo registrato da allora:\n`;
-    scaduti.slice(0,10).forEach(({p,a})=>{
-      _aiEtichettaCaso(p.id, 'promemoria scaduto'); // rende ripassabile il caso
-      txt += `- ${_aiDataRel(a.data)} · ${p.cognome} ${p.nome}: ${a.testo}\n`;
-    });
-  }
-  if(arrivo.length){
-    arrivo.sort((x,y)=>x.a.data.localeCompare(y.a.data));
-    txt += `\nCONTROLLI / PROMEMORIA IN ARRIVO (7 giorni):\n`;
-    arrivo.slice(0,10).forEach(({p,a})=> txt += `- ${_aiDataRel(a.data)} · ${p.cognome} ${p.nome}: ${a.testo}\n`);
-  }
-  return txt.trim();
-}
-
-// Storia clinica di una paziente (per il "ripasso del caso"). Include nome e
-// cognome (scelta della dottoressa in Impostazioni) ed età. NON include codice
-// fiscale né contatti.
-function aiContestoPaziente(pazId){
-  const p = DB.pazienti.find(x=>x.id===pazId);
-  if(!p) return '';
-  const boiler = (typeof GD!=='undefined' && GD.informativa) ? GD.informativa : '__n__';
-  let txt = '';
-  const eta = p.nascita ? (new Date().getFullYear() - new Date(p.nascita).getFullYear()) : null;
-  txt += `Paziente: ${p.cognome||''} ${p.nome||''}`.trim() + (eta && eta>0 && eta<120 ? `, ${eta} anni` : '') + '.\n';
-  if(p.allergie && p.allergie.trim()) txt += `⚠️ ALLERGIE NOTE: ${p.allergie.trim()}\n`;
-  const alerts = (p.alerts||[]).map(a=>`${a.data?_aiDataRel(a.data)+': ':''}${a.testo}`).filter(Boolean);
-  if(alerts.length) txt += 'Promemoria / note attive:\n' + alerts.map(a=>'- '+a).join('\n') + '\n';
-  const vis = (p.visite||[]).slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')).slice(0,4);
-  if(!vis.length){ return (txt + 'Nessuna visita registrata in archivio.').trim(); }
-  const TL = {gyno:'Visita ginecologica', ob:'Visita ostetrica', eco:'Ecografia ostetrica'};
-  vis.forEach(v=>{
-    txt += `\n— ${TL[v.tipo]||v.tipo} (${_aiDataRel(v.data)}):\n`;
-    (getRefertoSezioni(v)||[]).forEach(s=>{
-      const righe = s.rows.filter(r=>r[1] && String(r[1]).trim() && String(r[1])!==boiler);
-      if(!righe.length) return;
-      txt += ` [${s.title}] ` + righe.map(r=>`${r[0]}: ${String(r[1]).replace(/\s+/g,' ').trim()}`).join('; ') + '\n';
-    });
-  });
-  return txt.trim();
-}
-
-// ── "Punto della giornata": messaggio proattivo sulla dashboard ──
-async function aiBriefingDashboard(forzato){
-  if(!aiAbilitato || aiInVisita || aiPending || aiChatAperta) return;
-  if(!gsFunctions) return;
-  if(!forzato && Date.now() - aiUltimoBriefingTs < 18*60000) return;
-  const ctx = aiAgendaContesto();
-  aiUltimoBriefingTs = Date.now();
-  if(!ctx){
-    if(forzato) aiMostraFumetto('Per oggi non vedo appuntamenti in agenda né promemoria in scadenza. 👍 Se ti serve un parere clinico o vuoi ripassare una paziente, aprimi pure.');
-    return;
-  }
-  aiPending = true;
-  try{
-    const testo = await aiChiama('chat',
-      [{ role:'user', content:
-        "Sei il mio assistente. Guarda la mia agenda qui sotto e parlami come un collega: 3-5 righe al massimo. " +
-        "Dimmi cosa ho in programma oggi e a breve, e ricordami le cose davvero importanti (promemoria scaduti, controlli urgenti, gravidanze da monitorare). " +
-        "Cita SEMPRE le pazienti per cognome e nome (non 'paziente X'). " +
-        "Chiudi con UNA domanda: se voglio ripassare insieme una delle pazienti in arrivo (nominala). Vai al sodo, niente elenco pedante.\n\n" + ctx }],
-      aiSystemPrompt('dashboard'));
-    if(testo){
-      const azioni = _aiCasiImminenti.slice(0,4).map(c=>({
-        label: `📖 Ripassa ${c.et}${c.label?' · '+c.label:''}`,
-        fn: ()=>aiRipassaCaso(c.pazId, c.et + (c.label?' · '+c.label:''))
-      }));
-      aiMostraFumetto(testo, azioni);
-    }
-  }catch(e){
-    console.warn('AI briefing:', e.message || e);
-  }finally{
-    aiPending = false;
-  }
-}
-function aiLoopBriefing(){
-  clearTimeout(aiBriefingTimer);
-  const INTERVALLO = 12*60000;
-  aiBriefingTimer = setTimeout(function tick(){
-    const suHome = document.getElementById('sec-home')?.classList.contains('active');
-    if(aiAbilitato && !aiInVisita && !aiChatAperta && suHome) aiBriefingDashboard(false);
-    aiBriefingTimer = setTimeout(tick, INTERVALLO);
-  }, INTERVALLO);
-}
-async function aiRipassaCaso(pazId, label){
-  if(aiPending) return;
-  if(!aiChatAperta) aiToggleChat();
-  const ctx = aiContestoPaziente(pazId);
-  aiChatAggiungiMsg('user', 'Ripassiamo il caso: ' + label);
-  const attesa = aiChatAggiungiMsg('bot', 'sto rivedendo la cartella…', true);
-  aiPending = true;
-  try{
-    const sys = aiSystemPrompt('dashboard') +
-      "\n\nStoria clinica della paziente:\n" + ctx;
-    const testo = await aiChiama('chat',
-      [{ role:'user', content:
-        "Ripassa questo caso con me: (1) riassumi in 3-4 punti la storia clinica rilevante; (2) elenca in 2-3 punti cosa controllare o chiedere alla prossima visita; (3) segnala eventuali red flag o esami da non dimenticare." }],
-      sys);
-    if(attesa) attesa.remove();
-    const risp = testo || 'Non sono riuscito a rivedere il caso, riprova tra un attimo.';
-    aiChatAggiungiMsg('bot', risp);
-    aiChatStoria.push({ role:'user', content:'Ripassiamo il caso: ' + label });
-    aiChatStoria.push({ role:'assistant', content:risp });
-  }catch(e){
-    if(attesa) attesa.remove();
-    aiChatAggiungiMsg('bot', 'Assistente non raggiungibile al momento. Riprova tra poco.');
-  }finally{
-    aiPending = false;
-  }
-}
-
-// ── Suggerimento proattivo (al cambio scheda / pausa) ──
-function aiSuggerimentoProattivo(){
-  if(!aiAbilitato || !aiInVisita || aiPending || aiChatAperta) return;
-  clearTimeout(aiTimerProattivo);
-  aiTimerProattivo = setTimeout(async ()=>{
-    if(!aiAbilitato || !aiInVisita || aiPending || aiChatAperta) return;
-    const ctx = aiContestoVisita();
-    if(ctx.length < 40) return;                                  // troppo poco compilato
-    if(Math.abs(ctx.length - aiUltimoContesto.length) < 80) return; // niente di nuovo di rilievo
-    if(Date.now() - aiUltimoProattivoTs < 15000) return;         // non più di 1 ogni 15s
-    aiUltimoContesto = ctx;
-    aiUltimoProattivoTs = Date.now();
-    aiPending = true;
-    try{
-      const testo = await aiChiama('suggerimento',
-        [{ role:'user', content:
-          "Ecco la visita che sto compilando finora. Dammi al massimo 1-2 spunti BREVISSIMI (una riga ciascuno) sui prossimi passi o su cose importanti da non dimenticare in base a quello che ho scritto. Se è tutto in ordine rispondi solo: 👍 Per ora tutto in ordine.\n\n" + ctx }],
-        aiSystemPrompt(curMode));
-      if(testo) aiMostraFumetto(testo);
-    }catch(e){
-      console.warn('AI suggerimento:', e.message || e);
-    }finally{
-      aiPending = false;
-    }
-  }, 1400);
-}
-
-// ── Chat libera ──
-function aiToggleChat(){
-  aiChatAperta = !aiChatAperta;
-  const c = document.getElementById('ai-chat');
-  const r = document.getElementById('ai-robot');
-  if(!c || !r) return;
-  if(aiChatAperta){
-    aiChiudiFumetto();
-    c.style.display = 'flex';
-    r.style.display = 'none';
-    aiRenderChat();
-    setTimeout(()=>document.getElementById('ai-chat-txt')?.focus(), 50);
-  }else{
-    c.style.display = 'none';
-    r.style.display = 'flex';
-  }
-}
-function aiChatAggiungiMsg(ruolo, testo, pending){
-  const box = document.getElementById('ai-chat-msgs');
-  if(!box) return null;
-  const d = document.createElement('div');
-  d.className = 'ai-msg ' + (ruolo==='user'?'user':'bot') + (pending?' pending':'');
-  d.textContent = testo;
-  box.appendChild(d);
-  box.scrollTop = box.scrollHeight;
-  return d;
-}
-async function aiInviaChat(){
-  const inp = document.getElementById('ai-chat-txt');
-  const q = (inp?.value || '').trim();
-  if(!q || aiPending) return;
-  inp.value = '';
-  aiChatAggiungiMsg('user', q);
-  aiChatStoria.push({ role:'user', content:q });
-  const attesa = aiChatAggiungiMsg('bot', 'sto pensando…', true);
-  aiPending = true;
-  try{
-    const ctx = aiInVisita ? aiContestoVisita() : aiAgendaContesto();
-    const sys = aiSystemPrompt(aiInVisita ? curMode : 'dashboard') +
-      (ctx ? "\n\n" + (aiInVisita
-        ? "Dati della visita che "+gsOperatore('art')+" sta compilando in questo momento (usali come contesto, non ripeterli):"
-        : "Agenda e situazione attuale "+gsOperatore('di')+" (contesto, dati de-identificati):") + "\n" + ctx : "");
-    const testo = await aiChiama('chat', aiChatStoria.slice(-10), sys);
-    if(attesa) attesa.remove();
-    const risp = testo || 'Scusa, non sono riuscito a rispondere. Riprova tra un attimo.';
-    aiChatAggiungiMsg('bot', risp);
-    aiChatStoria.push({ role:'assistant', content:risp });
-  }catch(e){
-    if(attesa) attesa.remove();
-    const msg = (e && e.message && /resource-exhausted|Limite/.test(e.message))
-      ? 'Hai raggiunto il limite di richieste per oggi.'
-      : 'Assistente non raggiungibile al momento. Controlla la connessione e riprova.';
-    aiChatAggiungiMsg('bot', msg);
-  }finally{
-    aiPending = false;
-  }
-}
-
-// Quando una visita viene registrata su MED System, l'appuntamento corrispondente
-// prenotato da GynoBook (stessa paziente, stessa data) passa automaticamente a "completato".
-// Nessun dato clinico viene scritto su Firestore: solo il campo "stato" dell'appuntamento.
-async function completaAppuntamentoFirebase(p, dataVisita){
-  if(!gsFirebaseReady||!gsDb||!p||!gsCurrentUser||gsDemoMode)return; // in demo: mai toccare Firestore
-  try{
-    const possibiliId=[String(p.id)];
-    if(p.fbId) possibiliId.push(p.fbId);
-    const snap=await gsDb.collection('appuntamenti').where('data','==',dataVisita).where('ownerUid','==',gsCurrentUser.uid).get();
-    if(snap.empty)return;
-    const batchUpdates=[];
-    snap.forEach(doc=>{
-      const a=doc.data();
-      if(possibiliId.includes(a.pazienteId) && a.stato!=='completato'){
-        batchUpdates.push(gsDb.collection('appuntamenti').doc(doc.id).update({stato:'completato'}));
-      }
-    });
-    if(batchUpdates.length){
-      await Promise.all(batchUpdates);
-      if(typeof gsToast==='function')gsToast('📅 Prenotazione GynoBook segnata come completata','gs-success');
-    }
-  }catch(e){
-    console.warn('Errore aggiornamento stato appuntamento:',e);
+  if(n){
+    salvaDB();
+    caricaAppuntamenti();
+    if(typeof gsToast==='function')gsToast('📅 Appuntamento segnato come completato','gs-success');
   }
 }
 
 // ═══════════════════════════════════════════════════
 //  NUOVA PRENOTAZIONE DIRETTA DA MED SYSTEM
 // ═══════════════════════════════════════════════════
-// Salvata nella stessa collection 'appuntamenti' di Firestore usata da GynoBook,
-// con lo stesso formato: appare identica nel calendario di GynoBook, con un
-// badge che indica che è stata creata dalla dottoressa.
+// Salvata nell'agenda locale (DB.appuntamenti), nel database interno.
 let _npSelectedPazId=null;
 
 function apriNuovaPrenotazioneGS(pazIdPreselezionato){
@@ -9704,38 +8585,33 @@ function clearNpPaz(){
   document.getElementById('np-paz-search').value='';
 }
 
-async function salvaPrenotazioneGS(){
+function salvaPrenotazioneGS(){
   const data=document.getElementById('np-data').value;
   const ora=document.getElementById('np-ora').value;
   const tipo=document.getElementById('np-tipo').value;
-  if(gsDemoMode){ if(typeof gsToast==='function')gsToast('Non disponibile in modalità demo','gs-info'); return; }
   if(!_npSelectedPazId){ if(typeof gsToast==='function')gsToast('Seleziona una paziente','gs-error'); return; }
   if(!data||!ora||!tipo){ if(typeof gsToast==='function')gsToast('Data, ora e tipo visita sono obbligatori','gs-error'); return; }
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
-
   const p=DB.pazienti.find(x=>x.id===_npSelectedPazId);
-  const appt={
-    pazienteId:String(_npSelectedPazId), // stesso id usato da syncPazienteFirebase: coerente con GynoBook
+  if(!p) return;
+  if(!Array.isArray(DB.appuntamenti)) DB.appuntamenti=[];
+  DB.appuntamenti.push({
+    id:'app_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    pazienteId:String(p.id),
     pazienteNome:`${p.cognome} ${p.nome}`,
     data, ora,
     durata:Number(document.getElementById('np-durata').value)||30,
     tipo,
-    stato:'confermato', // prenotata direttamente dalla dottoressa: già confermata
+    stato:'confermato',
     note:document.getElementById('np-note').value.trim(),
-    createdBy:gsUserNome||gsCurrentUser.email,
-    createdByOrg:'', // vuoto = creata dalla dottoressa, non da un centro esterno (coerente con GynoBook)
-    createdAt:new Date().toISOString(),
-    source:'gynosystem',
-    ownerUid:gsCurrentUser.uid
-  };
-  try{
-    await gsDb.collection('appuntamenti').add(appt);
-    closeModal('m-nuova-prenotazione');
-    loadFBAppuntamenti();
-    if(typeof gsToast==='function')gsToast('✅ Prenotazione creata, visibile anche su GynoBook','gs-success');
-  }catch(e){
-    if(typeof gsToast==='function')gsToast('Errore: '+e.message,'gs-error');
-  }
+    createdBy:gsUserNome||'',
+    createdByOrg:'',
+    createdAt:new Date().toISOString()
+  });
+  salvaDB();
+  closeModal('m-nuova-prenotazione');
+  caricaAppuntamenti();
+  registraLog('appuntamento','Nuovo appuntamento fissato');
+  if(typeof gsToast==='function')gsToast('✅ Appuntamento salvato','gs-success');
 }
 
 // ═══════════════════════════════════════════════════
@@ -9743,8 +8619,7 @@ async function salvaPrenotazioneGS(){
 // ═══════════════════════════════════════════════════
 // Apribile cliccando il nome della paziente nelle liste "Oggi", "Prossime
 // Sedute" e "Tutti gli Appuntamenti" — permette di cambiare data, ora, tipo
-// visita, durata e note, o di eliminare l'appuntamento. Stessa collection
-// Firestore 'appuntamenti' di apriNuovaPrenotazioneGS/salvaPrenotazioneGS.
+// visita, durata e note, o di eliminare l'appuntamento.
 let _maApptId=null, _maPazLocaleId=null;
 function apriModificaAppuntamento(apptId){
   const a=GS_APPTS.find(x=>x.id===apptId);
@@ -9760,40 +8635,32 @@ function apriModificaAppuntamento(apptId){
   document.getElementById('ma-apri-cartella-wrap').style.display=_maPazLocaleId?'block':'none';
   document.getElementById('m-modifica-appuntamento').classList.add('show');
 }
-async function salvaModificaAppuntamento(){
-  if(gsDemoMode){ if(typeof gsToast==='function')gsToast('Non disponibile in modalità demo','gs-info'); return; }
-  if(!_maApptId){ return; }
+function salvaModificaAppuntamento(){
+  if(!_maApptId) return;
+  const a=(DB.appuntamenti||[]).find(x=>x.id===_maApptId);
+  if(!a){ if(typeof gsToast==='function')gsToast('Appuntamento non trovato','gs-error'); return; }
   const data=document.getElementById('ma-data').value;
   const ora=document.getElementById('ma-ora').value;
   const tipo=document.getElementById('ma-tipo').value;
   if(!data||!ora||!tipo){ if(typeof gsToast==='function')gsToast('Data, ora e tipo visita sono obbligatori','gs-error'); return; }
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
-  try{
-    await gsDb.collection('appuntamenti').doc(_maApptId).update({
-      data, ora, tipo,
-      durata:Number(document.getElementById('ma-durata').value)||30,
-      note:document.getElementById('ma-note').value.trim()
-    });
-    closeModal('m-modifica-appuntamento');
-    loadFBAppuntamenti();
-    if(typeof gsToast==='function')gsToast('✅ Appuntamento aggiornato','gs-success');
-  }catch(e){
-    if(typeof gsToast==='function')gsToast('Errore: '+e.message,'gs-error');
-  }
+  Object.assign(a,{
+    data, ora, tipo,
+    durata:Number(document.getElementById('ma-durata').value)||30,
+    note:document.getElementById('ma-note').value.trim()
+  });
+  salvaDB();
+  closeModal('m-modifica-appuntamento');
+  caricaAppuntamenti();
+  if(typeof gsToast==='function')gsToast('✅ Appuntamento aggiornato','gs-success');
 }
-async function eliminaAppuntamentoGS(){
-  if(gsDemoMode){ if(typeof gsToast==='function')gsToast('Non disponibile in modalità demo','gs-info'); return; }
-  if(!_maApptId){ return; }
+function eliminaAppuntamentoGS(){
+  if(!_maApptId) return;
   if(!confirm('Eliminare definitivamente questo appuntamento? L\'azione non è reversibile.')) return;
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ if(typeof gsToast==='function')gsToast('Firebase non disponibile','gs-error'); return; }
-  try{
-    await gsDb.collection('appuntamenti').doc(_maApptId).delete();
-    closeModal('m-modifica-appuntamento');
-    loadFBAppuntamenti();
-    if(typeof gsToast==='function')gsToast('🗑️ Appuntamento eliminato','gs-success');
-  }catch(e){
-    if(typeof gsToast==='function')gsToast('Errore: '+e.message,'gs-error');
-  }
+  DB.appuntamenti=(DB.appuntamenti||[]).filter(x=>x.id!==_maApptId);
+  salvaDB();
+  closeModal('m-modifica-appuntamento');
+  caricaAppuntamenti();
+  if(typeof gsToast==='function')gsToast('🗑️ Appuntamento eliminato','gs-success');
 }
 
 // Numero progressivo dei salvataggi automatici (uno per operatore, in
@@ -10035,8 +8902,7 @@ function riportaFarmaciAttualiInTerapia(tipo){
 // formato foglio, logo sì/no, piè di pagina). La configurazione è salvata in
 // locale per singolo account. Vale per ricetta, referto, informativa/consenso
 // e per le pagine delle curve di crescita / riepilogo gravidanza.
-// Priorità: preferenze personali (localStorage) > valori admin (Firestore
-// config/print, window._printCfg) > default.
+// Priorità: preferenze personali (localStorage) > default.
 const PRINT_CFG_DEFAULT = {
   intestazione:{ nome:'Dr.ssa Cristina Guidi', spec:'Specialista in Ginecologia e Ostetricia', indirizzo:'', contatti:'', logo:'' },
   firma:'Dr.ssa Cristina Guidi',
@@ -10047,19 +8913,6 @@ function printCfgKey(){
 }
 function getPrintCfg(){
   const cfg = JSON.parse(JSON.stringify(PRINT_CFG_DEFAULT));
-  // 1) valori impostati dall'admin (Firestore config/print)
-  try{
-    const a = window._printCfg;
-    if(a && a.header){
-      const h=a.header;
-      if(h.name) cfg.intestazione.nome=h.name;
-      if(h.spec) cfg.intestazione.spec=h.spec;
-      if(h.addr) cfg.intestazione.indirizzo=h.addr;
-      if(h.tel||h.email) cfg.intestazione.contatti=[h.tel,h.email].filter(Boolean).join(' · ');
-      if(h.logoUrl) cfg.intestazione.logo=h.logoUrl;
-      if(h.showLogo===false) cfg.layout.logo=false;
-    }
-  }catch(e){}
   // 2) preferenze personali dell'operatore
   try{
     const saved = localStorage.getItem(printCfgKey());
@@ -11024,6 +9877,10 @@ async function inviaEmailComposta(){
     const { inviateOk, inviateErrore } = res.data || {};
     if(stato) stato.textContent = `✅ ${inviateOk||0} inviate${inviateErrore?`, ⚠️ ${inviateErrore} non riuscite`:''}.`;
     if(typeof gsToast==='function') gsToast(`✅ Email inviata a ${inviateOk||0} paziente${(inviateOk||0)===1?'':'i'}`, inviateErrore?'gs-info':'gs-success');
+    if(!Array.isArray(DB.emailInviate)) DB.emailInviate=[];
+    DB.emailInviate.push({ id:'em_'+Date.now().toString(36), oggetto, corpo, destinatari:(res.data||{}).dettagli||[],
+      totaleDestinatari:destinatari.length, inviateOk:inviateOk||0, inviateErrore:inviateErrore||0, data:new Date().toISOString() });
+    salvaDB();
     _emailSelezionate.clear();
     _emailRenderChips();
     registraLog('email', `Email "${oggetto.slice(0,80)}" inviata a ${inviateOk||0} paziente${(inviateOk||0)===1?'':'i'}`);
@@ -11035,37 +9892,27 @@ async function inviaEmailComposta(){
     btn.disabled=false; btn.textContent='📤 Invia Email';
   }
 }
-async function _emailCaricaArchivio(){
+function _emailCaricaArchivio(){
   const box=document.getElementById('email-archivio-lista'); if(!box) return;
-  if(!gsFirebaseReady||!gsDb||!gsCurrentUser){ box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📁</div><p style="font-size:.85rem">Archivio non disponibile</p></div>'; return; }
-  box.innerHTML='<div style="padding:16px 0;text-align:center;color:var(--label4);font-size:.85rem">Caricamento…</div>';
-  try{
-    const snap=await gsDb.collection('emailInviate').where('ownerUid','==',gsCurrentUser.uid).get();
-    if(snap.empty){ box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📁</div><p style="font-size:.85rem">Nessuna email inviata finora</p></div>'; return; }
-    const voci=snap.docs.map(d=>({id:d.id,...d.data()}))
-      .sort((a,b)=>(b.data?.toMillis?b.data.toMillis():0)-(a.data?.toMillis?a.data.toMillis():0));
-    box.innerHTML = voci.map(v=>{
-      const dt = v.data?.toDate ? v.data.toDate() : null;
-      const dStr = dt ? dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})+' · '+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '';
-      const idSafe=JSON.stringify(v.id).replace(/"/g,'&quot;');
-      return `<details style="border-bottom:1px solid var(--separator);padding:10px 0">
-        <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
-          <span style="font-size:1.1rem">📧</span>
-          <span style="flex:1;font-size:.85rem;font-weight:600;">${_escHtml(v.oggetto||'(senza oggetto)')}</span>
-          <span class="badge badge-green" style="font-size:.68rem;">${v.inviateOk||0} inviate</span>
-          ${v.inviateErrore?`<span class="badge badge-red" style="font-size:.68rem;">${v.inviateErrore} errori</span>`:''}
-          <span style="font-size:.72rem;color:var(--label4);white-space:nowrap">${dStr}</span>
-        </summary>
-        <div style="padding:10px 0 0 30px;font-size:.78rem;color:var(--label3)">
-          <div style="white-space:pre-wrap;margin-bottom:8px;">${_escHtml(v.corpo||'')}</div>
-          <div style="color:var(--label4);">Destinatarie: ${(v.destinatari||[]).map(d=>_escHtml(d.nome||d.email)+(d.ok?'':' ⚠️')).join(', ')}</div>
-        </div>
-      </details>`;
-    }).join('');
-  }catch(e){
-    console.warn('Lettura archivio email:',e);
-    box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">⚠️</div><p style="font-size:.85rem">Errore nel caricamento dell\'archivio</p></div>';
-  }
+  const voci=(DB.emailInviate||[]).slice().sort((a,b)=>new Date(b.data)-new Date(a.data));
+  if(!voci.length){ box.innerHTML='<div class="empty-state" style="padding:16px 0"><div class="es-icon">📁</div><p style="font-size:.85rem">Nessuna email inviata finora</p></div>'; return; }
+  box.innerHTML = voci.map(v=>{
+    const dt = v.data ? new Date(v.data) : null;
+    const dStr = dt && !isNaN(dt) ? dt.toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})+' · '+dt.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '';
+    return `<details style="border-bottom:1px solid var(--separator);padding:10px 0">
+      <summary style="cursor:pointer;display:flex;align-items:center;gap:10px;list-style:none">
+        <span style="font-size:1.1rem">📧</span>
+        <span style="flex:1;font-size:.85rem;font-weight:600;">${_escHtml(v.oggetto||'(senza oggetto)')}</span>
+        <span class="badge badge-green" style="font-size:.68rem;">${v.inviateOk||0} inviate</span>
+        ${v.inviateErrore?`<span class="badge badge-red" style="font-size:.68rem;">${v.inviateErrore} errori</span>`:''}
+        <span style="font-size:.72rem;color:var(--label4);white-space:nowrap">${dStr}</span>
+      </summary>
+      <div style="padding:10px 0 0 30px;font-size:.78rem;color:var(--label3)">
+        <div style="white-space:pre-wrap;margin-bottom:8px;">${_escHtml(v.corpo||'')}</div>
+        <div style="color:var(--label4);">Destinatarie: ${(v.destinatari||[]).map(d=>_escHtml(d.nome||d.email)+(d.ok?'':' ⚠️')).join(', ')}</div>
+      </div>
+    </details>`;
+  }).join('');
 }
 
 // ═══════════════════════════════════════════════════
@@ -12639,18 +11486,110 @@ async function tentaRiconnessioneFileLocale(){
 // ═══════════════════════════════════════════════════
 //  BACKUP / EXPORT
 // ═══════════════════════════════════════════════════
-function backupData(){
-  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+// Il backup completo è un unico file JSON con: l'archivio dell'account
+// (pazienti, visite, appuntamenti, promemoria, registro, archivio email),
+// tutti gli allegati/consensi caricati (in base64) e le impostazioni salvate
+// sul dispositivo per questo account. Facoltativamente cifrato con password
+// (AES-GCM 256, chiave da PBKDF2). Lo stesso file si importa sia nell'app
+// desktop sia nella versione web.
+const GS_BACKUP_FORMATO='medsystem-backup';
+const GS_PREFERENZE_GLOBALI=['gs_dark_mode','gyno_diario_personale','gs_ricetta_intestazione'];
+
+// Salva un file sul dispositivo (download). L'app desktop la sostituisce.
+function gsSalvaFile(blob, nome){
   const a=document.createElement('a');
-  const date=new Date().toISOString().slice(0,10);
   a.href=URL.createObjectURL(blob);
-  a.download=`${GS_APP_FILE}_Backup_${date}.json`;
+  a.download=nome;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(a.href);
-  localStorage.setItem('gyno_ultimo_backup_auto', new Date().toISOString());
-  if(typeof renderBackupStats==='function') renderBackupStats();
-  registraLog('backup','Backup esportato');
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
 }
+function _blobInBase64(blob){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(String(r.result).split(',')[1]||'');
+    r.onerror=()=>reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
+// Chiede una password in una finestra (mai in un prompt in chiaro).
+// conferma=true: due campi da far coincidere, minimo 8 caratteri.
+function chiediPasswordBackup(titolo, testo, conferma){
+  return new Promise(resolve=>{
+    const m=document.getElementById('modal-password-backup');
+    const p1=document.getElementById('pwb-1'), p2=document.getElementById('pwb-2'), err=document.getElementById('pwb-err');
+    document.getElementById('pwb-titolo').textContent=titolo;
+    document.getElementById('pwb-testo').textContent=testo;
+    document.getElementById('pwb-2-wrap').style.display=conferma?'':'none';
+    p1.value=''; p2.value=''; err.textContent='';
+    const fine=val=>{ m.classList.remove('show'); resolve(val); };
+    document.getElementById('pwb-annulla').onclick=()=>fine(null);
+    document.getElementById('pwb-ok').onclick=()=>{
+      if(conferma && p1.value.length<8){ err.textContent='Almeno 8 caratteri.'; return; }
+      if(conferma && p1.value!==p2.value){ err.textContent='Le due password non coincidono.'; return; }
+      if(!p1.value){ err.textContent='Inserisci la password.'; return; }
+      fine(p1.value);
+    };
+    p1.onkeydown=p2.onkeydown=e=>{ if(e.key==='Enter') document.getElementById('pwb-ok').click(); };
+    m.classList.add('show');
+    setTimeout(()=>p1.focus(),50);
+  });
+}
+
+async function _creaBackupCompleto(){
+  const uid=gsCurrentUser?gsCurrentUser.uid:'anon';
+  const allegati=[];
+  for(const v of await GS_STORAGE.allegati.tutti()){
+    const {blob,id,...meta}=v;
+    allegati.push({...meta, dati: blob ? await _blobInBase64(blob) : ''});
+  }
+  // Impostazioni di questo account (chiavi con il suo uid, salvate come {UID})
+  // più le poche preferenze globali del dispositivo.
+  const preferenze={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k || k.startsWith('gynoDB_')) continue;
+    if(k.includes(uid)) preferenze[k.split(uid).join('{UID}')]=localStorage.getItem(k);
+    else if(GS_PREFERENZE_GLOBALI.includes(k)) preferenze[k]=localStorage.getItem(k);
+  }
+  return { formato:GS_BACKUP_FORMATO, versione:1, app:GS_APP_NOME_COMPLETO, creato:new Date().toISOString(),
+    account:{ nome:gsUserNome||'' }, archivio:DB, allegati, preferenze };
+}
+
+async function esportaBackupCompleto(conPassword){
+  let password=null;
+  if(conPassword){
+    password=await chiediPasswordBackup('Proteggi il backup',
+      'Scegli una password (almeno 8 caratteri). Servirà per importare il file: senza, il backup non si può aprire in alcun modo. Conservala in un posto sicuro.', true);
+    if(password===null) return false;
+  }
+  try{
+    await salvaDBSubito();
+    if(typeof gsToast==='function') gsToast('📦 Preparazione del backup…','gs-info');
+    const backup=await _creaBackupCompleto();
+    let contenuto=backup, suffisso='';
+    if(password){
+      const {key,saltB64}=await gsDeriveKey(password);
+      contenuto={ formato:GS_BACKUP_FORMATO+'-cifrato', ...(await gsEncryptJSON(backup,key,saltB64)) };
+      suffisso='_protetto';
+    }
+    const data=new Date().toISOString().slice(0,10);
+    gsSalvaFile(new Blob([JSON.stringify(contenuto)],{type:'application/json'}), `${GS_APP_FILE}_BackupCompleto_${data}${suffisso}.json`);
+    localStorage.setItem('gyno_ultimo_backup_auto', new Date().toISOString());
+    if(typeof renderBackupStats==='function') renderBackupStats();
+    registraLog('backup', password?'Backup completo protetto esportato':'Backup completo esportato');
+    if(typeof gsToast==='function') gsToast(`✅ Backup completo scaricato (${DB.pazienti.length} pazienti, ${backup.allegati.length} allegati)`,'gs-success');
+    return true;
+  }catch(e){
+    console.error('Backup completo:', e);
+    if(typeof gsToast==='function') gsToast('⚠️ Backup non riuscito','gs-error');
+    return false;
+  }
+}
+// Backup senza password: usato dal menu Opzioni, dal promemoria settimanale e all'uscita.
+function backupData(){ return esportaBackupCompleto(false); }
 
 function exportCSV(){
   let csv='Cognome,Nome,DataNascita,Telefono,Email,CF,NumeroVisite,UltimaVisita\n';
@@ -12664,46 +11603,73 @@ function exportCSV(){
   a.click();
 }
 
-// Bug corretto (2026-09-14): non c'era ALCUN controllo sul file caricato —
-// caricare per sbaglio un JSON di forma diversa da un vero backup (es. il
-// download automatico di UNA sola visita, "(N) Salvataggio MED System Gineco.json",
-// che NON è un backup completo: ha forma {paziente,visita,esportato}, non
-// {pazienti:[...],agenda:[...]}) sovrascriveva silenziosamente tutto
-// l'archivio con dati praticamente vuoti. Ora si verifica che il file abbia
-// davvero la forma di un backup completo, e si chiede conferma mostrando
-// quante pazienti contiene, prima di sovrascrivere qualsiasi cosa.
-function restoreData(input){
+// Importa un backup: completo (anche protetto da password), oppure un vecchio
+// backup con il solo archivio ({pazienti:[...]}). Si verifica sempre la forma
+// del file e si chiede conferma mostrando cosa contiene prima di sostituire
+// qualsiasi cosa: caricare per sbaglio un file diverso (es. il download
+// automatico di una singola visita) non deve poter svuotare l'archivio.
+async function restoreData(input){
   const file=input.files[0];
+  input.value='';
   if(!file) return;
-  const r=new FileReader();
-  r.onload=e=>{
-    let dati;
-    try{ dati=JSON.parse(e.target.result); }
-    catch(x){ alert('File non valido: non è un JSON leggibile.'); input.value=''; return; }
-    if(!dati || typeof dati!=='object' || !Array.isArray(dati.pazienti)){
-      alert('Questo file non è un backup completo di MED System (manca l\'elenco "pazienti").\n\nUsa solo un file scaricato con "📤 Esporta Backup JSON" — non il download automatico di una singola visita, che ha un altro formato ed è pensato solo come copia di sicurezza di quella visita, non per il ripristino di tutto l\'archivio.');
-      input.value='';
+  let dati;
+  try{ dati=JSON.parse(await file.text()); }
+  catch(x){ alert('File non valido: non è un JSON leggibile.'); return; }
+  try{
+    const cifrato = dati && (dati.formato===GS_BACKUP_FORMATO+'-cifrato' || (!dati.formato && dati.salt && dati.iv && dati.data));
+    if(cifrato){
+      const pass=await chiediPasswordBackup('Backup protetto','Inserisci la password scelta quando il backup è stato creato.', false);
+      if(pass===null) return;
+      try{ dati=await gsDecryptJSON(dati, pass); }
+      catch(e){ alert('Password errata o file danneggiato.'); return; }
+    }
+    let backup;
+    if(dati && dati.formato===GS_BACKUP_FORMATO && dati.archivio && Array.isArray(dati.archivio.pazienti)) backup=dati;
+    else if(dati && Array.isArray(dati.pazienti)) backup={ archivio:dati, allegati:null, preferenze:null }; // vecchio formato
+    else{
+      alert('Questo file non è un backup di MED System (manca l\'elenco delle pazienti).\n\nUsa un file creato con "Scarica backup completo" (o un vecchio "Esporta Backup JSON"), non il download automatico di una singola visita.');
       return;
     }
-    const nPaz=dati.pazienti.length;
-    const nVis=dati.pazienti.reduce((s,p)=>s+(p.visite?.length||0),0);
-    if(!confirm(`Questo file contiene ${nPaz} pazient${nPaz===1?'e':'i'} e ${nVis} visit${nVis===1?'a':'e'} in totale.\n\n⚠️ Ripristinarlo SOSTITUISCE completamente l'archivio attuale su questo dispositivo — l'operazione non è reversibile.\n\nContinuare?`)){
-      input.value='';
-      return;
-    }
-    DB=dati;
+    const a=backup.archivio;
+    const nPaz=a.pazienti.length;
+    const nVis=a.pazienti.reduce((t,p)=>t+(p.visite?.length||0),0);
+    const nApp=(a.appuntamenti||[]).length;
+    const nAll=backup.allegati ? backup.allegati.length : null;
+    const righe=[`${nPaz} pazient${nPaz===1?'e':'i'}, ${nVis} visit${nVis===1?'a':'e'}, ${nApp} appuntament${nApp===1?'o':'i'}`];
+    if(nAll!==null) righe.push(`${nAll} allegat${nAll===1?'o':'i'} (referti esterni e consensi caricati)`);
+    else righe.push('nessun allegato (backup di vecchio formato: gli allegati attuali restano)');
+    if(!confirm(`Il backup contiene:\n• ${righe.join('\n• ')}\n\n⚠️ Importarlo SOSTITUISCE completamente i dati attuali di questo account su questo dispositivo. L'operazione non è reversibile.\n\nContinuare?`)) return;
+
+    if(typeof gsToast==='function') gsToast('📂 Importazione in corso…','gs-info');
+    DB=a;
     if(!DB.agenda) DB.agenda=[];
-    if(!DB.studi) DB.studi=[];
-    registraLog('backup','Dati ripristinati da file');
-    salvaDBSubito().then(()=>location.reload());
-  };
-  r.readAsText(file);
+    if(backup.allegati){
+      await GS_STORAGE.allegati.svuota();
+      for(const v of backup.allegati){
+        const {dati:b64,...meta}=v;
+        await GS_STORAGE.allegati.aggiungi({...meta, blob:new Blob([gsB64ToBuf(b64||'')],{type:meta.tipo||'application/octet-stream'})});
+      }
+    }
+    if(backup.preferenze){
+      const uid=gsCurrentUser?gsCurrentUser.uid:'anon';
+      Object.entries(backup.preferenze).forEach(([k,v])=>{ try{ localStorage.setItem(k.split('{UID}').join(uid), v); }catch(e){} });
+    }
+    registraLog('backup','Dati importati da un backup');
+    await salvaDBSubito();
+    location.reload();
+  }catch(e){
+    console.error('Importazione backup:', e);
+    alert('Importazione non riuscita: '+(e.message||e));
+  }
 }
 
-function resetDB(){
-  if(confirm('⚠️ Questa operazione cancellerà TUTTI i dati. È irreversibile.\n\nVuoi continuare?')){
-    DB={pazienti:[],agenda:[]};registraLog('backup','Tutti i dati cancellati');salvaDBSubito().then(()=>location.reload());
-  }
+async function resetDB(){
+  if(!confirm('⚠️ Questa operazione cancellerà TUTTI i dati (archivio e allegati). È irreversibile.\n\nVuoi continuare?')) return;
+  DB={pazienti:[],agenda:[]};
+  try{ await GS_STORAGE.allegati.svuota(); }catch(e){ console.warn('Svuotamento allegati:',e); }
+  registraLog('backup','Tutti i dati cancellati');
+  await salvaDBSubito();
+  location.reload();
 }
 
 function renderBackupStats(){
@@ -12901,70 +11867,22 @@ function closeSidebar(){
 })();
 
 // ═══════════════════════════════════════════════════
-//  APPUNTAMENTI FIREBASE (sola lettura)
+//  APPUNTAMENTI (agenda locale, nel database interno)
 // ═══════════════════════════════════════════════════
+// GS_APPTS punta sempre allo stesso array di DB.appuntamenti.
 let GS_APPTS = [];
-let _gsApptListener = null;
-let _gsApptFirstLoad = true;
-let _gsKnownApptIds = new Set();
-
-async function loadFBAppuntamenti(){
-  if(!gsFirebaseReady||!gsCurrentUser){gsToast('Firebase non disponibile','gs-error');return;}
-  // Se il listener è già attivo, non serve rifare nulla (è realtime)
-  if(_gsApptListener){ renderFBAppts(); renderAlertsHome(); renderCalendar(); return; }
-
-  // Avvia listener realtime SOLO sugli appuntamenti di questo medico
-  // (rileva automaticamente nuove prenotazioni da GynoBook, quando/se sarà collegato)
-  _gsApptListener = gsDb.collection('appuntamenti').where('ownerUid','==',gsCurrentUser.uid).onSnapshot(snap=>{
-    const prev = new Set(GS_APPTS.map(a=>a.id));
-    GS_APPTS = snap.docs.map(d=>({id:d.id,...d.data()}));
-    GS_APPTS.sort((a,b)=>{
-      if(a.data!==b.data) return (a.data||'').localeCompare(b.data||'');
-      return (a.ora||'').localeCompare(b.ora||'');
-    });
-    renderFBAppts();
-    renderAlertsHome();
-    renderCalendar();
-    const oggi=new Date().toISOString().split('T')[0];
-    const apptOggi=GS_APPTS.filter(a=>a.data===oggi && a.stato!=='cancellato');
-    const nb=document.getElementById('appt-sidebar-badge');
-    if(nb) nb.textContent=apptOggi.length||'';
-
-    if(_gsApptFirstLoad){
-      // Primo caricamento: popup riepilogo di oggi
-      _gsApptFirstLoad=false;
-      GS_APPTS.forEach(a=>_gsKnownApptIds.add(a.id));
-      if(apptOggi.length) showApptPopup(apptOggi, oggi);
-    } else {
-      // Nuove prenotazioni arrivate dopo: popup dedicato
-      const nuovi=GS_APPTS.filter(a=>!prev.has(a.id) && !_gsKnownApptIds.has(a.id));
-      nuovi.forEach(a=>_gsKnownApptIds.add(a.id));
-      if(nuovi.length) showNuovaPrenotazionePopup(nuovi);
-    }
-  }, err=>{
-    gsToast('Errore appuntamenti: '+err.message,'gs-error');
-  });
-}
-
-// Popup quando arriva una NUOVA prenotazione da GynoBook (realtime)
-function showNuovaPrenotazionePopup(nuovi){
-  const ICONS={ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
-  const list=document.getElementById('nuova-pren-list');
-  if(!list) return;
-  const tit=document.getElementById('nuova-pren-title');
-  if(tit) tit.textContent=nuovi.length>1?`🔔 ${nuovi.length} Nuove Prenotazioni`:'🔔 Nuova Prenotazione';
-  list.innerHTML=nuovi.map(a=>{
-    const localId=trovaPazienteLocaleId(a.pazienteId);
-    const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const nameClick=localId?`onclick="closeModal('nuova-pren-popup');openPaziente(${localId})" style="cursor:pointer;color:var(--primary)"`:'';
-    return `<div style="background:var(--surface2);border-radius:12px;padding:14px 16px;margin-bottom:10px">
-      <div style="font-weight:700;font-size:1rem;margin-bottom:4px" ${nameClick}>${a.pazienteNome||'Paziente'}${localId?' ↗':''}</div>
-      <div style="font-size:.82rem;color:var(--label3);margin-bottom:6px">${ICONS[a.tipo]||'🩺'} ${a.tipo||''} · 📅 ${dStr} · 🕐 ${a.ora||'--'} ${a.durata?'('+a.durata+' min)':''}</div>
-      ${a.note?`<div style="font-size:.78rem;color:var(--label4);font-style:italic;margin-bottom:6px">"${a.note}"</div>`:''}
-      ${a.createdBy?`<div style="font-size:.72rem;color:var(--label4)">👤 Prenotato da: ${a.createdBy}${a.createdByOrg?' · '+a.createdByOrg:''}</div>`:''}
-    </div>`;
-  }).join('');
-  document.getElementById('nuova-pren-popup').classList.add('show');
+// Allinea GS_APPTS all'archivio caricato, ordina e aggiorna le viste. Con
+// riepilogoOggi=true (subito dopo l'accesso) mostra gli appuntamenti di oggi.
+function caricaAppuntamenti(riepilogoOggi){
+  if(!Array.isArray(DB.appuntamenti)) DB.appuntamenti=[];
+  GS_APPTS=DB.appuntamenti;
+  GS_APPTS.sort((a,b)=>(a.data||'').localeCompare(b.data||'') || (a.ora||'').localeCompare(b.ora||''));
+  renderFBAppts(); renderAlertsHome(); renderCalendar();
+  const oggi=new Date().toISOString().split('T')[0];
+  const apptOggi=GS_APPTS.filter(a=>a.data===oggi && a.stato!=='cancellato');
+  const nb=document.getElementById('appt-sidebar-badge');
+  if(nb) nb.textContent=apptOggi.length||'';
+  if(riepilogoOggi && apptOggi.length) showApptPopup(apptOggi, oggi);
 }
 
 function showApptPopup(appts, oggi){
@@ -13063,181 +11981,12 @@ function renderFBAppts(){
   }).join('');
 }
 
-// Trova l'id locale (DB.pazienti) corrispondente a un pazienteId Firestore.
-// I documenti creati da MED System usano come id Firestore lo stesso id locale (String(p.id));
-// quelli importati da GynoBook hanno l'id locale salvato in p.fbId.
+// Trova l'id locale (DB.pazienti) di un appuntamento: pazienteId è String(p.id),
+// oppure l'id della vecchia anagrafica GynoBook (salvato in p.fbId).
 function trovaPazienteLocaleId(firestorePazienteId){
   if(!firestorePazienteId)return null;
   const p=DB.pazienti.find(x=>String(x.id)===firestorePazienteId || x.fbId===firestorePazienteId);
   return p?p.id:null;
-}
-
-// Caricamento appuntamenti Firebase gestito direttamente in naviga()
-
-// ═══════════════════════════════════════════════════
-//  DISPONIBILITÀ STUDI
-// ═══════════════════════════════════════════════════
-// Struttura dati:
-// DB.studi = [{ id, nome, luogo, password, durataSlot:30,
-//               orariLimitati:false, fasce:[{giorno:0-6, inizio:'09:00', fine:'13:00'}] }]
-// orariLimitati è una proprietà di OGNI studio (non più globale):
-//   true  = GynoBook mostra solo i giorni/orari configurati per questo studio, in rosso gli altri
-//   false = questo studio può prenotare in qualsiasi giorno e orario
-// giorno: 0=Lunedì ... 6=Domenica (coerente con il calendario di GynoBook)
-const GIORNI_SETT=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
-let editStudioId=null;
-let fasceTemp=[]; // fasce in editing nel modal, salvate solo al click su "Salva Studio"
-
-function renderDisponibilita(){
-  const c=document.getElementById('studi-list');
-  if(!DB.studi.length){
-    c.innerHTML='<div class="empty-state"><div class="es-icon">🏥</div><p>Nessuno studio configurato. Aggiungine uno per definire i tuoi orari di ricevimento.</p></div>';
-    return;
-  }
-  c.innerHTML=DB.studi.map(s=>{
-    const fasceHtml=(s.fasce||[]).length
-      ? (s.fasce||[]).sort((a,b)=>a.giorno-b.giorno||a.inizio.localeCompare(b.inizio))
-          .map(f=>`<span class="studio-fascia-pill">📅 ${GIORNI_SETT[f.giorno]} · ${f.inizio}–${f.fine}</span>`).join('')
-      : '<span style="color:var(--label4);font-size:.8rem">Nessuna fascia oraria impostata</span>';
-    return `<div class="studio-card">
-      <div class="studio-card-hdr">
-        <div>
-          <div style="font-weight:700;font-size:.95rem">🏥 ${s.nome} ${s.email?'<span class="badge badge-green" style="margin-left:6px">🔐 '+s.email+'</span>':'<span class="badge badge-red" style="margin-left:6px">⚠️ Nessuna email collegata</span>'}</div>
-          ${s.luogo?`<div style="font-size:.78rem;color:var(--label4)">📍 ${s.luogo}</div>`:''}
-          <div style="font-size:.78rem;color:var(--label4)">⏱️ Slot da ${s.durataSlot||30} min</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-ghost btn-sm btn-icon" onclick="apriModificaStudio('${s.id}')" title="Modifica">✏️</button>
-          <button class="btn btn-sm btn-icon" style="background:var(--red-dim);color:var(--red)" onclick="eliminaStudio('${s.id}')" title="Elimina">🗑️</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;background:var(--surface-2);border-radius:10px">
-        <span class="dispo-switch"><input type="checkbox" ${s.orariLimitati?'checked':''} onchange="toggleOrariLimitatiStudio('${s.id}',this.checked)"><span class="dispo-slider"></span></span>
-        <span style="font-size:.82rem;font-weight:600">${s.orariLimitati?'🔒 Limitato ai giorni/orari indicati':'🔓 Apertura Completa (nessun limite)'}</span>
-      </div>
-      <div>${fasceHtml}</div>
-    </div>`;
-  }).join('');
-}
-
-async function toggleOrariLimitatiStudio(studioId,checked){
-  const s=DB.studi.find(x=>x.id===studioId);if(!s)return;
-  s.orariLimitati=checked;
-  salvaDB();
-  renderDisponibilita();
-  await syncDisponibilitaFirebase();
-  if(typeof gsToast==='function')gsToast(checked?`🔒 ${s.nome}: orari limitati attivati`:`🔓 ${s.nome}: apertura completa`,'gs-success');
-}
-
-function apriNuovoStudio(){
-  editStudioId=null;
-  fasceTemp=[];
-  document.getElementById('ms-title').textContent='Nuovo Studio';
-  document.getElementById('ms-nome').value='';
-  document.getElementById('ms-luogo').value='';
-  document.getElementById('ms-email').value='';
-  document.getElementById('ms-durata-slot').value='30';
-  document.getElementById('ms-orari-limitati').checked=false;
-  renderFasceForm();
-  document.getElementById('m-studio').classList.add('show');
-}
-
-function apriModificaStudio(id){
-  const s=DB.studi.find(x=>x.id===id);if(!s)return;
-  editStudioId=id;
-  fasceTemp=JSON.parse(JSON.stringify(s.fasce||[]));
-  document.getElementById('ms-title').textContent='Modifica Studio';
-  document.getElementById('ms-nome').value=s.nome;
-  document.getElementById('ms-luogo').value=s.luogo||'';
-  document.getElementById('ms-email').value=s.email||'';
-  document.getElementById('ms-durata-slot').value=String(s.durataSlot||30);
-  document.getElementById('ms-orari-limitati').checked=!!s.orariLimitati;
-  renderFasceForm();
-  document.getElementById('m-studio').classList.add('show');
-}
-
-function aggiungiFasciaForm(){
-  fasceTemp.push({giorno:0,inizio:'09:00',fine:'13:00'});
-  renderFasceForm();
-}
-
-function rimuoviFasciaForm(idx){
-  fasceTemp.splice(idx,1);
-  renderFasceForm();
-}
-
-function aggiornaFasciaForm(idx,campo,val){
-  fasceTemp[idx][campo]=campo==='giorno'?Number(val):val;
-}
-
-function renderFasceForm(){
-  const c=document.getElementById('ms-fasce-list');
-  if(!fasceTemp.length){
-    c.innerHTML='<div style="color:var(--label4);font-size:.82rem;margin-bottom:8px">Nessuna fascia ancora. Aggiungine una.</div>';
-    return;
-  }
-  c.innerHTML=fasceTemp.map((f,idx)=>`
-    <div class="fascia-row">
-      <select onchange="aggiornaFasciaForm(${idx},'giorno',this.value)">
-        ${GIORNI_SETT.map((g,i)=>`<option value="${i}" ${f.giorno===i?'selected':''}>${g}</option>`).join('')}
-      </select>
-      <input type="time" value="${f.inizio}" onchange="aggiornaFasciaForm(${idx},'inizio',this.value)">
-      <span style="color:var(--label4)">–</span>
-      <input type="time" value="${f.fine}" onchange="aggiornaFasciaForm(${idx},'fine',this.value)">
-      <button class="fr-del" onclick="rimuoviFasciaForm(${idx})">✕</button>
-    </div>`).join('');
-}
-
-async function salvaStudio(){
-  const nome=document.getElementById('ms-nome').value.trim();
-  const luogo=document.getElementById('ms-luogo').value.trim();
-  const email=document.getElementById('ms-email').value.trim().toLowerCase();
-  const durataSlot=Number(document.getElementById('ms-durata-slot').value)||30;
-  const orariLimitati=document.getElementById('ms-orari-limitati').checked;
-  if(!nome){ if(typeof gsToast==='function')gsToast('Il nome dello studio è obbligatorio','gs-error'); return; }
-  if(!email){ if(typeof gsToast==='function')gsToast('L\'email di accesso è obbligatoria: crea prima l\'account in Firebase Console → Authentication','gs-error'); return; }
-  // Evita di collegare la stessa email a due studi diversi
-  const conflitto=DB.studi.find(x=>x.id!==editStudioId && (x.email||'').toLowerCase()===email);
-  if(conflitto){ if(typeof gsToast==='function')gsToast(`Questa email è già collegata allo studio "${conflitto.nome}"`,'gs-error'); return; }
-  if(editStudioId){
-    const s=DB.studi.find(x=>x.id===editStudioId);
-    s.nome=nome; s.luogo=luogo; s.email=email; s.fasce=fasceTemp; s.durataSlot=durataSlot; s.orariLimitati=orariLimitati;
-  }else{
-    DB.studi.push({id:'studio_'+Date.now(),nome,luogo,email,fasce:fasceTemp,durataSlot,orariLimitati});
-  }
-  salvaDB();
-  closeModal('m-studio');
-  renderDisponibilita();
-  await syncDisponibilitaFirebase();
-  if(typeof gsToast==='function')gsToast('✅ Studio salvato. Ricorda di creare l\'account in Firebase Console se non esiste già.','gs-success');
-}
-
-async function eliminaStudio(id){
-  const s=DB.studi.find(x=>x.id===id);if(!s)return;
-  if(!confirm(`Eliminare lo studio "${s.nome}"? I suoi orari non saranno più disponibili su GynoBook.`))return;
-  DB.studi=DB.studi.filter(x=>x.id!==id);
-  salvaDB();
-  renderDisponibilita();
-  await syncDisponibilitaFirebase();
-  if(typeof gsToast==='function')gsToast('🗑️ Studio eliminato','gs-success');
-}
-
-// Pubblica la configurazione su Firestore così GynoBook la legge in tempo reale.
-// Nessun dato clinico coinvolto: solo nomi studi, luoghi, fasce orarie, durata slot.
-// orariLimitati e durataSlot sono proprietà di OGNI studio (dentro l'array studi).
-async function syncDisponibilitaFirebase(){
-  // Solo se c'è davvero una configurazione studi da pubblicare: evita che un
-  // account senza studi (es. l'amministratore) o una sessione demo
-  // sovrascrivano con un elenco vuoto la disponibilità condivisa.
-  if(!gsFirebaseReady||!gsDb||gsDemoMode||!Array.isArray(DB.studi)||!DB.studi.length)return;
-  try{
-    await gsDb.collection('config').doc('disponibilita').set({
-      studi: DB.studi,
-      updatedAt: new Date().toISOString()
-    });
-  }catch(e){
-    console.warn('Errore sync disponibilità:',e);
-  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -13256,7 +12005,7 @@ let gsDb = null, gsFirebaseReady = false, gsFunctions = null;
 function initFirebase() {
   try {
     // Nome app dedicato + persistenza limitata a questa scheda/finestra: impedisce
-    // che il login qui influenzi (o sia influenzato da) GynoBook, anche se aperti
+    // che il login qui influenzi (o sia influenzato da) altre app, anche se aperte
     // nello stesso browser e sullo stesso progetto Firebase.
     const app = firebase.apps.find(a=>a.name==='gynosystem-app') || firebase.initializeApp(GS_FIREBASE_CONFIG,'gynosystem-app');
     gsDb = app.firestore();
@@ -13285,11 +12034,6 @@ function initFirebase() {
       }else{
         gsCurrentUser=null;
         if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
-        // Ferma il listener appuntamenti del medico appena uscito: se sul
-        // prossimo login entra un medico diverso (stesso browser, senza
-        // ricaricare la pagina), non deve MAI ritrovarsi gli appuntamenti
-        // di chi era collegato prima.
-        if(_gsApptListener){ _gsApptListener(); _gsApptListener=null; }
         GS_APPTS=[];
         gsDemoMode=false;
         mostraBannerDemo(false);
@@ -13314,13 +12058,12 @@ function logoutGynoSystem(){
   document.getElementById('modal-esci-backup').classList.add('show');
 }
 async function _eseguiLogoutGynoSystem(){
-  if(typeof aiFerma==='function') aiFerma();
   try{ await gsAuth.signOut(); }catch(e){}
   location.reload();
 }
-function confermaEsciConBackup(){
-  if(typeof backupData==='function') backupData();
+async function confermaEsciConBackup(){
   closeModal('modal-esci-backup');
+  await backupData();
   // Piccola attesa: lasciare partire il download prima che la pagina cominci a ricaricarsi.
   setTimeout(_eseguiLogoutGynoSystem, 700);
 }
@@ -13337,160 +12080,6 @@ function setFbStatus(state, msg) {
   // Sync mobile dot
   const mobDot = document.getElementById('mob-fb-dot');
   if(mobDot) mobDot.className = 'mob-fb-dot' + (state==='connected'?' ok':'');
-}
-
-async function loadAdminConfig() {
-  if (!gsFirebaseReady) return;
-  try {
-    // ── 1. Tema / Colori ──────────────────────────
-    const themeDoc = await gsDb.collection('config').doc('theme').get();
-    if (themeDoc.exists) {
-      const cssVars = themeDoc.data().cssVars || {};
-      Object.entries(cssVars).forEach(([k, v]) => {
-        document.documentElement.style.setProperty(k, v);
-      });
-    }
-
-    // ── 2. Config stampa ──────────────────────────
-    const printDoc = await gsDb.collection('config').doc('print').get();
-    if (printDoc.exists) window._printCfg = printDoc.data();
-
-    // ── 3. Tipografia ────────────────────────────
-    const typoDoc = await gsDb.collection('config').doc('typography').get();
-    if (typoDoc.exists) {
-      const t = typoDoc.data();
-      if (t.fontMain) document.documentElement.style.setProperty('--font', t.fontMain);
-      if (t.fontSerif) document.documentElement.style.setProperty('--font-serif', t.fontSerif);
-      if (t.fontSize) document.documentElement.style.fontSize = t.fontSize + 'px';
-    }
-
-    // ── 4. Farmaci da Firestore ───────────────────
-    const farmaciSnap = await gsDb.collection('farmaci').get();
-    if (!farmaciSnap.empty) {
-      window._adminFarmaci = farmaciSnap.docs.map(d => ({
-        id: d.id, n: d.data().nome, p: d.data().pa||d.data().principio,
-        dose: d.data().dose, cat: d.data().cat
-      }));
-      // Sovrascrive FARMACI locale con quelli da Firebase
-      if (window._adminFarmaci.length) {
-        FARMACI.length = 0;
-        window._adminFarmaci.forEach(f => FARMACI.push(f));
-        renderFarmaci();
-      }
-    }
-
-    // ── 5. Linee Guida testuali ───────────────────
-    const guideSnap = await gsDb.collection('lineeGuida').get();
-    if (!guideSnap.empty) {
-      window._adminGuide = guideSnap.docs.map(d => ({id: d.id, ...d.data()}));
-      // Integra le guide da Firebase nella sezione linee guida
-      applyAdminGuides(window._adminGuide);
-    }
-
-    // ── 6. PDF Linee Guida ────────────────────────
-    const pdfSnap = await gsDb.collection('pdfGuide').get();
-    if (!pdfSnap.empty) {
-      window._adminPDF = pdfSnap.docs.map(d => ({id: d.id, ...d.data()}));
-      injectPDFSection(window._adminPDF);
-    }
-
-    // ── 7. Password da Firebase ───────────────────
-    const secDoc = await gsDb.collection('config').doc('security').get();
-    if (secDoc.exists) {
-      const sec = secDoc.data();
-      if (sec.gynoPass1 || sec.gynoPass2) {
-        window._gsPasswords = [sec.gynoPass1, sec.gynoPass2].filter(Boolean);
-      }
-    }
-
-    gsToast('✅ Configurazione admin applicata', 'gs-success');
-  } catch(e) {
-    gsToast('ℹ️ Configurazione locale attiva', 'gs-info');
-    console.warn('loadAdminConfig:', e);
-  }
-}
-
-// Applica le guide testuali da Firebase nella GUIDE_DATA locale
-function applyAdminGuides(guides) {
-  if (!guides || !guides.length) return;
-  const catMap = {
-    'Ostetricia':'g-ob','Ginecologia':'g-gyno','Ecografia':'g-eco',
-    'Laboratorio':'g-lab','Oncologia':'g-onco','Contraccezione':'g-cont'
-  };
-  // Reset entries aggiunte da admin (per non duplicare al reload)
-  guides.forEach(g => {
-    const key = catMap[g.category] || 'g-gyno';
-    if (!GUIDE_DATA[key]) GUIDE_DATA[key] = [];
-    // Evita duplicati per id
-    if (!GUIDE_DATA[key].find(x => x._fbId === g.id)) {
-      GUIDE_DATA[key].unshift({
-        _fbId: g.id,
-        icon: g.icon || '🩺',
-        color: '#007AFF',
-        title: g.title,
-        cat: g.source || g.category,
-        body: g.body || ''
-      });
-    }
-  });
-}
-
-// Inietta sezione PDF nella pagina Linee Guida
-function injectPDFSection(pdfs) {
-  if (!pdfs || !pdfs.length) return;
-  const guideContent = document.getElementById('guide-content');
-  if (!guideContent) return;
-  let existing = document.getElementById('pdf-guide-section');
-  if (existing) existing.remove();
-  const wrap = document.createElement('div');
-  wrap.id = 'pdf-guide-section';
-  wrap.style.cssText = 'margin-bottom:28px;';
-  wrap.innerHTML = `
-    <div style="font-size:0.8rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-      📄 PDF Caricati dall'Admin
-      <div style="flex:1;height:1px;background:var(--separator)"></div>
-    </div>
-    ${pdfs.map(p=>`
-      <div style="background:var(--surface);border:1px solid var(--separator);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;">
-        <div style="width:36px;height:36px;border-radius:8px;background:var(--red-dim);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📄</div>
-        <div style="flex:1">
-          <div style="font-weight:600;font-size:0.875rem;">${p.title}</div>
-          <div style="font-size:0.72rem;color:var(--label4);">${p.category} · ${p.year||''}</div>
-        </div>
-        <a href="${p.url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:var(--primary-dim);color:var(--primary);border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;">👁 Apri PDF</a>
-      </div>
-    `).join('')}
-  `;
-  guideContent.parentNode.insertBefore(wrap, guideContent);
-}
-
-// Override checkLogin per leggere password anche da Firebase
-const _origCheckLogin = window.checkLogin;
-// Apri pannello Admin (stesso repository GitHub)
-function openAdmin() {
-  // Tenta la navigazione relativa — funziona quando entrambi i file
-  // sono nella stessa cartella del repository GitHub Pages
-  const adminUrl = 'GynoAdmin.html';
-  const w = window.open(adminUrl, '_blank');
-  if (!w) {
-    // Fallback se bloccato dal browser
-    gsToast('⚠️ Abilita i popup per aprire l\'Admin', 'gs-info');
-  }
-}
-
-// Config stampa admin da Firebase — mantenuta per retro-compatibilità.
-function applyPrintConfig(cfg) {
-  if(!cfg) return;
-  const h = cfg.header || {};
-  const setTxt = (id, val) => { const el=document.getElementById(id); if(el&&val) el.textContent=val; };
-  setTxt('ph-name', h.name);
-  setTxt('ph-spec', h.spec);
-  setTxt('ph-addr', h.addr);
-  if(h.tel||h.email) setTxt('ph-tel-email', `Tel: ${h.tel||''} · ${h.email||''}`);
-  if (h.logoUrl && h.showLogo!==false) {
-    const logoEl = document.getElementById('ph-logo');
-    if (logoEl) logoEl.innerHTML = `<img src="${h.logoUrl}" style="width:65px;height:65px;border-radius:10px;object-fit:contain;filter:grayscale(100%)">`;
-  }
 }
 
 // Applica al referto (#print-area) l'intestazione e l'impaginazione personalizzate
