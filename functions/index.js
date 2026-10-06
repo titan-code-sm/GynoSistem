@@ -66,6 +66,41 @@ function campiLicenza(d) {
   return c;
 }
 
+// ── Pacchetti studio ──
+const MAX_PACCHETTO = 800 * 1024; // byte (il limite di un documento Firestore è 1 MiB)
+function soloTesti(o) { return o && typeof o === "object" && !Array.isArray(o) && Object.entries(o).every(([k, v]) => typeof k === "string" && typeof v === "string"); }
+function pulisciPacchetto(p) {
+  if (!p || typeof p !== "object") throw new HttpsError("invalid-argument", "Pacchetto non valido.");
+  const out = { nome: testo(p.nome, 80), sezioni: {} };
+  for (const [id, val] of Object.entries(p.sezioni || {})) {
+    if (!/^[\w-]{1,60}$/.test(id)) continue;
+    if (Array.isArray(val) && val.every((x) => typeof x === "string")) out.sezioni[id] = val;
+    else if (soloTesti(val)) out.sezioni[id] = val;
+  }
+  const lista = (arr, campi) => (Array.isArray(arr) ? arr : []).filter((x) => x && typeof x.titolo === "string" && typeof x.testo === "string")
+    .map((x) => Object.fromEntries(campi.filter((c) => typeof x[c] === "string").map((c) => [c, x[c]])));
+  if (Array.isArray(p.consensi)) out.consensi = lista(p.consensi, ["titolo", "testo", "pdfUfficiale"]);
+  if (Array.isArray(p.schemi)) out.schemi = lista(p.schemi, ["titolo", "testo"]);
+  if (Buffer.byteLength(JSON.stringify(out)) > MAX_PACCHETTO) throw new HttpsError("invalid-argument", "Pacchetto troppo grande.");
+  return out;
+}
+async function archiviaVersione(ref, da) {
+  const attuale = await ref.get();
+  await ref.collection("versioni").add({ salvato: new Date().toISOString(), da, pacchetto: attuale.exists ? attuale.data() : null });
+  const vecchie = await ref.collection("versioni").orderBy("salvato", "desc").offset(20).get();
+  await Promise.all(vecchie.docs.map((v) => v.ref.delete()));
+}
+async function salvaPacchetto(uid, p, da) {
+  const ref = db.collection("pacchetti").doc(uid);
+  await archiviaVersione(ref, da);
+  await ref.set({ ...p, aggiornato: new Date().toISOString(), da });
+}
+async function eliminaPacchetto(uid, da) {
+  const ref = db.collection("pacchetti").doc(uid);
+  await archiviaVersione(ref, da);
+  await ref.delete();
+}
+
 // ═══════════════════════════════════════════════════════════
 //  PORTALE UTENTI (solo amministratore)
 // ═══════════════════════════════════════════════════════════
@@ -80,9 +115,10 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
   };
 
   if (azione === "elenco") {
-    const [lista, docs] = await Promise.all([auth.listUsers(1000), db.collection("utenti").get()]);
-    const profili = {};
+    const [lista, docs, pacc] = await Promise.all([auth.listUsers(1000), db.collection("utenti").get(), db.collection("pacchetti").get()]);
+    const profili = {}, pacchetti = {};
     docs.forEach((doc) => { profili[doc.id] = doc.data(); });
+    pacc.forEach((doc) => { const d = doc.data(); pacchetti[doc.id] = { nome: d.nome || "", aggiornato: d.aggiornato || "" }; });
     return {
       utenti: lista.users.map((u) => {
         const p = profili[u.uid] || {};
@@ -102,6 +138,8 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
           prezzo: typeof p.prezzo === "number" ? p.prezzo : null,
           noteLicenza: p.noteLicenza || "",
           pagamenti: Array.isArray(p.pagamenti) ? p.pagamenti : [],
+          pacchetto: pacchetti[u.uid] || null,
+          sezioniPersonalizzate: Array.isArray(p.sezioniPersonalizzate) ? p.sezioniPersonalizzate : [],
           creato: u.metadata.creationTime || "",
           ultimoAccesso: u.metadata.lastSignInTime || "",
           amministratore: u.email === ADMIN_EMAIL,
@@ -209,6 +247,35 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     return { ok: true };
   }
 
+  // ── Pacchetto studio: testi propri di un medico (mai dati di pazienti) ──
+  // pacchetti/{uid}: { nome, sezioni:{id: {titolo:testo}|[voci]}, consensi:[...], schemi:[...] }
+  // Ogni salvataggio conserva la versione precedente in pacchetti/{uid}/versioni.
+  if (azione === "leggiPacchetto") {
+    const ref = db.collection("pacchetti").doc(uid);
+    const [doc, ver] = await Promise.all([ref.get(), ref.collection("versioni").orderBy("salvato", "desc").limit(20).get()]);
+    return {
+      pacchetto: doc.exists ? doc.data() : null,
+      versioni: ver.docs.map((v) => ({ id: v.id, salvato: v.data().salvato, da: v.data().da || "", nome: (v.data().pacchetto || {}).nome || "" })),
+    };
+  }
+  if (azione === "salvaPacchetto") {
+    const p = pulisciPacchetto(d.pacchetto);
+    await salvaPacchetto(uid, p, request.auth.token.email);
+    return { ok: true };
+  }
+  if (azione === "ripristinaVersionePacchetto") {
+    const v = await db.collection("pacchetti").doc(uid).collection("versioni").doc(String(d.idVersione || "")).get();
+    if (!v.exists) throw new HttpsError("not-found", "Versione non trovata.");
+    const p = v.data().pacchetto;
+    if (p) await salvaPacchetto(uid, pulisciPacchetto(p), request.auth.token.email);
+    else await eliminaPacchetto(uid, request.auth.token.email);
+    return { ok: true };
+  }
+  if (azione === "eliminaPacchetto") {
+    await eliminaPacchetto(uid, request.auth.token.email);
+    return { ok: true };
+  }
+
   if (azione === "autorizza") {
     // Account esistente senza profilo (creato a mano dalla console): lo abilita all'app.
     const u = await auth.getUser(uid);
@@ -224,6 +291,7 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     nonSuSeStesso();
     await auth.deleteUser(uid);
     await db.collection("utenti").doc(uid).delete();
+    await db.recursiveDelete(db.collection("pacchetti").doc(uid)).catch(() => {});
     return { ok: true };
   }
 

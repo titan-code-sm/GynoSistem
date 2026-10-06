@@ -22,8 +22,15 @@ service cloud.firestore {
       allow update: if request.auth != null
         && (request.auth.token.email == 'titancodesm@gmail.com'
             || (request.auth.uid == uid
-                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimoAccesso','mustChangePassword','genere','tema'])));
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimoAccesso','mustChangePassword','genere','tema','sezioniPersonalizzate'])));
       allow delete: if request.auth != null && request.auth.token.email == 'titancodesm@gmail.com';
+    }
+
+    // ── Pacchetto studio: testi propri del medico (frasi, consensi, schemi),
+    //    mai dati di pazienti. Il medico lo legge; lo scrive solo il portale
+    //    (Admin SDK). Le versioni precedenti restano riservate al portale.
+    match /pacchetti/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
     }
 
     // ── Modello mostrato dal sito dimostrativo (nessun dato personale) ──

@@ -1770,7 +1770,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
     <details style="margin-bottom:18px">
       <summary style="cursor:pointer;font-size:.82rem;font-weight:700;color:var(--label3)">⚙️ Personalizza intestazione (una sola volta)</summary>
       <div style="margin-top:12px">
-        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Nome Medico</label><input type="text" id="rxv-cfg-nome" placeholder="Dr.ssa Cristina Guidi"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Nome Medico</label><input type="text" id="rxv-cfg-nome" placeholder="es. Dott.ssa Maria Rossi"></div>
         <div class="form-group" style="margin-bottom:10px"><label class="form-label">Specializzazione</label><input type="text" id="rxv-cfg-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
         <div class="form-group" style="margin-bottom:10px"><label class="form-label">Indirizzo Studio</label><input type="text" id="rxv-cfg-indirizzo" placeholder="Via Roma 12, San Marino"></div>
         <div class="form-group" style="margin-bottom:10px"><label class="form-label">Telefono / Email</label><input type="text" id="rxv-cfg-contatti" placeholder="Tel. 0549 000000 · info@studioguidi.sm"></div>
@@ -2284,7 +2284,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
 
     <div style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin:6px 0 10px;">Intestazione</div>
     <div class="field-row r2" style="margin-bottom:10px">
-      <div class="form-group"><label class="form-label">Nome medico</label><input type="text" id="set-print-nome" placeholder="Dr.ssa Cristina Guidi"></div>
+      <div class="form-group"><label class="form-label">Nome medico</label><input type="text" id="set-print-nome" placeholder="es. Dott.ssa Maria Rossi"></div>
       <div class="form-group"><label class="form-label">Specializzazione / titolo</label><input type="text" id="set-print-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
     </div>
     <div class="field-row r2" style="margin-bottom:10px">
@@ -2292,7 +2292,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
       <div class="form-group"><label class="form-label">Telefono / email</label><input type="text" id="set-print-contatti" placeholder="Tel. 0549 000000 · info@studioguidi.sm"></div>
     </div>
     <div class="field-row r2" style="margin-bottom:10px">
-      <div class="form-group"><label class="form-label">Testo della firma</label><input type="text" id="set-print-firma" placeholder="Dr.ssa Cristina Guidi"></div>
+      <div class="form-group"><label class="form-label">Testo della firma</label><input type="text" id="set-print-firma" placeholder="es. Dott.ssa Maria Rossi"></div>
       <div class="form-group">
         <label class="form-label">Logo (immagine)</label>
         <input type="file" id="set-print-logo" accept="image/*" onchange="caricaLogoImpostazioni(this)">
@@ -3284,7 +3284,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
               <select onchange="appendOBText('ob-counselling-txt',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi counselling --</option>
                 <option data-full="COUNSELLING: Si esegue counselling sulla diagnosi prenatale del I trimestre: screening e diagnosi prenatale invasiva. Si spiega la sensibilità, la specificità ed i limiti del test di screening (DNA fetale). Si forniscono inoltre informazioni, rischi e/o complicanze riguardo le procedure di diagnosi invasiva (villocentesi/amniocentesi).">Counselling DPN</option>
-                <option data-full="TOXO + VACCINO DTP: Si informa la paziente delle norme igienico-alimentari da seguire per ricettività alla toxoplasmosi. Informazioni e counselling per vaccinazione DTP (difterite, tetano, pertosse) da eseguire dalle 28 settimane di gravidanza e sulla vaccinazione anti-influenzale (rivolgersi al centro vaccinale email: vaccinazioni.rn@auslromagna.it per prenotare appuntamento).">Toxo + DTP</option>
+                <option data-full="TOXO + VACCINO DTP: Si informa la paziente delle norme igienico-alimentari da seguire per ricettività alla toxoplasmosi. Informazioni e counselling per vaccinazione DTP (difterite, tetano, pertosse) da eseguire dalle 28 settimane di gravidanza e sulla vaccinazione anti-influenzale (rivolgersi al centro vaccinale di riferimento per prenotare l'appuntamento).">Toxo + DTP</option>
                 <option data-full="CARDIRENE: Si esegue counselling con la paziente spiegando che, essendo presenti n. 2 fattori di rischio moderati per pre-eclampsia (___), secondo le LG ACOG è raccomandata la profilassi con Cardirene 150 mg da iniziare a 12 settimane fino a 36 settimane di gestazione. La paziente riferisce di voler valutare se iniziare o no la profilassi.">Cardirene</option>
                 <option data-full="PA: Si consiglia monitoraggio pressorio domiciliare 1 volta al giorno da raccogliere in un diario (portare in visione ai successivi controlli). Se la pressione in due controlli consecutivi dovesse essere superiore a 140/90 mmHg e/o in caso di comparsa di cefalea, sintomi visivi, epigastralgia, si consiglia controllo presso Pronto Soccorso Ostetrico Ginecologico.">Monitoraggio PA</option>
                 <option data-full="OBESA: Si esegue counselling con la paziente spiegandole i rischi correlati all'obesità in gravidanza (es. diabete, ipertensione, pre-eclampsia, ecc.). Si consiglia di rivolgersi ad un Dietista/Nutrizionista per un adeguato piano alimentare e per il controllo dell'incremento ponderale in gravidanza. Si consiglia inoltre attività motoria giornaliera (camminata di 30-40 minuti) e aderenza alla dieta.">Obesità</option>
@@ -3300,12 +3300,12 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
               <h4 data-icon="🧾">Prescrizioni Esami (selezione multipla)<button type="button" class="btn btn-ghost btn-sm" style="margin-left:auto;padding:4px 10px;font-size:0.72rem;" onclick="apriSchemiPrescrizioni()" title="Schemi di prescrizione stampabili">📄 Schemi</button></h4>
               <select onchange="appendOBText('ob-prescrizioni-txt',this.options[this.selectedIndex].dataset.full||'')">
                 <option value="">-- Aggiungi prescrizione --</option>
-                <option data-full="1ª VISITA:&#10;- esami ematici 1° trimestre (entro le 13 settimane);&#10;- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;&#10;- prelievo per NIPT Regionale (con impegnativa; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento).">1ª Visita</option>
+                <option data-full="1ª VISITA:&#10;- esami ematici 1° trimestre (entro le 13 settimane);&#10;- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;&#10;- prelievo per NIPT Regionale (con impegnativa; prenotare presso il centro di riferimento).">1ª Visita</option>
                 <option data-full="2ª VISITA:&#10;- esami ematici 14-18 settimane;&#10;- ecografia morfologica (19-21+6 settimane) da prenotare tramite CUP con impegnativa del MMG (esenzione M20).">2ª Visita</option>
                 <option data-full="3ª VISITA:&#10;- esami ematici 19-23 settimane.">3ª Visita</option>
-                <option data-full="4ª VISITA:&#10;- esami ematici 24-27 settimane;&#10;- immunoprofilassi anti-D a 28 settimane (contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per prenotare appuntamento c/o ambulatorio GAR Ospedale di Rimini, Scala C piano 1);&#10;- TCI da eseguire entro 7 giorni dalla data dell'appuntamento per immunoprofilassi.">4ª Visita</option>
-                <option data-full="5ª VISITA:&#10;- esami ematici 28-32 settimane;&#10;- contattare il centro vaccinale tramite email vaccinazioni.rn@auslromagna.it per programmare vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.">5ª Visita</option>
-                <option data-full="6ª VISITA:&#10;- esami ematici 36 settimane;&#10;- contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento AMB. Gravidanza a termine / AMB. Prechirurgico.">6ª Visita</option>
+                <option data-full="4ª VISITA:&#10;- esami ematici 24-27 settimane;&#10;- immunoprofilassi anti-D a 28 settimane (da prenotare presso il centro di riferimento);&#10;- TCI da eseguire entro 7 giorni dalla data dell'appuntamento per immunoprofilassi.">4ª Visita</option>
+                <option data-full="5ª VISITA:&#10;- esami ematici 28-32 settimane;&#10;- contattare il centro vaccinale di riferimento per programmare vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.">5ª Visita</option>
+                <option data-full="6ª VISITA:&#10;- esami ematici 36 settimane;&#10;- prenotare l'appuntamento presso l'ambulatorio Gravidanza a termine / prechirurgico del punto nascita scelto.">6ª Visita</option>
               </select>
               <textarea id="ob-prescrizioni-txt" rows="6" style="margin-top:6px"></textarea>
             </div>
@@ -3933,7 +3933,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   <div class="ph">
     <div class="ph-logo" id="ph-logo">CG</div>
     <div class="ph-info">
-      <h1 id="ph-name">Dr.ssa Cristina Guidi</h1>
+      <h1 id="ph-name"></h1>
       <p id="ph-spec">Medico Chirurgo · Specialista in Ginecologia e Ostetricia</p>
       <p id="ph-addr">Viale della Repubblica, 12 · 47890 San Marino</p>
       <p id="ph-tel-email">Tel: 0549 999999 · cristina.guidi@med.sm</p>
@@ -4167,9 +4167,9 @@ const GD = {
     "Screening trombofilico": "SCREENING TROMBOFILICO: esami ematici: Fibrinogeno, proteina C, Proteina S, APCR resistence, mutazione FV di Leiden, mutazione FII, Antitrombina III, omocisteina, LAC, Ab anticardiolipina, Ab anti beta2glicoproteina",
     "Infertilità": "INFERTILITÀ: esami ematici da eseguire entro il 3° gg del ciclo mestruale (FSH, LH, ESTRADIOLO, TSHR, PROLATTINA), PROGESTERONE (in 16-18 giornata del ciclo), AMH, PAP test (se non eseguito), Isterosalpingografia. Esami da eseguire per il compagno: SPERMIOGRAMMA (astinenza 3-5 giorni; consegna entro 30-60 minuti senza sbalzi di temperatura; sospendere Antibiotici e FANS); SPERMIOCOLTURA; esami ematici: FSH, TESTOSTERONE, PROLATTINA; VISITA ANDROLOGICA ed ECOCOLORDOPPLER TESTICOLARE",
     "GEU (betaHCG)": "GEU: dosaggio ematico betaHCG (2 prelievi a distanza di 48h l'uno dall'altro)",
-    "AUB (isteroscopia)": "AUB: Isteroscopia diagnostica con biopsia endometriale. Contattare telefonicamente la Segreteria dell'Ambulatorio Ginecologico II livello (Ospedale di Rimini Scala C piano 1) al numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per isteroscopia (con impegnativa del medico curante: isteroscopia per AUB in menopausa)",
-    "Polipo (isteroscopia)": "POLIPO: Isteroscopia per sospetto polipo endometriale. Contattare telefonicamente la Segreteria dell'Ambulatorio Ginecologico II livello (Ospedale di Rimini Scala C piano 1) al numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per isteroscopia (con impegnativa del medico curante: isteroscopia per sospetto polipo endometriale)",
-    "Eco II livello": "ECO2LIV: Valutazione ecografica II livello c/o Amb. Ginecologico Ospedale Rimini. Contattare telefonicamente la Segreteria dell'Ambulatorio Ginecologico II livello (Ospedale di Rimini Scala C piano 1) al numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per Ecografia Ginecologica II livello (con impegnativa del medico curante: ecografia ginecologica e visita ginecologica)"
+    "AUB (isteroscopia)": "AUB: Isteroscopia diagnostica con biopsia endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per AUB in menopausa).",
+    "Polipo (isteroscopia)": "POLIPO: Isteroscopia per sospetto polipo endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per sospetto polipo endometriale).",
+    "Eco II livello": "ECO2LIV: Ecografia ginecologica di II livello presso centro di riferimento (con impegnativa del medico curante: ecografia ginecologica e visita ginecologica)."
   },
 
   // TERAPIA (macro → testo lungo)
@@ -4689,7 +4689,37 @@ const FRASI_CATEGORIE=[
   {id:'genEsamiRichiesti', nome:'Esami richiesti', gruppo:'Visita', tipo:'frasi', modello:'base'},
   {id:'genTerapia', nome:'Terapia', gruppo:'Visita', tipo:'frasi', modello:'base'}
 ].filter(c=>c.modello===GS_MODELLO);
-const _FRASI_PREDEFINITE={};
+const _FRASI_PREDEFINITE={}, _FRASI_BASE={};
+// Tendine "aggiungi testo" delle schede visita (opzioni con il testo completo
+// in data-full): ognuna diventa una sezione modificabile "opz_<campo>".
+let _TENDINE=null;
+const _PANNELLI_MODELLO={'gyno-panels':['Visita ginecologica','gineco'],'ob-panels':['Visita ostetrica','gineco'],'eco-panels':['Ecografia ostetrica','gineco'],'gen-panels':['Visita','base'],'pr-panels':['Visita proctologica','proct']};
+function _tendineCategorie(){
+  if(_TENDINE) return _TENDINE;
+  _TENDINE=[];
+  document.querySelectorAll('select[onchange]').forEach(sel=>{
+    const m=(sel.getAttribute('onchange')||'').match(/^append(?:GD|OB|Combo)Text\('([\w-]+)',this\.options\[this\.selectedIndex\]\.dataset\.full\|\|''\)$/);
+    if(!m || !sel.querySelector('option[data-full]')) return;
+    const pann=sel.closest(Object.keys(_PANNELLI_MODELLO).map(x=>'#'+x).join(','));
+    const [gruppo, modello]=pann ? _PANNELLI_MODELLO[pann.id] : ['Altro','gineco'];
+    if(modello!==GS_MODELLO) return;
+    const card=sel.closest('.section-card'), h4=card && card.querySelector('h4');
+    let nome='';
+    if(h4){ const c=h4.cloneNode(true); c.querySelectorAll('button').forEach(b=>b.remove()); nome=c.textContent; }
+    else nome=sel.closest('.form-group')?.querySelector('.form-label')?.textContent||m[1];
+    nome=nome.replace(/\s*\(selezione multipla\)\s*$/i,'').replace(/\s+/g,' ').trim();
+    _TENDINE.push({ id:'opz_'+m[1], nome, gruppo, tipo:'frasi', modello, sel });
+    GD['opz_'+m[1]]=Object.fromEntries([...sel.querySelectorAll('option[data-full]')].map(o=>[o.textContent.trim(), o.dataset.full]));
+  });
+  return _TENDINE;
+}
+function _frasiCategorie(){ return FRASI_CATEGORIE.concat(_tendineCategorie()); }
+function _tendinaApplica(c){
+  const vuota=c.sel.querySelector('option:not([data-full])');
+  c.sel.innerHTML='';
+  if(vuota) c.sel.appendChild(vuota);
+  Object.entries(GD[c.id]||{}).forEach(([t,full])=>{ const o=document.createElement('option'); o.textContent=t; o.dataset.full=full; c.sel.appendChild(o); });
+}
 function _frasiChiave(){ return 'gs_frasi_'+(gsCurrentUser?gsCurrentUser.uid:'anon'); }
 function _frasiSalvate(){ try{ return JSON.parse(localStorage.getItem(_frasiChiave()))||{}; }catch(e){ return {}; } }
 const _frasiClona=v=>JSON.parse(JSON.stringify(v));
@@ -4697,9 +4727,14 @@ const _frasiClona=v=>JSON.parse(JSON.stringify(v));
 // applica quelli personalizzati dall'operatore.
 function applicaFrasiPersonalizzate(){
   const salvate=_frasiSalvate();
-  FRASI_CATEGORIE.forEach(c=>{
-    if(!(c.id in _FRASI_PREDEFINITE)) _FRASI_PREDEFINITE[c.id]=_frasiClona(GD[c.id]);
-    GD[c.id] = salvate[c.id]!==undefined ? _frasiClona(salvate[c.id]) : _frasiClona(_FRASI_PREDEFINITE[c.id]);
+  const sezPacchetto=(gsPacchetto && gsPacchetto.sezioni) || {};
+  _frasiCategorie().forEach(c=>{
+    if(!(c.id in _FRASI_BASE)) _FRASI_BASE[c.id]=_frasiClona(GD[c.id]); // testi del programma
+    let pred=sezPacchetto[c.id]!==undefined ? _frasiClona(sezPacchetto[c.id]) : _frasiClona(_FRASI_BASE[c.id]);
+    if(c.tipo==='modelli' && pred && !Array.isArray(pred)) pred={'':'', ...pred};
+    _FRASI_PREDEFINITE[c.id]=pred;
+    GD[c.id] = salvate[c.id]!==undefined ? _frasiClona(salvate[c.id]) : _frasiClona(pred);
+    if(c.sel) _tendinaApplica(c);
   });
 }
 // Visita generica: pulsanti con le frasi pronte
@@ -4720,23 +4755,23 @@ function _frasiInBozza(cat, valore){
 function renderFrasiPronte(forza){
   const sel=document.getElementById('frasi-cat'); if(!sel) return;
   if(!sel.options.length){
-    const gruppi=[...new Set(FRASI_CATEGORIE.map(c=>c.gruppo))];
-    sel.innerHTML=gruppi.map(g=>`<optgroup label="${_escHtml(g)}">${FRASI_CATEGORIE.filter(c=>c.gruppo===g).map(c=>`<option value="${c.id}">${_escHtml(c.nome)}</option>`).join('')}</optgroup>`).join('');
+    const cats=_frasiCategorie(), gruppi=[...new Set(cats.map(c=>c.gruppo))];
+    sel.innerHTML=gruppi.map(g=>`<optgroup label="${_escHtml(g)}">${cats.filter(c=>c.gruppo===g).map(c=>`<option value="${c.id}">${_escHtml(c.nome)}</option>`).join('')}</optgroup>`).join('');
   }
   if(sel.value!==_frasiCat || forza){
     if(_frasiModificata && !forza && !confirm('Ci sono modifiche non salvate in questa sezione: andranno perse. Continuare?')){ sel.value=_frasiCat; return; }
     _frasiCat=sel.value;
-    const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat);
+    const cat=_frasiCategorie().find(c=>c.id===_frasiCat);
     _frasiBozza=_frasiInBozza(cat, GD[_frasiCat]);
     _frasiModificata=false;
   }
-  const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat); if(!cat) return;
+  const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
   const salvate=_frasiSalvate();
   document.getElementById('frasi-descr').innerHTML=
     (cat.tipo==='frasi'?'Ogni voce è un <strong>pulsante</strong> nella scheda visita: il titolo è la scritta del pulsante, il testo è ciò che viene inserito.'
     :cat.tipo==='modelli'?'Ogni voce è un <strong>testo standard</strong> scelto dalla tendina della scheda visita (sostituisce il contenuto del campo).'
     :'Ogni voce è un <strong>pulsante</strong> che aggiunge la sua scritta al campo.')+
-    (salvate[_frasiCat]!==undefined?' <span style="color:var(--primary);font-weight:600">· Personalizzata</span>':' <span style="color:var(--label4)">· Predefinita</span>');
+    (salvate[_frasiCat]!==undefined?' <span style="color:var(--primary);font-weight:600">· Personalizzata da te</span>':(gsPacchetto&&gsPacchetto.sezioni&&gsPacchetto.sezioni[_frasiCat]!==undefined?' <span style="color:var(--green);font-weight:600">· Testi del tuo studio</span>':' <span style="color:var(--label4)">· Predefinita</span>'));
   const box=document.getElementById('frasi-lista');
   box.innerHTML=_frasiBozza.length ? _frasiBozza.map((f,i)=>`
     <div style="display:grid;grid-template-columns:${cat.tipo==='elenco'?'1fr':'minmax(140px,220px) 1fr'} auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid var(--separator)">
@@ -4754,7 +4789,7 @@ function frasiAggiungi(){ _frasiBozza.push({titolo:'',testo:''}); _frasiModifica
 function frasiElimina(i){ _frasiBozza.splice(i,1); _frasiModificata=true; renderFrasiPronte(); }
 function frasiSposta(i,d){ const j=i+d; if(j<0||j>=_frasiBozza.length) return; [_frasiBozza[i],_frasiBozza[j]]=[_frasiBozza[j],_frasiBozza[i]]; _frasiModificata=true; renderFrasiPronte(); }
 function frasiSalva(){
-  const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat); if(!cat) return;
+  const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
   const voci=_frasiBozza.map(f=>({titolo:f.titolo.trim(), testo:(f.testo||'').trim()})).filter(f=>f.titolo||f.testo);
   if(voci.some(f=>!f.titolo)){ alert('Ogni voce deve avere un titolo.'); return; }
   if(cat.tipo!=='elenco' && voci.some(f=>!f.testo)){ alert('Ogni voce deve avere un testo.'); return; }
@@ -4766,17 +4801,21 @@ function frasiSalva(){
   const salvate=_frasiSalvate(); salvate[cat.id]=valore;
   try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){ alert('Salvataggio non riuscito.'); return; }
   GD[cat.id]=_frasiClona(valore);
+  if(cat.sel) _tendinaApplica(cat);
+  segnalaSezioniPersonalizzate();
   _frasiModificata=false;
   renderFrasiPronte(true);
   registraLog('impostazioni','Frasi pronte modificate: '+cat.nome);
   if(typeof gsToast==='function') gsToast('✅ Frasi pronte salvate','gs-success');
 }
 function frasiRipristina(){
-  const cat=FRASI_CATEGORIE.find(c=>c.id===_frasiCat); if(!cat) return;
+  const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
   if(!confirm(`Ripristinare le frasi predefinite di «${cat.nome}»? Le tue modifiche a questa sezione verranno perse.`)) return;
   const salvate=_frasiSalvate(); delete salvate[cat.id];
   try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){}
   GD[cat.id]=_frasiClona(_FRASI_PREDEFINITE[cat.id]);
+  if(cat.sel) _tendinaApplica(cat);
+  segnalaSezioniPersonalizzate();
   _frasiModificata=false;
   renderFrasiPronte(true);
   if(typeof gsToast==='function') gsToast('Frasi predefinite ripristinate','gs-info');
@@ -5896,7 +5935,7 @@ const GUIDA_FARMACI = {
 // ═══════════════════════════════════════════════════════════════════
 //  FARMACI/PATOLOGIE AGGIUNTI DALLE CARTELLE UFFICIALI DELLO STUDIO
 //  (CRI UFFICIALE\Chiavetta 1\TERAPIE — protocolli/prodotti specifici
-//  della dott.ssa Guidi, suddivisi Ginecologia/Ostetricia per patologia)
+//  di uno studio ginecologico, suddivisi Ginecologia/Ostetricia per patologia)
 // ═══════════════════════════════════════════════════════════════════
 FARMACI.push(
   // ═══════════ Trofismo vaginale (acido ialuronico / collagene) (GIN, da CRI UFFICIALE/TERAPIE) ═══════════
@@ -7017,8 +7056,9 @@ async function handleUserProfile(user){
     demoMode = data.demoMode === true;
     try{ await ref.update({ ultimoAccesso: new Date().toISOString() }); }catch(e){}
   }
-  await _gsRiconosciStudio(user.email);
+  await caricaPacchetto(user.uid);
   applicaFrasiPersonalizzate();
+  segnalaSezioniPersonalizzate();
   _applicaPreferenzeProfilo(snap.exists ? snap.data() : null, user.uid);
   applyNomeMedico(nome);
   gsDemoMode = demoMode;
@@ -7497,7 +7537,7 @@ async function avviaSitoDemo(){
   document.getElementById('login-overlay').style.display='none';
   applyNomeMedico('Medico Demo');
   _applicaPreferenzeProfilo(null,'sito-demo');
-  _applicaContenutiStudio();
+  gsPacchetto=null;
   applicaFrasiPersonalizzate();
   const modello=await leggiModelloDemo();
   // Il modello cambia menu e schede: se nel portale ne è stato scelto un altro
@@ -10696,7 +10736,7 @@ ECOGRAFIE/SCREENING:
 - Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
 - TCI*
 
-Contattare il centro vaccinale (vaccinazioni.rn@auslromagna.it) per programmare la vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.` },
+Contattare il centro vaccinale di riferimento per programmare la vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.` },
   { titolo:'6ª Visita (a 36 sett. · 8° mese)', testo:`ESAMI DA ESEGUIRE A 36 SETTIMANE (8° mese) — RICETTA con esenzione M36 per gli esami con *:
 - Emocromo*
 - Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)
@@ -10713,7 +10753,7 @@ Contattare il centro vaccinale (vaccinazioni.rn@auslromagna.it) per programmare 
 - TCI (se negativo)*
 - Urinocoltura
 
-Contattare il numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per prenotare l'appuntamento presso l'ambulatorio Gravidanza a Termine (Ospedale di Rimini, Scala C piano 1) per l'apertura della cartella clinica e la presa in carico dalla 38ª settimana.` }
+Prenotare l'appuntamento presso l'ambulatorio Gravidanza a Termine del punto nascita scelto per l'apertura della cartella clinica e la presa in carico dalla 38ª settimana.` }
 ];
 function _schemiKey(){ return 'gs_schemi_presc_' + (typeof gsCurrentUser!=='undefined' && gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
 function getSchemiPrescrizioni(){
@@ -10721,10 +10761,11 @@ function getSchemiPrescrizioni(){
     const s = localStorage.getItem(_schemiKey());
     if(s){ const arr = JSON.parse(s); if(Array.isArray(arr)) return arr; }
   }catch(e){}
+  if(gsPacchetto && Array.isArray(gsPacchetto.schemi) && gsPacchetto.schemi.length) return gsPacchetto.schemi.map(x=>({...x}));
   return SCHEMI_PRESCRIZIONI_DEFAULT.map(x=>({...x}));
 }
 function saveSchemiPrescrizioni(arr){
-  try{ localStorage.setItem(_schemiKey(), JSON.stringify(arr)); return true; }catch(e){ return false; }
+  try{ localStorage.setItem(_schemiKey(), JSON.stringify(arr)); segnalaSezioniPersonalizzate(); return true; }catch(e){ return false; }
 }
 function apriSchemiPrescrizioni(){
   renderSchemiPrescrizioni();
@@ -10804,88 +10845,62 @@ function eliminaSchema(i){
 // letterale dei moduli SIEOG (coperti da copyright della società
 // scientifica): stessa sostanza clinica, parole proprie. Chi vuole il testo
 // ufficiale scaricato dal sito può sostituirlo qui o direttamente da
-// Consensi → modifica modulo. "Inserimento IUD" è invece il documento
-// dello studio (Dr.ssa Cristina Guidi), usato come fornito.
+// Consensi → modifica modulo. I moduli propri di uno studio (es. inserimento
+// IUD, PDF ufficiali SIEOG) arrivano col suo pacchetto studio.
 const CONSENSI_DEFAULT = [
   { titolo:'Visita ginecologica generale', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata adeguatamente informata dal proprio Ginecologo sulle finalità, le modalità di esecuzione e gli eventuali fastidi della visita ginecologica (anamnesi, esame obiettivo generale, esame con speculum, esplorazione bimanuale, eventuali prelievi citologici/microbiologici). Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione della visita nelle modalità proposte." },
 
-  { titolo:'Ecografia ginecologica', pdfUfficiale:'consensi-pdf/ecografia-ginecologica.pdf', testo:"CONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato — anche tramite il documento informativo ufficiale SIEOG allegato — su finalità, modalità e limiti dell'ecografia ginecologica, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere reperti che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
+  { titolo:'Ecografia ginecologica', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità, modalità e limiti dell'ecografia ginecologica, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere reperti che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Ecografia ostetrica I trimestre precoce', pdfUfficiale:'consensi-pdf/eco-i-trimestre-precoce.pdf', testo:"CONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato — anche tramite il documento informativo ufficiale SIEOG allegato — su finalità e limiti dell'ecografia precoce del I trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
+  { titolo:'Ecografia ostetrica I trimestre precoce', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia precoce del I trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Ecografia ostetrica I trimestre 11-13+6 settimane', pdfUfficiale:'consensi-pdf/eco-i-trimestre-11-13-6.pdf', testo:"CONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato — anche tramite il documento informativo ufficiale SIEOG allegato — su finalità e limiti dell'ecografia del I trimestre (11-13+6 settimane), di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono consulenze multispecialistiche o ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
+  { titolo:'Ecografia ostetrica I trimestre 11-13+6 settimane', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia del I trimestre (11-13+6 settimane), di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono consulenze multispecialistiche o ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Ecografia ostetrica II trimestre', pdfUfficiale:'consensi-pdf/eco-ii-trimestre.pdf', testo:"CONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato — anche tramite il documento informativo ufficiale SIEOG allegato — su finalità e limiti dell'ecografia di screening del II trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
+  { titolo:'Ecografia ostetrica II trimestre', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del II trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Ecografia ostetrica III trimestre', pdfUfficiale:'consensi-pdf/eco-iii-trimestre.pdf', testo:"CONSENSO SIEOG (come per legge)\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato — anche tramite il documento informativo ufficiale SIEOG allegato — su finalità e limiti dell'ecografia di screening del III trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
+  { titolo:'Ecografia ostetrica III trimestre', testo:"Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del III trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione." },
 
-  { titolo:'Inserimento IUD', testo:"La spirale (Intra Uterine Device/IUD o Intra Uterine System/IUS) è un dispositivo a T inserito dal medico nella cavità uterina a scopo contraccettivo o terapeutico.\n\nCOME SI INSERISCE: l'inserimento avviene in ambulatorio, preferibilmente durante il ciclo mestruale. È necessaria una visita di controllo con ecografia dopo 3-6 settimane per verificare il corretto posizionamento.\n\nFUNZIONAMENTO: esistono due categorie di spirale. Quella in rame (IUD-Cu) agisce tramite una reazione locale da corpo estraneo che impedisce l'instaurarsi della gravidanza. Quella a rilascio ormonale (IUS-LNG, con levonorgestrel a 20 o 6 µg/die) agisce anche sul muco cervicale, sull'endometrio e sulla capacità fecondante degli spermatozoi, risultando più efficace e più protettiva verso la malattia infiammatoria pelvica.\n\nEFFICACIA: il tasso di fallimento nel primo anno è dello 0,8% per lo IUD al rame e dello 0,2% per lo IUS al levonorgestrel. In caso di gravidanza nonostante il dispositivo, il rischio di aborto è circa triplo rispetto alla media, con un lieve aumento del rischio di parto pretermine, ma nessun aumento del rischio di malformazioni fetali. La spirale non protegge dalle infezioni sessualmente trasmissibili.\n\nCONTROINDICAZIONI: non ve ne sono per l'uso in donne nullipare o adolescenti. È controindicato in caso di gravidanza, infezioni in atto, tumori dell'utero, fibromi, morbo di Wilson; per la sola IUS-LNG anche in caso di LES, anticorpi antifosfolipidi, tromboembolismo venoso, embolia polmonare o tumore maligno ormono-dipendente.\n\nREVERSIBILITÀ: il ritorno alla fertilità dopo la rimozione è immediato; l'80-95% delle donne concepisce entro 12 mesi. La rimozione può avvenire in qualsiasi momento del ciclo (non necessariamente durante le mestruazioni), tenendo presente il rischio di gravidanza per rapporti avuti nei 7 giorni precedenti o successivi alla rimozione. Al momento della rimozione è possibile inserire un nuovo dispositivo.\n\nCOMPLICANZE possibili: malattia infiammatoria pelvica (rara, circa 1,6 casi su 1000 donne/anno, più frequente nelle prime 3 settimane, ridotta con la spirale medicata, aumentata con più partner sessuali); perforazione uterina all'inserimento (circa 1 caso su 1000); reazione vagale transitoria durante l'inserimento (per cui è consigliabile farsi accompagnare); gravidanza extrauterina (rischio complessivamente ridotto rispetto alla popolazione generale, ma proporzionalmente più probabile se il metodo fallisce); cambiamenti del ciclo mestruale (flusso più abbondante/prolungato con lo IUD al rame; flusso scarso o assente dopo 6-12 mesi con lo IUS al levonorgestrel; spotting irregolare nei primi 3-6 mesi mentre l'endometrio si adatta); espulsione o dislocazione (più frequente nel primo anno, 3-5%, con rischio lievemente aumentato se inserita contestualmente a revisione della cavità uterina; il filo di repere risalito in cavità può richiedere rimozione isteroscopica); attenzione alla termoterapia in regione sacrale/addominale con IUD al rame (nessun rischio di dislocazione con la risonanza magnetica, poiché i materiali utilizzati non sono magnetizzabili).\n\nIo sottoscritta {{NOME}} dichiaro di essere stata informata dalla dott.ssa Cristina Guidi, dopo un colloquio che ha illustrato anche i vari metodi contraccettivi alternativi (ormonale, meccanico, chirurgico), e dopo valutazione anamnestico-clinica, e richiedo l'inserimento del dispositivo intrauterino.\n\nRif.: Linee guida italiane sull'efficacia e l'uso appropriato della contraccezione intrauterina — Arisi, Bruni, Di Spiezio Sardo, Dubini, Gubbini, Parazzini, SIGO 2014." },
 
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritta {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. Ho diritto di accedere, rettificare e cancellare i propri dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
 // ═══════════════════════════════════════════════════
-//  CONTENUTI PERSONALI DI UNO STUDIO
+//  PACCHETTO STUDIO (preparato dall'amministratore nel portale)
 // ═══════════════════════════════════════════════════
-// Alcuni testi sono propri di uno studio (riferimenti all'Ospedale di Rimini,
-// numeri di telefono, consenso IUD firmato col nome della dottoressa, PDF
-// ufficiali SIEOG): restano SOLO sull'account di quello studio, riconosciuto
-// dall'impronta SHA-256 dell'email (così l'indirizzo non compare nel codice).
-// Per tutti gli altri account si usano versioni generiche.
-const GS_STUDI_PERSONALI={
-  '0052127c1e1bf5ab7aced9c67d6f85b122a2e2b63431c1dcdfeb0d1964cc3348':'guidi'
-};
-let gsStudioPersonale='';
-const _STUDIO_SOSTITUZIONI=[
-  ['; contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento', '; prenotare presso il centro di riferimento'],
-  [' (contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per prenotare appuntamento c/o ambulatorio GAR Ospedale di Rimini, Scala C piano 1)', ' (da prenotare presso il centro di riferimento)'],
-  ['contattare il centro vaccinale tramite email vaccinazioni.rn@auslromagna.it per programmare', 'contattare il centro vaccinale di riferimento per programmare'],
-  ['contattare il numero 0541-705211 dal lunedì al venerdì dalle 8 alle 11 per appuntamento AMB. Gravidanza a termine / AMB. Prechirurgico.', 'prenotare l\'appuntamento presso l\'ambulatorio Gravidanza a termine / prechirurgico del punto nascita scelto.'],
-  [' (rivolgersi al centro vaccinale email: vaccinazioni.rn@auslromagna.it per prenotare appuntamento)', ' (rivolgersi al centro vaccinale di riferimento per prenotare l\'appuntamento)'],
-  ['Contattare il centro vaccinale (vaccinazioni.rn@auslromagna.it) per programmare', 'Contattare il centro vaccinale di riferimento per programmare'],
-  ['Contattare il numero 0541-705211 (dal lunedì al venerdì dalle 8 alle 11) per prenotare l\'appuntamento presso l\'ambulatorio Gravidanza a Termine (Ospedale di Rimini, Scala C piano 1) per l\'apertura', 'Prenotare l\'appuntamento presso l\'ambulatorio Gravidanza a Termine del punto nascita scelto per l\'apertura']
-];
-const _STUDIO_ESAMI_GENERICI={
-  'AUB (isteroscopia)':'AUB: Isteroscopia diagnostica con biopsia endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per AUB in menopausa).',
-  'Polipo (isteroscopia)':'POLIPO: Isteroscopia per sospetto polipo endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per sospetto polipo endometriale).',
-  'Eco II livello':'ECO2LIV: Ecografia ginecologica di II livello presso centro di riferimento (con impegnativa del medico curante: ecografia ginecologica e visita ginecologica).'
-};
-const _studioOriginali={ esami:null, schemi:null };
-function _studioGenerico(t){ return _STUDIO_SOSTITUZIONI.reduce((x,[a,b])=>x.split(a).join(b), String(t||'')); }
-function _applicaContenutiStudio(){
-  const personale = gsStudioPersonale==='guidi';
-  // Frasi pronte "Esami richiesti" della visita ginecologica
-  if(!_studioOriginali.esami) _studioOriginali.esami={...GD.esamiRichiesti};
-  Object.keys(_STUDIO_ESAMI_GENERICI).forEach(k=>{
-    if(k in GD.esamiRichiesti) GD.esamiRichiesti[k] = personale ? _studioOriginali.esami[k] : _STUDIO_ESAMI_GENERICI[k];
-  });
-  // Prescrizioni pronte della visita ostetrica (tendine con testo completo)
-  document.querySelectorAll('option[data-full]').forEach(o=>{
-    if(o.dataset.orig===undefined) o.dataset.orig=o.dataset.full;
-    o.dataset.full = personale ? o.dataset.orig : _studioGenerico(o.dataset.orig);
-  });
-  // Schemi di prescrizione predefiniti (quelli già personalizzati dall'operatore non cambiano)
-  if(!_studioOriginali.schemi) _studioOriginali.schemi=SCHEMI_PRESCRIZIONI_DEFAULT.map(x=>x.testo);
-  SCHEMI_PRESCRIZIONI_DEFAULT.forEach((x,i)=>{ x.testo = personale ? _studioOriginali.schemi[i] : _studioGenerico(_studioOriginali.schemi[i]); });
-}
-async function _gsRiconosciStudio(email){
-  gsStudioPersonale='';
+// Ogni account può avere un "pacchetto" con i testi propri dello studio:
+// frasi pronte e testi standard (sezioni), consensi, schemi di prescrizione.
+// Sta su Firestore (pacchetti/{uid}, leggibile solo dal proprietario): sono
+// solo modelli di testo, MAI dati di pazienti. All'accesso si applica sopra i
+// testi predefiniti; ciò che il medico modifica da sé nelle Impostazioni vale
+// sopra il pacchetto. Copia locale per lavorare anche senza connessione.
+let gsPacchetto=null;
+async function caricaPacchetto(uid){
+  gsPacchetto=null;
+  const chiave='gs_pacchetto_cache_'+uid;
   try{
-    const h=await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(email||'').trim().toLowerCase()));
-    const hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
-    gsStudioPersonale=GS_STUDI_PERSONALI[hex]||'';
-  }catch(e){}
-  _applicaContenutiStudio();
+    const d=await gsDb.collection('pacchetti').doc(uid).get();
+    gsPacchetto=d.exists ? d.data() : null;
+    try{ if(gsPacchetto) localStorage.setItem(chiave, JSON.stringify(gsPacchetto)); else localStorage.removeItem(chiave); }catch(e){}
+  }catch(e){
+    console.warn('Pacchetto studio non raggiungibile, uso la copia locale:', e.message);
+    try{ gsPacchetto=JSON.parse(localStorage.getItem(chiave))||null; }catch(_){ gsPacchetto=null; }
+  }
 }
-// Consensi ginecologici per gli studi senza contenuti personali: niente
-// modulo IUD dello studio Guidi, niente PDF ufficiali SIEOG allegati.
-function _consensiGinecoGenerici(){
-  return CONSENSI_DEFAULT.filter(c=>c.titolo!=='Inserimento IUD').map(c=>{
-    const x={...c}; delete x.pdfUfficiale;
-    x.testo=x.testo.split('CONSENSO SIEOG (come per legge)\n\n').join('')
-      .split(' — anche tramite il documento informativo ufficiale SIEOG allegato —').join('');
-    return x;
-  });
+// Sezioni che il medico ha personalizzato da sé (solo i nomi delle sezioni):
+// le vede l'amministratore nel portale, per sapere cosa prevale sul pacchetto.
+let _sezPersTimer=null;
+function segnalaSezioniPersonalizzate(){
+  clearTimeout(_sezPersTimer);
+  _sezPersTimer=setTimeout(()=>{
+    if(!gsDb || !gsCurrentUser || GS_SITO_DEMO) return;
+    const lista=Object.keys(_frasiSalvate());
+    try{ if(localStorage.getItem(_consensiKey()+'_mod')==='1') lista.push('consensi'); if(localStorage.getItem(_schemiKey())) lista.push('schemi'); }catch(e){}
+    gsDb.collection('utenti').doc(gsCurrentUser.uid).update({ sezioniPersonalizzate: lista }).catch(()=>{});
+  }, 1500);
 }
+
+// Consensi ginecologici predefiniti per tutti: niente modulo IUD di uno
+// studio specifico, niente PDF ufficiali SIEOG allegati (arrivano col pacchetto).
+function _consensiGinecoGenerici(){ return CONSENSI_DEFAULT.map(c=>({...c})); }
 
 // Modello Base: moduli generici validi per ogni specialità, scritti al neutro.
 const CONSENSI_BASE = [
@@ -10901,7 +10916,10 @@ const CONSENSI_PROCT = [
   { titolo:'Ecografia endoanale', testo:"Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a sull'ecografia endoanale: una sonda lubrificata viene introdotta nel canale anale per pochi minuti, per studiare gli sfinteri e i tessuti circostanti. L'esame non utilizza radiazioni, è in genere ben tollerato e può causare un modesto fastidio. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione dell'esame." },
   { titolo:'Trattamento dei dati personali (privacy)', testo:"Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte." }
 ];
-function _consensiPredefiniti(){ return GS_MODELLO==='base' ? CONSENSI_BASE : GS_MODELLO==='proct' ? CONSENSI_PROCT : (gsStudioPersonale==='guidi' ? CONSENSI_DEFAULT : _consensiGinecoGenerici()); }
+function _consensiPredefiniti(){
+  if(gsPacchetto && Array.isArray(gsPacchetto.consensi) && gsPacchetto.consensi.length) return gsPacchetto.consensi;
+  return GS_MODELLO==='base' ? CONSENSI_BASE : GS_MODELLO==='proct' ? CONSENSI_PROCT : _consensiGinecoGenerici();
+}
 // Quali consensi "consigliare" per ciascun tipo di nuova visita (per titolo,
 // così funziona anche se l'operatore ha modificato/aggiunto moduli — quelli
 // non riconosciuti restano comunque selezionabili, solo non in evidenza).
@@ -10920,22 +10938,40 @@ function _consensiKey(){ return 'gs_consensi_' + (typeof gsCurrentUser!=='undefi
 // Un numero di versione forza UNA volta sola il reset alla nuova lista,
 // dopodiché le modifiche fatte dall'operatore tornano a essere rispettate.
 const _CONSENSI_LIB_VERSION = 'minorenne-dinamico-2026-09-16';
+// La libreria dei consensi segue i predefiniti (pacchetto dello studio o
+// moduli standard) finché il medico non la modifica: da quel momento vale la
+// sua (flag _mod). Una libreria salvata prima di questa regola conta come
+// modificata solo se è diversa da tutte le librerie standard note.
 function getConsensi(){
   try{
-    const verKey=_consensiKey()+'_ver';
-    const versione=_CONSENSI_LIB_VERSION+(GS_MODELLO==='gineco'?'':'-'+GS_MODELLO);
-    if(localStorage.getItem(verKey)!==versione){
-      localStorage.setItem(_consensiKey(), JSON.stringify(_consensiPredefiniti()));
-      localStorage.setItem(verKey, versione);
-      return _consensiPredefiniti().map(x=>({...x}));
-    }
+    const modKey=_consensiKey()+'_mod';
     const s = localStorage.getItem(_consensiKey());
-    if(s){ const arr = JSON.parse(s); if(Array.isArray(arr)) return arr; }
+    if(s){
+      const arr = JSON.parse(s);
+      if(Array.isArray(arr)){
+        if(localStorage.getItem(modKey)==='1') return arr;
+        const noti=[CONSENSI_DEFAULT, _consensiGinecoGenerici(), CONSENSI_BASE, CONSENSI_PROCT].map(x=>JSON.stringify(x));
+        if(!noti.includes(JSON.stringify(arr))){ localStorage.setItem(modKey,'1'); return arr; }
+      }
+    }
   }catch(e){}
   return _consensiPredefiniti().map(x=>({...x}));
 }
 function saveConsensi(arr){
-  try{ localStorage.setItem(_consensiKey(), JSON.stringify(arr)); return true; }catch(e){ return false; }
+  try{
+    localStorage.setItem(_consensiKey(), JSON.stringify(arr));
+    localStorage.setItem(_consensiKey()+'_mod','1');
+    segnalaSezioniPersonalizzate();
+    return true;
+  }catch(e){ return false; }
+}
+// Torna ai consensi dello studio (pacchetto) o standard, scartando le modifiche del medico.
+function ripristinaConsensiPredefiniti(){
+  if(!confirm('Ripristinare la libreria dei consensi predefinita? I moduli che hai modificato o aggiunto verranno sostituiti.')) return;
+  try{ localStorage.removeItem(_consensiKey()); localStorage.removeItem(_consensiKey()+'_mod'); }catch(e){}
+  segnalaSezioniPersonalizzate();
+  if(typeof renderConsensi==='function') renderConsensi();
+  if(typeof gsToast==='function') gsToast('Consensi predefiniti ripristinati','gs-info');
 }
 // Ricerca/selezione paziente direttamente dalla pagina Consensi, senza
 // dover prima entrare nella sua cartella: cerca per cognome/nome tra tutte
@@ -11641,7 +11677,7 @@ function _emailCaricaArchivio(){
 
 // ═══════════════════════════════════════════════════
 //  SCORE TEV — Valutazione del Rischio Tromboembolico in Gravidanza
-//  Documento dello studio (Dr.ssa Cristina Guidi), usato come fornito.
+//  Modulo fornito da uno studio ginecologico, usato come fornito.
 //  Non è legato a una singola visita: resta nell'archivio della PAZIENTE
 //  (p.scoreTev, un elenco — una voce per ogni data di compilazione), così
 //  aprendolo in una visita di un altro giorno si può compilarne uno nuovo
@@ -11824,7 +11860,7 @@ function stampaScoreTev(){
     </div>
     <div class="firme">
       <div class="l">Data</div>
-      <div class="l">${_escHtml(c.firma)||'Dott.ssa Cristina Guidi'}</div>
+      <div class="l">${_escHtml(c.firma||gsUserNome||'')}</div>
     </div>
     ${printFooterHtml()}
   </body></html>`);

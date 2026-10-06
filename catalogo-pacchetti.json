@@ -1,0 +1,699 @@
+{
+ "generato": "2026-10-06T15:20:56.275Z",
+ "modelli": {
+  "gineco": {
+   "sezioni": [
+    {
+     "id": "motivo",
+     "nome": "Motivo della visita",
+     "gruppo": "Visita ginecologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Asintomatica": "Asintomatica. Visita di controllo routinario.",
+      "Fibromatosi FU": "Fibromatosi uterina in regolare FU.",
+      "Leucorrea giallo-verde": "Riferisce perdite vaginali con leucorrea giallo-verdastra.",
+      "Leucorrea bianco-caseosa": "Riferisce perdite vaginali con leucorrea bianco-caseosa.",
+      "Perdite maleodoranti": "Riferisce perdite vaginali maleodoranti."
+     }
+    },
+    {
+     "id": "esameGenerale",
+     "nome": "Esame obiettivo generale",
+     "gruppo": "Visita ginecologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Addome trattabile": "Addome trattabile, non dolente alla palpazione superficiale e profonda su tutto l'ambito."
+     }
+    },
+    {
+     "id": "speculum",
+     "nome": "Esame con speculum (testi standard)",
+     "gruppo": "Visita ginecologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "NEGATIVA": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio liscia, epitelizzata. Secrezione fisiologica.",
+      "PE": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio rosea normoepitelizzata e regolare, lieve leucorrea asintomatica. Lievi perdite ematiche simil-mestruali/scarse tracce ematiche rosso scuro/vivo in vagina.",
+      "ECTOPRION": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio ectropica lievemente sanguinante. Leucorrea biancastra, non maleodorante. PAP test/HPV test eseguito.",
+      "POLIPO": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio con presenza di piccola formazione polipoide che sporge dall'OUE di circa …. mm, non sanguinante, no leucorrea patologica.",
+      "LEUCORREA": "Genitali esterni nella norma per età. Vagina con mucosa arrossata e presenza di perdite maleodoranti sintomatiche. Portio rosea normoepitelizzata e regolare. No perdite ematiche.",
+      "ATROFIA": "Genitali esterni nella norma per età. Mucosa vaginale atrofica, pallida, non sanguinante. Portio piccola. Secrezione scarsa. Non perdite ematiche.",
+      "CUPOLA": "Cupola vaginale regolare, non segni di infiltrazione. Non perdite ematiche.",
+      "BARTOLINO": "A livello del grande labbro si apprezza formazione rotondeggiante molle/dura/teso elastica di dimensioni di circa ???? cm, mobile rispetto ai piani sottostanti, dolente alla palpazione. Presente edema ed iperemia del tessuto sovrastante. Vagina trofica con pliche presenti. Portio liscia, epitelizzata. Secrezione fisiologica.",
+      "IUD": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio rosea normoepitelizzata e regolare, si visualizzano fili di IUD da OUE, lieve leucorrea asintomatica. Non perdite ematiche.",
+      "RIMOZIONE IUD": "Genitali esterni nella norma per età. Vagina trofica con pliche presenti. Portio rosea normoepitelizzata e regolare, si visualizzano fili di IUD sporgere dall'OUE. Non perdite ematiche né leucorrea patologica. Previa disinfezione si procede a rimozione con pinze ad anelli di IUD integra."
+     }
+    },
+    {
+     "id": "prelievi",
+     "nome": "Prelievi eseguiti",
+     "gruppo": "Visita ginecologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "PAP-Test": "Eseguito PAP-Test con invio a citologia.",
+      "HPV-test": "Eseguito HPV-test.",
+      "Tampone vaginale": "Eseguito tampone vaginale completo con antibiogramma."
+     }
+    },
+    {
+     "id": "bimanuale",
+     "nome": "Esame bimanuale (testi standard)",
+     "gruppo": "Visita ginecologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "AVF": "Utero AVF, di dimensioni e consistenza regolari, mobile e non dolente alla palpazione e alla mobilizzazione. Sedi annessiali bilateralmente apparentemente regolari, libere e non dolenti alla palpazione. Fornici vaginali non dolenti alla palpazione. Douglas non dolente.",
+      "RVF": "Utero RVF, di dimensioni e consistenza regolari, mobile e non dolente alla palpazione e alla mobilizzazione. Sedi annessiali bilateralmente apparentemente regolari, libere e non dolenti alla palpazione. Fornici vaginali non dolenti alla palpazione. Douglas non dolente.",
+      "FIBROMI": "Utero aumentato di volume, regolare in superficie. Sedi annessiali bilateralmente apparentemente regolari, libere e non dolenti alla palpazione. Fornici vaginali non dolenti alla palpazione. Douglas non dolente.",
+      "OBESA": "Utero ed annessi mal valutabili per habitus della paziente, non dolenti alla palpazione e mobilizzazione. Douglas non dolente.",
+      "POSIZIONAMENTO IUD": "Portio: cilindrica, OUE puntiforme. Minime perdite ematiche in atto come da mestruazione in corso. Si esegue disinfezione con soluzione di Betadine. Si esegue isterometria: ???? mm. Si procede ad applicazione di IUD-LNG ??? mg."
+     }
+    },
+    {
+     "id": "ecografia",
+     "nome": "Referto ecografico (testi standard)",
+     "gruppo": "Visita ginecologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "REGOLARE": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa;\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "FIBROMI": "UTERO: AVF / RVF / in asse; Dimensioni: lievemente aumentate DL ___ mm DAP ___ mm DT ___ mm; Morfologia: irregolare per fibromatosi uterina; Ecostruttura: disomogenea come da fibromatosi uterina; In particolare si segnala la presenza di una formazione miometriale ipoecogena a sviluppo IM/SS dalla parete ____ dell'utero, dotata di minima vascolarizzazione periferica al PD (CS 2?), che misura complessivamente ____ mm. Tale formazione si presenta di forma rotondeggiante, ad ecogenicità uniforme e con coni d'ombra interni. Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa;\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm con segni funzionali/a caratteri atrofici;\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "POLIPO": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: irregolare e disomogenea, misura ___ mm di spessore massimo. Nel contesto della rima endometriale si visualizza una lesione ovalare ipoecogena dotata di orletto iperecogeno (bright edge), minimamente vascolarizzata al PD (CS 2) e dotata di un feeding vessel a partenza dalla parete anteriore che misura complessivamente ___x___x___ mm sospetta per polipo endometriale. La giunzione endometrio miometriale appare regolare.\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm, con segni funzionali/ad aspetto atrofico.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm, con segni funzionali/ad aspetto atrofico.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "DERMOIDE 1": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO: in sede di forma irregolare e di dimensioni aumentate di ___ mm per presenza al suo interno di una cisti uniloculare ad ecogenicità mista, dotata di cono d'ombra posteriore e non vascolarizzata al PD (CS 1) che misura ___ mm.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "DERMOIDE 2": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO: in sede di forma irregolare e di dimensioni aumentate di ___ mm per la presenza al suo interno di una cisti uniloculare ad ecogenicità mista e contenuto finemente trabecolato (punti e linee), non vascolarizzata al PD (CS 1) che misura ___ mm.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "DERMOIDE 3": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO: in sede di forma irregolare e di dimensioni aumentate di ___ mm per la presenza al suo interno di una cisti uniloculare ad ecogenicità mista, prevalentemente anecogena/low level ma con un nucleo iperecogeno dotato di cono d'ombra posteriore (nucleo di Rokitansky), non vascolarizzata al PD (CS 1) che misura ___ mm.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "CISTI UNILOCULARE SOLIDA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti uniloculare a contenuto ___, mobile sui piani circostanti, con pareti interne regolari/irregolari e dotata di minima vascolarizzazione periferica al PD (CS 2) che misura complessivamente ___ mm. Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "CISTI UNILOCULARE SOLIDA CON PAPILLA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti uniloculare-solida a contenuto ___, mobile sui piani circostanti, con pareti interne irregolari e dotata di minima vascolarizzazione periferica al PD (CS 2) che misura complessivamente ___ mm. All'interno della cisti si segnala la presenza di una papilla che misura ___ mm di base e ___ mm di altezza, dotata di minima vascolarizzazione periferica al PD (CS 2). Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "CISTI UNILOCULARE CON COMP. SOLIDA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti uniloculare-solida a contenuto ___, mobile sui piani circostanti, con pareti interne irregolari e dotata di minima vascolarizzazione periferica al PD (CS 2) che misura complessivamente ___ mm. All'interno della cisti si segnala la presenza di una componente solida che misura complessivamente ___ mm ed è dotata di minima vascolarizzazione periferica al PD (CS 2). Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "CISTI MULTILOCULARE": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti multiloculare a contenuto ___ suddivisa in almeno X concamerazioni da setti sottili/spessi (spessore massimo ___ mm) e non vascolarizzati. Tale cisti appare mobile sui piani circostanti, con pareti interne regolari/irregolari, dotata di minima vascolarizzazione periferica al PD (CS 2) e misura complessivamente ___ mm. Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "CISTI MULTILOCULARE SOLIDA CON PAPILLA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti multiloculare-solida a contenuto ___ suddivisa in almeno X concamerazioni da setti sottili/spessi (spessore massimo ___ mm) e non vascolarizzati e che misura complessivamente ___ mm e che risulta mobile/ipomobile/fissa sui piani circostanti. All'interno di una delle concamerazioni si segnala la presenza di una papilla che misura ___ mm di base e ___ mm di altezza, dotata di minima vascolarizzazione al PD (CS 2). Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "CISTI MULTILOCULARE SOLIDA CON COMP. SOLIDA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nOVAIO DESTRO in sede, di forma irregolare e volume aumentato (___ mm) per la presenza al suo interno di una cisti multiloculare-solida a contenuto ___ suddivisa in almeno X concamerazioni da setti sottili/spessi (spessore massimo ___ mm) e non vascolarizzati e che misura complessivamente ___ mm e che risulta mobile/ipomobile/fissa sui piani circostanti. All'interno di tale cisti si segnala la presenza di un gettone solido discretamente vascolarizzato al PD (CS 3) che misura complessivamente ___ mm. Crescent sign visibile.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "FORMAZIONE SOLIDA OMOGENEA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nIn sede annessiale ____ si segnala la presenza di una neoformazione solida omogenea (specificare se ipo/iso/iperecogena rispetto al contesto) con profili esterni regolari/irregolari, mobile/ipomobile/fissa sui piani circostanti e dotata di discreta vascolarizzazione al PD (CS 3). Ovaio destro non visualizzato.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "FORMAZIONE SOLIDA DISOMOGENEA": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Trilaminare/proliferativo/secretivo/sottile sincrono con la fase del ciclo/come da assunzione CO/menopausa.\nIn sede annessiale ____ si segnala la presenza di una neoformazione solida disomogenea per la presenza al suo interno di piccole cisti a contenuto ___, con profili esterni regolari/irregolari, mobile/ipomobile/fissa sui piani circostanti e dotata di discreta vascolarizzazione al PD (CS 3). Ovaio destro non visualizzato.\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "IUD-CONTROLLO": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare. Ecostruttura: omogenea. Rima Endometriale: regolare. Endometrio: regolare; Spessore: ___ mm; sottile. Si visualizza IUD in sede.\nOVAIO DESTRO: morfologia e dimensioni regolari ___ mm con segni funzionali;\nOVAIO SINISTRO: morfologia e dimensioni regolari ___ mm, con segni funzionali.\nDOUGLAS: non versamento pelvico / minima falda fluida di ___ mm nel Douglas.",
+      "GEU (BLOB SIGN)": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: secretivo sincrono con la fase del ciclo; Ovaio ___ in sede, di forma e volume regolare (___x___x___ mm), mobile e non dolente alla pressione mirata della sonda vaginale, con segni funzionali (specificare se presente corpo luteo). Adiacente ad esso e chiaramente/non chiaramente dissociabile si segnala la presenza di una tumefazione rotondeggiante ad ecogenicità mista dotata di orletto iperecogeno e vascolarizzazione circolare (CS 3) (Blob sign) che misura ___ mm.",
+      "GEU (BAGEL SIGN)": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: secretivo sincrono con la fase del ciclo; Ovaio ___ in sede, di forma e volume regolare (___x___x___ mm), mobile e non dolente alla pressione mirata della sonda vaginale, con segni funzionali (specificare se presente corpo luteo). Adiacente ad esso e chiaramente/non chiaramente dissociabile si segnala la presenza di una cisti uniloculare anecogena dotata di orletto iperecogeno e vascolarizzazione circolare (CS 3) (Bagel sign) che misura ___ mm.",
+      "GEU (BLOB SIGN + EMATOSALPINGE)": "UTERO: AVF / RVF / in asse; Dimensioni: nei limiti di norma DL ___ mm DAP ___ mm DT ___ mm; Morfologia: regolare; Ecostruttura: omogenea; Rima Endometriale: regolare; Endometrio: regolare; Spessore: ___ mm; Aspetto: secretivo sincrono con la fase del ciclo; Ovaio ___ in sede, di forma e volume regolare (___ mm), mobile e non dolente alla pressione mirata della sonda vaginale, con segni funzionali (specificare se presente corpo luteo). Adiacente ad esso e chiaramente/non chiaramente dissociabile si segnala la presenza di una tumefazione rotondeggiante ad ecogenicità mista dotata di orletto iperecogeno e vascolarizzazione circolare (CS 3) (Blob sign) che misura ___ mm. Direttamente in continuità con la lesione descritta si visualizza una tumefazione ipoecogena allungata dotata di scarsa vascolarizzazione di parete (CS 2) che misura ___ mm riferibile ad ematosalpinge."
+     }
+    },
+    {
+     "id": "conclusioni",
+     "nome": "Conclusioni",
+     "gruppo": "Visita ginecologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Esame normale": "Esame ginecologico nella norma.",
+      "Ispessimento endom.": "Ispessimento endometriale con AUB/no AUB in paziente in menopausa.",
+      "Sospetto polipo": "Sospetto polipo endometriale."
+     }
+    },
+    {
+     "id": "esamiRichiesti",
+     "nome": "Esami richiesti",
+     "gruppo": "Visita ginecologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Esami ormonali": "ESAMI ORMONALI: esami ematici: LH, FSH, PRL, ESTRADIOLO, PROGESTERONE, ANDROSTENEDIONE E 17 OH PROGESTERONE + TSH, FT3 E FT4 (in un solo prelievo o il 1° o il 2° prelievo). [Ciclo 25-30 gg = in 5°-7° gg e in 18°-22° gg del ciclo; Ciclo > 35 gg = in 5°-7° gg e in 24°-27° gg del ciclo; Ciclo < 24 gg = in 5°-7° gg e in 14°-17° gg del ciclo; Amenorrea = prelievi distanziati di 8-12 giorni]",
+      "Amenorrea": "AMENORREA: esami ematici: emocromo, glicemia, creatinina, GOT, GPT, sodio, potassio, calcio, vitamina D, colesterolo totale, LDL e HDL, ferro, ferritina e transferrina, amilasi, insulinemia basale, cortisolo, LH, FSH, PRL, estradiolo, progesterone, androstenedione, 17 OH progesterone, testosterone, DHEAS, TSH, FT3 E FT4",
+      "Screening trombofilico": "SCREENING TROMBOFILICO: esami ematici: Fibrinogeno, proteina C, Proteina S, APCR resistence, mutazione FV di Leiden, mutazione FII, Antitrombina III, omocisteina, LAC, Ab anticardiolipina, Ab anti beta2glicoproteina",
+      "Infertilità": "INFERTILITÀ: esami ematici da eseguire entro il 3° gg del ciclo mestruale (FSH, LH, ESTRADIOLO, TSHR, PROLATTINA), PROGESTERONE (in 16-18 giornata del ciclo), AMH, PAP test (se non eseguito), Isterosalpingografia. Esami da eseguire per il compagno: SPERMIOGRAMMA (astinenza 3-5 giorni; consegna entro 30-60 minuti senza sbalzi di temperatura; sospendere Antibiotici e FANS); SPERMIOCOLTURA; esami ematici: FSH, TESTOSTERONE, PROLATTINA; VISITA ANDROLOGICA ed ECOCOLORDOPPLER TESTICOLARE",
+      "GEU (betaHCG)": "GEU: dosaggio ematico betaHCG (2 prelievi a distanza di 48h l'uno dall'altro)",
+      "AUB (isteroscopia)": "AUB: Isteroscopia diagnostica con biopsia endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per AUB in menopausa).",
+      "Polipo (isteroscopia)": "POLIPO: Isteroscopia per sospetto polipo endometriale presso centro di riferimento (con impegnativa del medico curante: isteroscopia per sospetto polipo endometriale).",
+      "Eco II livello": "ECO2LIV: Ecografia ginecologica di II livello presso centro di riferimento (con impegnativa del medico curante: ecografia ginecologica e visita ginecologica)."
+     }
+    },
+    {
+     "id": "terapia",
+     "nome": "Terapia",
+     "gruppo": "Visita ginecologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Bartolino": "BARTOLINO: Amoxicillina + acido clavulanico 1 gr compresse: 1 compressa ogni 12 ore per 6 giorni; Brufen 600 mg cp: 1 cp ogni 12 ore per 5 giorni (a stomaco pieno e/o con gastroprotettore es. Pantorc); Fermenti lattici; Ginexid schiuma: come detergente intimo; Gentalyn 0,1% crema: 2 applicazioni al giorno OPPURE Ittiolo Ung.10%: 2 applicazioni al giorno; Indossare intimo in cotone bianco. Recarsi c/o PS Ostetrico-Ginecologico (DEA V piano) in caso di peggioramento della sintomatologia clinica.",
+      "Amenorrea/Perimenopausa": "AMENORREA/IRREGOLARITÀ PERIMENOPAUSA: Progeffik 200 mg 1 volta/die per 10 giorni",
+      "Irregolarità perimenopausa": "IRREGOLARITÀ PERIMENOPAUSA: Progepril cp: 2 cp per 14 gg dal 14° giorno del ciclo per 6-8 mesi; poi passare a Novafase cp: 1 cp al giorno.",
+      "Irregolarità/Obesa": "IRREGOLARITÀ PERIMENOPAUSA/OBESA: Chirofert cp: 1 cp a metà mattina + 1 cp metà pomeriggio per 3 mesi poi 1 cp a metà mattina per altri 3 mesi",
+      "Menometrorragia": "MENOMETRORRAGIA: Tranex 500 mg cp: 2 cp x 3 vv/die per 2 gg poi scalare a 2 cp x 2vv/die per 2 gg poi 2 cp x 1 vv/die (stop dopo 6 gg) + eventuale prescrizione (solo in emergenza perché gonfia): Primolut Nor: 1 cp al giorno per 10 giorni."
+     }
+    },
+    {
+     "id": "familiarita",
+     "nome": "Familiarità (pulsanti)",
+     "gruppo": "Visita ginecologica",
+     "tipo": "elenco",
+     "predefinito": [
+      "Nega",
+      "Diabete",
+      "Tiroide",
+      "Ipertensione/cardiopatie",
+      "Patologie coagulazione",
+      "Ca ovaio/utero/mammella",
+      "Patologie ereditarie o genetiche"
+     ]
+    },
+    {
+     "id": "opz_ob-referto",
+     "nome": "Referto Anamnestico",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "1ª Visita reg.": "La paziente riferisce buona salute, nega perdite vaginali.",
+      "2ª Visita reg.": "La paziente riferisce buona salute, nega contrazioni e/o perdite vaginali.",
+      "3ª Visita reg.": "La paziente riferisce regolari MAF, nega contrazioni e/o perdite vaginali.",
+      "CF (Consultorio)": "Gravidanza seguita in consultorio con regolari controlli ed ecografie in gravidanza."
+     }
+    },
+    {
+     "id": "opz_ob-esami-visite",
+     "nome": "Esami · Visite/Consulenze",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "DTP": "DTP: Eseguita vaccinazione DTP.",
+      "RH": "RH: Eseguita immunoprofilassi.",
+      "BMI/Nutrizionista": "BMI: Seguita da nutrizionista privata."
+     }
+    },
+    {
+     "id": "opz_ob-esami-eco",
+     "nome": "Esami · Ecografie eseguite",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "NO SCREEN": "La paziente non ha eseguito screening I trimestre per scelta.",
+      "ECO I TRIM": "Ecografia I trimestre nella norma, NT = ___ mm.",
+      "cfDNA": "cfDNA / G-test: basso rischio, sesso ___ .",
+      "MORFO": "Ecografia Morfologica regolare, placenta ___ ."
+     }
+    },
+    {
+     "id": "opz_ob-vo",
+     "nome": "Visita Ostetrica (VO)",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "1ª Visita reg.": "Utero lievemente aumentato di volume come per epoca di amenorrea. Decontratto. Collo formato chiuso. Speculum: portio cilindrica. Non perdite ematiche in atto dal canale cervicale. Lieve leucorrea asintomatica gravidica.",
+      "PE (perdite ematiche)": "Speculum: portio cilindrica, scarse tracce ematiche marroni scuro in vagina, non perdite ematiche in atto da OUE."
+     }
+    },
+    {
+     "id": "opz_ob-eco1",
+     "nome": "Ecografia I Trimestre",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "ECO Datazione": "ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.",
+      "Ridatazione": "RIDATAZIONE: Si esegue ridatazione ecografica della gravidanza per CRL corrispondente a ___ settimane ecografiche. Pertanto risulta UM ecografica ___ , EPP ecografica ___ .",
+      "Aborto": "ABORTO: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo senza attività cardiaca, CRL di ___ mm corrispondente a ___ settimane gestazionali (oppure privo di echi embrionari). Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.",
+      "1°Trim 11-13 Office": "1° TRIM 11-13 OFFICE: Feto singolo dotato di BCF e MAF, placenta ___ , liquido amniotico regolare.",
+      "NT (translucenza)": "NT: Feto singolo, dotato di attività cardiaca e motoria, con CRL corrispondente a ___ settimane gestazionali. L'esplorazione dell'anatomia fetale di base, limitata dall'epoca gestazionale, ha permesso di visualizzare: Estremo cefalico: presenza delle ossa del cranio; linea mediana; plessi coroidei all'interno dei ventricoli. Addome: normale inserzione del cordone ombelicale; stomaco evidenziato ed omolaterale al cuore; arti superiori e inferiori; liquido amniotico nella norma; placenta normale. La misurazione della translucenza nucale (NT) è risultata pari a ___ mm."
+     }
+    },
+    {
+     "id": "opz_ob-eco23",
+     "nome": "Ecografia II-III Trimestre Office",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "2-3 Trim Office": "2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento."
+     }
+    },
+    {
+     "id": "opz_ob-eco3",
+     "nome": "Ecografia III Trimestre",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Eco III Trimestre": "Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore."
+     }
+    },
+    {
+     "id": "opz_ob-note-eco",
+     "nome": "Note Ecografiche",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Datazione": "DATAZIONE: Si spiega alla paziente che l'ecografia in data odierna è finalizzata alla datazione della gravidanza e non allo screening delle cromosomopatie.",
+      "Eco 1 Trim": "ECO 1 TRIM: Si raccomanda esecuzione di ecografia morfologica di screening del II trimestre a 19-21 settimane gestazionali per la valutazione dell'anatomia fetale.",
+      "Eco 3 Trim": "ECO 3 TRIM: Per 'visualizzato' si intende che l'organo o apparato indagato presenta caratteristiche ecografiche regolari per l'età gestazionale. La stima del peso fetale è inficiata da un errore uguale o superiore al +/- 10% e non è raccomandata se non in casi selezionati. Si informa la persona assistita/coppia degli esiti dell'esame ecografico effettuato e dei suoi limiti nella individuazione delle anomalie fetali. Il riconoscimento delle malformazioni non è un obiettivo specifico della ecografia del terzo trimestre nelle gravidanze a basso rischio. – Linee Guida SIEOG.",
+      "BT Basso rischio": "BT OK: Il rischio delle alterazioni cromosomiche più frequenti, ricalcolato sulla base dello spessore della translucenza retronucale ed al dato biochimico, con il software della FMF, è risultato a rischio BASSO per le trisomie 13, 18 e 21 (cut-off Regionale 1:300 per la T21 e 1:150 per T13 e T18). Si allega referto della FMF con calcolo del rischio ed immagini iconografiche dell'esame.",
+      "Consulenza post-test": "CONSULENZA: Si esegue consulenza post-test, si spiega che l'esame eseguito (test combinato/NIPT) è consigliato (non obbligatorio) e che rappresenta un test di screening per alcune delle alterazioni cromosomiche maggiori (T21, T13, T18). Tale test fornisce risultati probabilistici di rischio (alto o basso), pertanto non è test diagnostico né sostitutivo degli esami di diagnosi prenatale invasiva (villocentesi e/o amniocentesi). Si raccomanda l'esecuzione dell'ecografia morfologica di screening del II trimestre tra 19 e 21 settimane gestazionali.",
+      "BT Alto rischio": "BT ALTO: Si esegue counseling con la coppia spiegando la sensibilità, la specificità ed i limiti di tale test di screening risultato ad ALTO rischio per ___ con NT ___ mm. Si informa della possibilità di poter eseguire una diagnosi prenatale invasiva mediante villocentesi o amniocentesi spiegando il significato e l'esecuzione di tale procedura ed i rischi/complicanze ad essa correlati. La paziente, compreso quanto detto, riferisce di voler ___ .",
+      "Aborto (gestione)": "ABORTO: Si propone alla paziente atteggiamento di attesa di 2 settimane, come da Linee Guida NICE, per permettere l'eventuale espulsione spontanea del prodotto del concepimento. Dopo tale periodo la paziente si recherà presso Ambulatorio Ginecologico c/o Ospedale di Cattolica per eventuale terapia medica a base di misoprostolo (secondo protocollo)."
+     }
+    },
+    {
+     "id": "opz_ob-counselling-txt",
+     "nome": "Note Informative / Counselling",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Counselling DPN": "COUNSELLING: Si esegue counselling sulla diagnosi prenatale del I trimestre: screening e diagnosi prenatale invasiva. Si spiega la sensibilità, la specificità ed i limiti del test di screening (DNA fetale). Si forniscono inoltre informazioni, rischi e/o complicanze riguardo le procedure di diagnosi invasiva (villocentesi/amniocentesi).",
+      "Toxo + DTP": "TOXO + VACCINO DTP: Si informa la paziente delle norme igienico-alimentari da seguire per ricettività alla toxoplasmosi. Informazioni e counselling per vaccinazione DTP (difterite, tetano, pertosse) da eseguire dalle 28 settimane di gravidanza e sulla vaccinazione anti-influenzale (rivolgersi al centro vaccinale di riferimento per prenotare l'appuntamento).",
+      "Cardirene": "CARDIRENE: Si esegue counselling con la paziente spiegando che, essendo presenti n. 2 fattori di rischio moderati per pre-eclampsia (___), secondo le LG ACOG è raccomandata la profilassi con Cardirene 150 mg da iniziare a 12 settimane fino a 36 settimane di gestazione. La paziente riferisce di voler valutare se iniziare o no la profilassi.",
+      "Monitoraggio PA": "PA: Si consiglia monitoraggio pressorio domiciliare 1 volta al giorno da raccogliere in un diario (portare in visione ai successivi controlli). Se la pressione in due controlli consecutivi dovesse essere superiore a 140/90 mmHg e/o in caso di comparsa di cefalea, sintomi visivi, epigastralgia, si consiglia controllo presso Pronto Soccorso Ostetrico Ginecologico.",
+      "Obesità": "OBESA: Si esegue counselling con la paziente spiegandole i rischi correlati all'obesità in gravidanza (es. diabete, ipertensione, pre-eclampsia, ecc.). Si consiglia di rivolgersi ad un Dietista/Nutrizionista per un adeguato piano alimentare e per il controllo dell'incremento ponderale in gravidanza. Si consiglia inoltre attività motoria giornaliera (camminata di 30-40 minuti) e aderenza alla dieta.",
+      "Immunoprofilassi Rh": "IMMUNO RH: Si esegue counselling e si forniscono informazioni riguardo l'immunoprofilassi anti-D da effettuare a 28 settimane."
+     }
+    },
+    {
+     "id": "opz_ob-prescrizioni-txt",
+     "nome": "Prescrizioni Esami",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "1ª Visita": "1ª VISITA:\n- esami ematici 1° trimestre (entro le 13 settimane);\n- ecografia ostetrica I trimestre con NT (11-13+6 settimane) con esenzione M11;\n- prelievo per NIPT Regionale (con impegnativa; prenotare presso il centro di riferimento).",
+      "2ª Visita": "2ª VISITA:\n- esami ematici 14-18 settimane;\n- ecografia morfologica (19-21+6 settimane) da prenotare tramite CUP con impegnativa del MMG (esenzione M20).",
+      "3ª Visita": "3ª VISITA:\n- esami ematici 19-23 settimane.",
+      "4ª Visita": "4ª VISITA:\n- esami ematici 24-27 settimane;\n- immunoprofilassi anti-D a 28 settimane (da prenotare presso il centro di riferimento);\n- TCI da eseguire entro 7 giorni dalla data dell'appuntamento per immunoprofilassi.",
+      "5ª Visita": "5ª VISITA:\n- esami ematici 28-32 settimane;\n- contattare il centro vaccinale di riferimento per programmare vaccinazione DTP (difterite-tetano-pertosse) in gravidanza.",
+      "6ª Visita": "6ª VISITA:\n- esami ematici 36 settimane;\n- prenotare l'appuntamento presso l'ambulatorio Gravidanza a termine / prechirurgico del punto nascita scelto."
+     }
+    },
+    {
+     "id": "opz_ob-diagnosi",
+     "nome": "Conclusioni",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Gravidanza regolare": "GRAV. REG: Gravidanza a ___ settimane regolare. Recarsi c/o PS Ostetrico in caso di perdite vaginali, contrazioni e/o scarsi o assenti MAF.",
+      "Gestione aborto": "GEST. ABORTO: Aborto incompleto/interno a ___ settimane ecografiche. Contattare il servizio consultoriale per presa in carico e programmare successivi appuntamenti. Recarsi c/o PS Ostetrico Ginecologico (DEA V piano) in caso di perdite ematiche a carattere emorragico e/o forti algie pelviche non responsive all'antidolorifico."
+     }
+    },
+    {
+     "id": "opz_ob-prossimo",
+     "nome": "Controlli",
+     "gruppo": "Visita ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Routine": "ROUTINE: Prossimo controllo tra 30-40 giorni.",
+      "CF1": "CF1: Già programmati successivi controlli ostetrici c/o Consultorio di riferimento.",
+      "CF2": "CF2: Si informa la paziente della possibilità di rivolgersi c/o il Servizio Consultoriale per la presa in carico/controlli della gravidanza."
+     }
+    },
+    {
+     "id": "opz_ec-test-screening",
+     "nome": "Test di Screening I Trimestre",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Eco I trim norma + NIPT basso rischio": "Ecografia I trimestre nella norma con NT = ___ mm, NIPT/G-test basso rischio.",
+      "Test combinato basso rischio": "Test combinato basso rischio.",
+      "Non eseguito per scelta": "Non eseguito screening I trimestre per scelta.",
+      "CVS/Amniocentesi cariotipo normale": "CVS/Amniocentesi: cariotipo normale 46,XX / 46,XY."
+     }
+    },
+    {
+     "id": "opz_ec-eco-morfologica",
+     "nome": "Ecografia Morfologica",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Morfologica regolare": "Ecografia morfologica eseguita, regolare. Placenta ___ normoinserta."
+     }
+    },
+    {
+     "id": "opz_ec-dati-clinici",
+     "nome": "Dati Clinici",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Gravida a ?? sett · seguita c/o CF": "Gravida a ___ settimane. Seguita c/o CF, esegue regolari controlli ecografici ed esami ematici nella norma."
+     }
+    },
+    {
+     "id": "opz_ec-eco1",
+     "nome": "Ecografia I Trimestre",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "ECO Datazione": "ECO DATAZIONE: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo con attività cardiaca, CRL di ___ mm corrispondente all'epoca di amenorrea. Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.",
+      "Ridatazione": "RIDATAZIONE: Si esegue ridatazione ecografica della gravidanza per CRL corrispondente a ___ settimane ecografiche. Pertanto risulta UM ecografica ___ , EPP ecografica ___ .",
+      "Aborto": "ABORTO: Utero AVF nel cui contesto si visualizza camera gestazionale contenente sacco vitellino ed embrione singolo senza attività cardiaca, CRL di ___ mm corrispondente a ___ settimane gestazionali (oppure privo di echi embrionari). Non segni di distacco deciduo-coriale. Ovaie regolari bilateralmente. Non versamento pelvico.",
+      "1°Trim 11-13 Office": "1° TRIM 11-13 OFFICE: Feto singolo dotato di BCF e MAF, placenta ___ , liquido amniotico regolare.",
+      "NT (translucenza)": "NT: Feto singolo, dotato di attività cardiaca e motoria, con CRL corrispondente a ___ settimane gestazionali. L'esplorazione dell'anatomia fetale di base, limitata dall'epoca gestazionale, ha permesso di visualizzare: Estremo cefalico: presenza delle ossa del cranio; linea mediana; plessi coroidei all'interno dei ventricoli. Addome: normale inserzione del cordone ombelicale; stomaco evidenziato ed omolaterale al cuore; arti superiori e inferiori; liquido amniotico nella norma; placenta normale. La misurazione della translucenza nucale (NT) è risultata pari a ___ mm."
+     }
+    },
+    {
+     "id": "opz_ec-eco23",
+     "nome": "Ecografia II-III Trimestre Office",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "2-3 Trim Office": "2-3 TRIM OFFICE: Feto singolo in presentazione cefalica, BCF e MAF visualizzati, placenta ___ , liquido amniotico regolare. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: stomaco, reni e vescica a regolare riempimento."
+     }
+    },
+    {
+     "id": "opz_ec-eco3",
+     "nome": "Ecografia III Trimestre",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Eco III Trimestre": "Feto singolo in presentazione cefalica, dotato di attività cardiaca e motoria. Biometria fetale regolare con peso stimato ___ gr (+/- 10%). Visualizzati: trigono del ventricolo laterale distale, 4 camere cardiache, stomaco, reni e vescica a regolare riempimento. Il liquido amniotico è normalmente rappresentato (VTM ___ cm). La placenta appare normalmente inserita sulla parete anteriore."
+     }
+    },
+    {
+     "id": "opz_ec-note-eco",
+     "nome": "Note Ecografiche",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Datazione": "DATAZIONE: Si spiega alla paziente che l'ecografia in data odierna è finalizzata alla datazione della gravidanza e non allo screening delle cromosomopatie.",
+      "Eco 1 Trim": "ECO 1 TRIM: Si raccomanda esecuzione di ecografia morfologica di screening del II trimestre a 19-21 settimane gestazionali per la valutazione dell'anatomia fetale.",
+      "Eco 3 Trim": "ECO 3 TRIM: Per 'visualizzato' si intende che l'organo o apparato indagato presenta caratteristiche ecografiche regolari per l'età gestazionale. La stima del peso fetale è inficiata da un errore uguale o superiore al +/- 10% e non è raccomandata se non in casi selezionati. Si informa la persona assistita/coppia degli esiti dell'esame ecografico effettuato e dei suoi limiti nella individuazione delle anomalie fetali. Il riconoscimento delle malformazioni non è un obiettivo specifico della ecografia del terzo trimestre nelle gravidanze a basso rischio. – Linee Guida SIEOG.",
+      "BT Basso rischio": "BT OK: Il rischio delle alterazioni cromosomiche più frequenti, ricalcolato sulla base dello spessore della translucenza retronucale ed al dato biochimico, con il software della FMF, è risultato a rischio BASSO per le trisomie 13, 18 e 21 (cut-off Regionale 1:300 per la T21 e 1:150 per T13 e T18). Si allega referto della FMF con calcolo del rischio ed immagini iconografiche dell'esame.",
+      "Consulenza post-test": "CONSULENZA: Si esegue consulenza post-test, si spiega che l'esame eseguito (test combinato/NIPT) è consigliato (non obbligatorio) e che rappresenta un test di screening per alcune delle alterazioni cromosomiche maggiori (T21, T13, T18). Tale test fornisce risultati probabilistici di rischio (alto o basso), pertanto non è test diagnostico né sostitutivo degli esami di diagnosi prenatale invasiva (villocentesi e/o amniocentesi). Si raccomanda l'esecuzione dell'ecografia morfologica di screening del II trimestre tra 19 e 21 settimane gestazionali.",
+      "Aborto (gestione)": "ABORTO: Si propone alla paziente atteggiamento di attesa di 2 settimane, come da Linee Guida NICE, per permettere l'eventuale espulsione spontanea del prodotto del concepimento."
+     }
+    },
+    {
+     "id": "opz_ec-diagnosi",
+     "nome": "Conclusioni",
+     "gruppo": "Ecografia ostetrica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Datazione — regolare evoluzione": "DATAZIONE: Gravidanza intrauterina singola in regolare evoluzione.",
+      "Incerta evolutività": "INCERTA EVOLUTIVITA': Gravidanza intrauterina singola ad incerta evolutività. Controllo ecografico fra 7-10 giorni.",
+      "Eco 3° trimestre": "ECO 3 TRIM: Valori biometrici nella norma/anormali per l'età gestazionale.",
+      "Aborto": "ABORTO: Aborto incompleto/interno a ___ settimane ecografiche. Contattare il servizio consultoriale per presa in carico e programmare successivi app.ti. Recarsi c/o PS Ostetrico Ginecologico (DEA V piano) in caso di perdite ematiche a carattere emorragico e/o forti algie pelviche non responsive all'antidolorifico."
+     }
+    }
+   ],
+   "consensi": [
+    {
+     "titolo": "Visita ginecologica generale",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di essere stata adeguatamente informata dal proprio Ginecologo sulle finalità, le modalità di esecuzione e gli eventuali fastidi della visita ginecologica (anamnesi, esame obiettivo generale, esame con speculum, esplorazione bimanuale, eventuali prelievi citologici/microbiologici). Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione della visita nelle modalità proposte."
+    },
+    {
+     "titolo": "Ecografia ginecologica",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità, modalità e limiti dell'ecografia ginecologica, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere reperti che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione."
+    },
+    {
+     "titolo": "Ecografia ostetrica I trimestre precoce",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia precoce del I trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione."
+    },
+    {
+     "titolo": "Ecografia ostetrica I trimestre 11-13+6 settimane",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia del I trimestre (11-13+6 settimane), di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono consulenze multispecialistiche o ulteriori accertamenti, acconsento liberamente alla sua esecuzione."
+    },
+    {
+     "titolo": "Ecografia ostetrica II trimestre",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del II trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione."
+    },
+    {
+     "titolo": "Ecografia ostetrica III trimestre",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di essere stata informata in modo dettagliato su finalità e limiti dell'ecografia di screening del III trimestre, di aver avuto la possibilità di porre domande e di aver ricevuto risposte esaurienti. Consapevole che l'esame è consigliato ma non obbligatorio, e che potrebbero emergere quadri che richiedono ulteriori accertamenti, acconsento liberamente alla sua esecuzione."
+    },
+    {
+     "titolo": "Trattamento dei dati personali (privacy)",
+     "testo": "Io sottoscritta {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessata. Ho diritto di accedere, rettificare e cancellare i propri dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte."
+    }
+   ],
+   "schemi": [
+    {
+     "titolo": "1ª Visita (entro 13 sett. · 3° mese)",
+     "testo": "ESAMI DA ESEGUIRE ENTRO LE 13 SETTIMANE (1° controllo/3° mese) — RICETTA con esenzione M11 per gli esami con *:\n- Emocromo*\n- Screening Hb anomale (HbF, HbA2, Hb varianti)*\n- Emogruppo + Rh*\n- TCI*\n- Glicemia*\n- GOT/AST*\n- GPT/ALT*\n- LDH\n- Rubeo IgG-IgM*\n- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)\n- CMV IgG-IgM* (da eseguire entro le 16 settimane)\n- VDRL + TPHA*\n- HIV 1-2* (se non eseguito nei 3 mesi precedenti)\n- HBsAg*\n- Ab anti-HCV\n- Esame urine*\n- TSHR\n- Pap test (entro le 12+6 sett. se non eseguito nei 3 anni precedenti)\n\nECOGRAFIE/SCREENING:\n- Ecografia I trimestre con NT* (11+0 - 13+6 settimane)\n- NIPT Regionale (prelievo dalle 10 settimane) oppure G-Test"
+    },
+    {
+     "titolo": "2ª Visita (entro 18 sett. · 4° mese)",
+     "testo": "ESAMI DA ESEGUIRE ENTRO LE 18 SETTIMANE (4° mese) — RICETTA con esenzione M16 per gli esami con *:\n- Rubeo IgG-IgM*\n- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)\n- CMV IgG-IgM*\n- TCI (se negativo)*\n- OGTT 75 gr — curva da carico glucosio tra 16 e 18 settimane*\n\nECOGRAFIE/SCREENING:\n- Ecografia morfologica (esenzione M20) tra le 19+0 e 21+6 settimane"
+    },
+    {
+     "titolo": "3ª Visita (entro 23 sett. · 5° mese)",
+     "testo": "ESAMI DA ESEGUIRE ENTRO LE 23 SETTIMANE (5° mese) — RICETTA con esenzione M20 per gli esami con *:\n- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)\n- CMV IgG-IgM*\n- TCI (se negativo)*"
+    },
+    {
+     "titolo": "4ª Visita (entro 27 sett. · 6° mese)",
+     "testo": "ESAMI DA ESEGUIRE ENTRO LE 27 SETTIMANE (6° mese) — RICETTA con esenzione M24 per gli esami con *:\n- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)\n- Esame urine*\n- CMV IgG-IgM* (entro le 24 settimane)\n- OGTT* a 24-28 settimane\n- TCI (se negativo)*"
+    },
+    {
+     "titolo": "5ª Visita (entro 32 sett. · 7° mese)",
+     "testo": "ESAMI DA ESEGUIRE ENTRO LE 32 SETTIMANE (7° mese) — RICETTA con esenzione M30 per gli esami con *:\n- Emocromo*\n- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)\n- TCI*\n\nContattare il centro vaccinale di riferimento per programmare la vaccinazione DTP (difterite-tetano-pertosse) in gravidanza."
+    },
+    {
+     "titolo": "6ª Visita (a 36 sett. · 8° mese)",
+     "testo": "ESAMI DA ESEGUIRE A 36 SETTIMANE (8° mese) — RICETTA con esenzione M36 per gli esami con *:\n- Emocromo*\n- Toxo IgG-IgM* (da ripetere ogni 4-6 sett. se negativo)\n- HBsAg*\n- VDRL + TPHA*\n- HIV 1-2*\n- Esame urine*\n- TVR* (tampone vagino-rettale)\n- HCV\n- PT\n- PTT\n- Fibrinogeno\n- ECG (elettrocardiogramma)\n- TCI (se negativo)*\n- Urinocoltura\n\nPrenotare l'appuntamento presso l'ambulatorio Gravidanza a Termine del punto nascita scelto per l'apertura della cartella clinica e la presa in carico dalla 38ª settimana."
+    }
+   ]
+  },
+  "proct": {
+   "sezioni": [
+    {
+     "id": "prMotivo",
+     "nome": "Motivo della visita",
+     "gruppo": "Visita proctologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Sanguinamento": "Riferisce sanguinamento rosso vivo durante/dopo la defecazione.",
+      "Dolore anale": "Riferisce dolore anale durante e dopo la defecazione.",
+      "Prolasso": "Riferisce fuoriuscita di tessuto dall'ano durante la defecazione.",
+      "Prurito anale": "Riferisce prurito anale persistente.",
+      "Tumefazione dolente": "Riferisce comparsa di tumefazione perianale dolente.",
+      "Secrezione perianale": "Riferisce secrezione perianale siero-purulenta.",
+      "Stipsi / defecazione ostruita": "Riferisce stipsi con difficoltà evacuativa, ponzamento prolungato e senso di incompleto svuotamento.",
+      "Incontinenza": "Riferisce perdita involontaria di gas e/o feci.",
+      "Controllo post-operatorio": "Controllo post-operatorio dopo intervento di ___ eseguito il ___.",
+      "Visita di controllo": "Visita di controllo."
+     }
+    },
+    {
+     "id": "prEsameGenerale",
+     "nome": "Esame obiettivo generale",
+     "gruppo": "Visita proctologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Addome trattabile": "Addome trattabile, non dolente alla palpazione superficiale e profonda. Peristalsi presente."
+     }
+    },
+    {
+     "id": "prIspezione",
+     "nome": "Ispezione perianale (testi standard)",
+     "gruppo": "Visita proctologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "NORMALE": "Regione perianale integra, cute di aspetto normale. Non marische, non ragadi, non orifizi fistolosi visibili. Margine anale regolare.",
+      "MARISCHE": "Presenza di marische perianali a ore ___ (posizione litotomica), senza segni di flogosi. Restante ispezione nella norma.",
+      "RAGADE POSTERIORE": "Alla divaricazione dei glutei si evidenzia ragade anale in sede posteriore (ore 6 in posizione litotomica), a fondo ___, con/senza marisca sentinella. Spasmo sfinteriale evocato dalla divaricazione.",
+      "RAGADE ANTERIORE": "Alla divaricazione dei glutei si evidenzia ragade anale in sede anteriore (ore 12 in posizione litotomica), a fondo ___, con/senza marisca sentinella. Spasmo sfinteriale evocato dalla divaricazione.",
+      "PROLASSO EMORROIDARIO": "Prolasso emorroidario ai quadranti ___, evidente a riposo/dopo ponzamento, con riduzione spontanea/manuale/non riducibile.",
+      "TROMBOSI EMORROIDARIA": "Tumefazione perianale bluastra, tesa e dolente a ore ___, compatibile con trombosi emorroidaria esterna.",
+      "ORIFIZIO FISTOLOSO": "Orifizio fistoloso esterno a ore ___, a circa ___ cm dal margine anale, con/senza secrezione siero-purulenta alla spremitura.",
+      "ASCESSO": "Area perianale tumefatta, arrossata, calda e dolente a ore ___, fluttuante/non fluttuante, compatibile con raccolta ascessuale.",
+      "DERMATITE PERIANALE": "Cute perianale arrossata e macerata con segni di grattamento, compatibile con dermatite perianale.",
+      "CONDILOMI": "Lesioni verrucoidi perianali compatibili con condilomi acuminati, a ore ___, di dimensioni ___."
+     }
+    },
+    {
+     "id": "prEsplorazione",
+     "nome": "Esplorazione rettale (testi standard)",
+     "gruppo": "Visita proctologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "NORMALE": "Tono sfinteriale normale a riposo e valida contrazione volontaria. Canale anale e ampolla rettale liberi, mucosa liscia e scorrevole. Non masse palpabili. Dito esploratore con feci normocromiche, senza tracce ematiche.",
+      "IPERTONO": "Ipertono sfinteriale a riposo, esplorazione dolorosa. Ampolla rettale libera, mucosa liscia. Non masse palpabili. Dito esploratore senza/con tracce ematiche.",
+      "IPOTONO": "Ipotono sfinteriale a riposo e ridotta contrazione volontaria. Ampolla rettale libera, mucosa liscia. Non masse palpabili.",
+      "RETTOCELE": "Tono sfinteriale conservato. Al ponzamento si apprezza estroflessione della parete rettale anteriore compatibile con rettocele di circa ___ cm. Non masse palpabili.",
+      "MASSA PALPABILE": "A circa ___ cm dal margine anale, sulla parete ___, si apprezza formazione di consistenza ___, ___ mobile sui piani profondi. Dito esploratore con/senza tracce ematiche.",
+      "PROSTATA (uomo)": "Prostata di volume ___, a superficie liscia, di consistenza parenchimatosa, solco mediano apprezzabile, non dolente alla palpazione."
+     }
+    },
+    {
+     "id": "prAnoscopia",
+     "nome": "Anoscopia (testi standard)",
+     "gruppo": "Visita proctologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "NORMALE": "Mucosa del canale anale rosea e regolare, cuscinetti emorroidari nella norma, linea pettinata regolare.",
+      "EMORROIDI I GRADO": "Gavoccioli emorroidari interni congesti ai quadranti ___, senza prolasso (I grado secondo Goligher).",
+      "EMORROIDI II GRADO": "Gavoccioli emorroidari interni ai quadranti ___ che prolassano al ponzamento con riduzione spontanea (II grado secondo Goligher).",
+      "EMORROIDI III GRADO": "Gavoccioli emorroidari interni ai quadranti ___ che prolassano al ponzamento e richiedono riduzione manuale (III grado secondo Goligher).",
+      "EMORROIDI IV GRADO": "Prolasso emorroidario permanente, non riducibile, ai quadranti ___ (IV grado secondo Goligher).",
+      "RAGADE": "Esame eseguito con cautela per dolore: ragade del canale anale in sede ___, a fondo ___.",
+      "PAPILLA IPERTROFICA": "Papilla anale ipertrofica a ore ___. Restante mucosa del canale anale regolare.",
+      "ORIFIZIO INTERNO": "Orifizio fistoloso interno a livello della linea pettinata a ore ___."
+     }
+    },
+    {
+     "id": "prRettoscopia",
+     "nome": "Rettoscopia (testi standard)",
+     "gruppo": "Visita proctologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "NORMALE": "Esame condotto fino a ___ cm dal margine anale: mucosa rosea, lucente, con normale disegno vascolare. Non lesioni endoluminali. Preparazione buona/discreta.",
+      "PROCTITE": "Esame condotto fino a ___ cm dal margine anale: mucosa iperemica, edematosa e friabile, con perdita del disegno vascolare, compatibile con proctite. Eseguite/non eseguite biopsie.",
+      "POLIPO": "A ___ cm dal margine anale formazione polipoide sessile/peduncolata di circa ___ mm sulla parete ___. Restante mucosa regolare.",
+      "PROLASSO MUCOSO": "Al ponzamento si osserva prolasso mucoso rettale / intussuscezione retto-rettale a circa ___ cm dal margine anale."
+     }
+    },
+    {
+     "id": "prEcografia",
+     "nome": "Ecografia endoanale (testi standard)",
+     "gruppo": "Visita proctologica",
+     "tipo": "modelli",
+     "predefinito": {
+      "": "",
+      "NORMALE": "Sfintere anale interno ed esterno integri e di spessore regolare per tutta la circonferenza ai tre livelli del canale anale (superiore, medio, inferiore). Muscolo pubo-rettale regolare. Non raccolte né tragitti fistolosi.",
+      "DIFETTO SFINTERIALE": "Interruzione dello sfintere anale esterno/interno da ore ___ a ore ___ (circa ___ gradi), estesa ai livelli ___ del canale anale. Restanti strutture regolari.",
+      "FISTOLA": "Tragitto fistoloso ipoecogeno inter-/trans-/sovra-sfinterico, con orifizio interno a ore ___ a livello della linea pettinata e decorso ___. Non/presenti raccolte associate.",
+      "ASCESSO": "Raccolta ipo-anecogena di circa ___ mm in sede ___ (perianale/ischio-anale/intersfinterica), con/senza tramite verso il canale anale."
+     }
+    },
+    {
+     "id": "prConclusioni",
+     "nome": "Conclusioni",
+     "gruppo": "Visita proctologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Esame normale": "Esame proctologico nella norma.",
+      "Malattia emorroidaria": "Malattia emorroidaria di ___ grado secondo Goligher.",
+      "Ragade acuta": "Ragade anale acuta.",
+      "Ragade cronica": "Ragade anale cronica.",
+      "Trombosi emorroidaria": "Trombosi emorroidaria esterna.",
+      "Ascesso perianale": "Ascesso perianale.",
+      "Fistola perianale": "Fistola perianale.",
+      "Defecazione ostruita": "Sindrome da defecazione ostruita.",
+      "Incontinenza fecale": "Incontinenza fecale.",
+      "Prurito anale": "Prurito anale."
+     }
+    },
+    {
+     "id": "prEsamiRichiesti",
+     "nome": "Esami richiesti",
+     "gruppo": "Visita proctologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Colonscopia": "Colonscopia totale con eventuale biopsia/polipectomia.",
+      "Ecografia endoanale": "Ecografia endoanale.",
+      "Manometria anorettale": "Manometria anorettale.",
+      "Defeco-RM": "Defecografia con risonanza magnetica (defeco-RM).",
+      "RM pelvi (fistola)": "RM della pelvi con mezzo di contrasto per lo studio della fistola perianale.",
+      "Sangue occulto": "Ricerca del sangue occulto nelle feci.",
+      "Esami ematici": "Emocromo, sideremia, ferritina, PCR."
+     }
+    },
+    {
+     "id": "prTerapia",
+     "nome": "Terapia e indicazioni",
+     "gruppo": "Visita proctologica",
+     "tipo": "frasi",
+     "predefinito": {
+      "Emorroidi": "EMORROIDI: dieta ricca di fibre (25-30 g al giorno) e adeguata idratazione (1,5-2 litri di acqua al giorno); integratore di fibre (es. psillio) 1 dose al giorno; flavonoidi secondo la posologia del prodotto nella fase acuta; crema/pomata lenitiva locale 2 volte al giorno; semicupi in acqua tiepida 2-3 volte al giorno; evitare di trattenersi a lungo in bagno e gli sforzi in defecazione.",
+      "Ragade anale": "RAGADE ANALE: pomata miorilassante (es. nitroglicerina 0,4% oppure nifedipina 0,3% + lidocaina 1,5% galenica) 2-3 volte al giorno per 6-8 settimane; ammorbidente delle feci (es. macrogol) per mantenere feci morbide; semicupi tiepidi dopo la defecazione; dieta ricca di fibre e adeguata idratazione.",
+      "Stipsi": "STIPSI: macrogol 1-2 bustine al giorno da adattare in base alla risposta; fibre solubili e almeno 1,5-2 litri di acqua al giorno; attività fisica regolare; recarsi in bagno a orari regolari, con i piedi rialzati su uno sgabello.",
+      "Prurito anale": "PRURITO ANALE: igiene con acqua tiepida e detergente delicato, asciugare tamponando senza sfregare; evitare salviette profumate e indumenti sintetici; crema barriera all'ossido di zinco dopo ogni evacuazione; ridurre caffè, alcol e cibi piccanti.",
+      "Dopo legatura elastica": "DOPO LEGATURA ELASTICA: senso di peso o fastidio nei primi giorni (paracetamolo al bisogno); ammorbidente delle feci; semicupi tiepidi; un modesto sanguinamento alla caduta dell'elastico (7-10 giorni) è atteso. Contattare subito lo studio o il Pronto Soccorso in caso di febbre, dolore intenso e in aumento, sanguinamento abbondante o difficoltà a urinare.",
+      "Post-operatorio": "POST-OPERATORIO: semicupi tiepidi 2-3 volte al giorno e dopo ogni evacuazione; paracetamolo 1 g fino a 3 volte al giorno al bisogno; ammorbidente delle feci (es. macrogol); medicazione con garza asciutta. Contattare lo studio in caso di febbre, sanguinamento abbondante o difficoltà a urinare."
+     }
+    },
+    {
+     "id": "prFamiliarita",
+     "nome": "Familiarità (pulsanti)",
+     "gruppo": "Visita proctologica",
+     "tipo": "elenco",
+     "predefinito": [
+      "Nega",
+      "Carcinoma del colon-retto",
+      "Polipi del colon",
+      "Malattie infiammatorie intestinali",
+      "Celiachia",
+      "Diabete",
+      "Ipertensione/cardiopatie"
+     ]
+    }
+   ],
+   "consensi": [
+    {
+     "titolo": "Visita proctologica",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a dal medico sulle finalità e sulle modalità della visita proctologica, che comprende la raccolta dell'anamnesi, l'ispezione della regione perianale, l'esplorazione rettale digitale ed eventualmente l'anoscopia. Sono stato/a informato/a che queste manovre possono causare un modesto fastidio e, raramente, un lieve sanguinamento transitorio. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter interrompere la visita in qualsiasi momento. Acconsento liberamente all'esecuzione della visita nelle modalità proposte."
+    },
+    {
+     "titolo": "Anoscopia e rettoscopia",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a in modo chiaro sull'anoscopia e sulla rettoscopia: l'esame consiste nell'introduzione nel canale anale e nel retto di uno strumento lubrificato, per osservarne direttamente la mucosa, ed eventualmente nell'esecuzione di piccoli prelievi (biopsie). Sono stato/a informato/a che l'esame può provocare fastidio, senso di peso o stimolo a evacuare e un lieve sanguinamento; che le complicanze importanti (sanguinamento significativo, perforazione) sono rare; e sulle alternative disponibili. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione dell'esame."
+    },
+    {
+     "titolo": "Legatura elastica delle emorroidi",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a sulla legatura elastica delle emorroidi: alla base dei gavoccioli emorroidari interni vengono applicati piccoli anelli elastici, che ne riducono l'afflusso di sangue; il tessuto legato cade spontaneamente in circa 7-10 giorni. Sono stato/a informato/a che nei giorni successivi sono possibili senso di peso, fastidio o dolore, e un modesto sanguinamento al distacco dell'elastico; che più raramente possono verificarsi sanguinamento abbondante (più probabile in chi assume farmaci anticoagulanti o antiaggreganti, che ho dichiarato), trombosi emorroidaria, difficoltà a urinare e, molto raramente, infezioni anche gravi. Mi è stato spiegato di contattare subito il medico o il Pronto Soccorso in caso di febbre, dolore intenso e in aumento, sanguinamento abbondante o difficoltà a urinare. Mi sono state illustrate le alternative (terapia medica, altre procedure ambulatoriali, chirurgia). Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente alla procedura."
+    },
+    {
+     "titolo": "Ecografia endoanale",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a sull'ecografia endoanale: una sonda lubrificata viene introdotta nel canale anale per pochi minuti, per studiare gli sfinteri e i tessuti circostanti. L'esame non utilizza radiazioni, è in genere ben tollerato e può causare un modesto fastidio. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. Acconsento liberamente all'esecuzione dell'esame."
+    },
+    {
+     "titolo": "Trattamento dei dati personali (privacy)",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte."
+    }
+   ],
+   "schemi": []
+  },
+  "base": {
+   "sezioni": [
+    {
+     "id": "genMotivo",
+     "nome": "Motivo della visita",
+     "gruppo": "Visita",
+     "tipo": "frasi",
+     "predefinito": {
+      "Prima visita": "Prima visita.",
+      "Controllo": "Visita di controllo.",
+      "Esito esami": "Visita per la valutazione degli esiti degli esami eseguiti."
+     }
+    },
+    {
+     "id": "genEsame",
+     "nome": "Esame obiettivo",
+     "gruppo": "Visita",
+     "tipo": "frasi",
+     "predefinito": {
+      "Obiettività nella norma": "Buone condizioni generali. Obiettività cardiaca, polmonare e addominale nella norma."
+     }
+    },
+    {
+     "id": "genDiagnosi",
+     "nome": "Diagnosi / conclusioni",
+     "gruppo": "Visita",
+     "tipo": "frasi",
+     "predefinito": {
+      "Quadro nella norma": "Quadro clinico nella norma."
+     }
+    },
+    {
+     "id": "genEsamiRichiesti",
+     "nome": "Esami richiesti",
+     "gruppo": "Visita",
+     "tipo": "frasi",
+     "predefinito": {
+      "Esami di routine": "Emocromo, glicemia, creatinina, elettroliti, transaminasi, profilo lipidico, esame delle urine."
+     }
+    },
+    {
+     "id": "genTerapia",
+     "nome": "Terapia",
+     "gruppo": "Visita",
+     "tipo": "frasi",
+     "predefinito": {
+      "Nessuna terapia": "Nessuna terapia farmacologica necessaria al momento."
+     }
+    }
+   ],
+   "consensi": [
+    {
+     "titolo": "Consenso informato alla visita specialistica",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di essere stato/a adeguatamente informato/a dal medico sulle finalità, le modalità di esecuzione, i benefici attesi e gli eventuali fastidi o rischi della visita specialistica (raccolta dell'anamnesi, esame obiettivo ed eventuali accertamenti eseguiti durante la visita), nonché sulle possibili alternative. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter revocare il consenso in qualsiasi momento. Acconsento liberamente all'esecuzione della visita nelle modalità proposte."
+    },
+    {
+     "titolo": "Consenso informato a procedura / esame strumentale",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di essere stato/a informato/a in modo chiaro e comprensibile sulla procedura/esame proposto (________________________________), sul suo scopo, sulle modalità di esecuzione, sui benefici attesi, sui rischi e sulle possibili complicanze, nonché sulle alternative disponibili e sulle conseguenze di un eventuale rifiuto. Ho avuto la possibilità di porre domande e ho ricevuto risposte esaurienti. So di poter revocare il consenso in qualsiasi momento prima dell'esecuzione. Acconsento liberamente all'esecuzione della procedura/esame."
+    },
+    {
+     "titolo": "Trattamento dei dati personali (privacy)",
+     "testo": "Io sottoscritto/a {{NOME}} dichiaro di aver ricevuto l'informativa sul trattamento dei dati personali e sanitari ai sensi della normativa vigente in materia di protezione dei dati personali. I dati raccolti sono utilizzati esclusivamente per finalità di cura, nel rispetto del segreto professionale, e non saranno comunicati a terzi se non per obblighi di legge o con il consenso esplicito dell'interessato/a. Ho diritto di accedere, rettificare e cancellare i miei dati e di oppormi al trattamento, rivolgendomi allo studio. Presto il consenso al trattamento dei dati per le finalità sopra descritte."
+    }
+   ],
+   "schemi": []
+  }
+ }
+}
