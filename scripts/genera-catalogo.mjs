@@ -63,8 +63,27 @@ export function leggiSorgente(file = path.join(ROOT, 'index.html')) {
   const pannelli = [['gyno-panels', 'Visita ginecologica', 'gineco'], ['ob-panels', 'Visita ostetrica', 'gineco'], ['eco-panels', 'Ecografia ostetrica', 'gineco'], ['gen-panels', 'Visita', 'base'], ['pr-panels', 'Visita proctologica', 'proct']]
     .map(([id, gruppo, modello]) => ({ pos: html.indexOf(`<div id="${id}"`), gruppo, modello }))
     .filter(p => p.pos >= 0).sort((a, b) => a.pos - b.pos);
+  // Posizione nella scheda visita: scheda (passo), titolo del riquadro, ordine
+  const posizione = (idx) => {
+    const pan = [...html.slice(0, idx).matchAll(/<div id="([\w-]+)" class="edit-panel/g)].pop();
+    let passo = '';
+    if (pan) {
+      const b = html.match(new RegExp(`setEditorTab\\(this,'${pan[1]}'\\)">([\\s\\S]*?)</button>`));
+      if (b) {
+        const n = b[1].match(/<span class="step-num">(\d+)<\/span>/);
+        passo = (n ? n[1] + ' · ' : '') + senzaTag(b[1].replace(/<span class="step-num">\d+<\/span>/, ''));
+      }
+    }
+    const h4 = [...html.slice(Math.max(0, idx - 3000), idx).matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/g)].pop();
+    const nome = h4 ? senzaTag(h4[1].replace(/<span[\s\S]*?<\/span>/g, '')).replace(/\s*\(selezione multipla\)\s*$/i, '') : '';
+    return { passo, nome, ordine: idx };
+  };
+  for (const c of categorie) {
+    const i = c.el ? html.indexOf(`id="${c.el}"`) : -1;
+    if (i >= 0) { const p = posizione(i); c.passo = p.passo; c.ordine = p.ordine; if (p.nome) c.nome = p.nome; }
+  }
   const tendine = [];
-  const re = /<select onchange="append(?:GD|OB|Combo)Text\('([\w-]+)',this\.options\[this\.selectedIndex\]\.dataset\.full\|\|''\)">([\s\S]*?)<\/select>/g;
+  const re =/<select onchange="append(?:GD|OB|Combo)Text\('([\w-]+)',this\.options\[this\.selectedIndex\]\.dataset\.full\|\|''\)">([\s\S]*?)<\/select>/g;
   for (const m of html.matchAll(re)) {
     const opz = [...m[2].matchAll(/<option data-full="([^"]*)">([\s\S]*?)<\/option>/g)];
     if (!opz.length) continue;
@@ -72,9 +91,11 @@ export function leggiSorgente(file = path.join(ROOT, 'index.html')) {
     const h4 = [...prima.matchAll(/<h4[^>]*>([\s\S]*?)<\/h4>/g)].pop();
     const lab = [...prima.matchAll(/<label class="form-label">([\s\S]*?)<\/label>/g)].pop();
     const pann = pannelli.filter(p => p.pos < m.index).pop();
+    const pos = posizione(m.index);
     tendine.push({
+      ...pos,
       id: 'opz_' + m[1],
-      nome: senzaTag(h4 ? h4[1] : lab ? lab[1] : m[1]).replace(/\s*\((selezione multipla)\)\s*$/i, ''),
+      nome: pos.nome || senzaTag(h4 ? h4[1] : lab ? lab[1] : m[1]).replace(/\s*\((selezione multipla)\)\s*$/i, ''),
       gruppo: pann ? pann.gruppo : 'Altro',
       modello: pann ? pann.modello : 'gineco',
       tipo: 'frasi',
@@ -88,9 +109,9 @@ export function costruisciCatalogo(s) {
   const out = { generato: new Date().toISOString(), modelli: {} };
   for (const modello of ['gineco', 'proct', 'base']) {
     const sezioni = [
-      ...s.categorie.filter(c => c.modello === modello).map(c => ({ id: c.id, nome: c.nome, gruppo: c.gruppo, tipo: c.tipo, predefinito: s.GD[c.id] })),
+      ...s.categorie.filter(c => c.modello === modello).map(c => ({ id: c.id, nome: c.nome, gruppo: c.gruppo, passo: c.passo || '', ordine: c.ordine || 0, tipo: c.tipo, predefinito: s.GD[c.id] })),
       ...s.tendine.filter(t => t.modello === modello).map(({ modello: _, ...t }) => t),
-    ];
+    ].sort((a, b) => a.ordine - b.ordine);
     const consensi = modello === 'gineco'
       ? s.consensi.gineco.filter(c => c.titolo !== 'Inserimento IUD').map(({ pdfUfficiale, ...c }) => c)
       : s.consensi[modello];

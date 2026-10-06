@@ -1,12 +1,31 @@
 {
- "generato": "2026-10-06T15:20:56.275Z",
+ "generato": "2026-10-06T19:21:04.485Z",
  "modelli": {
   "gineco": {
    "sezioni": [
     {
-     "id": "motivo",
-     "nome": "Motivo della visita",
+     "id": "familiarita",
+     "nome": "Familiarità patologie croniche",
      "gruppo": "Visita ginecologica",
+     "passo": "1 · Anamnesi",
+     "ordine": 188716,
+     "tipo": "elenco",
+     "predefinito": [
+      "Nega",
+      "Diabete",
+      "Tiroide",
+      "Ipertensione/cardiopatie",
+      "Patologie coagulazione",
+      "Ca ovaio/utero/mammella",
+      "Patologie ereditarie o genetiche"
+     ]
+    },
+    {
+     "id": "motivo",
+     "nome": "Motivo della Visita",
+     "gruppo": "Visita ginecologica",
+     "passo": "2 · Motivo",
+     "ordine": 189297,
      "tipo": "frasi",
      "predefinito": {
       "Asintomatica": "Asintomatica. Visita di controllo routinario.",
@@ -18,8 +37,10 @@
     },
     {
      "id": "esameGenerale",
-     "nome": "Esame obiettivo generale",
+     "nome": "Esame Obiettivo Generale",
      "gruppo": "Visita ginecologica",
+     "passo": "3 · Esame Obiettivo",
+     "ordine": 192205,
      "tipo": "frasi",
      "predefinito": {
       "Addome trattabile": "Addome trattabile, non dolente alla palpazione superficiale e profonda su tutto l'ambito."
@@ -27,8 +48,10 @@
     },
     {
      "id": "speculum",
-     "nome": "Esame con speculum (testi standard)",
+     "nome": "Esame con Speculum",
      "gruppo": "Visita ginecologica",
+     "passo": "3 · Esame Obiettivo",
+     "ordine": 192502,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -46,8 +69,10 @@
     },
     {
      "id": "prelievi",
-     "nome": "Prelievi eseguiti",
+     "nome": "Prelievi Eseguiti",
      "gruppo": "Visita ginecologica",
+     "passo": "3 · Esame Obiettivo",
+     "ordine": 192948,
      "tipo": "frasi",
      "predefinito": {
       "PAP-Test": "Eseguito PAP-Test con invio a citologia.",
@@ -57,8 +82,10 @@
     },
     {
      "id": "bimanuale",
-     "nome": "Esame bimanuale (testi standard)",
+     "nome": "Esame Bimanuale",
      "gruppo": "Visita ginecologica",
+     "passo": "3 · Esame Obiettivo",
+     "ordine": 193235,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -71,8 +98,10 @@
     },
     {
      "id": "ecografia",
-     "nome": "Referto ecografico (testi standard)",
+     "nome": "Referto Ecografico",
      "gruppo": "Visita ginecologica",
+     "passo": "4 · Ecografia",
+     "ordine": 195336,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -100,6 +129,8 @@
      "id": "conclusioni",
      "nome": "Conclusioni",
      "gruppo": "Visita ginecologica",
+     "passo": "5 · Conclusioni",
+     "ordine": 200167,
      "tipo": "frasi",
      "predefinito": {
       "Esame normale": "Esame ginecologico nella norma.",
@@ -109,8 +140,10 @@
     },
     {
      "id": "esamiRichiesti",
-     "nome": "Esami richiesti",
+     "nome": "Esami Richiesti",
      "gruppo": "Visita ginecologica",
+     "passo": "5 · Conclusioni",
+     "ordine": 200439,
      "tipo": "frasi",
      "predefinito": {
       "Esami ormonali": "ESAMI ORMONALI: esami ematici: LH, FSH, PRL, ESTRADIOLO, PROGESTERONE, ANDROSTENEDIONE E 17 OH PROGESTERONE + TSH, FT3 E FT4 (in un solo prelievo o il 1° o il 2° prelievo). [Ciclo 25-30 gg = in 5°-7° gg e in 18°-22° gg del ciclo; Ciclo > 35 gg = in 5°-7° gg e in 24°-27° gg del ciclo; Ciclo < 24 gg = in 5°-7° gg e in 14°-17° gg del ciclo; Amenorrea = prelievi distanziati di 8-12 giorni]",
@@ -127,6 +160,8 @@
      "id": "terapia",
      "nome": "Terapia",
      "gruppo": "Visita ginecologica",
+     "passo": "5 · Conclusioni",
+     "ordine": 200880,
      "tipo": "frasi",
      "predefinito": {
       "Bartolino": "BARTOLINO: Amoxicillina + acido clavulanico 1 gr compresse: 1 compressa ogni 12 ore per 6 giorni; Brufen 600 mg cp: 1 cp ogni 12 ore per 5 giorni (a stomaco pieno e/o con gastroprotettore es. Pantorc); Fermenti lattici; Ginexid schiuma: come detergente intimo; Gentalyn 0,1% crema: 2 applicazioni al giorno OPPURE Ittiolo Ung.10%: 2 applicazioni al giorno; Indossare intimo in cotone bianco. Recarsi c/o PS Ostetrico-Ginecologico (DEA V piano) in caso di peggioramento della sintomatologia clinica.",
@@ -137,23 +172,10 @@
      }
     },
     {
-     "id": "familiarita",
-     "nome": "Familiarità (pulsanti)",
-     "gruppo": "Visita ginecologica",
-     "tipo": "elenco",
-     "predefinito": [
-      "Nega",
-      "Diabete",
-      "Tiroide",
-      "Ipertensione/cardiopatie",
-      "Patologie coagulazione",
-      "Ca ovaio/utero/mammella",
-      "Patologie ereditarie o genetiche"
-     ]
-    },
-    {
-     "id": "opz_ob-referto",
+     "passo": "🩺 Visita & Eco",
      "nome": "Referto Anamnestico",
+     "ordine": 210364,
+     "id": "opz_ob-referto",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -164,8 +186,10 @@
      }
     },
     {
-     "id": "opz_ob-esami-visite",
+     "passo": "🩺 Visita & Eco",
      "nome": "Esami · Visite/Consulenze",
+     "ordine": 211307,
+     "id": "opz_ob-esami-visite",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -175,8 +199,10 @@
      }
     },
     {
-     "id": "opz_ob-esami-eco",
+     "passo": "🩺 Visita & Eco",
      "nome": "Esami · Ecografie eseguite",
+     "ordine": 211988,
+     "id": "opz_ob-esami-eco",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -187,8 +213,10 @@
      }
     },
     {
-     "id": "opz_ob-vo",
+     "passo": "🩺 Visita & Eco",
      "nome": "Visita Ostetrica (VO)",
+     "ordine": 212808,
+     "id": "opz_ob-vo",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -197,8 +225,10 @@
      }
     },
     {
-     "id": "opz_ob-eco1",
+     "passo": "🩺 Visita & Eco",
      "nome": "Ecografia I Trimestre",
+     "ordine": 216087,
+     "id": "opz_ob-eco1",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -210,8 +240,10 @@
      }
     },
     {
-     "id": "opz_ob-eco23",
+     "passo": "🩺 Visita & Eco",
      "nome": "Ecografia II-III Trimestre Office",
+     "ordine": 218446,
+     "id": "opz_ob-eco23",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -219,8 +251,10 @@
      }
     },
     {
-     "id": "opz_ob-eco3",
+     "passo": "🩺 Visita & Eco",
      "nome": "Ecografia III Trimestre",
+     "ordine": 219344,
+     "id": "opz_ob-eco3",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -228,8 +262,10 @@
      }
     },
     {
-     "id": "opz_ob-note-eco",
+     "passo": "📝 Note Eco",
      "nome": "Note Ecografiche",
+     "ordine": 226832,
+     "id": "opz_ob-note-eco",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -243,8 +279,10 @@
      }
     },
     {
-     "id": "opz_ob-counselling-txt",
+     "passo": "💬 Counselling",
      "nome": "Note Informative / Counselling",
+     "ordine": 230453,
+     "id": "opz_ob-counselling-txt",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -257,8 +295,10 @@
      }
     },
     {
-     "id": "opz_ob-prescrizioni-txt",
+     "passo": "🧾 Prescrizioni",
      "nome": "Prescrizioni Esami",
+     "ordine": 233519,
+     "id": "opz_ob-prescrizioni-txt",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -271,8 +311,10 @@
      }
     },
     {
-     "id": "opz_ob-diagnosi",
+     "passo": "✅ Conclusioni",
      "nome": "Conclusioni",
+     "ordine": 235857,
+     "id": "opz_ob-diagnosi",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -281,8 +323,10 @@
      }
     },
     {
-     "id": "opz_ob-prossimo",
+     "passo": "✅ Conclusioni",
      "nome": "Controlli",
+     "ordine": 236868,
+     "id": "opz_ob-prossimo",
      "gruppo": "Visita ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -292,8 +336,10 @@
      }
     },
     {
-     "id": "opz_ec-test-screening",
+     "passo": "📋 Tipo & Datazione",
      "nome": "Test di Screening I Trimestre",
+     "ordine": 241126,
+     "id": "opz_ec-test-screening",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -304,8 +350,10 @@
      }
     },
     {
-     "id": "opz_ec-eco-morfologica",
+     "passo": "📋 Tipo & Datazione",
      "nome": "Ecografia Morfologica",
+     "ordine": 242050,
+     "id": "opz_ec-eco-morfologica",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -313,8 +361,10 @@
      }
     },
     {
-     "id": "opz_ec-dati-clinici",
+     "passo": "📋 Tipo & Datazione",
      "nome": "Dati Clinici",
+     "ordine": 242623,
+     "id": "opz_ec-dati-clinici",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -322,8 +372,10 @@
      }
     },
     {
-     "id": "opz_ec-eco1",
+     "passo": "🖥️ Referti Ecografici",
      "nome": "Ecografia I Trimestre",
+     "ordine": 247794,
+     "id": "opz_ec-eco1",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -335,8 +387,10 @@
      }
     },
     {
-     "id": "opz_ec-eco23",
+     "passo": "🖥️ Referti Ecografici",
      "nome": "Ecografia II-III Trimestre Office",
+     "ordine": 250155,
+     "id": "opz_ec-eco23",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -344,8 +398,10 @@
      }
     },
     {
-     "id": "opz_ec-eco3",
+     "passo": "🖥️ Referti Ecografici",
      "nome": "Ecografia III Trimestre",
+     "ordine": 251055,
+     "id": "opz_ec-eco3",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -353,8 +409,10 @@
      }
     },
     {
-     "id": "opz_ec-note-eco",
+     "passo": "📝 Note Ecografiche",
      "nome": "Note Ecografiche",
+     "ordine": 255916,
+     "id": "opz_ec-note-eco",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -367,8 +425,10 @@
      }
     },
     {
-     "id": "opz_ec-diagnosi",
+     "passo": "2 · Referto",
      "nome": "Conclusioni",
+     "ordine": 258825,
+     "id": "opz_ec-diagnosi",
      "gruppo": "Ecografia ostetrica",
      "tipo": "frasi",
      "predefinito": {
@@ -439,9 +499,28 @@
   "proct": {
    "sezioni": [
     {
-     "id": "prMotivo",
-     "nome": "Motivo della visita",
+     "id": "prFamiliarita",
+     "nome": "Familiarità",
      "gruppo": "Visita proctologica",
+     "passo": "1 · Anamnesi",
+     "ordine": 271661,
+     "tipo": "elenco",
+     "predefinito": [
+      "Nega",
+      "Carcinoma del colon-retto",
+      "Polipi del colon",
+      "Malattie infiammatorie intestinali",
+      "Celiachia",
+      "Diabete",
+      "Ipertensione/cardiopatie"
+     ]
+    },
+    {
+     "id": "prMotivo",
+     "nome": "Motivo della Visita",
+     "gruppo": "Visita proctologica",
+     "passo": "2 · Motivo e sintomi",
+     "ordine": 272245,
      "tipo": "frasi",
      "predefinito": {
       "Sanguinamento": "Riferisce sanguinamento rosso vivo durante/dopo la defecazione.",
@@ -458,8 +537,10 @@
     },
     {
      "id": "prEsameGenerale",
-     "nome": "Esame obiettivo generale",
+     "nome": "Esame Obiettivo Generale",
      "gruppo": "Visita proctologica",
+     "passo": "4 · Esame Obiettivo",
+     "ordine": 277956,
      "tipo": "frasi",
      "predefinito": {
       "Addome trattabile": "Addome trattabile, non dolente alla palpazione superficiale e profonda. Peristalsi presente."
@@ -467,8 +548,10 @@
     },
     {
      "id": "prIspezione",
-     "nome": "Ispezione perianale (testi standard)",
+     "nome": "Ispezione Perianale",
      "gruppo": "Visita proctologica",
+     "passo": "4 · Esame Obiettivo",
+     "ordine": 278249,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -486,8 +569,10 @@
     },
     {
      "id": "prEsplorazione",
-     "nome": "Esplorazione rettale (testi standard)",
+     "nome": "Esplorazione Rettale Digitale",
      "gruppo": "Visita proctologica",
+     "passo": "4 · Esame Obiettivo",
+     "ordine": 278722,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -501,8 +586,10 @@
     },
     {
      "id": "prAnoscopia",
-     "nome": "Anoscopia (testi standard)",
+     "nome": "Anoscopia",
      "gruppo": "Visita proctologica",
+     "passo": "4 · Esame Obiettivo",
+     "ordine": 279191,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -518,8 +605,10 @@
     },
     {
      "id": "prRettoscopia",
-     "nome": "Rettoscopia (testi standard)",
+     "nome": "Rettoscopia / Rettosigmoidoscopia",
      "gruppo": "Visita proctologica",
+     "passo": "4 · Esame Obiettivo",
+     "ordine": 280457,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -531,8 +620,10 @@
     },
     {
      "id": "prEcografia",
-     "nome": "Ecografia endoanale (testi standard)",
+     "nome": "Ecografia Endoanale",
      "gruppo": "Visita proctologica",
+     "passo": "5 · Esami strumentali",
+     "ordine": 281723,
      "tipo": "modelli",
      "predefinito": {
       "": "",
@@ -546,6 +637,8 @@
      "id": "prConclusioni",
      "nome": "Conclusioni",
      "gruppo": "Visita proctologica",
+     "passo": "6 · Conclusioni",
+     "ordine": 283098,
      "tipo": "frasi",
      "predefinito": {
       "Esame normale": "Esame proctologico nella norma.",
@@ -562,8 +655,10 @@
     },
     {
      "id": "prEsamiRichiesti",
-     "nome": "Esami richiesti",
+     "nome": "Esami Richiesti",
      "gruppo": "Visita proctologica",
+     "passo": "6 · Conclusioni",
+     "ordine": 283379,
      "tipo": "frasi",
      "predefinito": {
       "Colonscopia": "Colonscopia totale con eventuale biopsia/polipectomia.",
@@ -577,8 +672,10 @@
     },
     {
      "id": "prTerapia",
-     "nome": "Terapia e indicazioni",
+     "nome": "Terapia e Indicazioni",
      "gruppo": "Visita proctologica",
+     "passo": "6 · Conclusioni",
+     "ordine": 283662,
      "tipo": "frasi",
      "predefinito": {
       "Emorroidi": "EMORROIDI: dieta ricca di fibre (25-30 g al giorno) e adeguata idratazione (1,5-2 litri di acqua al giorno); integratore di fibre (es. psillio) 1 dose al giorno; flavonoidi secondo la posologia del prodotto nella fase acuta; crema/pomata lenitiva locale 2 volte al giorno; semicupi in acqua tiepida 2-3 volte al giorno; evitare di trattenersi a lungo in bagno e gli sforzi in defecazione.",
@@ -588,21 +685,6 @@
       "Dopo legatura elastica": "DOPO LEGATURA ELASTICA: senso di peso o fastidio nei primi giorni (paracetamolo al bisogno); ammorbidente delle feci; semicupi tiepidi; un modesto sanguinamento alla caduta dell'elastico (7-10 giorni) è atteso. Contattare subito lo studio o il Pronto Soccorso in caso di febbre, dolore intenso e in aumento, sanguinamento abbondante o difficoltà a urinare.",
       "Post-operatorio": "POST-OPERATORIO: semicupi tiepidi 2-3 volte al giorno e dopo ogni evacuazione; paracetamolo 1 g fino a 3 volte al giorno al bisogno; ammorbidente delle feci (es. macrogol); medicazione con garza asciutta. Contattare lo studio in caso di febbre, sanguinamento abbondante o difficoltà a urinare."
      }
-    },
-    {
-     "id": "prFamiliarita",
-     "nome": "Familiarità (pulsanti)",
-     "gruppo": "Visita proctologica",
-     "tipo": "elenco",
-     "predefinito": [
-      "Nega",
-      "Carcinoma del colon-retto",
-      "Polipi del colon",
-      "Malattie infiammatorie intestinali",
-      "Celiachia",
-      "Diabete",
-      "Ipertensione/cardiopatie"
-     ]
     }
    ],
    "consensi": [
@@ -635,6 +717,8 @@
      "id": "genMotivo",
      "nome": "Motivo della visita",
      "gruppo": "Visita",
+     "passo": "1 · Motivo e anamnesi",
+     "ordine": 261206,
      "tipo": "frasi",
      "predefinito": {
       "Prima visita": "Prima visita.",
@@ -646,33 +730,41 @@
      "id": "genEsame",
      "nome": "Esame obiettivo",
      "gruppo": "Visita",
+     "passo": "2 · Esame obiettivo",
+     "ordine": 263936,
      "tipo": "frasi",
      "predefinito": {
       "Obiettività nella norma": "Buone condizioni generali. Obiettività cardiaca, polmonare e addominale nella norma."
      }
     },
     {
-     "id": "genDiagnosi",
-     "nome": "Diagnosi / conclusioni",
-     "gruppo": "Visita",
-     "tipo": "frasi",
-     "predefinito": {
-      "Quadro nella norma": "Quadro clinico nella norma."
-     }
-    },
-    {
      "id": "genEsamiRichiesti",
      "nome": "Esami richiesti",
      "gruppo": "Visita",
+     "passo": "3 · Esami e accertamenti",
+     "ordine": 264583,
      "tipo": "frasi",
      "predefinito": {
       "Esami di routine": "Emocromo, glicemia, creatinina, elettroliti, transaminasi, profilo lipidico, esame delle urine."
      }
     },
     {
+     "id": "genDiagnosi",
+     "nome": "Diagnosi / conclusioni",
+     "gruppo": "Visita",
+     "passo": "4 · Conclusioni",
+     "ordine": 264929,
+     "tipo": "frasi",
+     "predefinito": {
+      "Quadro nella norma": "Quadro clinico nella norma."
+     }
+    },
+    {
      "id": "genTerapia",
      "nome": "Terapia",
      "gruppo": "Visita",
+     "passo": "4 · Conclusioni",
+     "ordine": 265228,
      "tipo": "frasi",
      "predefinito": {
       "Nessuna terapia": "Nessuna terapia farmacologica necessaria al momento."

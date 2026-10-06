@@ -4662,32 +4662,32 @@ Object.assign(GD, {
   genTerapia: { "Nessuna terapia": "Nessuna terapia farmacologica necessaria al momento." }
 });
 const FRASI_CATEGORIE=[
-  {id:'motivo', nome:'Motivo della visita', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
-  {id:'esameGenerale', nome:'Esame obiettivo generale', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
-  {id:'speculum', nome:'Esame con speculum (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
-  {id:'prelievi', nome:'Prelievi eseguiti', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
-  {id:'bimanuale', nome:'Esame bimanuale (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
-  {id:'ecografia', nome:'Referto ecografico (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
-  {id:'conclusioni', nome:'Conclusioni', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
-  {id:'esamiRichiesti', nome:'Esami richiesti', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
-  {id:'terapia', nome:'Terapia', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
-  {id:'familiarita', nome:'Familiarità (pulsanti)', gruppo:'Visita ginecologica', tipo:'elenco', modello:'gineco'},
-  {id:'prMotivo', nome:'Motivo della visita', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
-  {id:'prEsameGenerale', nome:'Esame obiettivo generale', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
-  {id:'prIspezione', nome:'Ispezione perianale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
-  {id:'prEsplorazione', nome:'Esplorazione rettale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
-  {id:'prAnoscopia', nome:'Anoscopia (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
-  {id:'prRettoscopia', nome:'Rettoscopia (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
-  {id:'prEcografia', nome:'Ecografia endoanale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
-  {id:'prConclusioni', nome:'Conclusioni', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
-  {id:'prEsamiRichiesti', nome:'Esami richiesti', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
-  {id:'prTerapia', nome:'Terapia e indicazioni', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
-  {id:'prFamiliarita', nome:'Familiarità (pulsanti)', gruppo:'Visita proctologica', tipo:'elenco', modello:'proct'},
-  {id:'genMotivo', nome:'Motivo della visita', gruppo:'Visita', tipo:'frasi', modello:'base'},
-  {id:'genEsame', nome:'Esame obiettivo', gruppo:'Visita', tipo:'frasi', modello:'base'},
-  {id:'genDiagnosi', nome:'Diagnosi / conclusioni', gruppo:'Visita', tipo:'frasi', modello:'base'},
-  {id:'genEsamiRichiesti', nome:'Esami richiesti', gruppo:'Visita', tipo:'frasi', modello:'base'},
-  {id:'genTerapia', nome:'Terapia', gruppo:'Visita', tipo:'frasi', modello:'base'}
+  {id:'motivo', el:'gd-motivo-btns', nome:'Motivo della visita', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'esameGenerale', el:'gd-esame-generale-btns', nome:'Esame obiettivo generale', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'speculum', el:'gd-speculum-sel', nome:'Esame con speculum (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
+  {id:'prelievi', el:'gd-prelievi-btns', nome:'Prelievi eseguiti', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'bimanuale', el:'gd-bimanuale-sel', nome:'Esame bimanuale (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
+  {id:'ecografia', el:'gd-eco-sel', nome:'Referto ecografico (testi standard)', gruppo:'Visita ginecologica', tipo:'modelli', modello:'gineco'},
+  {id:'conclusioni', el:'gd-conclusioni-btns', nome:'Conclusioni', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'esamiRichiesti', el:'gd-esami-richiesti-btns', nome:'Esami richiesti', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'terapia', el:'gd-terapia-btns', nome:'Terapia', gruppo:'Visita ginecologica', tipo:'frasi', modello:'gineco'},
+  {id:'familiarita', el:'gd-famil-btns', nome:'Familiarità (pulsanti)', gruppo:'Visita ginecologica', tipo:'elenco', modello:'gineco'},
+  {id:'prMotivo', el:'pr-motivo-btns', nome:'Motivo della visita', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prEsameGenerale', el:'pr-esame-generale-btns', nome:'Esame obiettivo generale', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prIspezione', el:'pr-ispezione-sel', nome:'Ispezione perianale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prEsplorazione', el:'pr-esplorazione-sel', nome:'Esplorazione rettale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prAnoscopia', el:'pr-anoscopia-sel', nome:'Anoscopia (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prRettoscopia', el:'pr-rettoscopia-sel', nome:'Rettoscopia (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prEcografia', el:'pr-ecografia-sel', nome:'Ecografia endoanale (testi standard)', gruppo:'Visita proctologica', tipo:'modelli', modello:'proct'},
+  {id:'prConclusioni', el:'pr-conclusioni-btns', nome:'Conclusioni', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prEsamiRichiesti', el:'pr-esami-richiesti-btns', nome:'Esami richiesti', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prTerapia', el:'pr-terapia-btns', nome:'Terapia e indicazioni', gruppo:'Visita proctologica', tipo:'frasi', modello:'proct'},
+  {id:'prFamiliarita', el:'pr-famil-btns', nome:'Familiarità (pulsanti)', gruppo:'Visita proctologica', tipo:'elenco', modello:'proct'},
+  {id:'genMotivo', el:'gn-motivo-btns', nome:'Motivo della visita', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genEsame', el:'gn-esame-btns', nome:'Esame obiettivo', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genDiagnosi', el:'gn-diagnosi-btns', nome:'Diagnosi / conclusioni', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genEsamiRichiesti', el:'gn-esami-richiesti-btns', nome:'Esami richiesti', gruppo:'Visita', tipo:'frasi', modello:'base'},
+  {id:'genTerapia', el:'gn-terapia-btns', nome:'Terapia', gruppo:'Visita', tipo:'frasi', modello:'base'}
 ].filter(c=>c.modello===GS_MODELLO);
 const _FRASI_PREDEFINITE={}, _FRASI_BASE={};
 // Tendine "aggiungi testo" delle schede visita (opzioni con il testo completo
@@ -4713,7 +4713,31 @@ function _tendineCategorie(){
   });
   return _TENDINE;
 }
-function _frasiCategorie(){ return FRASI_CATEGORIE.concat(_tendineCategorie()); }
+// Dove compare ogni sezione nella scheda visita: nome della scheda (passo),
+// titolo del riquadro e ordine, così l'elenco segue la visita come la si vede.
+function _testoPasso(btn){
+  if(!btn) return '';
+  const n=btn.querySelector('.step-num'), c=btn.cloneNode(true);
+  c.querySelectorAll('.step-num').forEach(x=>x.remove());
+  return (n?n.textContent.trim()+' · ':'')+c.textContent.replace(/\s+/g,' ').trim();
+}
+let _frasiOrdinate=null;
+function _frasiCategorie(){
+  if(_frasiOrdinate) return _frasiOrdinate;
+  const tutte=FRASI_CATEGORIE.concat(_tendineCategorie());
+  tutte.forEach(c=>{
+    const el=c.sel || (c.el && document.getElementById(c.el));
+    c._el=el||null;
+    const pan=el && el.closest('.edit-panel');
+    c.passo=pan ? _testoPasso(document.querySelector(`.editor-nav-btn[onclick*="'${pan.id}'"]`)) : '';
+    const h4=el && el.closest('.section-card') && el.closest('.section-card').querySelector('h4');
+    if(h4){ const t=h4.cloneNode(true); t.querySelectorAll('button,span').forEach(x=>x.remove()); const n=t.textContent.replace(/\s*\(selezione multipla\)\s*$/i,'').replace(/\s+/g,' ').trim(); if(n) c.nome=n; }
+  });
+  return (_frasiOrdinate=tutte.slice().sort((x,y)=>{
+    if(!x._el || !y._el) return x._el ? -1 : y._el ? 1 : 0;
+    return x._el.compareDocumentPosition(y._el) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+  }));
+}
 function _tendinaApplica(c){
   const vuota=c.sel.querySelector('option:not([data-full])');
   c.sel.innerHTML='';
@@ -4755,8 +4779,8 @@ function _frasiInBozza(cat, valore){
 function renderFrasiPronte(forza){
   const sel=document.getElementById('frasi-cat'); if(!sel) return;
   if(!sel.options.length){
-    const cats=_frasiCategorie(), gruppi=[...new Set(cats.map(c=>c.gruppo))];
-    sel.innerHTML=gruppi.map(g=>`<optgroup label="${_escHtml(g)}">${cats.filter(c=>c.gruppo===g).map(c=>`<option value="${c.id}">${_escHtml(c.nome)}</option>`).join('')}</optgroup>`).join('');
+    const cats=_frasiCategorie(), etichetta=c=>c.gruppo+(c.passo?' — '+c.passo:''), gruppi=[...new Set(cats.map(etichetta))];
+    sel.innerHTML=gruppi.map(g=>`<optgroup label="${_escHtml(g)}">${cats.filter(c=>etichetta(c)===g).map(c=>`<option value="${c.id}">${_escHtml(c.nome)}</option>`).join('')}</optgroup>`).join('');
   }
   if(sel.value!==_frasiCat || forza){
     if(_frasiModificata && !forza && !confirm('Ci sono modifiche non salvate in questa sezione: andranno perse. Continuare?')){ sel.value=_frasiCat; return; }
@@ -4768,7 +4792,8 @@ function renderFrasiPronte(forza){
   const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
   const salvate=_frasiSalvate();
   document.getElementById('frasi-descr').innerHTML=
-    (cat.tipo==='frasi'?'Ogni voce è un <strong>pulsante</strong> nella scheda visita: il titolo è la scritta del pulsante, il testo è ciò che viene inserito.'
+    (cat.passo?'<span style="color:var(--label4)">'+_escHtml(cat.gruppo)+' › '+_escHtml(cat.passo)+'</span><br>':'')+
+    (cat.id.startsWith('opz_')?'Ogni voce è una <strong>voce della tendina</strong> di questo riquadro: il titolo è la voce, il testo è ciò che viene inserito.':cat.tipo==='frasi'?'Ogni voce è un <strong>pulsante</strong> nella scheda visita: il titolo è la scritta del pulsante, il testo è ciò che viene inserito.'
     :cat.tipo==='modelli'?'Ogni voce è un <strong>testo standard</strong> scelto dalla tendina della scheda visita (sostituisce il contenuto del campo).'
     :'Ogni voce è un <strong>pulsante</strong> che aggiunge la sua scritta al campo.')+
     (salvate[_frasiCat]!==undefined?' <span style="color:var(--primary);font-weight:600">· Personalizzata da te</span>':(gsPacchetto&&gsPacchetto.sezioni&&gsPacchetto.sezioni[_frasiCat]!==undefined?' <span style="color:var(--green);font-weight:600">· Testi del tuo studio</span>':' <span style="color:var(--label4)">· Predefinita</span>'));
