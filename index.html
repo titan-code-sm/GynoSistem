@@ -114,6 +114,17 @@ body.dark-mode{
   --l-bg1:#f3f4f6;--l-bg2:#e7eaed;--l-bg3:#dbe0e4;--l-acc1:#607d8b;--l-acc2:#78909c;--l-acc-rgb:96,125,139;
   --l-glow1:rgba(140,160,175,0.25);--l-glow2:rgba(160,170,180,0.18);--l-deep:#263238;--l-soft:#6b7c85;--l-ph:#a7b3ba;--l-btn2:#455a64;
 }
+/* Sfondo morbido, tinto col colore del tema (azzurrino col tema blu): meno
+   abbagliante del bianco pieno. Il tema scuro (body.dark-mode) ridefinisce
+   questi colori e non ne è toccato. */
+:root{
+  --bg:color-mix(in srgb, var(--primary) 8%, #edf2f7);
+  --surface:color-mix(in srgb, var(--primary) 3%, #fbfcfd);
+  --surface2:color-mix(in srgb, var(--primary) 6%, #f3f6f9);
+  --sidebar:color-mix(in srgb, var(--primary) 5%, #f7f9fb);
+  --sidebar2:color-mix(in srgb, var(--primary) 7%, #f1f5f9);
+  --separator:color-mix(in srgb, var(--primary) 12%, #e1e7ee);
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 body{font-family:var(--font);background:var(--bg);color:var(--label);display:flex;height:100vh;overflow:hidden;}
 ::-webkit-scrollbar{width:8px;height:8px}
