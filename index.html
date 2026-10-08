@@ -8695,24 +8695,21 @@ function salvaNote(){
   if(curPaz){DB.pazienti.find(x=>x.id===curPaz).note=document.getElementById('p-note').value;salvaDB();}
 }
 
-// Nota di sicurezza onesta: questa password è comunque presente nel codice sorgente
-// del file (chiunque apra l'HTML con "Visualizza sorgente" la può leggere). L'hash
-// qui sotto impedisce solo che compaia in chiaro a un'occhiata superficiale o in un
-// eventuale dump del database; non protegge da chi legge il codice della pagina.
-// Per una protezione reale servirebbe un controllo lato server (Firebase Auth + Cloud Functions).
-const DELETE_PAZ_PASS_HASH = "a50f1be1267a0efb40492d2ac7b85cda532885434385fc7a2dde9acddf978d36";
-
+// Conferma dell'eliminazione: il PIN di sblocco del medico (se impostato),
+// altrimenti il cognome della paziente scritto per intero. Nessuna password
+// comune a tutte le installazioni.
 async function eliminaPaziente(){
   const p=DB.pazienti.find(x=>x.id===curPaz);
   if(!p)return;
   if(!confirm(`Eliminare definitivamente ${p.cognome} ${p.nome}?\n\nQuesta operazione cancellerà anche tutte le visite e i promemoria associati. È irreversibile.`))return;
-  const pwd=prompt('Per confermare l\'eliminazione, digita la password:');
-  if(pwd===null)return;
-  const pwdHash=await sha256Hex(pwd);
-  if(pwdHash!==DELETE_PAZ_PASS_HASH){
-    if(typeof gsToast==='function')gsToast('Password errata, eliminazione annullata','gs-error');
-    else alert('Password errata, eliminazione annullata');
-    return;
+  if(typeof haPin==='function' && haPin()){
+    const pin=await chiediPasswordBackup('Conferma l\'eliminazione', `Inserisci il tuo PIN di sblocco per eliminare definitivamente ${p.cognome} ${p.nome}.`, false);
+    if(pin===null) return;
+    if(!(await verificaPin(pin))){ if(typeof gsToast==='function') gsToast('PIN errato, eliminazione annullata','gs-error'); return; }
+  } else {
+    const scritto=prompt(`Per confermare, scrivi il cognome della paziente: ${p.cognome}`);
+    if(scritto===null) return;
+    if(scritto.trim().toLowerCase()!==String(p.cognome||'').trim().toLowerCase()){ if(typeof gsToast==='function') gsToast('Cognome non corrispondente, eliminazione annullata','gs-error'); return; }
   }
   // Rimuove la paziente dal DB locale (dati clinici)
   DB.pazienti=DB.pazienti.filter(x=>x.id!==curPaz);
@@ -11343,12 +11340,15 @@ function pazFirmaCombinataEProsegui(){
   const titoloFirma = scelti.length===1 ? scelti[0].titolo : `${scelti.length} consensi informati`;
   apriFirmaElettronica(`${titoloFirma} — ${nome}`, (firmaDataUrl)=>{
     const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:firmaDataUrl, tutore:!!_firmatarioTutoreMap['cv-nome'] };
-    const hidden=document.getElementById(prefix+'-consenso-visita');
-    if(hidden) hidden.value=JSON.stringify(record);
-    _stampaConsensoVisitaCombinato(record);
-    if(typeof gsToast==='function') gsToast('✅ Consenso firmato — verrà archiviato con questa visita al salvataggio','gs-success');
+    // La scheda visita va aperta PRIMA di scrivere il consenso: aprendola si
+    // azzerano tutti i campi, compreso quello del consenso.
     const tipoDaAprire=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
     if(tipoDaAprire) startEditor(tipoDaAprire);
+    const hidden=document.getElementById(prefix+'-consenso-visita');
+    if(hidden) hidden.value=JSON.stringify(record);
+    const archiviato=_archiviaConsensoVisitaInCartella(record, tipo);
+    _stampaConsensoVisitaCombinato(record);
+    if(typeof gsToast==='function') gsToast(archiviato?'✅ Consenso firmato e salvato in «Consensi firmati» della paziente':'✅ Consenso firmato','gs-success');
   });
 }
 // Solo stampa su carta, senza passare dalla firma elettronica: stesso nome
@@ -11366,12 +11366,31 @@ function pazStampaSenzaFirma(){
   if(!scelti.length) return;
   closeModal('modal-consenso-visita');
   const record={ titoli:scelti.map(c=>c.titolo), testi:scelti.map(c=>c.testo), nome, data:new Date(dataIso+'T12:00:00').toISOString(), firma:'', tutore:!!_firmatarioTutoreMap['cv-nome'] };
-  const hidden=document.getElementById(prefix+'-consenso-visita');
-  if(hidden) hidden.value=JSON.stringify(record);
-  _stampaConsensoVisitaCombinato(record);
-  if(typeof gsToast==='function') gsToast('🖨️ Consenso stampato (firma cartacea) — archiviato con questa visita','gs-success');
   const tipoDaAprire=_consensoVisitaTipoPending; _consensoVisitaTipoPending=null;
   if(tipoDaAprire) startEditor(tipoDaAprire);
+  const hidden=document.getElementById(prefix+'-consenso-visita');
+  if(hidden) hidden.value=JSON.stringify(record);
+  _archiviaConsensoVisitaInCartella(record, tipo);
+  _stampaConsensoVisitaCombinato(record);
+  if(typeof gsToast==='function') gsToast('🖨️ Consenso stampato per la firma su carta — registrato in «Consensi firmati»','gs-success');
+}
+// Archivia subito nella cartella della paziente il consenso scelto a inizio
+// (o durante) una visita: così resta anche se la visita non viene salvata e
+// compare in «Consensi firmati». Lo stesso record resta anche nella visita.
+function _archiviaConsensoVisitaInCartella(record, tipo){
+  const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
+  if(!p) return false;
+  if(!p.consensiFirmati) p.consensiFirmati=[];
+  p.consensiFirmati.push({
+    titolo: record.titoli.join(' + '),
+    testo: record.testi.map(t=>_risolviTestoConsenso(t, record.nome, record.tutore)).join('\n\n'),
+    titoli: record.titoli, testi: record.testi,
+    nome: record.nome, firma: record.firma, data: record.data, tutore: !!record.tutore,
+    origine: 'visita', tipoVisita: tipo || ''
+  });
+  salvaDB();
+  renderConsensiFirmati();
+  return true;
 }
 function pazRistampaConsensoVisita(){
   const tipo=_consensoVisitaTipoPending || curMode;
@@ -11927,6 +11946,15 @@ async function renderConsensiFirmati(){
   if(!p){ lista.innerHTML=''; if(badge) badge.textContent=''; return; }
   if(nomeEl) nomeEl.textContent = `${p.cognome} ${p.nome}`;
   const firmati = (p.consensiFirmati||[]).map((f,i)=>({...f,_tipo:'digitale',_i:i}));
+  const chiave = r => (r.data||'')+'|'+(r.nome||'')+'|'+((r.titoli||[r.titolo]).join('+'));
+  const gia = new Set(firmati.map(chiave));
+  (p.visite||[]).forEach(v=>{
+    const d=v.gynoData||v.obData||v.ecoData||v.genData||v.prData||{};
+    let r=null; try{ r=d['consenso-visita'] ? JSON.parse(d['consenso-visita']) : null; }catch(e){}
+    if(!r || !Array.isArray(r.titoli) || !r.titoli.length || gia.has(chiave(r))) return;
+    gia.add(chiave(r));
+    firmati.push({ ...r, titolo:r.titoli.join(' + '), _tipo:'visita', _vid:v.id });
+  });
   const cartacei = (await leggiConsensiCartacei(p.id)).map(f=>({...f,_tipo:'pdf'}));
   const tutti=[...firmati, ...cartacei].sort((a,b)=>new Date(b.data||b.dataFirma)-new Date(a.data||a.dataFirma));
   if(badge) badge.textContent=tutti.length||'';
@@ -11954,19 +11982,27 @@ async function renderConsensiFirmati(){
       </div>`;
     }
     const dStr=new Date(f.data).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    const riapri = f._tipo==='visita' ? `_riapriConsensoDiVisita(${JSON.stringify(f._vid).replace(/"/g,'&quot;')})` : `_riapriConsensoFirmato(${f._i})`;
     return `<div style="display:flex;align-items:center;gap:12px;border:1px solid var(--separator);border-radius:10px;padding:10px 14px;margin-bottom:8px;">
-      <img src="${f.firma}" style="height:32px;background:#fff;border-radius:4px;flex-shrink:0;">
+      ${f.firma ? `<img src="${f.firma}" style="height:32px;background:#fff;border-radius:4px;flex-shrink:0;">` : '<span style="font-size:1.4rem;flex-shrink:0;">🖨️</span>'}
       <div style="flex:1;">
-        <div style="font-weight:600;font-size:.86rem;">${_escHtml(f.titolo)}</div>
-        <div style="font-size:.74rem;color:var(--label4);">Firmato il ${dStr}</div>
+        <div style="font-weight:600;font-size:.86rem;">${_escHtml(f.titolo)}${f.origine==='visita'||f._tipo==='visita'?' <span class="badge badge-gray" style="font-size:.6rem;vertical-align:middle;">in visita</span>':''}</div>
+        <div style="font-size:.74rem;color:var(--label4);">${f.firma?'Firmato':'Stampato per la firma su carta'} il ${dStr}${f.nome?' · '+_escHtml(f.nome):''}</div>
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="_riapriConsensoFirmato(${f._i})">🖨️ Riapri</button>
+      <button class="btn btn-ghost btn-sm" onclick="${riapri}">🖨️ Riapri</button>
     </div>`;
   }).join('');
+}
+function _riapriConsensoDiVisita(vid){
+  const p=DB.pazienti.find(x=>x.id===curPaz); if(!p) return;
+  const v=(p.visite||[]).find(x=>x.id===vid); if(!v) return;
+  const d=v.gynoData||v.obData||v.ecoData||v.genData||v.prData||{};
+  try{ const r=JSON.parse(d['consenso-visita']); if(r) _stampaConsensoVisitaCombinato(r); }catch(e){}
 }
 function _riapriConsensoFirmato(idx){
   const p=DB.pazienti.find(x=>x.id===curPaz); if(!p) return;
   const f=(p.consensiFirmati||[])[idx]; if(!f) return;
+  if(Array.isArray(f.titoli) && Array.isArray(f.testi)){ _stampaConsensoVisitaCombinato(f); return; } // firmato in visita: foglio unico
   const c=getPrintCfg(); const l=c.layout;
   const nome=f.nome || `${p.cognome} ${p.nome}`;
   const nascita=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'____________';
