@@ -6873,7 +6873,9 @@ function bloccaApp(){
   document.getElementById('blocco-err').textContent='';
   document.getElementById('blocco-pin').value='';
   _bloccoAggiornaTesti();
-  document.getElementById('blocco-overlay').style.display='flex';
+  const bo=document.getElementById('blocco-overlay');
+  if(bo.parentElement!==document.body) document.body.appendChild(bo); // sopra tutto, sempre centrato
+  bo.style.display='flex';
   setTimeout(()=>document.getElementById('blocco-pin').focus(),60);
 }
 async function sbloccaApp(){
@@ -7440,6 +7442,8 @@ async function caricaDatiLocaliUtente(uid){
 
 // ── ARCHIVIO NON APRIBILE (app desktop) ──
 function mostraArchivioErrore(e){
+  const ov=document.getElementById('archivio-errore');
+  if(ov.parentElement!==document.body) document.body.appendChild(ov); // sopra tutto, sempre centrato
   document.getElementById('archivio-errore-motivo').textContent='Motivo: '+((e && e.message) || e || 'sconosciuto');
   document.getElementById('archivio-errore').style.display='flex';
 }
