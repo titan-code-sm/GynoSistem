@@ -4758,6 +4758,38 @@ function _tendinaApplica(c){
 function _frasiChiave(){ return 'gs_frasi_'+(gsCurrentUser?gsCurrentUser.uid:'anon'); }
 function _frasiSalvate(){ try{ return JSON.parse(localStorage.getItem(_frasiChiave()))||{}; }catch(e){ return {}; } }
 const _frasiClona=v=>JSON.parse(JSON.stringify(v));
+// Copia sull'account (utenti/{uid}: frasiPersonalizzate come JSON, perché le
+// chiavi possono essere vuote o contenere punti, e frasiAggiornate): le frasi
+// seguono il medico su ogni PC e non si perdono con i dati del dispositivo.
+function _frasiAggChiave(){ return 'gs_frasi_agg_'+(gsCurrentUser?gsCurrentUser.uid:'anon'); }
+function _frasiScrivi(salvate){
+  const agg=new Date().toISOString();
+  localStorage.setItem(_frasiChiave(), JSON.stringify(salvate));
+  try{ localStorage.setItem(_frasiAggChiave(), agg); }catch(e){}
+  _frasiInviaAccount(salvate, agg);
+}
+function _frasiInviaAccount(salvate, agg){
+  if(!gsDb || !gsCurrentUser || GS_SITO_DEMO) return;
+  gsDb.collection('utenti').doc(gsCurrentUser.uid).update({ frasiPersonalizzate: JSON.stringify(salvate), frasiAggiornate: agg })
+    .catch(e=>console.warn('Frasi pronte non salvate sull\'account (restano su questo PC):', e.message));
+}
+// All'accesso tiene la versione più recente tra quella dell'account e quella
+// di questo PC; le frasi salvate solo in locale (versioni precedenti) vengono
+// caricate sull'account.
+function sincronizzaFrasiAccount(d){
+  try{
+    const locAgg=localStorage.getItem(_frasiAggChiave())||'', accAgg=(d && d.frasiAggiornate)||'';
+    if(d && typeof d.frasiPersonalizzate==='string' && accAgg>=locAgg){
+      const acc=JSON.parse(d.frasiPersonalizzate);
+      localStorage.setItem(_frasiChiave(), JSON.stringify(acc));
+      localStorage.setItem(_frasiAggChiave(), accAgg);
+    }else if(localStorage.getItem(_frasiChiave())){
+      const agg=locAgg||new Date().toISOString();
+      localStorage.setItem(_frasiAggChiave(), agg);
+      _frasiInviaAccount(_frasiSalvate(), agg);
+    }
+  }catch(e){ console.warn('Sincronizzazione frasi pronte:', e.message); }
+}
 // All'accesso (dopo i contenuti dello studio): ricorda i testi predefiniti e
 // applica quelli personalizzati dall'operatore.
 function applicaFrasiPersonalizzate(){
@@ -4835,7 +4867,7 @@ function frasiSalva(){
   if(cat.tipo==='elenco') valore=voci.map(f=>f.titolo);
   else{ valore=cat.tipo==='modelli'?{'':''}:{}; voci.forEach(f=>{ valore[f.titolo]=f.testo; }); }
   const salvate=_frasiSalvate(); salvate[cat.id]=valore;
-  try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){ alert('Salvataggio non riuscito.'); return; }
+  try{ _frasiScrivi(salvate); }catch(e){ alert('Salvataggio non riuscito.'); return; }
   GD[cat.id]=_frasiClona(valore);
   if(cat.sel) _tendinaApplica(cat);
   segnalaSezioniPersonalizzate();
@@ -4848,7 +4880,7 @@ function frasiRipristina(){
   const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
   if(!confirm(`Ripristinare le frasi predefinite di «${cat.nome}»? Le tue modifiche a questa sezione verranno perse.`)) return;
   const salvate=_frasiSalvate(); delete salvate[cat.id];
-  try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){}
+  try{ _frasiScrivi(salvate); }catch(e){}
   GD[cat.id]=_frasiClona(_FRASI_PREDEFINITE[cat.id]);
   if(cat.sel) _tendinaApplica(cat);
   segnalaSezioniPersonalizzate();
@@ -7054,14 +7086,23 @@ function _controllaLicenza(d, user){
   }
   return {};
 }
+// Senza profilo leggibile (rete assente, Firestore non pronto) l'accesso resta
+// aperto: applica comunque i testi dello studio e le frasi pronte salvate su
+// questo PC, altrimenti il medico si ritrova quelle predefinite.
+async function _applicaContenutiSenzaProfilo(uid){
+  await caricaPacchetto(uid);
+  applicaFrasiPersonalizzate();
+  _applicaPreferenzeProfilo(null, uid);
+}
 async function handleUserProfile(user){
-  if(!gsDb) return {ok:true, mustChange:false}; // se Firestore non è pronto, non blocchiamo l'accesso
+  if(!gsDb){ await _applicaContenutiSenzaProfilo(user.uid); return {ok:true, mustChange:false}; } // se Firestore non è pronto, non blocchiamo l'accesso
   const ref = gsDb.collection('utenti').doc(user.uid);
   let snap;
   try{
     snap = await ref.get();
   }catch(e){
     console.warn('Errore lettura profilo utente:', e);
+    await _applicaContenutiSenzaProfilo(user.uid);
     return {ok:true, mustChange:false}; // fail-open: un problema di rete non deve bloccare chi è già autorizzato
   }
 
@@ -7095,6 +7136,7 @@ async function handleUserProfile(user){
     try{ await ref.update({ ultimoAccesso: new Date().toISOString() }); }catch(e){}
   }
   await caricaPacchetto(user.uid);
+  sincronizzaFrasiAccount(snap.data());
   applicaFrasiPersonalizzate();
   segnalaSezioniPersonalizzate();
   _applicaPreferenzeProfilo(snap.exists ? snap.data() : null, user.uid);
@@ -13542,6 +13584,8 @@ async function restoreData(input){
     if(backup.preferenze){
       const uid=gsCurrentUser?gsCurrentUser.uid:'anon';
       Object.entries(backup.preferenze).forEach(([k,v])=>{ try{ localStorage.setItem(k.split('{UID}').join(uid), v); }catch(e){} });
+      // Le frasi del backup prevalgono su quelle dell'account al prossimo accesso
+      if(backup.preferenze['gs_frasi_{UID}']!==undefined) try{ localStorage.setItem('gs_frasi_agg_'+uid, new Date().toISOString()); }catch(e){}
     }
     registraLog('backup','Dati importati da un backup');
     await salvaDBSubito();
