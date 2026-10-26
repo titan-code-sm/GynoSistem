@@ -2,7 +2,7 @@
  * MED System — Cloud Functions
  *
  * Firebase è usato SOLO per gli account: nessun dato clinico, nessuna
- * anagrafica, nessun appuntamento passa da qui. Due funzioni:
+ * anagrafica, nessun appuntamento passa da qui. Tre funzioni:
  *
  *  - portaleUtenti: gestione degli account dal portale dell'amministratore
  *    (elenco, creazione, blocco/sblocco, password provvisoria, eliminazione).
@@ -13,6 +13,8 @@
  *    dell'app. Non conserva nulla: l'archivio delle email inviate resta
  *    nell'app, sul PC. Su Firestore rimane solo un contatore giornaliero
  *    (numero di email inviate, nessun indirizzo né testo) per il limite anti-abuso.
+ *  - pacchettoMedico: le modifiche ai testi (frasi pronte, consensi, schemi)
+ *    che il medico salva nell'app entrano nel suo pacchetto studio.
  */
 
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
@@ -102,6 +104,43 @@ async function eliminaPacchetto(uid, da) {
 }
 
 // ═══════════════════════════════════════════════════════════
+//  PACCHETTO DEL MEDICO (dall'app, per il proprio account)
+// ═══════════════════════════════════════════════════════════
+// Quando il medico salva frasi pronte, consensi o schemi di prescrizione
+// nell'app, la modifica entra nel suo pacchetto: l'amministratore la ritrova
+// nel portale (con la versione precedente tra le versioni) e il medico su
+// ogni PC. Riceve una sola modifica alla volta:
+//   { tipo:"sezione", id, valore }  |  { tipo:"consensi"|"schemi", valore }
+// valore null toglie quella parte dal pacchetto (tornano i testi del programma).
+exports.pacchettoMedico = onCall({ region: REGIONE, timeoutSeconds: 30, memory: "256MiB" }, async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Accesso richiesto.");
+  const uid = request.auth.uid;
+  const profilo = await db.collection("utenti").doc(uid).get();
+  if (!profilo.exists || profilo.data().attivo === false) throw new HttpsError("permission-denied", "Account non abilitato.");
+  const d = request.data || {};
+  const ref = db.collection("pacchetti").doc(uid);
+  const doc = await ref.get();
+  const attuale = doc.exists ? doc.data() : {};
+  const p = { nome: attuale.nome || "", sezioni: { ...(attuale.sezioni || {}) } };
+  if (attuale.consensi) p.consensi = attuale.consensi;
+  if (attuale.schemi) p.schemi = attuale.schemi;
+  if (d.tipo === "sezione") {
+    if (typeof d.id !== "string" || !/^[\w-]{1,60}$/.test(d.id)) throw new HttpsError("invalid-argument", "Sezione non valida.");
+    if (d.valore === null) delete p.sezioni[d.id];
+    else p.sezioni[d.id] = d.valore;
+  } else if (d.tipo === "consensi" || d.tipo === "schemi") {
+    if (d.valore === null) delete p[d.tipo];
+    else p[d.tipo] = d.valore;
+  } else {
+    throw new HttpsError("invalid-argument", "Modifica non riconosciuta.");
+  }
+  const pulito = pulisciPacchetto(p);
+  if (d.tipo === "sezione" && d.valore !== null && pulito.sezioni[d.id] === undefined) throw new HttpsError("invalid-argument", "Testi della sezione non validi.");
+  await salvaPacchetto(uid, pulito, request.auth.token.email || uid);
+  return { pacchetto: (await ref.get()).data() };
+});
+
+// ═══════════════════════════════════════════════════════════
 //  PORTALE UTENTI (solo amministratore)
 // ═══════════════════════════════════════════════════════════
 exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "256MiB" }, async (request) => {
@@ -118,7 +157,7 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     const [lista, docs, pacc] = await Promise.all([auth.listUsers(1000), db.collection("utenti").get(), db.collection("pacchetti").get()]);
     const profili = {}, pacchetti = {};
     docs.forEach((doc) => { profili[doc.id] = doc.data(); });
-    pacc.forEach((doc) => { const d = doc.data(); pacchetti[doc.id] = { nome: d.nome || "", aggiornato: d.aggiornato || "" }; });
+    pacc.forEach((doc) => { const d = doc.data(); pacchetti[doc.id] = { nome: d.nome || "", aggiornato: d.aggiornato || "", da: d.da || "" }; });
     return {
       utenti: lista.users.map((u) => {
         const p = profili[u.uid] || {};
