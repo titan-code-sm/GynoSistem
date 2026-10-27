@@ -191,6 +191,12 @@ aside{width:248px;background:linear-gradient(180deg,var(--primary-dim) 0,transpa
 .brand-avatar{width:40px;height:40px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:0.95rem;color:#fff;flex-shrink:0;}
 .brand-name{color:var(--label);font-weight:600;font-size:0.9rem;line-height:1.3;}
 .brand-role{color:var(--label4);font-size:0.74rem;}
+.brand-piano{display:none;margin-top:4px;white-space:nowrap;padding:1px 7px;border:none;border-radius:6px;font-family:var(--font);font-size:0.68rem;font-weight:600;cursor:pointer;background:var(--primary-dim);color:var(--primary);}
+.brand-piano.avviso{background:var(--orange-dim);color:#b45309;}
+.brand-piano.scaduto{background:var(--red-dim);color:#b91c1c;}
+.abb-righe{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-size:.88rem;}
+.abb-righe dt{color:var(--label4);}
+.abb-righe dd{margin:0;color:var(--label);font-weight:500;}
 
 nav{padding:12px 10px;flex:1;overflow-y:auto;}
 .nav-group{margin-bottom:20px;}
@@ -1047,6 +1053,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div>
       <div class="brand-name" id="sidebar-brand-name"></div>
       <div class="brand-role">Ginecologia · Ostetricia</div>
+      <button class="brand-piano" id="sidebar-piano" onclick="apriAbbonamento()" title="Dettagli dell'abbonamento"></button>
     </div>
   </div>
 
@@ -1097,6 +1104,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <span class="oi" id="dark-mode-icon">🌙</span><span id="dark-mode-label">Modalità scura</span>
       </button>
       <div class="opts-divider"></div>
+      <button class="opts-item" onclick="apriAbbonamento();closeOpts()">
+        <span class="oi">💳</span>Il mio abbonamento
+      </button>
       <button class="opts-item" onclick="mostraLogAttivita();closeOpts()">
         <span class="oi">📜</span>Registro Attività
       </button>
@@ -2236,6 +2246,10 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
   </div>
 
   <div id="set-tab-profilo" class="edit-panel active">
+  <div class="card" id="set-abbonamento-card" style="max-width:720px;margin-bottom:16px;">
+    <div class="card-header"><div><div class="card-title">💳 Il tuo abbonamento</div><div class="card-subtitle">Piano attivo, scadenza e pagamenti registrati per il tuo account</div></div></div>
+    <div id="set-abbonamento"></div>
+  </div>
   <div class="card" style="max-width:720px;margin-bottom:16px;">
     <div class="card-header"><div><div class="card-title">🎨 Tema</div><div class="card-subtitle">Colore dell'app e della schermata di accesso per il tuo account</div></div></div>
     <div id="set-temi" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
@@ -7075,6 +7089,76 @@ function _controllaLicenza(d, user){
   }
   return {};
 }
+// Abbonamento mostrato sotto il nome nella sidebar e in Impostazioni → Profilo.
+// I dati arrivano dal profilo utenti/{uid} (impostati dal portale); l'ultima
+// copia resta su questo PC per mostrarla anche senza rete.
+const GS_PIANI_NOME={prova:'Prova gratuita',gratis:'Gratuito',mensile:'Mensile',annuale:'Annuale',vita:'A vita'};
+let gsAbbonamento=null;
+function _dataIt(iso){ return new Date(iso+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}); }
+function _statoAbbonamento(a){
+  if(!a) return null;
+  if(a.admin) return {etichetta:'Amministratore', classe:'', testo:'Account amministratore, senza scadenza'};
+  if(!a.piano) return null;
+  const nome = GS_PIANI_NOME[a.piano] || a.piano;
+  if(!_PIANI_CON_SCADENZA.includes(a.piano) || !a.scadenza)
+    return {etichetta:nome, classe:'', testo:'Attivo, senza scadenza', badge:'badge-green'};
+  const oggi=new Date().toISOString().slice(0,10);
+  const giorni=Math.round((new Date(a.scadenza)-new Date(oggi))/86400000);
+  if(giorni<0) return {etichetta:nome+' · scaduto', classe:'scaduto', testo:'Scaduto il '+_dataIt(a.scadenza), badge:'badge-red', giorni};
+  const tra = giorni===0 ? 'oggi' : 'tra '+giorni+' giorn'+(giorni===1?'o':'i');
+  const breve = new Date(a.scadenza+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'numeric',year:'2-digit'});
+  return {etichetta:nome+' · fino al '+breve, classe:giorni<=10?'avviso':'', testo:'Attivo, scade '+tra, badge:giorni<=10?'badge-orange':'badge-green', giorni};
+}
+function applicaAbbonamento(d, user){
+  const chiave = user ? 'gs_abbonamento_'+user.uid : null;
+  if(d){
+    gsAbbonamento = {
+      admin: !!(user && user.email===ADMIN_EMAIL),
+      piano: d.piano || '', modello: d.modello || '', scadenza: d.scadenza || '',
+      pagamenti: Array.isArray(d.pagamenti) ? d.pagamenti.map(p=>({data:p.data||'', importo:p.importo, fattura:p.fattura||''})) : [],
+    };
+    try{ if(chiave) localStorage.setItem(chiave, JSON.stringify(gsAbbonamento)); }catch(e){}
+  }else if(user){
+    try{ gsAbbonamento = JSON.parse(localStorage.getItem(chiave)) || null; }catch(e){ gsAbbonamento=null; }
+  }else gsAbbonamento = null;
+  const el=document.getElementById('sidebar-piano');
+  if(el){
+    const st=_statoAbbonamento(gsAbbonamento);
+    el.style.display = st ? 'inline-block' : 'none';
+    el.textContent = st ? st.etichetta : '';
+    el.className = 'brand-piano' + (st && st.classe ? ' '+st.classe : '');
+  }
+  renderAbbonamento();
+}
+function renderAbbonamento(){
+  const box=document.getElementById('set-abbonamento'); if(!box) return;
+  const a=gsAbbonamento, st=_statoAbbonamento(a);
+  if(!st){ box.innerHTML='<div style="color:var(--label4);font-size:.88rem">Nessun abbonamento registrato per questo account. Per informazioni contatta l\'amministratore.</div>'; return; }
+  const m = a.modello && GS_MODELLI[a.modello];
+  const righe = [
+    ['Piano', _escHtml(a.admin ? 'Amministratore' : (GS_PIANI_NOME[a.piano]||a.piano))],
+    ['Stato', `<span class="badge ${st.badge||'badge-blue'}">${_escHtml(st.testo)}</span>`],
+    ['Scadenza', a.scadenza && _PIANI_CON_SCADENZA.includes(a.piano) ? _escHtml(_dataIt(a.scadenza)) : 'Nessuna'],
+  ];
+  if(m) righe.push(['Versione abilitata', _escHtml('MED System' + (m.specialita ? ' '+m.specialita : ''))]);
+  let html = '<dl class="abb-righe">' + righe.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>';
+  const pag = (a.pagamenti||[]).filter(p=>p.data).sort((x,y)=>y.data.localeCompare(x.data));
+  if(pag.length){
+    html += '<div style="margin-top:16px;font-size:.8rem;font-weight:600;color:var(--label3)">Pagamenti registrati</div><table style="width:100%;margin-top:6px;font-size:.84rem;border-collapse:collapse">'
+      + pag.map(p=>`<tr style="border-top:1px solid var(--separator)"><td style="padding:6px 0">${_escHtml(_dataIt(p.data))}</td><td style="padding:6px 0;text-align:right">${typeof p.importo==='number' ? p.importo.toLocaleString('it-IT',{style:'currency',currency:'EUR'}) : ''}</td><td style="padding:6px 0 6px 12px;color:var(--label4)">${p.fattura ? 'Fattura '+_escHtml(p.fattura) : ''}</td></tr>`).join('')
+      + '</table>';
+  }
+  if(!a.admin && st.giorni!=null && st.giorni<=30) html += '<div style="margin-top:14px;font-size:.84rem;color:var(--label3)">Per rinnovare contatta l\'amministratore.</div>';
+  box.innerHTML = html;
+}
+function apriAbbonamento(){
+  naviga('impostazioni');
+  const pill=document.querySelector('#sec-impostazioni .tipo-pill');
+  if(pill) setSettingsTab(pill,'set-tab-profilo');
+  renderAbbonamento();
+  const c=document.getElementById('set-abbonamento-card');
+  if(c) setTimeout(()=>c.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
 // Senza profilo leggibile (rete assente, Firestore non pronto) l'accesso resta
 // aperto: applica comunque i testi dello studio e le frasi pronte salvate su
 // questo PC, altrimenti il medico si ritrova quelle predefinite.
@@ -7082,6 +7166,7 @@ async function _applicaContenutiSenzaProfilo(uid){
   await caricaPacchetto(uid);
   applicaFrasiPersonalizzate();
   _applicaPreferenzeProfilo(null, uid);
+  applicaAbbonamento(null, gsCurrentUser);
 }
 async function handleUserProfile(user){
   if(!gsDb){ await _applicaContenutiSenzaProfilo(user.uid); return {ok:true, mustChange:false}; } // se Firestore non è pronto, non blocchiamo l'accesso
@@ -7129,6 +7214,7 @@ async function handleUserProfile(user){
   sincronizzaModificheLocali(); // modifiche fatte senza rete (o con versioni precedenti) → pacchetto
   segnalaSezioniPersonalizzate();
   _applicaPreferenzeProfilo(snap.exists ? snap.data() : null, user.uid);
+  applicaAbbonamento(snap.data(), user);
   applyNomeMedico(nome);
   gsDemoMode = demoMode;
 
@@ -7144,6 +7230,7 @@ async function handleUserProfile(user){
       gsAuth.signOut();
     }else{
       _applicaPreferenzeProfilo(d, gsCurrentUser.uid);
+      applicaAbbonamento(d, gsCurrentUser);
       if(d.nome) applyNomeMedico(d.nome);
     }
   });
@@ -14016,6 +14103,7 @@ function initFirebase() {
       }else{
         gsCurrentUser=null;
         if(gsUnsubUtente){ gsUnsubUtente(); gsUnsubUtente=null; }
+        applicaAbbonamento(null, null);
         GS_APPTS=[];
         gsDemoMode=false;
         mostraBannerDemo(false);
