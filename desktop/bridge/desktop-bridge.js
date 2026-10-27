@@ -255,6 +255,22 @@
     });
     return { closed:false, close(){}, focus(){} };
   };
+  // Link <a target="_blank"> (es. «Documento ufficiale SIEOG (PDF)» nei
+  // consensi): la finestra dell'app non apre nuove finestre, quindi il clic
+  // non faceva nulla. I file inclusi nell'app (consensi-pdf/…) si aprono nel
+  // pannello interno, anche senza internet; i siti nel browser di Windows.
+  document.addEventListener('click', e=>{
+    const a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if(!a || a.hasAttribute('download')) return;
+    const href = (a.getAttribute('href')||'').trim();
+    if(!href || href[0]==='#' || /^javascript:/i.test(href)) return;
+    const web = /^(https?|mailto|tel):/i.test(href);
+    if(!web && a.target!=='_blank') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(web) window.open(href);
+    else apriPannello(new URL(href, location.href).href, a.textContent.replace(/^\W+/, '').trim());
+  }, true);
   window.gsApriBlob = function(blob){
     const url = URL.createObjectURL(blob);
     apriPannello(url, 'Allegato');
