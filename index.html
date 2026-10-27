@@ -1667,25 +1667,13 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div><div class="page-title">Email</div><div class="page-subtitle">Scrivi e invia email alle pazienti, singolarmente o in gruppo</div></div>
   </div>
 
-  <details class="card" style="margin-bottom:20px;">
-    <summary style="cursor:pointer;font-weight:700;font-size:.92rem;color:var(--label);list-style:none;display:flex;align-items:center;gap:8px;">
-      <span style="font-size:1.1rem;">📖</span> Come collegare la tua email (da fare una sola volta)
-    </summary>
-    <div style="margin-top:14px;font-size:.85rem;line-height:1.7;color:var(--label3);">
-      <p style="margin-bottom:10px;">L'invio vero e proprio parte da un tuo account Gmail collegato all'app. Serve un piccolo setup, una volta sola, fatto dal computer (non da qui):</p>
-      <ol style="margin:0 0 10px 20px;padding:0;">
-        <li><strong>Crea una "Password per le app" Google</strong> — vai su <em>myaccount.google.com → Sicurezza → Verifica in due passaggi</em> (attivala se non è già attiva) <em>→ Password per le app</em>, crea una nuova password (16 caratteri). Non è la tua password normale: usala solo qui.</li>
-        <li><strong>Apri un terminale</strong> nella cartella del progetto e lancia, una alla volta:
-          <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;margin:6px 0;font-family:monospace;font-size:.78rem;white-space:pre-wrap;">firebase functions:secrets:set EMAIL_USER
-firebase functions:secrets:set EMAIL_PASS
-firebase deploy --only functions:inviaEmail,firestore:rules</div>
-          Per <code>EMAIL_USER</code> inserisci il tuo indirizzo Gmail; per <code>EMAIL_PASS</code> incolla la password per le app generata al punto 1 (16 caratteri, mai la password vera).
-        </li>
-        <li>Fatto! Da quel momento "Invia Email" funziona davvero, e le email arriveranno a nome del tuo indirizzo.</li>
-      </ol>
-      <p style="color:var(--label4);font-size:.78rem;">Finché non completi questi passaggi, questa pagina resta comunque utilizzabile per scrivere/organizzare le email, ma "Invia" darà un errore leggibile invece di partire davvero.</p>
-    </div>
-  </details>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-header"><div><div class="card-title">✉️ Mittente e risposte</div><div class="card-subtitle">Le email partono dal servizio email di MED System con il tuo nome. In fondo a ogni email l'app aggiunge i tuoi dati e l'indirizzo a cui le pazienti devono rispondere.</div></div></div>
+    <div class="form-group" style="max-width:420px;margin-bottom:12px;"><label class="form-label">Email per le risposte delle pazienti</label>
+      <div style="display:flex;gap:8px;"><input id="email-rispondi" type="email" placeholder="es. studio@esempio.it"><button type="button" class="btn btn-primary btn-sm" onclick="salvaEmailRisposte()">💾 Salva</button></div></div>
+    <div style="font-size:.78rem;color:var(--label4);margin-bottom:6px;">Anteprima della parte finale di ogni email (i dati vengono dall'intestazione delle stampe, in Impostazioni):</div>
+    <div id="email-firma-anteprima" style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:.8rem;white-space:pre-wrap;color:var(--label3);"></div>
+  </div>
 
   <div class="tipo-pills" id="email-tab-toggle" style="margin-bottom:20px;">
     <button type="button" class="tipo-pill active" data-etab="nuova" onclick="_emailSwitchTab('nuova')">✏️ Nuova Email</button>
@@ -1715,7 +1703,7 @@ firebase deploy --only functions:inviaEmail,firestore:rules</div>
       <div class="card-header"><div><div class="card-title">✏️ Messaggio</div></div></div>
       <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Oggetto</label><input id="email-oggetto" placeholder="Oggetto dell'email"></div>
       <div class="form-group"><label class="form-label">Testo</label><textarea id="email-corpo" rows="10" placeholder="Scrivi qui il messaggio... usa {{NOME}} per inserire automaticamente il nome di ciascuna paziente."></textarea></div>
-      <div style="font-size:.74rem;color:var(--label4);margin-top:8px;">💡 <strong>{{NOME}}</strong> viene sostituito con il nome di ciascuna destinataria. ⚠️ Non includere dati clinici o diagnosi in questa email: è pensata per comunicazioni amministrative (appuntamenti, richiami, avvisi) e resta archiviata nel tuo account online.</div>
+      <div style="font-size:.74rem;color:var(--label4);margin-top:8px;">💡 <strong>{{NOME}}</strong> viene sostituito con il nome di ciascuna destinataria. ⚠️ Non includere dati clinici o diagnosi in questa email: è pensata per comunicazioni amministrative (appuntamenti, richiami, avvisi) e una copia resta nella casella del servizio email di MED System.</div>
     </div>
 
     <button class="btn btn-primary" id="email-invia-btn" onclick="inviaEmailComposta()">📤 Invia Email</button>
@@ -11705,6 +11693,31 @@ function getPromemoriaEmail(){
   try{ return Object.assign({}, PROM_EMAIL_DEFAULT, JSON.parse(localStorage.getItem(_promEmailChiave()))||{}); }
   catch(e){ return Object.assign({}, PROM_EMAIL_DEFAULT); }
 }
+// Mittente delle email: nome e dati del medico (dall'intestazione delle stampe)
+// e l'indirizzo a cui la paziente deve rispondere (scelto dal medico).
+function _emailRisposteChiave(){ return 'gs_email_risposte_' + (gsCurrentUser ? gsCurrentUser.uid : 'anon'); }
+function getEmailRisposte(){
+  let v=''; try{ v=localStorage.getItem(_emailRisposteChiave())||''; }catch(e){}
+  return v || (gsCurrentUser && gsCurrentUser.email) || '';
+}
+function _emailMittente(){
+  const i=getPrintCfg().intestazione||{};
+  const firma=[i.nome, i.spec, i.indirizzo, i.contatti].map(x=>String(x||'').trim()).filter(Boolean).join('\n');
+  return { nome:(i.nome||gsUserNome||'').trim(), firma, rispondiA:getEmailRisposte() };
+}
+function _renderEmailMittente(){
+  const inp=document.getElementById('email-rispondi'); if(!inp) return;
+  inp.value=getEmailRisposte();
+  const m=_emailMittente();
+  document.getElementById('email-firma-anteprima').textContent=(m.firma?'--\n'+m.firma+'\n\n':'')+'Per rispondere scrivere a: '+(m.rispondiA||'—')+'\n(Questo indirizzo serve solo per l\'invio e non legge le risposte.)';
+}
+function salvaEmailRisposte(){
+  const v=(document.getElementById('email-rispondi').value||'').trim();
+  if(v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){ if(typeof gsToast==='function') gsToast('Indirizzo email non valido','gs-error'); return; }
+  try{ v?localStorage.setItem(_emailRisposteChiave(), v):localStorage.removeItem(_emailRisposteChiave()); }catch(e){}
+  _renderEmailMittente();
+  if(typeof gsToast==='function') gsToast('✅ Email per le risposte salvata','gs-success');
+}
 function _renderPromemoriaEmail(){
   const c=getPromemoriaEmail();
   document.getElementById('prom-email-attivo').checked=!!c.attivo;
@@ -11743,7 +11756,7 @@ async function inviaPromemoriaAppuntamenti(avvisa){
       const dataStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
       const sost=t=>t.split('{{DATA}}').join(dataStr).split('{{ORA}}').join(a.ora||'').split('{{STUDIO}}').join(studio);
       try{
-        const r=await fn({ oggetto:sost(c.oggetto), corpo:sost(c.corpo), destinatari:[{ pazienteId:String(p.id), nome:`${p.nome} ${p.cognome}`, email:p.email.trim() }] });
+        const r=await fn({ oggetto:sost(c.oggetto), corpo:sost(c.corpo), mittente:_emailMittente(), destinatari:[{ pazienteId:String(p.id), nome:`${p.nome} ${p.cognome}`, email:p.email.trim() }] });
         if((r.data||{}).inviateOk){ a.promemoriaInviato=new Date().toISOString(); inviati++; }
       }catch(e){
         console.warn('Promemoria email:', e);
@@ -11761,6 +11774,7 @@ async function inviaPromemoriaAppuntamenti(avvisa){
 setInterval(()=>inviaPromemoriaAppuntamenti(false), 60*60*1000);
 
 function renderEmailSezione(){
+  _renderEmailMittente();
   _renderPromemoriaEmail();
   renderEmailModelli();
   _emailAggiornaInfoDestinatari();
@@ -11870,7 +11884,7 @@ async function inviaEmailComposta(){
   if(stato) stato.textContent='';
   try{
     const fn=gsFunctions.httpsCallable('inviaEmail');
-    const res=await fn({ oggetto, corpo, destinatari });
+    const res=await fn({ oggetto, corpo, destinatari, mittente:_emailMittente() });
     const { inviateOk, inviateErrore } = res.data || {};
     if(stato) stato.textContent = `✅ ${inviateOk||0} inviate${inviateErrore?`, ⚠️ ${inviateErrore} non riuscite`:''}.`;
     if(typeof gsToast==='function') gsToast(`✅ Email inviata a ${inviateOk||0} paziente${(inviateOk||0)===1?'':'i'}`, inviateErrore?'gs-info':'gs-success');
