@@ -198,12 +198,61 @@ fn backup_elenca(cartella: String, prefisso: String) -> Vec<FileBackup> {
     elenca(std::path::Path::new(&cartella), &prefisso)
 }
 
+// Aggiornamento automatico: all'avvio l'app guarda se nell'ultima release di
+// GitHub c'è una versione più recente (file latest-<modello>.json). Se c'è,
+// chiede al medico se installarla; l'installer è verificato con la chiave
+// pubblica in tauri.conf.json, quindi l'app accetta solo versioni firmate da
+// MED System. Senza internet o in caso di errore non succede nulla: riprova al
+// prossimo avvio.
+async fn controlla_aggiornamenti(app: tauri::AppHandle) -> Result<(), String> {
+    use tauri_plugin_dialog::{MessageDialogButtons, MessageDialogKind};
+    use tauri_plugin_updater::UpdaterExt;
+
+    let Some(agg) = app.updater().map_err(|e| e.to_string())?.check().await.map_err(|e| e.to_string())? else {
+        return Ok(());
+    };
+    let nome = app.config().product_name.clone().unwrap_or_else(|| "MED System".to_string());
+    let conferma = app
+        .dialog()
+        .message(format!(
+            "È disponibile la versione {} di {nome} (ora hai la {}).\n\n\
+             L'aggiornamento richiede un minuto: l'app si chiude, si aggiorna e si riapre. \
+             I dati dello studio restano dove sono.",
+            agg.version, agg.current_version
+        ))
+        .title("Aggiornamento disponibile")
+        .kind(MessageDialogKind::Info)
+        .buttons(MessageDialogButtons::OkCancelCustom("Aggiorna ora".into(), "Più tardi".into()))
+        .blocking_show();
+    if !conferma {
+        return Ok(());
+    }
+    if let Err(e) = agg.download_and_install(|_, _| {}, || {}).await {
+        app.dialog()
+            .message(format!("Aggiornamento non riuscito: {e}\n\nRiprova al prossimo avvio."))
+            .title("Aggiornamento")
+            .kind(MessageDialogKind::Warning)
+            .blocking_show();
+        return Err(e.to_string());
+    }
+    app.restart();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .setup(|app| {
+            // Thread a parte: i messaggi "blocking" non devono fermare la finestra.
+            let handle = app.handle().clone();
+            std::thread::spawn(move || {
+                let _ = tauri::async_runtime::block_on(controlla_aggiornamenti(handle));
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             chiave_db_leggi, chiave_db_salva, segreto_leggi, segreto_salva,
             backup_scegli_cartella, backup_scrivi, backup_elenca

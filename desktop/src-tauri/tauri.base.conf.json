@@ -18,5 +18,12 @@
   "bundle": {
     "publisher": "MED System",
     "shortDescription": "MED System — gestione dello studio medico"
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/titan-code-sm/gynosistem/releases/latest/download/latest-base.json"
+      ]
+    }
   }
 }

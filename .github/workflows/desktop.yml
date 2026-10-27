@@ -7,6 +7,10 @@
 #  - a mano dal tab Actions → "App desktop" → Run workflow: solo gli installer
 #    come artefatti scaricabili; con "pubblica" attivo (dal ramo main) crea
 #    anche il tag desktop-vX.Y.Z con la versione di tauri.conf.json e la release
+# Aggiornamento automatico: se il segreto TAURI_SIGNING_PRIVATE_KEY è impostato
+# (Settings → Secrets and variables → Actions), gli installer sono firmati e la
+# release contiene latest-gineco.json, latest-proct.json e latest-base.json:
+# le app già installate li leggono all'avvio e propongono l'aggiornamento.
 name: App desktop (Windows)
 
 on:
@@ -54,15 +58,49 @@ jobs:
 
       - name: Compila
         shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ''
         run: |
-          if [ "${{ matrix.modello }}" = "gineco" ]; then npx tauri build
-          else npx tauri build --config src-tauri/tauri.${{ matrix.modello }}.conf.json; fi
+          conf=()
+          if [ "${{ matrix.modello }}" != "gineco" ]; then conf+=(--config src-tauri/tauri.${{ matrix.modello }}.conf.json); fi
+          if [ -z "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            echo "::warning::Segreto TAURI_SIGNING_PRIVATE_KEY mancante: installer senza aggiornamento automatico"
+            conf+=(--config '{"bundle":{"createUpdaterArtifacts":false}}')
+          fi
+          npx tauri build "${conf[@]}"
+
+      # Nella release i nomi dei file hanno i punti al posto degli spazi
+      # (come fa GitHub), quindi l'indirizzo dell'installer è prevedibile.
+      - name: File per l'aggiornamento automatico (latest-${{ matrix.modello }}.json)
+        shell: bash
+        run: |
+          cd src-tauri/target/release/bundle/nsis
+          sig=$(ls *.exe.sig 2>/dev/null | head -1)
+          if [ -z "$sig" ]; then echo "Nessuna firma: salto"; exit 0; fi
+          versione=$(node -p "require('../../../../tauri.conf.json').version")
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then tag="$GITHUB_REF_NAME"; else tag="desktop-v$versione"; fi
+          exe="${sig%.sig}"
+          SIG="$sig" VERSIONE="$versione" \
+          URL="https://github.com/${{ github.repository }}/releases/download/$tag/${exe// /.}" \
+          node -e '
+            const fs = require("fs");
+            fs.writeFileSync("latest-${{ matrix.modello }}.json", JSON.stringify({
+              version: process.env.VERSIONE,
+              pub_date: new Date().toISOString(),
+              platforms: { "windows-x86_64": {
+                signature: fs.readFileSync(process.env.SIG, "utf8").trim(),
+                url: process.env.URL } }
+            }, null, 2));'
+          cat latest-${{ matrix.modello }}.json
 
       - name: Installer come artefatto
         uses: actions/upload-artifact@v4
         with:
           name: MEDSystem-${{ matrix.modello }}-installer-windows
-          path: desktop/src-tauri/target/release/bundle/nsis/*.exe
+          path: |
+            desktop/src-tauri/target/release/bundle/nsis/*.exe
+            desktop/src-tauri/target/release/bundle/nsis/latest-*.json
           if-no-files-found: error
 
   release:
@@ -84,6 +122,9 @@ jobs:
           pattern: MEDSystem-*-installer-windows
           merge-multiple: true
 
+      - name: Nomi dei file senza spazi
+        run: for f in installer/*' '*; do if [ -e "$f" ]; then mv "$f" "${f// /.}"; fi; done; ls -l installer
+
       - name: Release con i tre installer
         uses: softprops/action-gh-release@v2
         with:
@@ -91,4 +132,6 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: MED System ${{ steps.tag.outputs.nome }}
           make_latest: true
-          files: installer/*.exe
+          files: |
+            installer/*.exe
+            installer/latest-*.json
