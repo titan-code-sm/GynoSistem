@@ -204,6 +204,14 @@ pub fn run() {
         .plugin(tauri_plugin_sql::Builder::default().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        // Versione nel titolo della finestra: «MED System Gineco · v1.7.8»
+        .setup(|app| {
+            if let Some(finestra) = app.get_webview_window("main") {
+                let nome = app.config().product_name.clone().unwrap_or_else(|| "MED System".to_string());
+                let _ = finestra.set_title(&format!("{} · v{}", nome, app.package_info().version));
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             chiave_db_leggi, chiave_db_salva, segreto_leggi, segreto_salva,
             backup_scegli_cartella, backup_scrivi, backup_elenca
