@@ -248,6 +248,9 @@ main{flex:1;overflow-y:auto;background:radial-gradient(1100px 340px at 85% -120p
 .paz-tab .pt-ic{font-size:1.05rem;width:20px;text-align:center;flex-shrink:0;}
 .paz-tab .pt-badge{margin-left:auto;background:rgba(0,0,0,.1);border-radius:20px;padding:1px 7px;font-size:.68rem;font-weight:700;min-width:10px;text-align:center;}
 .paz-tab.active .pt-badge{background:var(--primary);color:#fff;}
+.paz-index-azione{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin-top:10px;padding:9px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:.85rem;font-weight:600;cursor:pointer;transition:filter .15s;font-family:var(--font);}
+.paz-index-azione:hover{filter:brightness(1.08);}
+.paz-index-azione .pt-ic{font-size:1.05rem;width:20px;text-align:center;flex-shrink:0;}
 .paz-panel{flex:1;min-width:0;padding:26px 30px;}
 .paz-pane{display:none;}
 .paz-pane.active{display:block;animation:pazFade .18s ease;}
@@ -259,7 +262,8 @@ main{flex:1;overflow-y:auto;background:radial-gradient(1100px 340px at 85% -120p
 @media (max-width:900px){
   .paz-shell{flex-direction:column;min-height:0;}
   .paz-index{width:100%;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--separator);padding:8px;gap:6px;}
-  .paz-tab{white-space:nowrap;width:auto;}
+  .paz-tab,.paz-index-azione{white-space:nowrap;width:auto;}
+  .paz-index-azione{margin-top:0;}
   .paz-panel{padding:18px;}
 }
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
@@ -2005,6 +2009,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button class="paz-tab" data-tab="screening" data-modelli="gineco" onclick="pazSwitchTab('screening')"><span class="pt-ic">🔬</span>Screening</button>
       <button class="paz-tab" data-tab="promemoria" onclick="pazSwitchTab('promemoria')"><span class="pt-ic">🔔</span>Promemoria<span class="pt-badge" id="pt-badge-promemoria"></span></button>
       <button class="paz-tab" data-tab="referti" onclick="pazSwitchTab('referti')"><span class="pt-ic">📎</span>Referti Esterni</button>
+      <!-- Azione, non una scheda: resta sempre in fondo all'indice (vedi pazApplicaConfigTabs) -->
+      <button class="paz-index-azione" onclick="apriAppuntamentoDaCartella()" title="Fissa un controllo o una nuova visita per questa paziente"><span class="pt-ic">🗓️</span>Nuovo appuntamento</button>
     </div>
 
     <div class="paz-panel">
@@ -2077,9 +2083,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         <button class="btn btn-ghost btn-sm" onclick="caricaAllegato()">➕ Aggiungi allegato</button>
         <div id="allegati-lista" style="margin-top:12px;"></div>
         <div id="allegati-spazio" style="font-size:.72rem;color:var(--label4);margin-top:10px;"></div>
-        <div style="border-top:1px solid var(--separator);margin-top:20px;padding-top:16px;">
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="apriAppuntamentoDaCartella()" title="Fissa un controllo o una nuova visita per questa paziente">🗓️ Nuovo appuntamento</button>
-        </div>
       </div>
     </div>
   </div>
@@ -8515,6 +8518,8 @@ function pazApplicaConfigTabs(){
     }
     if(paneEl) panel.appendChild(paneEl);
   });
+  const azione=index.querySelector('.paz-index-azione');
+  if(azione) index.appendChild(azione);
 }
 function renderSetPazTabsList(){
   const box=document.getElementById('set-paz-tabs-list'); if(!box) return;
@@ -10281,7 +10286,7 @@ function apriNuovaPrenotazioneGS(pazIdPreselezionato){
   }
 }
 
-// Apre "Nuova Prenotazione" dalla cartella paziente (scheda Referti Esterni),
+// Apre "Nuova Prenotazione" dalla cartella paziente (indice laterale, sotto le schede),
 // con la paziente già selezionata — per fissare un controllo/nuova visita.
 function apriAppuntamentoDaCartella(){
   if(!curPaz){ if(typeof gsToast==='function')gsToast('Apri prima una paziente','gs-error'); return; }
