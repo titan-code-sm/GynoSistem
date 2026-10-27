@@ -1,0 +1,51 @@
+# Pubblica su Firebase le Cloud Functions (cartella functions/) e le regole
+# di Firestore (firestore.rules). Parte:
+#  - da sola, quando su main cambiano functions/, firestore.rules o firebase.json
+#  - a mano dal tab Actions → "Firebase (deploy)" → Run workflow
+# Serve il secret del repository FIREBASE_SERVICE_ACCOUNT: la chiave JSON di
+# un account di servizio del progetto "gynosistem" (Settings → Secrets and
+# variables → Actions). Senza il secret il workflow si ferma con un avviso.
+name: Firebase (deploy)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/**'
+      - 'firestore.rules'
+      - 'firebase.json'
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Controlla la chiave
+        env:
+          CHIAVE: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$CHIAVE" ]; then
+            echo "::error::Manca il secret FIREBASE_SERVICE_ACCOUNT (chiave JSON dell'account di servizio del progetto gynosistem)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Dipendenze delle funzioni
+        run: npm ci || npm install
+        working-directory: functions
+
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Deploy di funzioni e regole
+        run: npx --yes firebase-tools@13 deploy --only functions,firestore:rules --project gynosistem --non-interactive --force
