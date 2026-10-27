@@ -723,12 +723,16 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 .empty-state p{font-size:0.9rem;}
 .tag-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-size:0.75rem;font-weight:600;}
 
-/* ─── BACKUP GUIDE ─── */
-.backup-card{border:1px solid var(--separator);border-radius:var(--radius-sm);padding:20px;margin-bottom:12px;background:var(--surface);}
-.backup-card .bc-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;color:#fff;background:var(--primary);flex-shrink:0;}
-.backup-card-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-.backup-card h4{font-size:0.9rem;font-weight:700;}
-.backup-card p{font-size:0.85rem;color:var(--label3);line-height:1.6;}
+/* ─── ARCHIVIAZIONE ─── */
+.bk-stato{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;border-radius:var(--radius-sm);font-size:.88rem;line-height:1.5;border:1px solid transparent;}
+.bk-stato.ok{background:var(--green-dim);color:var(--green);}
+.bk-stato.avviso{background:var(--orange-dim);color:#b45309;}
+.bk-stato.ko{background:var(--red-dim);color:var(--red);}
+.bk-stato .bk-conta{margin-left:auto;color:var(--label3);font-size:.8rem;}
+.info-arch h4{font-size:.92rem;font-weight:700;margin:16px 0 6px;}
+.info-arch p,.info-arch li{font-size:.85rem;color:var(--label3);line-height:1.6;margin:0;}
+.info-arch ol{padding-left:20px;display:flex;flex-direction:column;gap:6px;}
+.info-arch-avviso{margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);background:var(--orange-dim);color:#b45309;font-size:.85rem;line-height:1.55;}
 
 /* ─── FIREBASE STATUS ─── */
 .fb-status-bar{display:flex;align-items:center;gap:7px;padding:8px 20px;font-size:0.7rem;color:var(--label4);border-bottom:1px solid var(--separator);}
@@ -931,9 +935,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
   /* Note card textarea */
   .note-card textarea{min-height:120px;}
-
-  /* Backup cards */
-  .backup-card{padding:14px;}
 }
 
 /* ══════════════════════════════════════════════════
@@ -2087,24 +2088,17 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
 <!-- ARCHIVIAZIONE -->
 <div id="sec-backup" class="section">
-  <div class="page-header">
-    <div><div class="page-title">Archiviazione Dati</div><div class="page-subtitle">Best practice per la gestione sicura dei dati sanitari</div></div>
+  <div class="page-header" style="gap:12px;flex-wrap:wrap;">
+    <div><div class="page-title">Archiviazione Dati</div><div class="page-subtitle">Backup e ripristino dei tuoi dati</div></div>
+    <button class="btn btn-ghost" onclick="document.getElementById('modal-info-archiviazione').classList.add('show')">ℹ️ Come sono archiviati i dati</button>
   </div>
+
+  <div id="bk-stato" style="margin-bottom:16px;"></div>
 
   <div class="g2" style="margin-bottom:24px;align-items:start;">
     <div>
       <div class="card" style="margin-bottom:16px;">
-        <div class="card-header"><div><div class="card-title">💾 Backup completo</div><div class="card-subtitle">Pazienti, visite, appuntamenti, promemoria, allegati, consensi e impostazioni — tutto in un unico file</div></div></div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <button class="btn btn-primary" style="justify-content:flex-start;" onclick="esportaBackupCompleto(true)">🔐 Scarica backup completo (protetto da password)</button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="if(confirm('Il file senza password contiene tutti i dati clinici IN CHIARO: chiunque lo trovi può leggerli. Usalo solo se sai dove finirà.\n\nScaricarlo comunque?'))esportaBackupCompleto(false)">📦 Scarica backup completo (senza password, sconsigliato)</button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="document.getElementById('file-upload').click()">📂 Importa un backup</button>
-          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="exportCSV()">📊 Esporta Pazienti in CSV</button>
-          <button class="btn" style="justify-content:flex-start;background:var(--red-dim);color:var(--red);border:1px solid var(--red-dim);" onclick="resetDB()">🗑️ Cancella tutti i dati</button>
-        </div>
-      </div>
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-header"><div><div class="card-title">🔐 Backup automatico cifrato</div><div class="card-subtitle">Ogni giorno l'app salva da sola un backup completo, cifrato con la tua password, nella cartella che scegli: meglio una chiavetta, un disco esterno o una cartella sincronizzata (es. Google Drive). Tiene gli ultimi 30.</div></div></div>
+        <div class="card-header"><div><div class="card-title">🔐 Backup automatico cifrato</div><div class="card-subtitle">Ogni giorno l'app salva da sola una copia completa, cifrata con la tua password, nella cartella che scegli (meglio una chiavetta, un disco esterno o una cartella sincronizzata). Tiene gli ultimi 30.</div></div></div>
         <div id="bka-stato" style="font-size:0.84rem;color:var(--label3);line-height:1.7;margin-bottom:12px;"></div>
         <div id="bka-azioni" style="display:flex;flex-direction:column;gap:10px;">
           <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="bkaScegliCartella()">📁 Scegli la cartella dei backup</button>
@@ -2112,19 +2106,43 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
           <button class="btn btn-primary" style="justify-content:flex-start;" onclick="eseguiBackupAutomatico(true)">💾 Fai un backup adesso</button>
         </div>
         <div id="bka-elenco"></div>
-        <div style="font-size:.76rem;color:var(--label4);margin-top:10px;">Per ripristinare: «Importa un backup» qui sopra, scegli il file e inserisci la password dei backup.</div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">📈 Stato Database</div></div>
-        <div id="db-stats" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
     </div>
     <div>
-      <div class="card">
-        <div class="card-header"><div><div class="card-title">🔐 Guida all'Archiviazione Sicura</div><div class="card-subtitle">Raccomandazioni GDPR e HIPAA per dati sanitari</div></div></div>
-        <div id="backup-guide-content"></div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header"><div><div class="card-title">💾 Backup manuale e ripristino</div><div class="card-subtitle">Pazienti, visite, appuntamenti, allegati, consensi e impostazioni in un unico file protetto da password</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn btn-primary" style="justify-content:flex-start;" onclick="esportaBackupCompleto(true)">🔐 Scarica backup completo</button>
+          <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="document.getElementById('file-upload').click()">📂 Ripristina da un backup</button>
+        </div>
+        <div style="font-size:.76rem;color:var(--label4);margin-top:10px;line-height:1.5;">Il ripristino sostituisce i dati attuali con quelli del file: scegli il file (anche uno dei backup automatici) e inserisci la sua password.</div>
       </div>
+      <div id="gsd-slot"></div>
     </div>
+  </div>
+</div>
+
+<!-- Archiviazione: come vengono conservati i dati e come fare i backup -->
+<div id="modal-info-archiviazione" class="overlay" onclick="if(event.target===this)closeModal(this.id)">
+  <div class="modal-sm" style="width:600px;max-height:90vh;overflow-y:auto;">
+    <h3>ℹ️ Come sono archiviati i tuoi dati</h3>
+    <div class="info-arch">
+      <h4>🖥️ Sul tuo computer</h4>
+      <p>Pazienti, visite, appuntamenti, allegati (referti, consensi firmati), email inviate e registro attività stanno <strong>solo su questo PC</strong>, nel database interno dell'app, cifrato con una chiave custodita da Windows. Copiato su un altro computer, quel file non si apre. Nella versione web i dati restano nel browser di questo computer.</p>
+      <h4>☁️ Online</h4>
+      <p>Solo il tuo account di accesso (email, nome, abbonamento, preferenze) e i tuoi testi personalizzati (frasi, consensi, schemi). <strong>Nessun dato delle pazienti.</strong> Le email alle pazienti passano dal server solo per essere spedite e non vengono conservate.</p>
+      <div class="info-arch-avviso">⚠️ Se il PC si guasta, viene rubato o si reinstalla Windows, i dati si recuperano <strong>solo da un backup</strong>. Nessuno, nemmeno l'assistenza, può ricostruirli altrimenti.</div>
+      <h4>✅ Cosa fare per essere al sicuro</h4>
+      <ol>
+        <li><strong>Attiva il backup automatico</strong>: scegli una cartella su una chiavetta, un disco esterno o una cartella sincronizzata (Google Drive, OneDrive) e imposta la password. Da lì in poi l'app fa una copia cifrata ogni giorno.</li>
+        <li><strong>Annota la password dei backup</strong> in un posto sicuro, fuori dal PC. Senza password i backup non si aprono in alcun modo.</li>
+        <li><strong>Tieni una copia lontano dal PC</strong>: una cartella sincronizzata o una chiavetta che non resta attaccata al computer.</li>
+        <li><strong>Controlla questa pagina ogni tanto</strong>: l'ultimo backup deve essere recente (in verde). Una volta al mese scarica anche un backup manuale su un supporto diverso.</li>
+      </ol>
+      <h4>🔄 Per ripristinare</h4>
+      <p>«Ripristina da un backup», scegli il file e inserisci la sua password. Nell'app per Windows, prima del ripristino lo stato attuale viene salvato tra le «Versioni salvate automaticamente», così puoi tornare indietro. Quelle versioni (una all'ora, le ultime 30) servono contro gli errori, ma stanno sullo stesso PC: non sostituiscono il backup.</p>
+    </div>
+    <div style="text-align:right;margin-top:18px;"><button class="btn btn-primary" onclick="closeModal('modal-info-archiviazione')">Ho capito</button></div>
   </div>
 </div>
 
@@ -6652,7 +6670,6 @@ document.addEventListener('DOMContentLoaded', function initApp(){
   naviga('home');
   renderFarmaci();
   renderGuide('g-ob');
-  renderBackupGuide();
   if(typeof initComboBoxes==='function') initComboBoxes(); // caselle "testo libero + suggerimenti" nelle schede visita
   if(typeof tentaRiconnessioneFileLocale==='function') tentaRiconnessioneFileLocale();
   // Carica configurazione da Firebase Admin
@@ -6759,7 +6776,7 @@ async function eseguiBackupAutomatico(manuale){
     return false;
   }finally{
     _bkaInCorso=false;
-    if(document.getElementById('sec-backup')?.classList.contains('active')) renderBackupAutomatico();
+    if(document.getElementById('sec-backup')?.classList.contains('active')) renderBackupStats();
   }
 }
 function _bkaScaduto(){
@@ -13744,58 +13761,22 @@ async function restoreData(input){
   }
 }
 
-async function resetDB(){
-  if(!confirm('⚠️ Questa operazione cancellerà TUTTI i dati (archivio e allegati). È irreversibile.\n\nVuoi continuare?')) return;
-  DB={pazienti:[],agenda:[]};
-  try{ await GS_STORAGE.allegati.svuota(); }catch(e){ console.warn('Svuotamento allegati:',e); }
-  registraLog('backup','Tutti i dati cancellati');
-  await salvaDBSubito();
-  location.reload();
-}
-
 function renderBackupStats(){
   if(typeof renderBackupAutomatico==='function') renderBackupAutomatico();
-  const c=document.getElementById('db-stats'); if(!c)return;
-  const totalV=DB.pazienti.reduce((s,p)=>s+(p.visite?.length||0),0);
-  const totalA=DB.pazienti.reduce((s,p)=>s+(p.alerts?.length||0),0);
-  const size=(JSON.stringify(DB).length/1024).toFixed(1);
-  const ultimoBackup=localStorage.getItem('gyno_ultimo_backup_auto');
-  let backupLabel='Mai eseguito';
-  let backupColor='var(--red)';
-  if(ultimoBackup){
-    const giorni=Math.floor((new Date()-new Date(ultimoBackup))/(1000*60*60*24));
-    backupLabel=giorni===0?'Oggi':giorni===1?'Ieri':`${giorni} giorni fa`;
-    backupColor=giorni>2?'var(--red)':'var(--green)'; // il backup automatico è giornaliero
+  const c=document.getElementById('bk-stato'); if(!c)return;
+  const nPaz=DB.pazienti.length, nVis=DB.pazienti.reduce((s,p)=>s+(p.visite?.length||0),0);
+  // Aggiornata sia dal backup automatico sia dal "Scarica backup completo"
+  const ultimo=localStorage.getItem('gyno_ultimo_backup_auto');
+  const giorni=ultimo?Math.floor((new Date()-new Date(ultimo))/(1000*60*60*24)):null;
+  let cls, testo;
+  if(giorni===null){ cls='ko'; testo='⚠️ <strong>Nessun backup eseguito</strong> su questo PC: attiva il backup automatico o scarica un backup completo.'; }
+  else{
+    const quando=giorni===0?'oggi':giorni===1?'ieri':`${giorni} giorni fa`;
+    if(giorni<=2){ cls='ok'; testo=`✅ Ultimo backup: <strong>${quando}</strong>`; }
+    else if(giorni<=7){ cls='avviso'; testo=`⚠️ Ultimo backup: <strong>${quando}</strong>. Fanne uno adesso.`; }
+    else{ cls='ko'; testo=`⚠️ Ultimo backup: <strong>${quando}</strong>. I dati recenti non sono protetti: fanne uno adesso.`; }
   }
-  c.innerHTML=`
-    <div class="alert-item"><span class="alert-date">Pazienti</span><span class="alert-text">${DB.pazienti.length} schede</span></div>
-    <div class="alert-item"><span class="alert-date">Visite</span><span class="alert-text">${totalV} referti</span></div>
-    <div class="alert-item"><span class="alert-date">Promemoria</span><span class="alert-text">${totalA} scadenze</span></div>
-    <div class="alert-item"><span class="alert-date">Dim. DB</span><span class="alert-text">${size} KB (IndexedDB)</span></div>
-    <div class="alert-item"><span class="alert-date">Ultima modifica</span><span class="alert-text">${new Date().toLocaleDateString('it-IT')}</span></div>
-    <div class="alert-item"><span class="alert-date">💾 Ultimo backup automatico</span><span class="alert-text" style="color:${backupColor};font-weight:600">${backupLabel}</span></div>
-  `;
-}
-
-function renderBackupGuide(){
-  const c=document.getElementById('backup-guide-content'); if(!c)return;
-  const steps=[
-    {n:1,t:'Backup JSON Settimanale Locale',d:'Usa il tasto "Esporta Backup" ogni settimana. Il file JSON contiene tutti i dati del DB. Salvalo in una cartella denominata "Backup_MEDSystem" con data (es. 2025-03-10_backup.json).'},
-    {n:2,t:'Cloud Crittografato (Raccomandato)',d:'Carica il file JSON su un servizio cloud conforme GDPR: OneDrive Healthcare, Google Workspace for Healthcare o un server FTP aziendale dedicato. NON usare Dropbox personale o Gmail.'},
-    {n:3,t:'Cartella Clinica Cartacea (Obbligo Legale)',d:'In San Marino e Italia vige l\'obbligo di conservare la documentazione sanitaria per almeno 20 anni. Il referto stampato (con firma e timbro) ha valenza legale. Archiviare per anno e per cognome.'},
-    {n:4,t:'Anonimizzazione e GDPR',d:'I dati sanitari sono "dati particolari" ex art. 9 GDPR. Non condividere il file JSON tramite email non cifrata. Per ricerche statistiche anonimizzare i dati o usa la funzione "Esporta CSV".'},
-    {n:5,t:'Password e Sicurezza Accesso',d:'Cambiare la password ogni 3 mesi. Non condividerla. In futuro considera l\'adozione di 2FA (autenticazione a 2 fattori) se il sistema viene migrato a un server web.'},
-    {n:6,t:'Migrazione a Software Certificato',d:'Per uno studio ad alta crescita, considera software certificati CE come: Medigest, Galileo (Noemalife), Nemo Web, o EMR cloud specifici per ginecologia. MED System è ottimo per uso personale offline.'},
-  ];
-  c.innerHTML=steps.map(s=>`
-    <div class="backup-card">
-      <div class="backup-card-header">
-        <div class="bc-num">${s.n}</div>
-        <h4>${s.t}</h4>
-      </div>
-      <p>${s.d}</p>
-    </div>
-  `).join('');
+  c.innerHTML=`<div class="bk-stato ${cls}"><span>${testo}</span><span class="bk-conta">${nPaz} pazient${nPaz===1?'e':'i'} · ${nVis} visit${nVis===1?'a':'e'}</span></div>`;
 }
 
 

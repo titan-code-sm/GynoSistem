@@ -315,17 +315,18 @@
   };
   function iniettaSchedaDatabase(){
     const sec = document.getElementById('sec-backup');
-    const col = sec && sec.querySelector('.g2 > div');
+    const slot = document.getElementById('gsd-slot');
+    const col = slot || (sec && sec.querySelector('.g2 > div'));
     if(!col || document.getElementById('gsd-card')) return;
     const card = document.createElement('div');
     card.className = 'card'; card.id = 'gsd-card'; card.style.marginBottom = '16px';
-    card.innerHTML = `<div class="card-header"><div><div class="card-title">🖥️ Database interno</div><div class="card-subtitle">Cartelle cliniche, allegati e consensi in un unico file cifrato su questo PC. Per spostarli usa il backup completo.</div></div></div>
+    card.innerHTML = `<div class="card-header"><div><div class="card-title">🖥️ Database interno</div><div class="card-subtitle">Dove sono salvati i dati su questo PC e le versioni salvate in automatico (una all'ora): servono per annullare un errore, non sostituiscono il backup.</div></div></div>
       <div id="gsd-info" style="font-size:.8rem;color:var(--label4);margin-bottom:12px;word-break:break-all">…</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-ghost" style="justify-content:flex-start;" onclick="gsDesktop.mostraStorico()">🕘 Versioni salvate automaticamente</button>
       </div>
       <div id="gsd-storico" style="margin-top:12px"></div>`;
-    col.insertBefore(card, col.firstChild);
+    if(slot) slot.appendChild(card); else col.insertBefore(card, col.firstChild);
   }
   iniettaSchedaDatabase();
   const navigaOriginale = window.naviga;
