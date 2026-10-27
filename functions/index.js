@@ -143,6 +143,12 @@ exports.pacchettoMedico = onCall({ region: REGIONE, timeoutSeconds: 30, memory: 
 // ═══════════════════════════════════════════════════════════
 //  PORTALE UTENTI (solo amministratore)
 // ═══════════════════════════════════════════════════════════
+// La più recente tra due date (ISO o formato HTTP), come ISO; "" se nessuna è valida.
+function piuRecente(...date) {
+  const ms = date.map((d) => (d ? Date.parse(d) : NaN)).filter((n) => !isNaN(n));
+  return ms.length ? new Date(Math.max(...ms)).toISOString() : "";
+}
+
 exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "256MiB" }, async (request) => {
   soloAmministratore(request);
   const d = request.data || {};
@@ -180,7 +186,10 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
           pacchetto: pacchetti[u.uid] || null,
           sezioniPersonalizzate: Array.isArray(p.sezioniPersonalizzate) ? p.sezioniPersonalizzate : [],
           creato: u.metadata.creationTime || "",
-          ultimoAccesso: u.metadata.lastSignInTime || "",
+          // L'app tiene aperta la sessione: lastSignInTime è l'ultimo inserimento
+          // della password, il profilo l'ultima apertura dell'app. Vale la più recente.
+          ultimoAccesso: piuRecente(p.ultimoAccesso, u.metadata.lastSignInTime),
+          versioneApp: typeof p.versioneApp === "string" ? p.versioneApp : "",
           amministratore: u.email === ADMIN_EMAIL,
         };
       }),

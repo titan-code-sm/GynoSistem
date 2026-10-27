@@ -506,6 +506,21 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .mfv-sez-tit:first-child{margin-top:0;}
 .informativa-card .informativa-testo{font-size:0.82rem;line-height:1.55;color:var(--label3);}
 .informativa-card h4 button{flex-shrink:0;}
+.cerca-rapida-btn{display:flex;align-items:center;gap:8px;margin:10px 10px 0;padding:8px 10px;background:var(--surface);border:1px solid var(--border-strong);border-radius:8px;color:var(--label3);font-family:var(--font);font-size:0.84rem;cursor:pointer;text-align:left;}
+.cerca-rapida-btn:hover{border-color:var(--primary);color:var(--label);}
+.cerca-rapida-txt{flex:1;}
+.cerca-rapida-btn kbd{font-family:var(--font);font-size:0.7rem;color:var(--label4);background:var(--surface2);border:1px solid var(--separator);border-radius:5px;padding:1px 6px;}
+#modal-cerca-rapida.overlay{align-items:flex-start;padding-top:12vh;z-index:2700;}
+.cerca-rapida-box{width:560px;max-width:calc(100vw - 32px);padding:16px;}
+#cerca-rapida-input{width:100%;font-size:1rem;padding:12px 14px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);color:var(--label);font-family:var(--font);outline:none;}
+#cerca-rapida-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-dim);}
+#cerca-rapida-lista{margin-top:10px;max-height:50vh;overflow-y:auto;}
+.cerca-rapida-riga{display:flex;align-items:baseline;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--label2);}
+.cerca-rapida-riga.sel,.cerca-rapida-riga:hover{background:var(--primary-dim);}
+.cerca-rapida-riga b{color:var(--label);font-weight:600;}
+.cerca-rapida-riga .info{margin-left:auto;font-size:0.78rem;color:var(--label4);white-space:nowrap;}
+.cerca-rapida-vuoto{padding:14px 12px;color:var(--label4);font-size:0.88rem;}
+.cerca-rapida-aiuto{margin-top:10px;font-size:0.74rem;color:var(--label4);text-align:center;}
 .modal-sm{background:var(--surface);border-radius:var(--radius-lg);padding:28px;width:520px;box-shadow:var(--shadow-lg);border:1px solid var(--separator);}
 .modal-sm h3{font-family:var(--font);font-weight:700;font-size:1.2rem;margin-bottom:8px;letter-spacing:-0.01em;}
 .modal-sm p{color:var(--label4);font-size:0.875rem;margin-bottom:24px;}
@@ -595,7 +610,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 .visit-date{font-weight:700;font-size:0.875rem;color:var(--label);}
 .visit-type{font-size:0.75rem;color:var(--label4);}
 .visit-diag{font-size:0.82rem;color:var(--label2);margin-top:2px;}
-.visit-actions{display:flex;gap:6px;}
+.visit-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center;}
+.visit-chiusa{font-size:0.78rem;color:var(--label4);padding:0 6px;white-space:nowrap;cursor:default;}
 
 /* ─── NOTE CARD ─── */
 .note-card{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:20px;}
@@ -1068,21 +1084,25 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <span id="gs-fb-txt">Connessione…</span>
   </div>
 
+  <button class="cerca-rapida-btn" onclick="apriCercaRapida()" title="Cerca una paziente da qualunque pagina (Ctrl+K)">
+    <span>🔍</span><span class="cerca-rapida-txt">Cerca paziente</span><kbd>Ctrl K</kbd>
+  </button>
+
   <nav>
     <div class="nav-group" id="nav-group-principale">
       <div class="nav-group-label">Principale</div>
       <button onclick="naviga('home')" id="nav-home" class="active"><span class="nav-icon">🏠</span>Dashboard</button>
       <button onclick="naviga('archivio')" id="nav-archivio"><span class="nav-icon">👩‍⚕️</span>Pazienti</button>
-      <button onclick="naviga('storico-date')" id="nav-storico-date"><span class="nav-icon">📅</span>Storico Visite</button>
+      <button onclick="naviga('storico-date')" id="nav-storico-date"><span class="nav-icon">🕘</span>Storico Visite</button>
       <button onclick="naviga('appuntamenti')" id="nav-appuntamenti"><span class="nav-icon">📅</span>Appuntamenti</button>
       <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
-      <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">📋</span>Ricettario</button>
+      <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">🧾</span>Ricettario</button>
       <button onclick="naviga('consensi')" id="nav-consensi"><span class="nav-icon">✍️</span>Consensi</button>
       <button onclick="naviga('email')" id="nav-email"><span class="nav-icon">📧</span>Email</button>
     </div>
     <div class="nav-group" id="nav-group-strumenti">
       <div class="nav-group-label">Strumenti</div>
-      <button onclick="naviga('guide')" id="nav-guide" data-modelli="gineco"><span class="nav-icon">📋</span>Linee Guida</button>
+      <button onclick="naviga('guide')" id="nav-guide" data-modelli="gineco"><span class="nav-icon">📖</span>Linee Guida</button>
       <button onclick="naviga('farmacia')" id="nav-farmacia" data-modelli="gineco"><span class="nav-icon">💊</span>Farmacia</button>
       <button onclick="naviga('utility')" id="nav-utility"><span class="nav-icon">🧮</span>Utility</button>
       <button onclick="naviga('backup')" id="nav-backup"><span class="nav-icon">🗄️</span>Archiviazione</button>
@@ -1141,6 +1161,15 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 </aside>
 
 <!-- Prima di uscire da MED System: propone di scaricare un backup completo -->
+<!-- RICERCA RAPIDA PAZIENTE (Ctrl+K da qualunque pagina) -->
+<div id="modal-cerca-rapida" class="overlay" onclick="if(event.target===this)closeModal('modal-cerca-rapida')">
+  <div class="modal-sm cerca-rapida-box">
+    <input type="text" id="cerca-rapida-input" placeholder="Cognome, nome, telefono o codice fiscale…" autocomplete="off" oninput="_cercaRapidaSel=0;renderCercaRapida()" onkeydown="tastoCercaRapida(event)">
+    <div id="cerca-rapida-lista"></div>
+    <div class="cerca-rapida-aiuto">↑ ↓ per scegliere · Invio per aprire la cartella · Esc per chiudere</div>
+  </div>
+</div>
+
 <div id="modal-esci-backup" class="overlay">
   <div class="modal-sm" style="width:520px;text-align:center;">
     <div style="font-size:2.4rem;margin-bottom:8px;">💾</div>
@@ -7216,6 +7245,13 @@ async function handleUserProfile(user){
     nome = data.nome || nome;
     demoMode = data.demoMode === true;
     try{ await ref.update({ ultimoAccesso: new Date().toISOString() }); }catch(e){}
+    // Versione dell'app installata, mostrata nel portale: serve a sapere chi
+    // deve ancora aggiornare. Scrittura separata, così un errore qui non
+    // impedisce di registrare l'accesso.
+    try{
+      const versione = window.__TAURI__ && window.__TAURI__.app ? await window.__TAURI__.app.getVersion() : '';
+      if(versione && data.versioneApp!==versione) await ref.update({ versioneApp: versione });
+    }catch(e){}
   }
   await caricaPacchetto(user.uid);
   applicaFrasiPersonalizzate();
@@ -7921,6 +7957,7 @@ function dismissPromemoriaScaduto(alertId, ev){
   try{ localStorage.setItem(_promDismissKey(), JSON.stringify(arr)); }catch(e){}
   renderPromemoriaScaduti();
 }
+let _promScadutiTutti=false;
 function renderPromemoriaScaduti(){
   const banner=document.getElementById('overdue-alert-banner');
   const list=document.getElementById('overdue-alert-list');
@@ -7935,16 +7972,21 @@ function renderPromemoriaScaduti(){
   if(!scaduti.length){ banner.style.display='none'; return; }
   scaduti.sort((x,y)=>(x.a.data||'').localeCompare(y.a.data||''));
   title.textContent=`${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'} — nessuna visita/controllo registrato da allora`;
-  list.innerHTML=scaduti.map(({p,a})=>{
+  // Se sono tanti se ne mostrano solo i primi (i più vecchi): il resto si apre
+  // a richiesta, così il calendario e il resto della Dashboard restano in vista.
+  const MAX_VISIBILI=3, nascosti=_promScadutiTutti ? 0 : Math.max(0, scaduti.length-MAX_VISIBILI);
+  list.innerHTML=scaduti.slice(0, scaduti.length-nascosti).map(({p,a})=>{
     const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     const giorni=Math.round((new Date(oggi)-new Date(a.data))/(1000*60*60*24));
     return `<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #fde2e2;border-radius:8px;padding:9px 12px;cursor:pointer;flex-wrap:wrap;color:var(--label2);" onclick="openPaziente(${p.id})">
-      <span style="font-weight:600;color:var(--label);">${p.cognome} ${p.nome}</span>
-      <span>${a.testo}</span>
+      <span style="font-weight:600;color:var(--label);">${_escHtml(p.cognome)} ${_escHtml(p.nome)}</span>
+      <span>${_escHtml(a.testo)}</span>
       <span style="margin-left:auto;font-size:0.78rem;color:#b91c1c;white-space:nowrap;">${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</span>
       <span class="prom-dismiss-btn" onclick="dismissPromemoriaScaduto(${JSON.stringify(a.id)},event)" title="Nascondi da questo elenco" style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--label4);">✕</span>
     </div>`;
-  }).join('');
+  }).join('') + (scaduti.length>MAX_VISIBILI
+    ? `<button class="btn btn-ghost btn-sm" style="align-self:flex-start;margin-top:4px;" onclick="_promScadutiTutti=!_promScadutiTutti;renderPromemoriaScaduti()">${_promScadutiTutti ? 'Mostra meno' : 'Vedi tutti ('+scaduti.length+')'}</button>`
+    : '');
   banner.style.display='block';
 }
 
@@ -8751,6 +8793,60 @@ function costruisciRiassuntoPaziente(p){
   return pezzi.join(' ');
 }
 
+// ── RICERCA RAPIDA PAZIENTE ──
+// Pulsante in cima al menu e scorciatoia Ctrl+K (Cmd+K su Mac): apre la
+// cartella di una paziente da qualunque pagina, senza passare da Pazienti.
+// Non si apre sopra la scheda visita o altre finestre già aperte.
+let _cercaRapidaSel=0, _cercaRapidaRis=[];
+function _normCerca(t){ return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function apriCercaRapida(){
+  if(!gsCurrentUser || !DB || !Array.isArray(DB.pazienti)) return;
+  if(document.querySelector('.overlay.show')) return;
+  const inp=document.getElementById('cerca-rapida-input');
+  inp.value=''; _cercaRapidaSel=0;
+  renderCercaRapida();
+  document.getElementById('modal-cerca-rapida').classList.add('show');
+  setTimeout(()=>inp.focus(),30);
+}
+function renderCercaRapida(){
+  const q=_normCerca(document.getElementById('cerca-rapida-input').value.trim());
+  const lista=document.getElementById('cerca-rapida-lista');
+  const parole=q.split(/\s+/).filter(Boolean);
+  const qNum=q.replace(/\D/g,'');
+  _cercaRapidaRis = parole.length ? DB.pazienti.filter(p=>{
+    const testo=_normCerca(`${p.cognome} ${p.nome} ${p.cf||''}`);
+    if(parole.every(w=>testo.includes(w))) return true;
+    return qNum.length>=4 && String(p.tel||'').replace(/\D/g,'').includes(qNum);
+  }) : [];
+  _cercaRapidaRis.sort((a,b)=>`${a.cognome} ${a.nome}`.localeCompare(`${b.cognome} ${b.nome}`,'it'));
+  _cercaRapidaRis=_cercaRapidaRis.slice(0,8);
+  if(!parole.length){ lista.innerHTML='<div class="cerca-rapida-vuoto">Scrivi almeno una lettera del cognome o del nome.</div>'; return; }
+  if(!_cercaRapidaRis.length){ lista.innerHTML='<div class="cerca-rapida-vuoto">Nessuna paziente trovata.</div>'; return; }
+  if(_cercaRapidaSel>=_cercaRapidaRis.length) _cercaRapidaSel=_cercaRapidaRis.length-1;
+  lista.innerHTML=_cercaRapidaRis.map((p,i)=>`<div class="cerca-rapida-riga${i===_cercaRapidaSel?' sel':''}" onmousemove="if(_cercaRapidaSel!==${i}){_cercaRapidaSel=${i};renderCercaRapida();}" onclick="scegliCercaRapida(${i})">
+      <b>${_escHtml(p.cognome)} ${_escHtml(p.nome)}</b>
+      <span class="info">${p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):''}${p.tel?' · '+_escHtml(p.tel):''}</span>
+    </div>`).join('');
+}
+function scegliCercaRapida(i){
+  const p=_cercaRapidaRis[i]; if(!p) return;
+  closeModal('modal-cerca-rapida');
+  openPaziente(p.id);
+}
+function tastoCercaRapida(e){
+  if(e.key==='ArrowDown'){ e.preventDefault(); _cercaRapidaSel=Math.min(_cercaRapidaSel+1,_cercaRapidaRis.length-1); renderCercaRapida(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); _cercaRapidaSel=Math.max(_cercaRapidaSel-1,0); renderCercaRapida(); }
+  else if(e.key==='Enter'){ e.preventDefault(); scegliCercaRapida(_cercaRapidaSel); }
+  else if(e.key==='Escape'){ e.preventDefault(); closeModal('modal-cerca-rapida'); }
+}
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey) && !e.altKey && !e.shiftKey && (e.key==='k'||e.key==='K')){
+    e.preventDefault();
+    if(document.getElementById('modal-cerca-rapida').classList.contains('show')) closeModal('modal-cerca-rapida');
+    else apriCercaRapida();
+  }
+});
+
 function openPaziente(id){
   curPaz=id;
   const p=DB.pazienti.find(x=>x.id===id);
@@ -8940,8 +9036,8 @@ function apriGiornata(date){
         <td>${icons[v.tipo]||'🩺'} ${v.tipo?.toUpperCase()}</td>
         <td>${v.diagnosi||'–'}</td>
         <td style="display:flex;gap:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="curPaz=${p.id};stampa(${v.id})">🖨️</button>
-          <button class="btn btn-ghost btn-sm" onclick="openPaziente(${p.id})">→</button>
+          <button class="btn btn-ghost btn-sm" onclick="curPaz=${p.id};stampa(${v.id})">🖨️ Stampa</button>
+          <button class="btn btn-ghost btn-sm" onclick="openPaziente(${p.id})">Cartella →</button>
         </td>
       </tr>`;
     }
@@ -9470,6 +9566,7 @@ function closeModal(id){
 }
 
 // Minimizza la finestra visita nella barra inferiore
+let _editorPazId=null;
 function minimizeEditor(){
   document.getElementById('editor-overlay').classList.remove('show');
   const bar=document.getElementById('editor-min-bar');
@@ -9478,6 +9575,10 @@ function minimizeEditor(){
   bar.classList.add('show');
 }
 function restoreEditor(){
+  // Con la visita ridotta a icona si può aprire un'altra cartella: prima di
+  // riaprirla si torna alla paziente della visita, altrimenti il salvataggio
+  // finirebbe nella cartella sbagliata.
+  if(_editorPazId!=null && curPaz!==_editorPazId && DB.pazienti.some(x=>x.id===_editorPazId)) openPaziente(_editorPazId);
   document.getElementById('editor-min-bar').classList.remove('show');
   document.getElementById('editor-overlay').classList.add('show');
 }
@@ -9547,7 +9648,7 @@ function startEditor(tipo, vid=null){
   }
   closeModal('modal-type');
   document.getElementById('editor-overlay').classList.add('show');
-  curMode=tipo; curVisita=vid;
+  curMode=tipo; curVisita=vid; _editorPazId=curPaz;
 
   // Reset campi di TUTTI i moduli (anche quelli non visibili, per sicurezza)
   document.querySelectorAll('#editor-overlay input:not([readonly]), #editor-overlay textarea, #editor-overlay select').forEach(el=>{
@@ -10498,8 +10599,8 @@ function renderVisiteList(p){
     const oggi=new Date().toISOString().split('T')[0];
     const modificabile=v.data===oggi;
     const editBtn=modificabile
-      ?`<button class="btn btn-ghost btn-sm btn-icon" onclick="startEditor('${tipo}',${v.id})" title="Modifica">✏️</button>`
-      :`<button class="btn btn-ghost btn-sm btn-icon" disabled style="opacity:.3;cursor:not-allowed" title="Le visite di giorni precedenti non sono più modificabili">🔒</button>`;
+      ?`<button class="btn btn-ghost btn-sm" onclick="startEditor('${tipo}',${v.id})" title="Modifica la visita di oggi">✏️ Modifica</button>`
+      :`<span class="visit-chiusa" title="Le visite di giorni precedenti non sono più modificabili">🔒 Chiusa</span>`;
 
     c.innerHTML+=`<div class="visit-item">
       <div class="visit-icon" style="background:var(--primary-dim)">${meta.icon}</div>
@@ -10509,11 +10610,11 @@ function renderVisiteList(p){
         <div class="visit-diag">${conclShort}</div>
       </div>
       <div class="visit-actions">
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="visualizzaVisita(${v.id})" title="Visualizza">👁️</button>
+        <button class="btn btn-ghost btn-sm" onclick="visualizzaVisita(${v.id})" title="Visualizza il referto">👁️ Apri</button>
         ${editBtn}
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="stampa(${v.id})" title="Stampa">🖨️</button>
-        <button class="btn btn-ghost btn-sm btn-icon" onclick="scaricaPDFReferto(${v.id})" title="Scarica PDF">📄</button>
-        ${haTerapia?`<button class="btn btn-ghost btn-sm btn-icon" onclick="apriRicettarioVisita(${v.id})" title="Ricettario di questa visita">💊📋</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="stampa(${v.id})" title="Stampa il referto">🖨️ Stampa</button>
+        <button class="btn btn-ghost btn-sm" onclick="scaricaPDFReferto(${v.id})" title="Scarica il referto in PDF">📄 PDF</button>
+        ${haTerapia?`<button class="btn btn-ghost btn-sm" onclick="apriRicettarioVisita(${v.id})" title="Ricettario di questa visita">💊 Ricetta</button>`:''}
       </div>
     </div>`;
   });

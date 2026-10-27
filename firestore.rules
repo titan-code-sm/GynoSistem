@@ -22,7 +22,7 @@ service cloud.firestore {
       allow update: if request.auth != null
         && (request.auth.token.email == 'titancodesm@gmail.com'
             || (request.auth.uid == uid
-                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimoAccesso','mustChangePassword','genere','tema','sezioniPersonalizzate'])));
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimoAccesso','versioneApp','mustChangePassword','genere','tema','sezioniPersonalizzate'])));
       allow delete: if request.auth != null && request.auth.token.email == 'titancodesm@gmail.com';
     }
 
