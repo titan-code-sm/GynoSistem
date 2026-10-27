@@ -359,7 +359,7 @@ exports.inviaEmail = onCall(
       throw new HttpsError("permission-denied", "Account non abilitato.");
     }
 
-    const { oggetto, corpo, destinatari } = request.data || {};
+    const { oggetto, corpo, destinatari, mittente } = request.data || {};
     if (typeof oggetto !== "string" || !oggetto.trim() || oggetto.length > 200) {
       throw new HttpsError("invalid-argument", "Oggetto mancante o troppo lungo.");
     }
@@ -383,6 +383,20 @@ exports.inviaEmail = onCall(
     if (!dest.length) {
       throw new HttpsError("invalid-argument", "Nessun indirizzo email valido tra le destinatarie.");
     }
+
+    // Mittente: le email partono dall'account del servizio con il nome del
+    // medico; in fondo i suoi dati e l'indirizzo a cui rispondere (Reply-To).
+    const m = mittente && typeof mittente === "object" ? mittente : {};
+    const unaRiga = (v, max) => (typeof v === "string" ? v.replace(/[\r\n"<>]+/g, " ").trim().slice(0, max) : "");
+    const nomeMittente = unaRiga(m.nome, 80) || unaRiga(profilo.data().nome, 80);
+    const firma = typeof m.firma === "string"
+      ? m.firma.split(/\r?\n/).map((r) => r.trim().slice(0, 200)).filter(Boolean).slice(0, 8).join("\n")
+      : "";
+    let rispondiA = unaRiga(m.rispondiA, 200);
+    if (!emailRe.test(rispondiA)) rispondiA = request.auth.token.email || "";
+    const piede = "\n\n--\n" + (firma ? firma + "\n\n" : (nomeMittente ? nomeMittente + "\n\n" : "")) +
+      (rispondiA ? `Per rispondere scrivere a: ${rispondiA}\n` : "") +
+      "(Questo indirizzo serve solo per l'invio e non legge le risposte.)";
 
     const oggi = new Date().toISOString().slice(0, 10);
     const usageRef = db.collection("emailUsage").doc(`${uid}_${oggi}`);
@@ -409,10 +423,11 @@ exports.inviaEmail = onCall(
     for (const x of dest) {
       try {
         await transporter.sendMail({
-          from: EMAIL_USER.value().trim(),
+          from: nomeMittente ? { name: nomeMittente, address: EMAIL_USER.value().trim() } : EMAIL_USER.value().trim(),
           to: x.email,
+          ...(rispondiA ? { replyTo: rispondiA } : {}),
           subject: risolviPlaceholder(oggetto, x.nome),
-          text: risolviPlaceholder(corpo, x.nome),
+          text: risolviPlaceholder(corpo, x.nome) + piede,
         });
         risultati.push({ pazienteId: x.pazienteId, nome: x.nome, email: x.email, ok: true });
       } catch (e) {
