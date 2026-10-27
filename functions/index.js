@@ -416,7 +416,7 @@ exports.inviaEmail = onCall(
 
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: { user: EMAIL_USER.value().trim(), pass: EMAIL_PASS.value().trim() },
+      auth: { user: EMAIL_USER.value().trim(), pass: EMAIL_PASS.value().replace(/\s+/g, "") },
     });
 
     const risultati = [];
