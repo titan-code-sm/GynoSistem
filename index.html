@@ -572,6 +572,8 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .edit-panel .field-row{gap:10px;}
 .edit-panel .macro-wrap{margin-top:6px;}
 .edit-panel .macro-btn{padding:3px 9px;font-size:0.72rem;}
+.frasi-wrap{margin-bottom:6px;}
+.frasi-wrap select{width:100%;}
 .section-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--separator);padding:16px 18px;margin-bottom:12px;}
 .section-card h4{font-size:0.82rem;font-weight:700;color:var(--primary);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--separator);display:flex;align-items:center;gap:8px;}
 .section-card h4::before{content:attr(data-icon);font-size:0.9rem;}
@@ -723,8 +725,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 .paz-selected-chip{display:inline-flex;align-items:center;gap:6px;background:var(--primary-dim);color:var(--primary);border-radius:6px;padding:5px 10px;font-size:0.82rem;font-weight:600;margin-top:6px;}
 
 /* Casella combinata: testo libero + freccetta a destra (dentro la casella)
-   che apre un menu con suggerimenti/frasi preformate. Sostituisce le vecchie
-   coppie <select> + casella separata sottostante nelle schede visita. */
+   che apre un menu con suggerimenti. Usata solo sui campi a una riga delle
+   schede visita; le caselle di testo hanno la tendina visibile sopra. */
 .combo-wrap{position:relative;}
 .combo-wrap .combo-input{width:100%;padding-right:32px;box-sizing:border-box;}
 .combo-arrow{position:absolute;top:6px;right:5px;width:24px;height:24px;border:none;background:transparent;color:var(--label4);cursor:pointer;font-size:0.7rem;border-radius:6px;display:flex;align-items:center;justify-content:center;padding:0;}
@@ -4259,16 +4261,22 @@ function fillGDSelect(id, options){
   });
 }
 
+// Frasi rapide di una sezione: tendina «-- Aggiungi frase --» sopra la
+// casella, come i referti dell'ecografia ostetrica. La frase scelta si
+// aggiunge al testo; la tendina torna sulla prima voce, così si può
+// riscegliere anche la stessa frase.
 function fillGDMacro(containerId, obj, targetId){
   const c=document.getElementById(containerId); if(!c)return;
+  const target=document.getElementById(targetId);
+  const riga=target && (target.closest('.form-group') || target);
+  if(riga && c.nextElementSibling!==riga) riga.parentNode.insertBefore(c, riga);
+  c.className='frasi-wrap';
   c.innerHTML='';
-  Object.keys(obj).forEach(label=>{
-    const btn=document.createElement('button');
-    btn.className='macro-btn';
-    btn.textContent=label;
-    btn.onclick=()=>appendGDText(targetId, obj[label]);
-    c.appendChild(btn);
-  });
+  const sel=document.createElement('select');
+  sel.add(new Option('-- Aggiungi frase --',''));
+  Object.keys(obj).forEach(label=>sel.add(new Option(label,label)));
+  sel.onchange=()=>{ if(sel.value) appendGDText(targetId, obj[sel.value]); sel.value=''; };
+  c.appendChild(sel);
 }
 
 // Aggiunge testo a una casella (input o textarea) già compilata, scegliendo
@@ -4314,8 +4322,21 @@ function initComboBoxes(){
     if(!targetId) return;
     const target = document.getElementById(targetId);
     if(!target || target.dataset.comboDone) return;
+    // Caselle di testo (referti, note, conclusioni…): tendina visibile sopra
+    // la casella, come in Ecografia ostetrica. Combinata solo sui campi a una riga.
+    if(target.tagName==='TEXTAREA'){ mostraTendinaSopra(sel, target); return; }
     creaComboBox(sel, target);
   });
+}
+
+function mostraTendinaSopra(sel, target){
+  target.dataset.comboDone = '1';
+  const box = sel.parentElement;
+  if(box && box !== target.parentElement){
+    // Riquadro "Seleziona template": l'etichetta non serve, basta la tendina
+    const lab = box.querySelector(':scope > .form-label');
+    if(lab) lab.style.display = 'none';
+  }
 }
 
 function creaComboBox(sel, target){
