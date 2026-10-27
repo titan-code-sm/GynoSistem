@@ -7671,6 +7671,7 @@ async function archivioErroreEsci(){
 // Chiamata al logout (o se l'accesso viene bloccato): svuota subito i dati
 // clinici dalla memoria, non lasciarli visibili/modificabili dietro l'overlay.
 function scaricaDatiLocaliUtente(){
+  if(_salvaDbTimer) _scriviArchivioOra(); // le ultime modifiche non vanno perse
   gsDbStorageKey = null;
   DB = { pazienti:[], agenda:[] };
 }
@@ -8345,6 +8346,10 @@ function creaPaziente(){
   const nascita=document.getElementById('n-nascita').value, tel=document.getElementById('n-tel').value;
   const problemi=validaAnagrafica({nascita, tel});
   if(!confermaSalvaConProblemi(problemi)) return;
+  const norm=s=>String(s||'').trim().toLowerCase();
+  const cfNuovo=norm(document.getElementById('n-cf').value);
+  const doppia=DB.pazienti.find(x=>(norm(x.nome)===norm(n) && norm(x.cognome)===norm(c) && (x.nascita||'')===(nascita||'')) || (cfNuovo && norm(x.cf)===cfNuovo));
+  if(doppia && !confirm(`⚠️ In archivio c'è già ${doppia.cognome} ${doppia.nome}${doppia.nascita?' ('+new Date(doppia.nascita).toLocaleDateString('it-IT')+')':''}.\n\nOK per creare comunque una nuova cartella, Annulla per aprire quella esistente.`)){ openPaziente(doppia.id); return; }
   const p={id:Date.now(),nome:n,cognome:c,nascita,tel,email:document.getElementById('n-email').value,cf:document.getElementById('n-cf').value.toUpperCase(),note:document.getElementById('n-note').value,visite:[],alerts:[]};
   DB.pazienti.push(p);salvaDB();
   registraLog('paziente','Nuova paziente creata');
@@ -10140,6 +10145,9 @@ function creaPromemoriaDaProssimoControllo(p, v, testoProssimo){
 
 
 function salvaVisita(){
+  // Doppio clic su «Salva Referto»: la finestra si sta già chiudendo, la
+  // visita è già salvata (altrimenti ne nascerebbe una copia).
+  if(document.getElementById('editor-overlay').classList.contains('closing')) return;
   // La visita va sempre nella cartella della paziente per cui è stata aperta,
   // anche se nel frattempo è stata aperta un'altra cartella.
   const pid=_editorPazId!=null ? _editorPazId : curPaz;
@@ -13854,6 +13862,7 @@ function exportCSV(){
 // qualsiasi cosa: caricare per sbaglio un file diverso (es. il download
 // automatico di una singola visita) non deve poter svuotare l'archivio.
 async function restoreData(input){
+  let importazioneAvviata=false;
   const file=input.files[0];
   input.value='';
   if(!file) return;
@@ -13891,14 +13900,18 @@ async function restoreData(input){
       try{ await gsDesktop.istantanea(); }
       catch(e){ if(!confirm('Non è stato possibile salvare una versione di sicurezza dei dati attuali.\n\nImportare comunque il backup?')) return; }
     }
+    // Allegati del backup letti tutti PRIMA di toccare quelli attuali: un file
+    // danneggiato ferma l'importazione senza aver cancellato nulla.
+    const nuoviAllegati = backup.allegati ? backup.allegati.map(v=>{
+      const {dati:b64,...meta}=v;
+      return {...meta, blob:new Blob([gsB64ToBuf(b64||'')],{type:meta.tipo||'application/octet-stream'})};
+    }) : null;
+    importazioneAvviata=true;
     DB=a;
     if(!DB.agenda) DB.agenda=[];
-    if(backup.allegati){
+    if(nuoviAllegati){
       await GS_STORAGE.allegati.svuota();
-      for(const v of backup.allegati){
-        const {dati:b64,...meta}=v;
-        await GS_STORAGE.allegati.aggiungi({...meta, blob:new Blob([gsB64ToBuf(b64||'')],{type:meta.tipo||'application/octet-stream'})});
-      }
+      for(const v of nuoviAllegati) await GS_STORAGE.allegati.aggiungi(v);
     }
     if(backup.preferenze){
       const uid=gsCurrentUser?gsCurrentUser.uid:'anon';
@@ -13909,7 +13922,9 @@ async function restoreData(input){
     location.reload();
   }catch(e){
     console.error('Importazione backup:', e);
-    alert('Importazione non riuscita: '+(e.message||e));
+    alert('Importazione non riuscita: '+(e.message||e)+(importazioneAvviata?'\n\nIl programma viene ricaricato. Se mancano dati, ripeti l\'importazione o torna alla versione di sicurezza in Archiviazione → Database interno.':''));
+    // L'archivio in memoria era già quello del backup: si riparte da quello salvato
+    if(importazioneAvviata) location.reload();
   }
 }
 
