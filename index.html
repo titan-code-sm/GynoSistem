@@ -186,6 +186,7 @@ aside{width:248px;background:linear-gradient(180deg,var(--primary-dim) 0,transpa
 .app-brand{display:flex;align-items:center;gap:10px;padding:16px 18px 6px;}
 .app-brand img{width:34px;height:34px;flex-shrink:0;}
 .app-brand-nome{font-weight:700;font-size:.98rem;letter-spacing:-.01em;color:var(--label);line-height:1.1;}
+.app-brand-versione{font-size:.68rem;font-weight:600;color:var(--label4);margin-left:6px;letter-spacing:0;}
 .app-brand-spec{font-size:.72rem;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;}
 .brand-area{margin:10px 12px 8px;padding:10px 12px;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--separator);border-radius:12px;}
 .brand-avatar{width:40px;height:40px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:700;font-size:0.95rem;color:#fff;flex-shrink:0;}
@@ -1076,7 +1077,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <aside>
   <div class="app-brand">
     <img src="logo.png" alt="">
-    <div><div class="app-brand-nome">MED System</div><div class="app-brand-spec">Gineco</div></div>
+    <div><div class="app-brand-nome">MED System<span class="app-brand-versione" id="app-brand-versione"></span></div><div class="app-brand-spec">Gineco</div></div>
   </div>
   <div class="brand-area">
     <div class="brand-avatar" id="sidebar-brand-avatar">🩺</div>
@@ -6854,6 +6855,11 @@ function controllaBackupAutomatico(){
   }, 6000);
 }
 setInterval(()=>{ if(window.__TAURI__ && gsCurrentUser && gsDbStorageKey && !_gsBloccato && _bkaScaduto()) eseguiBackupAutomatico(false); }, 60*60*1000);
+
+// Versione dell'app installata accanto a «MED System» (solo app desktop)
+if(window.__TAURI__ && window.__TAURI__.app){
+  window.__TAURI__.app.getVersion().then(v=>{ const el=document.getElementById('app-brand-versione'); if(el && v) el.textContent='v'+v; }).catch(()=>{});
+}
 
 function startClock(){
   setInterval(()=>{
