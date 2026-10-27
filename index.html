@@ -555,6 +555,13 @@ body.dark-mode .mfv-guida b{color:var(--label);}
 .editor-data-wrap{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--label3);background:var(--surface2);border:1px solid var(--separator);border-radius:8px;padding:4px 6px 4px 10px;}
 .editor-data-wrap input{width:auto;padding:5px 8px;font-size:.84rem;}
 .editor-topbar h3{font-family:var(--font);font-weight:700;font-size:1.05rem;flex:1;}
+/* Finestra stretta: titolo e data su una riga, pulsanti sotto (niente titolo spezzato) */
+@media (max-width:1250px){
+  .editor-topbar{flex-wrap:wrap;row-gap:10px;padding:12px 20px;}
+  .editor-topbar > div:first-child{flex:1 1 100%;}
+  .editor-topbar h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  .editor-topbar .editor-data-wrap span{white-space:nowrap;}
+}
 .editor-body{display:flex;flex:1;min-width:0;overflow:hidden;}
 .editor-nav{width:200px;background:var(--surface);border-right:1px solid var(--separator);padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
 .editor-nav-btn{padding:9px 12px;text-align:left;background:transparent;border:none;border-radius:8px;font-family:var(--font);font-size:0.85rem;font-weight:500;color:var(--label3);cursor:pointer;transition:0.15s;display:flex;align-items:center;gap:10px;}
@@ -1027,7 +1034,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <img src="logo-medsystem.png" alt="MED System" class="login-logo">
     </div>
     <h1 class="sr-only">MED System</h1>
-    <div class="login-version" style="margin-bottom:22px;">Gineco · v15.0 · San Marino</div>
+    <div class="login-version" style="margin-bottom:22px;">Gineco · v15.0</div>
     <form id="login-form" autocomplete="on" onsubmit="event.preventDefault();checkLogin();">
       <input type="email" id="login-email" name="email" class="login-input" placeholder="Email" autocomplete="username" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}">
       <div class="pass-wrap">
@@ -1817,8 +1824,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <div style="margin-top:12px">
         <div class="form-group" style="margin-bottom:10px"><label class="form-label">Nome Medico</label><input type="text" id="rxv-cfg-nome" placeholder="es. Dott.ssa Maria Rossi"></div>
         <div class="form-group" style="margin-bottom:10px"><label class="form-label">Specializzazione</label><input type="text" id="rxv-cfg-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
-        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Indirizzo Studio</label><input type="text" id="rxv-cfg-indirizzo" placeholder="Via Roma 12, San Marino"></div>
-        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Telefono / Email</label><input type="text" id="rxv-cfg-contatti" placeholder="Tel. 0549 000000 · info@studioguidi.sm"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Indirizzo Studio</label><input type="text" id="rxv-cfg-indirizzo" placeholder="Via Roma 12, Città"></div>
+        <div class="form-group" style="margin-bottom:10px"><label class="form-label">Telefono / Email</label><input type="text" id="rxv-cfg-contatti" placeholder="Tel. 000 000000 · info@studiomedico.it"></div>
         <div class="form-group" style="margin-bottom:0">
           <label class="form-label">Logo (immagine)</label>
           <input type="file" id="rxv-cfg-logo" accept="image/*" onchange="caricaLogoRicetta(this)">
@@ -2222,7 +2229,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
     <div class="field-row r2" style="margin-bottom:6px">
       <div class="form-group"><label class="form-label">Indirizzo dello studio</label><input id="bv-indirizzo" placeholder="es. Via Roma 1, Città"></div>
-      <div class="form-group"><label class="form-label">Contatti</label><input id="bv-contatti" placeholder="es. Tel. 0549 000000 · studio@email.it"></div>
+      <div class="form-group"><label class="form-label">Contatti</label><input id="bv-contatti" placeholder="es. Tel. 000 000000 · studio@email.it"></div>
     </div>
     <div class="bv-sez">2 · Il tuo logo</div>
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -2353,8 +2360,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <div class="form-group"><label class="form-label">Specializzazione / titolo</label><input type="text" id="set-print-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
     </div>
     <div class="field-row r2" style="margin-bottom:10px">
-      <div class="form-group"><label class="form-label">Indirizzo studio</label><input type="text" id="set-print-indirizzo" placeholder="Via Roma 12, San Marino"></div>
-      <div class="form-group"><label class="form-label">Telefono / email</label><input type="text" id="set-print-contatti" placeholder="Tel. 0549 000000 · info@studioguidi.sm"></div>
+      <div class="form-group"><label class="form-label">Indirizzo studio</label><input type="text" id="set-print-indirizzo" placeholder="Via Roma 12, Città"></div>
+      <div class="form-group"><label class="form-label">Telefono / email</label><input type="text" id="set-print-contatti" placeholder="Tel. 000 000000 · info@studiomedico.it"></div>
     </div>
     <div class="field-row r2" style="margin-bottom:10px">
       <div class="form-group"><label class="form-label">Testo della firma</label><input type="text" id="set-print-firma" placeholder="es. Dott.ssa Maria Rossi"></div>
@@ -2388,7 +2395,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <div class="form-group"><label class="form-label">Colore accento (intestazione)</label><input type="color" id="set-print-colore" style="height:40px;padding:2px;width:100%"></div>
       <div class="form-group"><label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:24px"><input type="checkbox" id="set-print-mostralogo" style="width:18px;height:18px"> Mostra il logo nelle stampe</label></div>
     </div>
-    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Piè di pagina (facoltativo)</label><input type="text" id="set-print-piepagina" placeholder="es. P.IVA 12345 · www.studioguidi.sm"></div>
+    <div class="form-group" style="margin-bottom:12px"><label class="form-label">Piè di pagina (facoltativo)</label><input type="text" id="set-print-piepagina" placeholder="es. P.IVA 12345 · www.studiomedico.it"></div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px">
       <button class="btn btn-primary" onclick="salvaImpostazioniStampa()">💾 Salva impostazioni</button>
@@ -3996,12 +4003,12 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <!-- PRINT AREA -->
 <div id="print-area">
   <div class="ph">
-    <div class="ph-logo" id="ph-logo">CG</div>
+    <div class="ph-logo" id="ph-logo">MS</div>
     <div class="ph-info">
       <h1 id="ph-name"></h1>
-      <p id="ph-spec">Medico Chirurgo · Specialista in Ginecologia e Ostetricia</p>
-      <p id="ph-addr">Viale della Repubblica, 12 · 47890 San Marino</p>
-      <p id="ph-tel-email">Tel: 0549 999999 · cristina.guidi@med.sm</p>
+      <p id="ph-spec"></p>
+      <p id="ph-addr"></p>
+      <p id="ph-tel-email"></p>
     </div>
   </div>
   <div class="pb-grid">
@@ -4103,7 +4110,7 @@ const GS_APP_FILE='MEDSystem'+(GS_APP_SPECIALITA?'_'+GS_APP_SPECIALITA:''); // p
   testo('.app-brand-spec', m.specialita);
   testo('.brand-role', m.ruolo);
   const lv=document.querySelector('#login-overlay .login-version');
-  if(lv) lv.textContent=(m.specialita?m.specialita+' · ':'')+'v15.0 · San Marino';
+  if(lv) lv.textContent=(m.specialita?m.specialita+' · ':'')+'v15.0';
   if(GS_MODELLO!=='gineco'){
     ['rxv-cfg-spec','bv-spec','set-print-spec'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder='es. Specialista in Cardiologia'; });
     // In Base "paziente" è al maschile/neutro, non solo al femminile
@@ -8873,7 +8880,7 @@ function openPaziente(id){
   const p=DB.pazienti.find(x=>x.id===id);
   if(!p.visite)p.visite=[];if(!p.alerts)p.alerts=[];
   naviga('dettaglio');
-  const eta=p.nascita?(new Date().getFullYear()-new Date(p.nascita).getFullYear())+'anni':'–';
+  const eta=p.nascita?(new Date().getFullYear()-new Date(p.nascita).getFullYear())+' anni':'–';
   document.getElementById('d-titolo').textContent=`${p.cognome} ${p.nome}`;
   document.getElementById('d-sottotitolo').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'';
   document.getElementById('h-eta').textContent=`📅 ${eta}`;
@@ -9577,6 +9584,12 @@ function delAlert(id){const p=DB.pazienti.find(x=>x.id===curPaz);p.alerts=p.aler
 //  EDITOR REFERTO
 // ═══════════════════════════════════════════════════
 function openTypeModal(){
+  // Una visita ridotta a icona e non salvata andrebbe persa aprendone un'altra
+  if(document.getElementById('editor-min-bar').classList.contains('show')){
+    const pv=DB.pazienti.find(x=>x.id===_editorPazId);
+    if(!confirm(`⚠️ C'è una visita${pv?` di ${pv.cognome} ${pv.nome}`:''} ridotta a icona e non ancora salvata.\n\nPremi Annulla per tornare a quella visita, OK per scartarla e iniziarne una nuova.`)){ restoreEditor(); return; }
+    document.getElementById('editor-min-bar').classList.remove('show');
+  }
   document.getElementById('modal-type').classList.add('show');
 }
 function closeModal(id){
@@ -9599,7 +9612,14 @@ function restoreEditor(){
   // Con la visita ridotta a icona si può aprire un'altra cartella: prima di
   // riaprirla si torna alla paziente della visita, altrimenti il salvataggio
   // finirebbe nella cartella sbagliata.
-  if(_editorPazId!=null && curPaz!==_editorPazId && DB.pazienti.some(x=>x.id===_editorPazId)) openPaziente(_editorPazId);
+  if(_editorPazId!=null && curPaz!==_editorPazId){
+    if(!DB.pazienti.some(x=>x.id===_editorPazId)){
+      document.getElementById('editor-min-bar').classList.remove('show');
+      if(typeof gsToast==='function') gsToast('La paziente di questa visita non è più in archivio','gs-error');
+      return;
+    }
+    openPaziente(_editorPazId);
+  }
   document.getElementById('editor-min-bar').classList.remove('show');
   document.getElementById('editor-overlay').classList.add('show');
 }
@@ -10120,7 +10140,12 @@ function creaPromemoriaDaProssimoControllo(p, v, testoProssimo){
 
 
 function salvaVisita(){
-  const p=DB.pazienti.find(x=>x.id===curPaz);
+  // La visita va sempre nella cartella della paziente per cui è stata aperta,
+  // anche se nel frattempo è stata aperta un'altra cartella.
+  const pid=_editorPazId!=null ? _editorPazId : curPaz;
+  const p=DB.pazienti.find(x=>x.id===pid);
+  if(!p){ if(typeof gsToast==='function') gsToast('Paziente della visita non trovata: visita non salvata','gs-error'); return; }
+  if(curPaz!==pid) openPaziente(pid);
   const esistente=curVisita?p.visite.find(x=>x.id===curVisita):null;
   const v={
     id:curVisita||Date.now(),
@@ -14022,7 +14047,7 @@ function closeSidebar(){
     ctx.font='bold 190px "DM Serif Display",Georgia,serif';
     ctx.textAlign='center';
     ctx.textBaseline='middle';
-    ctx.fillText('CG', SZ/2, SZ/2+8);
+    ctx.fillText('MS', SZ/2, SZ/2+8);
     // Linea decorativa sotto
     ctx.fillStyle='rgba(255,255,255,0.3)';
     ctx.fillRect(SZ/2-80, SZ/2+90, 160, 3);
@@ -14047,7 +14072,7 @@ function closeSidebar(){
   };
 
   img.onerror=function(){
-    // Nessun logo.png: usa le iniziali "CG" su gradiente
+    // Nessun logo.png: usa le iniziali "MS" su gradiente
     drawBackground(ctx);
     drawFallbackText(ctx);
     injectIcon(canvas.toDataURL('image/png'));

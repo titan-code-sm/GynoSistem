@@ -26,7 +26,7 @@ await rm(APP, { recursive: true, force: true });
 await mkdir(VENDOR, { recursive: true });
 await mkdir(CACHE, { recursive: true });
 
-for (const f of ['logo.png', 'logo-medsystem.png', 'logo2.png', 'demo-pazienti.json', 'demo-base.json', 'demo-proct.json']) {
+for (const f of ['logo.png', 'logo-medsystem.png', 'demo-pazienti.json', 'demo-base.json', 'demo-proct.json']) {
   if (existsSync(path.join(ROOT, f))) await cp(path.join(ROOT, f), path.join(APP, f));
 }
 if (existsSync(path.join(ROOT, 'consensi-pdf'))) {
