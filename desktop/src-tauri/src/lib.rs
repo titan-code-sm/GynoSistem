@@ -13,6 +13,7 @@
 // file e la ripristina, invece di perdere l'accesso ai dati.
 use tauri::Manager;
 use tauri_plugin_dialog::DialogExt;
+use tauri_plugin_opener::OpenerExt;
 
 const CHIAVE_DB: &str = "chiave-database";
 const SEGRETI_AMMESSI: [&str; 1] = ["password-backup"];
@@ -198,6 +199,40 @@ fn backup_elenca(cartella: String, prefisso: String) -> Vec<FileBackup> {
     elenca(std::path::Path::new(&cartella), &prefisso)
 }
 
+// ── PDF generati dall'app (referto, cartella) ──
+// La finestra dell'app non gestisce bene i download: il PDF arriva qui come
+// byte grezzi, l'operatore sceglie dove salvarlo («Salva con nome») e il file
+// si apre subito nel lettore PDF di Windows. None = salvataggio annullato.
+#[tauri::command]
+async fn pdf_salva(app: tauri::AppHandle, request: tauri::ipc::Request<'_>) -> Result<Option<String>, String> {
+    let tauri::ipc::InvokeBody::Raw(dati) = request.body() else { return Err("contenuto del PDF mancante".into()) };
+    if !dati.starts_with(b"%PDF") { return Err("il file generato non è un PDF".into()); }
+    let nome = request.headers().get("x-nome").and_then(|v| v.to_str().ok()).unwrap_or("documento.pdf");
+    let nome: String = percent_decode(nome).chars()
+        .map(|c| if c.is_alphanumeric() || c == '_' || c == '-' || c == '.' || c == ' ' { c } else { '_' })
+        .take(120).collect();
+    let nome = if nome.to_lowercase().ends_with(".pdf") { nome } else { format!("{nome}.pdf") };
+    let mut dialogo = app.dialog().file().set_title("Salva PDF").set_file_name(&nome).add_filter("PDF", &["pdf"]);
+    if let Ok(doc) = app.path().document_dir() { dialogo = dialogo.set_directory(doc); }
+    let Some(dest) = dialogo.blocking_save_file().and_then(|p| p.into_path().ok()) else { return Ok(None) };
+    std::fs::write(&dest, dati).map_err(|e| format!("impossibile salvare il file: {e}"))?;
+    let _ = app.opener().open_path(dest.to_string_lossy(), None::<&str>);
+    Ok(Some(dest.to_string_lossy().to_string()))
+}
+fn percent_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len());
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() {
+            if let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16) { out.push(v); i += 3; continue; }
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8_lossy(&out).into_owned()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -214,7 +249,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             chiave_db_leggi, chiave_db_salva, segreto_leggi, segreto_salva,
-            backup_scegli_cartella, backup_scrivi, backup_elenca
+            backup_scegli_cartella, backup_scrivi, backup_elenca, pdf_salva
         ])
         .run(tauri::generate_context!())
         .expect("errore durante l'avvio di MED System");

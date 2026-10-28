@@ -271,6 +271,21 @@
     if(web) window.open(href);
     else apriPannello(new URL(href, location.href).href, a.textContent.replace(/^\W+/, '').trim());
   }, true);
+  // PDF generati dall'app (referto, cartella): la finestra non gestisce i
+  // download, quindi «Salva con nome» di Windows e apertura nel lettore PDF.
+  // Restituisce false se l'operatore annulla.
+  window.gsSalvaPdf = async function(blob, nome){
+    try{
+      const percorso = await invoke('pdf_salva', new Uint8Array(await blob.arrayBuffer()), { headers: { 'X-Nome': encodeURIComponent(nome || 'documento.pdf') } });
+      if(!percorso) return false;
+      if(typeof gsToast==='function') gsToast('📄 PDF salvato: ' + percorso, 'gs-success');
+      return true;
+    }catch(e){
+      console.error('Salvataggio PDF:', e);
+      if(typeof gsToast==='function') gsToast('⚠️ PDF non salvato: ' + (e && e.message || e), 'gs-error');
+      return false;
+    }
+  };
   window.gsApriBlob = function(blob){
     const url = URL.createObjectURL(blob);
     apriPannello(url, 'Allegato');
