@@ -12621,6 +12621,58 @@ function stampa(vid){
 // passato, poi la cattura con html2canvas/html2pdf e scarica il file.
 // Condivisa da scaricaPDFReferto (una visita) ed esportaCartellaPDF (tutte
 // le visite di una paziente).
+// html2canvas (dentro html2pdf) non riconosce i colori scritti come
+// «color(srgb …)», che è come il browser restituisce i colori calcolati con
+// color-mix() (sfondo e bordi tinti col colore del tema): la generazione del
+// PDF si fermava con un errore. Nella copia del documento che html2canvas
+// fotografa, quei valori vengono riscritti come rgb()/rgba() equivalenti.
+const _GS_PROPRIETA_COLORE=['color','background-color','background-image','border-top-color','border-right-color','border-bottom-color','border-left-color','outline-color','text-decoration-color','column-rule-color','box-shadow','text-shadow','caret-color','fill','stroke'];
+function _gsColoreSrgbInRgb(testo){
+  return testo.replace(/color\(srgb\s+([-\d.e]+)\s+([-\d.e]+)\s+([-\d.e]+)(?:\s*\/\s*([-\d.e]+%?))?\s*\)/g,(m,r,g,b,a)=>{
+    const c=x=>Math.round(Math.min(1,Math.max(0,parseFloat(x)))*255);
+    let alfa=a===undefined?1:(a.endsWith('%')?parseFloat(a)/100:parseFloat(a));
+    if(!(alfa>=0)) alfa=1;
+    return `rgba(${c(r)}, ${c(g)}, ${c(b)}, ${alfa})`;
+  });
+}
+function gsColoriCompatibiliPdf(doc){
+  const win=doc.defaultView; if(!win) return;
+  // Solo ciò che html2canvas legge: la pagina, il body e l'area da stampare.
+  const radice=doc.getElementById('print-area')||doc.body;
+  [doc.documentElement, doc.body, radice, ...radice.querySelectorAll('*')].forEach(el=>{
+    const cs=win.getComputedStyle(el);
+    for(const prop of _GS_PROPRIETA_COLORE){
+      const v=cs.getPropertyValue(prop);
+      if(!v || v.indexOf('color(')<0) continue;
+      const nuovo=_gsColoreSrgbInRgb(v);
+      // Un colore in uno spazio diverso da srgb (non usato dall'app) non è
+      // convertibile qui: meglio senza ombra/sfondo che un PDF che non parte.
+      el.style.setProperty(prop, nuovo.indexOf('color(')<0 ? nuovo : (/color$/.test(prop)?'#000':'none'), 'important');
+    }
+  });
+}
+// html2canvas legge lo sfondo di <html> e <body> dalla pagina vera, non dalla
+// copia: per la durata della generazione li si scrive in rgb(). Restituisce la
+// funzione che rimette com'erano.
+function gsSfondoPaginaCompatibilePdf(){
+  const vecchi=[document.documentElement, document.body].map(el=>{
+    const prima=el.style.getPropertyValue('background-color'), prio=el.style.getPropertyPriority('background-color');
+    const v=getComputedStyle(el).backgroundColor;
+    if(v && v.indexOf('color(')>=0){
+      const nuovo=_gsColoreSrgbInRgb(v);
+      el.style.setProperty('background-color', nuovo.indexOf('color(')<0 ? nuovo : '#fff', 'important');
+    }
+    return ()=>el.style.setProperty('background-color', prima, prio);
+  });
+  return ()=>vecchi.forEach(f=>f());
+}
+// Consegna il PDF generato: nell'app desktop «Salva con nome» e apertura nel
+// lettore PDF di Windows (gsSalvaPdf, desktop-bridge.js), nel browser il
+// normale download.
+function _gsConsegnaPdf(lavoro, nomeFile){
+  if(typeof window.gsSalvaPdf==='function') return lavoro.outputPdf('blob').then(b=>window.gsSalvaPdf(b, nomeFile));
+  return lavoro.save();
+}
 function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
   if(typeof html2pdf==='undefined'){ if(typeof gsToast==='function') gsToast('⚠️ Libreria PDF non disponibile: verifica la connessione internet e riprova','gs-error'); return; }
 
@@ -12676,7 +12728,9 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
 
   if(typeof gsToast==='function') gsToast('📄 Generazione PDF in corso…','gs-info');
 
+  const ripristinaSfondo=gsSfondoPaginaCompatibilePdf();
   const ripristina=()=>{
+    ripristinaSfondo();
     area.style.display='none';
     area.style.position=''; area.style.left=''; area.style.top=''; area.style.zIndex=''; area.style.pointerEvents=''; area.style.background=''; area.style.color='';
     area.style.fontFamily=''; area.style.fontSize=''; area.style.width='';
@@ -12702,7 +12756,7 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
     // reale dell'area, tagliando/spostando il referto nel PDF risultante.
     // scrollX/scrollY:0 forza la cattura sempre dall'origine del documento,
     // indipendentemente da dove si trovava la pagina in quel momento.
-    html2pdf().set({
+    const lavoro=html2pdf().set({
       margin: l.margine||15,
       filename: nomeFile+'.pdf',
       image: {type:'jpeg', quality:0.98},
@@ -12712,12 +12766,13 @@ function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
       // Se i due valori differiscono, la cattura parte da un punto sbagliato (spostamento
       // pari a metà della differenza): il PDF usciva tagliato a sinistra e vuoto a destra
       // su monitor larghi, perfetto solo con finestre strette.
-      html2canvas: {scale:2, useCORS:true, width:larghezza, height:altezza, windowWidth:document.documentElement.clientWidth, windowHeight:altezza, scrollX:0, scrollY:0},
+      html2canvas: {scale:2, useCORS:true, onclone:gsColoriCompatibiliPdf, width:larghezza, height:altezza, windowWidth:document.documentElement.clientWidth, windowHeight:altezza, scrollX:0, scrollY:0},
       jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'},
       pagebreak: {mode:['css','legacy']}
-    }).from(area).save().then(()=>{
+    }).from(area);
+    _gsConsegnaPdf(lavoro, nomeFile+'.pdf').then(salvato=>{
       ripristina();
-      registraLog('stampa', logDescrizione);
+      if(salvato!==false) registraLog('stampa', logDescrizione);
     }).catch(e=>{
       console.warn('Generazione PDF:',e);
       ripristina();
@@ -13309,15 +13364,20 @@ function stampaRiepilogoGravidanza(pazId, gravidanzaId){
         // temporaneamente per non lasciare uno spazio vuoto in cima alla pagina.
         var vecchioPadding=document.body.style.paddingTop;
         document.body.style.paddingTop='10px';
-        html2pdf().set({
+        // App desktop: questa pagina è nel pannello interno, il salvataggio
+        // passa dall'app («Salva con nome»), non da un download.
+        var salvaApp=null;
+        try{ if(window.parent && window.parent!==window && typeof window.parent.gsSalvaPdf==='function') salvaApp=window.parent.gsSalvaPdf; }catch(e){}
+        var lavoro=html2pdf().set({
           margin:[12,10,12,10],
           filename:${JSON.stringify(nomeFile+'.pdf')},
           image:{type:'jpeg',quality:0.98},
           html2canvas:{scale:2, useCORS:true, ignoreElements:function(el){ return el.classList && el.classList.contains('no-print'); }},
           jsPDF:{unit:'mm', format:'a4', orientation:'portrait'},
           pagebreak:{mode:['css','legacy']}
-        }).from(document.body).save().then(function(){
-          if(stato) stato.textContent='PDF scaricato ✓';
+        }).from(document.body);
+        (salvaApp ? lavoro.outputPdf('blob').then(function(b){ return salvaApp(b, ${JSON.stringify(nomeFile+'.pdf')}); }) : lavoro.save()).then(function(ok){
+          if(stato) stato.textContent=ok===false?'':'PDF salvato ✓';
           if(btn) btn.disabled=false;
           document.body.style.paddingTop=vecchioPadding;
         }).catch(function(e){
