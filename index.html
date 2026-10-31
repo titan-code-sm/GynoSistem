@@ -4836,6 +4836,17 @@ function _tendinaApplica(c){
   if(vuota) c.sel.appendChild(vuota);
   Object.entries(GD[c.id]||{}).forEach(([t,full])=>{ const o=document.createElement('option'); o.textContent=t; o.dataset.full=full; c.sel.appendChild(o); });
 }
+// Firestore restituisce le voci di una sezione in ordine alfabetico: l'ordine
+// scelto dal medico viaggia a parte (pacchetto.ordine[id]) e qui si riapplica.
+// Le voci non elencate (es. aggiunte dal portale) vanno in fondo.
+function _frasiOrdina(id, v){
+  const ord=gsPacchetto && gsPacchetto.ordine && gsPacchetto.ordine[id];
+  if(!v || Array.isArray(v) || !Array.isArray(ord)) return v;
+  const out={};
+  ord.forEach(k=>{ if(Object.prototype.hasOwnProperty.call(v,k)) out[k]=v[k]; });
+  Object.keys(v).forEach(k=>{ if(!(k in out)) out[k]=v[k]; });
+  return out;
+}
 function _frasiChiave(){ return 'gs_frasi_'+(gsCurrentUser?gsCurrentUser.uid:'anon'); }
 function _frasiSalvate(){ try{ return JSON.parse(localStorage.getItem(_frasiChiave()))||{}; }catch(e){ return {}; } }
 const _frasiClona=v=>JSON.parse(JSON.stringify(v));
@@ -4851,7 +4862,7 @@ function applicaFrasiPersonalizzate(){
   const sezPacchetto=(gsPacchetto && gsPacchetto.sezioni) || {};
   _frasiCategorie().forEach(c=>{
     if(!(c.id in _FRASI_BASE)) _FRASI_BASE[c.id]=_frasiClona(GD[c.id]); // testi del programma
-    let pred=sezPacchetto[c.id]!==undefined ? _frasiClona(sezPacchetto[c.id]) : _frasiClona(_FRASI_BASE[c.id]);
+    let pred=sezPacchetto[c.id]!==undefined ? _frasiOrdina(c.id, _frasiClona(sezPacchetto[c.id])) : _frasiClona(_FRASI_BASE[c.id]);
     if(c.tipo==='modelli' && pred && !Array.isArray(pred)) pred={'':'', ...pred};
     _FRASI_PREDEFINITE[c.id]=pred;
     // null = "ripristina" del medico non ancora inviato al pacchetto
@@ -4881,25 +4892,26 @@ function renderFrasiPronte(forza){
     sel.innerHTML=gruppi.map(g=>`<optgroup label="${_escHtml(g)}">${cats.filter(c=>etichetta(c)===g).map(c=>`<option value="${c.id}">${_escHtml(c.nome)}</option>`).join('')}</optgroup>`).join('');
   }
   if(sel.value!==_frasiCat || forza){
-    if(_frasiModificata && !forza && !confirm('Ci sono modifiche non salvate in questa sezione: andranno perse. Continuare?')){ sel.value=_frasiCat; return; }
+    // Cambiando sezione le modifiche di quella aperta si salvano da sole
+    // (prima si perdevano con un clic di troppo). frasiSalva ridisegna già la
+    // nuova sezione; se i testi non sono validi si resta su quella aperta.
+    if(_frasiModificata && !forza && _frasiCat){
+      const nuova=sel.value; sel.value=_frasiCat;
+      if(!frasiSalva()) return;
+      sel.value=nuova;
+    }
     _frasiCat=sel.value;
     const cat=_frasiCategorie().find(c=>c.id===_frasiCat);
     _frasiBozza=_frasiInBozza(cat, GD[_frasiCat]);
     _frasiModificata=false;
   }
   const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
-  const salvate=_frasiSalvate();
-  document.getElementById('frasi-descr').innerHTML=
-    (cat.passo?'<span style="color:var(--label4)">'+_escHtml(cat.gruppo)+' › '+_escHtml(cat.passo)+'</span><br>':'')+
-    (cat.id.startsWith('opz_')?'Ogni voce è una <strong>voce della tendina</strong> di questo riquadro: il titolo è la voce, il testo è ciò che viene inserito.':cat.tipo==='frasi'?'Ogni voce è un <strong>pulsante</strong> nella scheda visita: il titolo è la scritta del pulsante, il testo è ciò che viene inserito.'
-    :cat.tipo==='modelli'?'Ogni voce è un <strong>testo standard</strong> scelto dalla tendina della scheda visita (sostituisce il contenuto del campo).'
-    :'Ogni voce è un <strong>pulsante</strong> che aggiunge la sua scritta al campo.')+
-    (salvate[_frasiCat]!==undefined?' <span style="color:var(--orange);font-weight:600">· Salvata su questo PC, in attesa di invio al tuo account</span>':(gsPacchetto&&gsPacchetto.sezioni&&gsPacchetto.sezioni[_frasiCat]!==undefined?' <span style="color:var(--green);font-weight:600">· Personalizzata (salvata sul tuo account)</span>':' <span style="color:var(--label4)">· Predefinita</span>'));
+  _frasiDescr(cat);
   const box=document.getElementById('frasi-lista');
   box.innerHTML=_frasiBozza.length ? _frasiBozza.map((f,i)=>`
     <div style="display:grid;grid-template-columns:${cat.tipo==='elenco'?'1fr':'minmax(140px,220px) 1fr'} auto;gap:8px;align-items:start;padding:8px 0;border-bottom:1px solid var(--separator)">
-      <input value="${_escHtml(f.titolo)}" placeholder="${cat.tipo==='elenco'?'Voce':'Titolo del pulsante'}" oninput="_frasiBozza[${i}].titolo=this.value;_frasiModificata=true">
-      ${cat.tipo==='elenco'?'':`<textarea rows="${Math.min(8,Math.max(2,Math.ceil((f.testo||'').length/90)))}" placeholder="Testo inserito nella scheda" oninput="_frasiBozza[${i}].testo=this.value;_frasiModificata=true">${_escHtml(f.testo)}</textarea>`}
+      <input value="${_escHtml(f.titolo)}" placeholder="${cat.tipo==='elenco'?'Voce':'Titolo del pulsante'}" oninput="_frasiBozza[${i}].titolo=this.value;_frasiTocca()">
+      ${cat.tipo==='elenco'?'':`<textarea rows="${Math.min(8,Math.max(2,Math.ceil((f.testo||'').length/90)))}" placeholder="Testo inserito nella scheda" oninput="_frasiBozza[${i}].testo=this.value;_frasiTocca()">${_escHtml(f.testo)}</textarea>`}
       <div style="display:flex;gap:4px">
         <button type="button" class="btn btn-ghost btn-sm btn-icon" title="Sposta su" onclick="frasiSposta(${i},-1)" ${i===0?'disabled':''}>↑</button>
         <button type="button" class="btn btn-ghost btn-sm btn-icon" title="Sposta giù" onclick="frasiSposta(${i},1)" ${i===_frasiBozza.length-1?'disabled':''}>↓</button>
@@ -4908,21 +4920,40 @@ function renderFrasiPronte(forza){
     </div>`).join('') : '<div style="color:var(--label4);font-size:.85rem;padding:10px 0">Nessuna voce: aggiungine una.</div>';
   document.getElementById('frasi-stato').textContent=_frasiModificata?'Modifiche non salvate':'';
 }
+// Descrizione della sezione e stato del salvataggio (su questo PC / sul tuo
+// account / predefinita): si aggiorna da sola senza ridisegnare l'elenco,
+// così un invio che termina mentre si scrive non tocca ciò che si sta scrivendo.
+function _frasiDescr(cat){
+  const el=document.getElementById('frasi-descr'); if(!el || !cat) return;
+  const salvate=_frasiSalvate();
+  el.innerHTML=
+    (cat.passo?'<span style="color:var(--label4)">'+_escHtml(cat.gruppo)+' › '+_escHtml(cat.passo)+'</span><br>':'')+
+    (cat.id.startsWith('opz_')?'Ogni voce è una <strong>voce della tendina</strong> di questo riquadro: il titolo è la voce, il testo è ciò che viene inserito.':cat.tipo==='frasi'?'Ogni voce è un <strong>pulsante</strong> nella scheda visita: il titolo è la scritta del pulsante, il testo è ciò che viene inserito.'
+    :cat.tipo==='modelli'?'Ogni voce è un <strong>testo standard</strong> scelto dalla tendina della scheda visita (sostituisce il contenuto del campo).'
+    :'Ogni voce è un <strong>pulsante</strong> che aggiunge la sua scritta al campo.')+
+    (salvate[cat.id]!==undefined?' <span style="color:var(--orange);font-weight:600">· Salvata su questo PC, in attesa di invio al tuo account</span>':(gsPacchetto&&gsPacchetto.sezioni&&gsPacchetto.sezioni[cat.id]!==undefined?' <span style="color:var(--green);font-weight:600">· Personalizzata (salvata sul tuo account)</span>':' <span style="color:var(--label4)">· Predefinita</span>'));
+}
+// Salva la sezione aperta se ha modifiche: false se i testi non sono validi.
+function _frasiSalvaInUscita(){ return !_frasiModificata || frasiSalva(); }
+function _frasiTocca(){ _frasiModificata=true; const s=document.getElementById('frasi-stato'); if(s) s.textContent='Modifiche non salvate'; }
 function frasiAggiungi(){ _frasiBozza.push({titolo:'',testo:''}); _frasiModificata=true; renderFrasiPronte(); const t=document.querySelectorAll('#frasi-lista input'); if(t.length) t[t.length-1].focus(); }
 function frasiElimina(i){ _frasiBozza.splice(i,1); _frasiModificata=true; renderFrasiPronte(); }
 function frasiSposta(i,d){ const j=i+d; if(j<0||j>=_frasiBozza.length) return; [_frasiBozza[i],_frasiBozza[j]]=[_frasiBozza[j],_frasiBozza[i]]; _frasiModificata=true; renderFrasiPronte(); }
+// Restituisce true se la sezione è stata salvata (o non c'era nulla da salvare).
 function frasiSalva(){
-  const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
+  const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return true;
   const voci=_frasiBozza.map(f=>({titolo:f.titolo.trim(), testo:(f.testo||'').trim()})).filter(f=>f.titolo||f.testo);
-  if(voci.some(f=>!f.titolo)){ alert('Ogni voce deve avere un titolo.'); return; }
-  if(cat.tipo!=='elenco' && voci.some(f=>!f.testo)){ alert('Ogni voce deve avere un testo.'); return; }
+  if(voci.some(f=>!f.titolo)){ alert(`«${cat.nome}»: ogni voce deve avere un titolo.`); return false; }
+  if(cat.tipo!=='elenco' && voci.some(f=>!f.testo)){ alert(`«${cat.nome}»: ogni voce deve avere un testo.`); return false; }
   const titoli=voci.map(f=>f.titolo.toLowerCase());
-  if(new Set(titoli).size!==titoli.length){ alert('Ci sono due voci con lo stesso titolo: rendile diverse.'); return; }
+  if(new Set(titoli).size!==titoli.length){ alert(`«${cat.nome}»: ci sono due voci con lo stesso titolo, rendile diverse.`); return false; }
   let valore;
   if(cat.tipo==='elenco') valore=voci.map(f=>f.titolo);
   else{ valore=cat.tipo==='modelli'?{'':''}:{}; voci.forEach(f=>{ valore[f.titolo]=f.testo; }); }
+  // Nessuna differenza (es. solo una riga vuota aggiunta): niente da salvare
+  if(JSON.stringify(valore)===JSON.stringify(GD[cat.id])){ _frasiModificata=false; renderFrasiPronte(true); return true; }
   const salvate=_frasiSalvate(); salvate[cat.id]=valore;
-  try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){ alert('Salvataggio non riuscito.'); return; }
+  try{ localStorage.setItem(_frasiChiave(), JSON.stringify(salvate)); }catch(e){ alert('Salvataggio non riuscito.'); return false; }
   GD[cat.id]=_frasiClona(valore);
   if(cat.sel) _tendinaApplica(cat);
   segnalaSezioniPersonalizzate();
@@ -4930,8 +4961,13 @@ function frasiSalva(){
   renderFrasiPronte(true);
   registraLog('impostazioni','Frasi pronte modificate: '+cat.nome);
   if(typeof gsToast==='function') gsToast('✅ Frasi pronte salvate','gs-success');
-  _frasiSincronizza([cat.id]).then(()=>renderFrasiPronte(true));
+  _frasiSincronizza([cat.id]).then(_frasiAggiornaStato);
+  return true;
 }
+// Fine dell'invio all'account: aggiorna solo la scritta di stato. Prima
+// ridisegnava tutta la sezione aperta e cancellava ciò che il medico stava
+// scrivendo nel frattempo (l'invio può durare qualche secondo).
+function _frasiAggiornaStato(){ _frasiDescr(_frasiCategorie().find(c=>c.id===_frasiCat)); }
 function frasiRipristina(){
   const cat=_frasiCategorie().find(c=>c.id===_frasiCat); if(!cat) return;
   if(!confirm(`Ripristinare le frasi predefinite del programma per «${cat.nome}»? Le modifiche a questa sezione verranno tolte anche dal tuo account (l'amministratore ne conserva le versioni precedenti).`)) return;
@@ -4943,7 +4979,7 @@ function frasiRipristina(){
   _frasiModificata=false;
   renderFrasiPronte(true);
   if(typeof gsToast==='function') gsToast('Frasi predefinite ripristinate','gs-info');
-  _frasiSincronizza([cat.id]).then(()=>renderFrasiPronte(true));
+  _frasiSincronizza([cat.id]).then(_frasiAggiornaStato);
 }
 // Invia al pacchetto dell'account le sezioni salvate su questo PC; quelle
 // inviate escono dalla copia locale (da lì in poi valgono dal pacchetto).
@@ -4951,8 +4987,10 @@ async function _frasiSincronizza(ids){
   for(const id of ids){
     const salvate=_frasiSalvate(); if(!(id in salvate)) continue;
     let v=salvate[id];
-    if(v && !Array.isArray(v)){ v={...v}; delete v['']; }
-    if(!await inviaAlPacchetto({tipo:'sezione', id, valore:v})) return;
+    const modifica={tipo:'sezione', id, valore:v};
+    // Ordine delle voci scelto dal medico: Firestore lo perderebbe
+    if(v && !Array.isArray(v)){ v={...v}; delete v['']; modifica.valore=v; modifica.ordine=Object.keys(v); }
+    if(!await inviaAlPacchetto(modifica)) return;
     const ora=_frasiSalvate();
     if(JSON.stringify(ora[id])===JSON.stringify(salvate[id])){ delete ora[id]; try{ localStorage.setItem(_frasiChiave(), JSON.stringify(ora)); }catch(e){} }
   }
@@ -7499,6 +7537,9 @@ function toggleEye(inputId, btn){
 //  NAVIGATION
 // ═══════════════════════════════════════════════════
 function naviga(id){
+  // Uscendo dalle Impostazioni le frasi modificate e non salvate si salvano
+  // da sole; se non sono valide si resta lì per correggerle.
+  if(id!=='impostazioni' && document.getElementById('sec-impostazioni')?.classList.contains('active') && !_frasiSalvaInUscita()) return;
   // Chiude sidebar mobile
   const aside=document.querySelector('aside');
   const backdrop=document.getElementById('sid-backdrop');
@@ -10221,6 +10262,7 @@ function stampaRicettaPostVisita(){
 
 // Cambia scheda nella pagina Impostazioni (Profilo / Stampe / Funzionalità / Cartella)
 function setSettingsTab(btn,id){
+  if(id!=='set-tab-frasi' && document.getElementById('set-tab-frasi')?.classList.contains('active') && !_frasiSalvaInUscita()) return;
   document.querySelectorAll('#sec-impostazioni .edit-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('#sec-impostazioni .tipo-pill').forEach(b=>b.classList.remove('active'));
