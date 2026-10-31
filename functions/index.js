@@ -8,11 +8,15 @@
  *    (elenco, creazione, blocco/sblocco, password provvisoria, eliminazione).
  *    Usa l'Admin SDK, quindi agisce davvero sull'account di accesso (un
  *    account bloccato non può più entrare, una password provvisoria sostituisce
- *    quella dimenticata).
+ *    quella dimenticata) e invio al medico, per email, del link al programma
+ *    da installare (ultima release su GitHub).
  *  - inviaEmail: invio delle email alle pazienti dalla sezione "Email"
  *    dell'app. Non conserva nulla: l'archivio delle email inviate resta
  *    nell'app, sul PC. Su Firestore rimane solo un contatore giornaliero
  *    (numero di email inviate, nessun indirizzo né testo) per il limite anti-abuso.
+ *  - scaricaProgrammaDemo: dal sito dimostrativo, chi ha la password di
+ *    download generata nel portale riceve i link agli installer dell'ultima
+ *    versione pubblicata.
  *  - pacchettoMedico: le modifiche ai testi (frasi pronte, consensi, schemi)
  *    che il medico salva nell'app entrano nel suo pacchetto studio.
  */
@@ -23,6 +27,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 
 initializeApp();
 const db = getFirestore();
@@ -163,7 +168,90 @@ function piuRecente(...date) {
   return ms.length ? new Date(Math.max(...ms)).toISOString() : "";
 }
 
-exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "256MiB" }, async (request) => {
+// ── Invio del programma da installare al medico ──
+// L'installer (.exe) non va in allegato: Gmail blocca gli eseguibili e il file
+// è grande. L'email contiene il link all'ultima release pubblicata su GitHub,
+// scelta in base alla versione dell'app (modello) dell'account.
+const RELEASE_API = "https://api.github.com/repos/titan-code-sm/GynoSistem/releases/latest";
+const NOMI_MODELLO = { gineco: "MED System Gineco", proct: "MED System Proct", base: "MED System" };
+function modelloDelFile(nome) { return /proct/i.test(nome) ? "proct" : /gineco/i.test(nome) ? "gineco" : "base"; }
+async function ultimaRelease() {
+  let r;
+  try {
+    r = await fetch(RELEASE_API, { headers: { "User-Agent": "medsystem-portale", Accept: "application/vnd.github+json" } });
+  } catch (e) {
+    throw new HttpsError("unavailable", "GitHub non raggiungibile: riprova tra poco.");
+  }
+  if (r.status === 404) throw new HttpsError("not-found", "Nessuna versione del programma pubblicata.");
+  if (!r.ok) throw new HttpsError("unavailable", `GitHub non raggiungibile (${r.status}).`);
+  const rel = await r.json();
+  const exe = (rel.assets || []).filter((a) => /\.exe$/i.test(a.name));
+  if (!exe.length) throw new HttpsError("not-found", "L'ultima versione pubblicata non contiene installer.");
+  return { versione: String(rel.tag_name || "").replace(/^desktop-v/, ""), exe };
+}
+function escHtml(t) { return String(t ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function emailProgramma({ nome, genere, email, nomeApp, versione, link, mb, nota, password }) {
+  const saluto = genere === "f" ? `Gentile Dott.ssa ${nome}` : genere === "m" ? `Gentile Dott. ${nome}` : `Gentile ${nome}`;
+  const righe = [
+    `${saluto},`,
+    "",
+    `ecco il programma ${nomeApp} (versione ${versione}) da installare sul PC dello studio.`,
+    "",
+    "1. Scarica l'installer da questo link (Windows, " + mb + " MB):",
+    `   ${link}`,
+    "2. Apri il file scaricato e segui le istruzioni.",
+    "   Se Windows mostra «Windows ha protetto il PC», clicca «Ulteriori informazioni» e poi «Esegui comunque».",
+    "3. Apri MED System e accedi con il tuo account:",
+    `   Email: ${email}`,
+    ...(password ? [`   Password provvisoria: ${password}`, "   Al primo accesso il programma ti chiederà di sceglierne una tua."] : ["   La password è quella che usi già (o quella che ti è stata comunicata)."]),
+    "",
+    "I dati delle pazienti restano solo sul tuo PC: non passano da internet.",
+  ];
+  if (nota) righe.push("", nota);
+  righe.push("", "Per qualsiasi problema rispondi a questa email.", "", "MED System");
+  const testo = righe.join("\n");
+  const html = `<div style="font-family:Segoe UI,Arial,sans-serif;font-size:15px;line-height:1.55;color:#0f172a;max-width:560px">
+<p>${escHtml(saluto)},</p>
+<p>ecco il programma <b>${escHtml(nomeApp)}</b> (versione ${escHtml(versione)}) da installare sul PC dello studio.</p>
+<p style="margin:22px 0"><a href="${escHtml(link)}" style="background:#2563eb;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:600;display:inline-block">⬇ Scarica ${escHtml(nomeApp)}</a><br><span style="color:#64748b;font-size:13px">Windows · ${escHtml(mb)} MB</span></p>
+<ol style="padding-left:20px">
+<li>Apri il file scaricato e segui le istruzioni. Se Windows mostra «Windows ha protetto il PC», clicca <b>Ulteriori informazioni</b> e poi <b>Esegui comunque</b>.</li>
+<li>Apri MED System e accedi con il tuo account:<br>Email: <b>${escHtml(email)}</b>${password ? `<br>Password provvisoria: <b style="font-family:Consolas,monospace">${escHtml(password)}</b><br><span style="color:#64748b">Al primo accesso il programma ti chiederà di sceglierne una tua.</span>` : "<br><span style=\"color:#64748b\">La password è quella che usi già (o quella che ti è stata comunicata).</span>"}</li>
+</ol>
+<p style="color:#64748b">I dati delle pazienti restano solo sul tuo PC: non passano da internet.</p>
+${nota ? `<p>${escHtml(nota).replace(/\n/g, "<br>")}</p>` : ""}
+<p>Per qualsiasi problema rispondi a questa email.</p>
+<p>MED System</p>
+<p style="color:#94a3b8;font-size:12px">Se il pulsante non funziona, copia questo indirizzo nel browser:<br>${escHtml(link)}</p>
+</div>`;
+  return { testo, html };
+}
+
+// ── Password di download del sito demo ──
+// Generata dal portale (Sito demo → Download del programma): chi la conosce
+// può scaricare dal sito dimostrativo l'ultima versione del programma.
+// Sta in config/downloadDemo, che le regole di Firestore non fanno leggere a
+// nessuno: solo le funzioni (Admin SDK) la vedono.
+const RIF_PASSWORD_DOWNLOAD = () => db.collection("config").doc("downloadDemo");
+const ALFABETO_PASSWORD = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // niente 0/O, 1/I/L
+function nuovaPasswordDownload() {
+  const b = crypto.randomBytes(12);
+  let s = "";
+  for (let i = 0; i < 12; i++) s += ALFABETO_PASSWORD[b[i] % ALFABETO_PASSWORD.length];
+  return `${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8)}`;
+}
+function normalizzaPasswordDownload(p) { return String(p || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); }
+function statoPasswordDownload(doc) {
+  if (!doc.exists || !doc.data().password) return { attiva: false };
+  const x = doc.data();
+  return {
+    attiva: true, password: x.password, creata: x.creata || null, scadenza: x.scadenza || "",
+    scaduta: !!(x.scadenza && x.scadenza < new Date().toISOString().slice(0, 10)),
+    download: x.download || 0, ultimoDownload: x.ultimoDownload || null,
+  };
+}
+
+exports.portaleUtenti = onCall({ secrets: [EMAIL_USER, EMAIL_PASS], region: REGIONE, timeoutSeconds: 60, memory: "256MiB" }, async (request) => {
   soloAmministratore(request);
   const d = request.data || {};
   const azione = d.azione;
@@ -204,6 +292,7 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
           // della password, il profilo l'ultima apertura dell'app. Vale la più recente.
           ultimoAccesso: piuRecente(p.ultimoAccesso, u.metadata.lastSignInTime),
           versioneApp: typeof p.versioneApp === "string" ? p.versioneApp : "",
+          programmaInviato: p.programmaInviato && typeof p.programmaInviato === "object" ? p.programmaInviato : null,
           amministratore: u.email === ADMIN_EMAIL,
         };
       }),
@@ -247,6 +336,23 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
   if (azione === "leggiModelloDemo") {
     const doc = await db.collection("config").doc("demo").get();
     return { modello: doc.exists ? doc.data().modello : "gineco" };
+  }
+
+  if (azione === "leggiPasswordDownload") {
+    return statoPasswordDownload(await RIF_PASSWORD_DOWNLOAD().get());
+  }
+  if (azione === "generaPasswordDownload") {
+    // Una sola password valida alla volta: generarne una nuova annulla la precedente.
+    const scadenza = typeof d.scadenza === "string" && reData.test(d.scadenza) ? d.scadenza : "";
+    await RIF_PASSWORD_DOWNLOAD().set({
+      password: nuovaPasswordDownload(), scadenza, creata: new Date().toISOString(),
+      da: request.auth.token.email, download: 0, ultimoDownload: null,
+    });
+    return statoPasswordDownload(await RIF_PASSWORD_DOWNLOAD().get());
+  }
+  if (azione === "disattivaPasswordDownload") {
+    await RIF_PASSWORD_DOWNLOAD().delete();
+    return { attiva: false };
   }
 
   if (!uid) throw new HttpsError("invalid-argument", "Account non specificato.");
@@ -344,6 +450,47 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     return { ok: true };
   }
 
+  if (azione === "inviaProgramma") {
+    // Manda al medico, all'email del suo account, il link per scaricare il
+    // programma della sua versione (o di quella scelta nel portale).
+    const u = await auth.getUser(uid).catch(() => null);
+    if (!u || !u.email) throw new HttpsError("not-found", "Account non trovato.");
+    const profiloDoc = await db.collection("utenti").doc(uid).get();
+    const p = profiloDoc.exists ? profiloDoc.data() : {};
+    const modello = MODELLI.includes(d.modello) ? d.modello : (MODELLI.includes(p.modello) ? p.modello : "gineco");
+    const { versione, exe } = await ultimaRelease();
+    const file = exe.find((a) => modelloDelFile(a.name) === modello);
+    if (!file) throw new HttpsError("not-found", `Nell'ultima versione manca l'installer di ${NOMI_MODELLO[modello]}.`);
+    // La password provvisoria va nell'email solo se l'account deve ancora cambiarla.
+    const password = typeof d.password === "string" && d.password.length >= 8 && d.password.length <= 128 && p.mustChangePassword === true ? d.password : "";
+    const nome = (p.nome || u.displayName || u.email.split("@")[0]).replace(/[\r\n]+/g, " ").slice(0, 120);
+    const { testo: corpoTesto, html } = emailProgramma({
+      nome, genere: GENERI.includes(p.genere) ? p.genere : "n", email: u.email,
+      nomeApp: NOMI_MODELLO[modello], versione, link: file.browser_download_url,
+      mb: (file.size / 1048576).toFixed(0), nota: testo(d.nota, 2000), password,
+    });
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: EMAIL_USER.value().trim(), pass: EMAIL_PASS.value().replace(/\s+/g, "") },
+    });
+    try {
+      await transporter.sendMail({
+        from: { name: "MED System", address: EMAIL_USER.value().trim() },
+        to: u.email,
+        replyTo: ADMIN_EMAIL,
+        subject: `${NOMI_MODELLO[modello]} ${versione}: il programma da installare`,
+        text: corpoTesto,
+        html,
+      });
+    } catch (e) {
+      console.warn("Invio programma fallito:", e.message);
+      throw new HttpsError("internal", "Invio dell'email non riuscito: " + e.message.slice(0, 160));
+    }
+    const programmaInviato = { data: new Date().toISOString(), versione, modello, file: file.name, conPassword: !!password };
+    await db.collection("utenti").doc(uid).set({ programmaInviato }, { merge: true });
+    return { ok: true, email: u.email, ...programmaInviato };
+  }
+
   if (azione === "autorizza") {
     // Account esistente senza profilo (creato a mano dalla console): lo abilita all'app.
     const u = await auth.getUser(uid);
@@ -375,6 +522,42 @@ const LIMITE_EMAIL_GIORNO = 500; // stesso ordine di grandezza del limite giorna
 function risolviPlaceholder(testo, nome) {
   return String(testo || "").split("{{NOME}}").join(nome || "");
 }
+
+// ═══════════════════════════════════════════════════════════
+//  DOWNLOAD DEL PROGRAMMA DAL SITO DEMO (senza account)
+// ═══════════════════════════════════════════════════════════
+// Riceve { password } e, se è quella generata nel portale (e non è scaduta),
+// restituisce i link agli installer dell'ultima release pubblicata.
+// Contro i tentativi a raffica: al massimo 20 password sbagliate all'ora in
+// tutto, poi si riprova l'ora successiva.
+const MAX_ERRORI_ORA = 20;
+exports.scaricaProgrammaDemo = onCall({ region: REGIONE, timeoutSeconds: 30, memory: "256MiB" }, async (request) => {
+  const inserita = normalizzaPasswordDownload((request.data || {}).password);
+  if (!inserita || inserita.length > 64) throw new HttpsError("invalid-argument", "Scrivi la password.");
+  const ora = new Date().toISOString().slice(0, 13); // es. 2026-10-31T16
+  const rifErrori = db.collection("contatori").doc("downloadDemo_" + ora);
+  const errori = await rifErrori.get();
+  if (errori.exists && (errori.data().errori || 0) >= MAX_ERRORI_ORA) {
+    throw new HttpsError("resource-exhausted", "Troppi tentativi: riprova tra un'ora.");
+  }
+  const doc = await RIF_PASSWORD_DOWNLOAD().get();
+  const stato = statoPasswordDownload(doc);
+  const impronta = (t) => crypto.createHash("sha256").update(t).digest();
+  const ok = stato.attiva && crypto.timingSafeEqual(impronta(inserita), impronta(normalizzaPasswordDownload(stato.password)));
+  if (!ok) {
+    await rifErrori.set({ errori: FieldValue.increment(1) }, { merge: true });
+    throw new HttpsError("permission-denied", "Password non valida. Chiedila a chi ti ha presentato MED System.");
+  }
+  if (stato.scaduta) throw new HttpsError("permission-denied", "Questa password è scaduta. Chiedine una nuova.");
+  const { versione, exe } = await ultimaRelease();
+  await RIF_PASSWORD_DOWNLOAD().set({ download: FieldValue.increment(1), ultimoDownload: new Date().toISOString() }, { merge: true });
+  const ordine = { gineco: 0, proct: 1, base: 2 };
+  return {
+    versione,
+    file: exe.map((a) => ({ modello: modelloDelFile(a.name), nome: NOMI_MODELLO[modelloDelFile(a.name)], file: a.name, url: a.browser_download_url, mb: Math.round(a.size / 1048576) }))
+      .sort((a, b) => ordine[a.modello] - ordine[b.modello]),
+  };
+});
 
 exports.inviaEmail = onCall(
   { secrets: [EMAIL_USER, EMAIL_PASS], region: REGIONE, timeoutSeconds: 300, memory: "256MiB" },
