@@ -1994,6 +1994,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost" id="h-grav-conclusa-btn" data-modelli="gineco" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna Gravidanza Conclusa</button>
         <button class="btn btn-ghost" onclick="esportaCartellaPDF()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" title="Tutte le visite di questa paziente in un unico PDF">📄 Esporta Cartella</button>
+        <button class="btn btn-ghost" onclick="stampaCartella()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" title="Stampa tutte le visite di questa paziente, una per foglio">🖨️ Stampa Cartella</button>
         <button class="btn btn-ghost" onclick="toggleEdit()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;">✏️ Modifica</button>
         <button class="btn" style="background:rgba(255,255,255,0.9);color:var(--label);" onclick="openTypeModal()">+ Nuova Visita</button>
       </div>
@@ -12583,86 +12584,276 @@ function apriRicettarioVisitaGlobale(pazId,vid){
 //  STAMPA
 // ═══════════════════════════════════════════════════
 // Referto stampabile: stessa fonte dati di buildRefertoView (getRefertoSezioni),
-// così anche la stampa mostra correttamente ostetrica ed ecografia (prima
-// veniva stampata solo la visita ginecologica) e SOLO i campi compilati.
-function buildRefertoBody(v){
-  const nl=s=>(s||'').replace(/\n/g,'<br>');
-  const TITOLI={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica', gen:'Visita', pr:'Visita Proctologica'};
-  let body=`<h2 style="margin-bottom:2px;font-family:Georgia,serif;">Referto ${TITOLI[v.tipo]||TITOLI.gyno}</h2>`;
-  if(v.ora) body+=`<div style="margin-bottom:14px;font-size:0.82rem;color:#666">Ora di compilazione: ${v.ora}</div>`;
+// così anche la stampa mostra correttamente ostetrica ed ecografia e SOLO i
+// campi compilati.
+//
+// IMPAGINAZIONE (rifatta nella 1.7.11). Stampa e PDF usano lo stesso motore:
+// il documento viene diviso in fogli veri (A4 o Letter, con i margini delle
+// Impostazioni di stampa) PRIMA di stampare o fotografare, misurando ogni
+// blocco. Così:
+//  - nessuna riga viene tagliata a metà tra due pagine (prima il PDF era una
+//    sola immagine lunga, affettata ogni 297 mm ovunque capitasse);
+//  - il titolo di una sezione non resta da solo in fondo al foglio;
+//  - nella cartella ogni visita comincia su un foglio nuovo, con la sua data;
+//  - dal secondo foglio in poi c'è in alto il nome della paziente e in basso
+//    «Pagina X di Y» (con il piè di pagina delle impostazioni);
+//  - la firma chiude ogni referto e non finisce da sola su un foglio;
+//  - il PDF è fotografato un foglio alla volta, quindi anche le cartelle con
+//    molte visite non superano più il limite di dimensione delle immagini;
+//  - stampa e PDF hanno lo stesso aspetto (prima erano due impaginazioni).
+const _GS_FOGLI={A4:{mm:[210,297],jspdf:'a4'}, LETTER:{mm:[215.9,279.4],jspdf:'letter'}};
+const _GS_TIPI_REFERTO={ob:'Visita Ostetrica', eco:'Ecografia Ostetrica', gyno:'Visita Ginecologica', gen:'Visita', pr:'Visita Proctologica'};
+function _gsMisureFoglio(l){
+  const f=_GS_FOGLI[String(l.formato||'A4').toUpperCase()]||_GS_FOGLI.A4;
+  const m=Math.min(30,Math.max(8,parseFloat(l.margine)||15));
+  const px=mm=>mm*96/25.4;
+  const larghezza=Math.floor(px(f.mm[0]-2*m));
+  // Un filo più bassa del foglio: html2pdf apre una pagina in più se
+  // l'immagine supera anche di un pixel l'altezza utile.
+  const altezza=Math.floor(larghezza*(f.mm[1]-2*m)/(f.mm[0]-2*m))-3;
+  return {formato:f, margine:m, larghezza, altezza};
+}
+function _gsCssDocumento(l, M){
+  const col=/^#[0-9a-f]{3,8}$/i.test(l.colore||'')?l.colore:'#1c1c1e';
+  const font=String(l.font||'Georgia').replace(/['"<>;{}]/g,'');
+  const corpo=Math.min(16,Math.max(9,parseFloat(l.corpo)||11));
+  return `
+.gs-pg{position:relative;width:${M.larghezza}px;height:${M.altezza}px;background:#fff;color:#1c1c1e;font-family:'${font}',Georgia,'Times New Roman',serif;font-size:${corpo}pt;line-height:1.45;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.gs-pg *{box-sizing:border-box;margin:0;padding:0;}
+.gs-pg-testa{flex:none;display:flex;justify-content:space-between;gap:12px;font-size:7.5pt;line-height:1.3;color:#666;border-bottom:1px solid #d9d9d9;padding-bottom:4px;margin-bottom:14px;}
+.gs-pg-corpo{flex:1 1 auto;min-height:0;overflow:hidden;}
+.gs-pg-piede{flex:none;display:flex;justify-content:space-between;gap:12px;font-size:7.5pt;line-height:1.3;color:#777;border-top:1px solid #d9d9d9;padding-top:4px;margin-top:8px;}
+.gs-pg-piede .gs-pg-num{white-space:nowrap;margin-left:auto;}
+.gs-int{display:flex;align-items:center;gap:16px;border-bottom:2.5px solid ${col};padding-bottom:12px;margin-bottom:14px;}
+.gs-int img{height:58px;width:auto;max-width:120px;object-fit:contain;flex:none;}
+.gs-int .nm{font-size:1.35em;font-weight:700;line-height:1.2;color:${col};}
+.gs-int .sp{font-size:.86em;color:#555;margin-top:2px;}
+.gs-int .ct{font-size:.78em;color:#777;margin-top:2px;}
+.gs-paz{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;background:#f5f5f5;border:1px solid #e4e4e4;border-radius:6px;padding:9px 14px;margin-bottom:16px;}
+.gs-paz .lb{font-size:.66em;text-transform:uppercase;letter-spacing:.5px;color:#777;font-weight:700;}
+.gs-paz .vl{font-size:.95em;font-weight:600;color:#1c1c1e;}
+.gs-paz .dx{text-align:right;}
+.gs-tit{font-size:1.22em;font-weight:700;line-height:1.25;color:#1c1c1e;}
+.gs-sub{font-size:.8em;color:#666;margin:1px 0 6px;}
+.gs-sez{font-size:.8em;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:${col};border-bottom:1px solid #e3e3e3;padding:10px 0 2px;margin-bottom:5px;}
+.gs-riga{padding-bottom:3px;overflow-wrap:anywhere;}
+.gs-riga.cont{padding-top:0;}
+.gs-riga b{font-weight:700;}
+.gs-firma{display:flex;justify-content:flex-end;padding-top:26px;}
+.gs-firma>div{text-align:center;min-width:230px;font-size:.9em;}
+.gs-firma .fn{font-style:italic;margin-bottom:24px;}
+.gs-firma .fl{border-top:1px solid #1c1c1e;padding-top:3px;font-size:.8em;color:#555;}
+`;
+}
+function _gsDataIt(d){ if(!d) return '–'; const x=new Date(d); return isNaN(x)?String(d):x.toLocaleDateString('it-IT'); }
+
+// Blocchi di un referto: titolo, sezioni, righe e firma. Ogni riga del testo
+// (a capo compresi) è un blocco a sé, così il salto pagina cade sempre tra due
+// righe; una riga lunga viene spezzata tra le parole se non c'è più spazio.
+function _gsBlocchiReferto(v, c, perCartella){
+  const b=[];
+  const tit=`Referto ${_GS_TIPI_REFERTO[v.tipo]||_GS_TIPI_REFERTO.gyno}`;
+  const sub=[perCartella?`Visita del ${_gsDataIt(v.data)}`:'', v.ora?(perCartella?`ore ${v.ora}`:`Ora di compilazione: ${v.ora}`):''].filter(Boolean).join(' · ');
+  b.push({html:`<div><div class="gs-tit">${_escHtml(tit)}</div>${sub?`<div class="gs-sub">${_escHtml(sub)}</div>`:''}</div>`, lega:true});
   getRefertoSezioni(v).forEach(s=>{
     const valid=s.rows.filter(r=>r[1]&&String(r[1]).trim());
-    if(!valid.length)return;
-    body+=`<div style="margin-top:14px"><strong>${s.title.toUpperCase()}:</strong></div>`;
-    valid.forEach(r=>{ body+=`<p>${r[0]?`<strong>${r[0]}:</strong> `:''}${nl(r[1])}</p>`; });
+    if(!valid.length) return;
+    b.push({html:`<div class="gs-sez">${_escHtml(s.title)}</div>`, lega:true});
+    valid.forEach(r=>{
+      String(r[1]).replace(/\r/g,'').replace(/\s+$/,'').split('\n').forEach((t,k)=>{
+        b.push({etichetta:(k===0&&r[0])?r[0]:'', testo:t, cont:k>0});
+      });
+    });
   });
-  return body;
+  b.push({html:`<div class="gs-firma"><div><div class="fn">${_escHtml(c.firma||c.intestazione.nome||'')}</div><div class="fl">Timbro e Firma</div></div></div>`, conPrecedente:true});
+  return b;
+}
+function _gsBlocchiIntestazione(p, c, etichettaData, dataStr){
+  const i=c.intestazione;
+  const logo=(c.layout.logo && i.logo)?`<img src="${i.logo}" alt="">`:'';
+  return [
+    {html:`<div class="gs-int">${logo}<div><div class="nm">${_escHtml(i.nome)}</div>${i.spec?`<div class="sp">${_escHtml(i.spec)}</div>`:''}${(i.indirizzo||i.contatti)?`<div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div>`:''}</div></div>`, lega:true},
+    {html:`<div class="gs-paz">
+      <div><div class="lb">Paziente</div><div class="vl">${_escHtml(`${p.cognome} ${p.nome}`)}</div></div>
+      <div class="dx"><div class="lb">${_escHtml(etichettaData)}</div><div class="vl">${_escHtml(dataStr)}</div></div>
+      <div><div class="lb">Data di nascita</div><div class="vl">${_escHtml(_gsDataIt(p.nascita))}</div></div>
+      <div class="dx"><div class="lb">Codice fiscale</div><div class="vl">${_escHtml(p.cf||'–')}</div></div>
+    </div>`, lega:true}
+  ];
+}
+function _gsElementoBlocco(b){
+  const t=document.createElement('template');
+  if(b.testo!=null){
+    const et=b.etichetta?`<b>${_escHtml(b.etichetta)}:</b> `:'';
+    t.innerHTML=`<div class="gs-riga${b.cont?' cont':''}">${et}${b.testo.trim()?_escHtml(b.testo):'&nbsp;'}</div>`;
+  } else t.innerHTML=b.html.trim();
+  const el=t.content.firstElementChild;
+  if(b.lega) el.dataset.lega='1';
+  return el;
+}
+// Divide i blocchi in fogli dentro «contenitore». documenti = elenco di liste
+// di blocchi: ogni documento dopo il primo comincia su un foglio nuovo.
+async function _gsImpagina(contenitore, documenti, opz){
+  // Il logo deve essere caricato prima di misurare, o la prima pagina risulta
+  // più corta del vero.
+  const prova=document.createElement('div');
+  documenti.flat().forEach(b=>{ if(b.html && b.html.indexOf('<img')>=0) prova.appendChild(_gsElementoBlocco(b)); });
+  await Promise.all([...prova.querySelectorAll('img')].map(img=>img.decode?img.decode().catch(()=>{}):null));
+
+  const pagine=[]; let corpo=null;
+  const nuovaPagina=()=>{
+    const pg=document.createElement('div'); pg.className='gs-pg';
+    pg.innerHTML=`${pagine.length?`<div class="gs-pg-testa"><span>${opz.testa}</span><span>${opz.testaDx||''}</span></div>`:''}<div class="gs-pg-corpo"></div><div class="gs-pg-piede"><span>${_escHtml(opz.piede||'')}</span><span class="gs-pg-num"></span></div>`;
+    contenitore.appendChild(pg); pagine.push(pg);
+    corpo=pg.querySelector('.gs-pg-corpo');
+  };
+  const fuori=el=>el.getBoundingClientRect().bottom > corpo.getBoundingClientRect().bottom+0.5;
+  // Prova a mettere nello spazio rimasto la parte iniziale di una riga di
+  // testo; restituisce [parte che entra, resto] oppure null.
+  const dividi=b=>{
+    const parole=b.testo.split(' ');
+    if(parole.length<2) return null;
+    let el=null;
+    const entra=n=>{
+      const nuovo=_gsElementoBlocco({...b, testo:parole.slice(0,n).join(' ')});
+      if(el) el.replaceWith(nuovo); else corpo.appendChild(nuovo);
+      el=nuovo;
+      return !fuori(el);
+    };
+    let lo=1, hi=parole.length-1, meglio=0;
+    while(lo<=hi){
+      const mid=(lo+hi)>>1;
+      if(entra(mid)){ meglio=mid; lo=mid+1; } else hi=mid-1;
+    }
+    if(el) el.remove();
+    if(!meglio) return null;
+    return [{...b, testo:parole.slice(0,meglio).join(' ')}, {etichetta:'', testo:parole.slice(meglio).join(' '), cont:true}];
+  };
+  documenti.forEach((blocchi,di)=>{
+    if(di===0 || corpo.children.length) nuovaPagina();
+    const coda=blocchi.slice();
+    let k=0;
+    while(k<coda.length){
+      const b=coda[k];
+      const el=_gsElementoBlocco(b);
+      corpo.appendChild(el);
+      if(!fuori(el)){ k++; continue; }
+      el.remove();
+      const vuota=!corpo.children.length;
+      if(b.testo!=null){
+        const parti=dividi(b);
+        // Si spezza solo se sul foglio restano almeno due righe di testo, o
+        // se la riga da sola è più alta di un foglio intero.
+        if(parti && (vuota || corpo.getBoundingClientRect().bottom-corpo.lastElementChild.getBoundingClientRect().bottom > 30)){
+          corpo.appendChild(_gsElementoBlocco(parti[0]));
+          coda.splice(k,1,parti[1]);
+          nuovaPagina();
+          continue;
+        }
+      }
+      if(vuota){ corpo.appendChild(el); k++; continue; } // non entra nemmeno da solo: lo si lascia
+      // Porta sul foglio nuovo anche i titoli rimasti in fondo (e, per la
+      // firma, l'ultima riga), purché sul foglio resti qualcosa.
+      const sposta=[];
+      const figli=[...corpo.children];
+      let j=figli.length-1;
+      if(b.conPrecedente && j>0){ sposta.unshift(figli[j]); j--; }
+      while(j>0 && figli[j].dataset.lega==='1'){ sposta.unshift(figli[j]); j--; }
+      sposta.forEach(x=>x.remove());
+      nuovaPagina();
+      sposta.forEach(x=>corpo.appendChild(x));
+    }
+  });
+  pagine.forEach((pg,i)=>{ pg.querySelector('.gs-pg-num').textContent=`Pagina ${i+1} di ${pagine.length}`; });
+  return pagine;
+}
+// Prepara i fogli di un referto o di una cartella in un contenitore invisibile
+// della pagina (serve un layout vero per misurare). Restituisce {pagine, M,
+// contenitore, css}; il chiamante rimuove il contenitore quando ha finito.
+async function _gsPreparaFogli(p, visite, perCartella){
+  const c=getPrintCfg(), l=c.layout, M=_gsMisureFoglio(l);
+  const css=_gsCssDocumento(l, M);
+  let st=document.getElementById('gs-doc-css');
+  if(!st){ st=document.createElement('style'); st.id='gs-doc-css'; document.head.appendChild(st); }
+  st.textContent=css;
+  const vecchio=document.getElementById('gs-doc-fogli'); if(vecchio) vecchio.remove();
+  const contenitore=document.createElement('div');
+  contenitore.id='gs-doc-fogli';
+  contenitore.style.cssText='position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;z-index:-1;';
+  document.body.appendChild(contenitore);
+  const etichettaData=perCartella?'Cartella aggiornata al':'Data visita';
+  const dataStr=perCartella?_gsDataIt(new Date()):_gsDataIt(visite[0].data);
+  const documenti=visite.map((v,i)=>{
+    const b=_gsBlocchiReferto(v, c, perCartella);
+    return i===0 ? _gsBlocchiIntestazione(p, c, etichettaData, dataStr).concat(b) : b;
+  });
+  const testa=_escHtml(`${p.cognome} ${p.nome}`)+(p.nascita?` · nascita ${_escHtml(_gsDataIt(p.nascita))}`:'')+(p.cf?` · ${_escHtml(p.cf)}`:'');
+  const testaDx=_escHtml(perCartella?`Cartella clinica · ${c.intestazione.nome||''}`:`Referto del ${_gsDataIt(visite[0].data)} · ${c.intestazione.nome||''}`);
+  const pagine=await _gsImpagina(contenitore, documenti, {testa, testaDx, piede:l.piePagina||''});
+  return {pagine, M, contenitore, css, c};
 }
 
-// Bug corretto: la stampa nativa usava un'area nascosta (#print-area) dentro
-// la pagina principale della SPA, resa visibile solo con CSS @media print.
-// Su carta risultava non centrata/tagliata in modo incoerente \u2014 con ogni
-// probabilit\u00e0 un'interazione nota e poco affidabile tra @page (i margini di
-// stampa) e il layout della pagina principale, non riproducibile in modo
-// affidabile per correggerla "sul posto". Riscritta con lo STESSO pattern
-// gi\u00e0 usato (e mai segnalato come difettoso) da ricetta/consensi/riepilogo:
-// un documento HTML nuovo e isolato in una finestra separata, senza nessun
-// legame con il CSS/layout dell'app principale \u2014 @page/margini di stampa
-// si applicano quindi in modo semplice e prevedibile.
+// Stampa con la finestra del browser: gli stessi fogli del PDF, in un
+// documento separato (nessun legame con il layout dell'app). A schermo i
+// fogli si vedono come carta, in stampa ognuno è una pagina.
+function _gsApriStampaFogli(p, visite, perCartella, titolo, logDescrizione){
+  const w=apriFinestraStampa(); if(!w) return; // aperta subito: il blocco popup vuole il clic
+  w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preparazione stampa…</title></head><body style="font-family:system-ui,sans-serif;color:#555;padding:40px">Preparazione della stampa…</body></html>');
+  w.document.close();
+  _gsPreparaFogli(p, visite, perCartella).then(({pagine, M, contenitore, css, c})=>{
+    const fogli=pagine.map(pg=>`<div class="gs-foglio">${pg.outerHTML}</div>`).join('');
+    contenitore.remove();
+    const col=/^#[0-9a-f]{3,8}$/i.test(c.layout.colore||'')?c.layout.colore:'#c2185b';
+    w.document.open();
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${_escHtml(titolo)}</title>
+    <style>
+      @page{size:${M.formato.mm[0]}mm ${M.formato.mm[1]}mm;margin:${M.margine}mm;}
+      html,body{margin:0;padding:0;background:#fff;}
+      ${css}
+      .gs-foglio{break-after:page;page-break-after:always;}
+      .gs-foglio:last-child{break-after:auto;page-break-after:auto;}
+      .rx-toolbar{position:fixed;top:0;left:0;right:0;z-index:5;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
+      .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${col};color:#fff;cursor:pointer}
+      .rx-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
+      @media screen{
+        html,body{background:#e8e8ec;}
+        body{padding:70px 0 30px;}
+        .gs-foglio{box-sizing:content-box;width:${M.larghezza}px;padding:${M.margine}mm;margin:0 auto 18px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18);}
+      }
+      @media print{.rx-toolbar{display:none}}
+    </style></head><body>
+      <div class="rx-toolbar">🖨️ Anteprima di stampa · ${pagine.length} ${pagine.length===1?'pagina':'pagine'}
+        <button onclick="window.print()">🖨️ Stampa</button>
+        <button class="sec" onclick="window.close()">Chiudi</button>
+      </div>
+      ${fogli}
+    </body></html>`);
+    w.document.close();
+    registraLog('stampa', logDescrizione);
+  }).catch(e=>{
+    console.warn('Stampa:',e);
+    try{ w.close(); }catch(_){}
+    if(typeof gsToast==='function') gsToast('⚠️ Errore nella preparazione della stampa','gs-error');
+  });
+}
 function stampa(vid){
   const p=DB.pazienti.find(x=>x.id===curPaz);
-  const v=p.visite.find(x=>x.id===vid);
-  const c=getPrintCfg(); const l=c.layout;
-  const nomeStr=`${p.cognome} ${p.nome}`;
-  const dataStr=new Date(v.data).toLocaleDateString('it-IT');
-  const nascitaStr=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'\u2013';
-  const cfStr=p.cf||'\u2013';
-  const w=apriFinestraStampa(); if(!w) return;
-  registraLog('stampa','Referto stampato');
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Referto \u2014 ${_escHtml(nomeStr)}</title>
-  <style>
-    ${printStyleComune()}
-    body{color:#1a1a1a;max-width:720px;margin:40px auto;padding:70px 20px 0;line-height:1.65}
-    .ic-header{display:flex;align-items:center;gap:18px;border-bottom:3px double #1c1c1e;padding-bottom:20px;margin-bottom:28px}
-    .ic-header img{max-height:60px}
-    .ic-header h1{font-family:Georgia,serif;font-size:1.3rem;margin:0;color:${l.colore}}
-    .ic-header .sp{font-size:.85rem;color:#555;margin-top:2px}
-    .ic-header .ct{font-size:.8rem;color:#777;margin-top:3px}
-    .pb-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#f8f8f8;border-radius:8px;padding:16px;margin-bottom:24px}
-    .pb-label{font-size:.72rem;text-transform:uppercase;color:#777;letter-spacing:.5px;font-weight:700}
-    .pb-val{font-size:.98rem;font-weight:600;color:#1c1c1e;margin-top:2px}
-    .pb-body{font-size:.98rem}
-    .pb-body h2{font-family:Georgia,serif;font-size:1.15rem;margin-bottom:16px}
-    .pb-body p{margin-bottom:8px}
-    .rx-toolbar{position:fixed;top:0;left:0;right:0;background:#fce4ec;border-bottom:1px solid #f8bbd0;padding:10px 16px;display:flex;gap:10px;align-items:center;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f}
-    .rx-toolbar button{font:inherit;font-weight:600;padding:7px 16px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
-    .rx-toolbar button.sec{background:#fff;color:#880e4f;border:1px solid #f48fb1}
-    @media print{body{margin:0 auto;padding:0}.rx-toolbar{display:none}}
-  </style></head><body>
-    <div class="rx-toolbar no-print">\ud83d\udda8\ufe0f Anteprima di stampa.
-      <button onclick="window.print()">\ud83d\udda8\ufe0f Stampa</button>
-      <button class="sec" onclick="window.close()">Chiudi</button>
-    </div>
-    <div class="ic-header">${printHeaderHtml()}</div>
-    <div class="pb-grid">
-      <div><div class="pb-label">Paziente</div><div class="pb-val">${_escHtml(nomeStr)}</div></div>
-      <div style="text-align:right"><div class="pb-label">Data Visita</div><div class="pb-val">${_escHtml(dataStr)}</div></div>
-      <div><div class="pb-label">Data di Nascita</div><div class="pb-val">${_escHtml(nascitaStr)}</div></div>
-      <div style="text-align:right"><div class="pb-label">Codice Fiscale</div><div class="pb-val">${_escHtml(cfStr)}</div></div>
-    </div>
-    <div class="pb-body">${buildRefertoBody(v)}</div>
-    ${printFooterHtml()}
-  </body></html>`);
-  w.document.close();
+  const v=p?.visite.find(x=>x.id===vid);
+  if(!v){ if(typeof gsToast==='function') gsToast('Visita non trovata','gs-error'); return; }
+  _gsApriStampaFogli(p, [v], false, `Referto — ${p.cognome} ${p.nome}`, 'Referto stampato');
+}
+function _gsVisiteCartella(){
+  const p=DB.pazienti.find(x=>x.id===curPaz);
+  if(!p){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return null; }
+  if(!p.visite||!p.visite.length){ if(typeof gsToast==='function') gsToast('Nessuna visita in cartella','gs-error'); return null; }
+  return {p, visite:[...p.visite].sort((a,b)=>new Date(a.data)-new Date(b.data) || String(a.ora||'').localeCompare(String(b.ora||'')))};
+}
+// Tutta la cartella su carta: una visita per foglio nuovo, in ordine di data.
+function stampaCartella(){
+  const x=_gsVisiteCartella(); if(!x) return;
+  _gsApriStampaFogli(x.p, x.visite, true, `Cartella — ${x.p.cognome} ${x.p.nome}`, 'Cartella completa stampata');
 }
 
-// Genera un vero file .pdf del referto e lo scarica direttamente, senza
-// passare dalla finestra di stampa del browser. Popola l'area nascosta
-// #print-area (usata SOLO da questa funzione — stampa() usa invece una
-// finestra separata, vedi sopra) con intestazione/dati paziente e il corpo
-// passato, poi la cattura con html2canvas/html2pdf e scarica il file.
-// Condivisa da scaricaPDFReferto (una visita) ed esportaCartellaPDF (tutte
-// le visite di una paziente).
 // html2canvas (dentro html2pdf) non riconosce i colori scritti come
 // «color(srgb …)», che è come il browser restituisce i colori calcolati con
 // color-mix() (sfondo e bordi tinti col colore del tema): la generazione del
@@ -12679,8 +12870,8 @@ function _gsColoreSrgbInRgb(testo){
 }
 function gsColoriCompatibiliPdf(doc){
   const win=doc.defaultView; if(!win) return;
-  // Solo ciò che html2canvas legge: la pagina, il body e l'area da stampare.
-  const radice=doc.getElementById('print-area')||doc.body;
+  // Solo ciò che html2canvas legge: la pagina, il body e il foglio da fotografare.
+  const radice=doc.querySelector('.html2pdf__container')||doc.body;
   [doc.documentElement, doc.body, radice, ...radice.querySelectorAll('*')].forEach(el=>{
     const cs=win.getComputedStyle(el);
     for(const prop of _GS_PROPRIETA_COLORE){
@@ -12715,112 +12906,46 @@ function _gsConsegnaPdf(lavoro, nomeFile){
   if(typeof window.gsSalvaPdf==='function') return lavoro.outputPdf('blob').then(b=>window.gsSalvaPdf(b, nomeFile));
   return lavoro.save();
 }
-function _generaEScaricaPdf(p, dataStr, bodyHtml, nomeFile, logDescrizione){
+// PDF del referto o della cartella: gli stessi fogli della stampa, fotografati
+// uno alla volta (html2canvas dentro html2pdf) e messi ognuno su una pagina
+// del PDF. Una foto per foglio: niente righe tagliate tra due pagine e niente
+// limite di altezza dell'immagine nelle cartelle lunghe.
+function _generaEScaricaPdf(p, visite, perCartella, nomeFile, logDescrizione){
   if(typeof html2pdf==='undefined'){ if(typeof gsToast==='function') gsToast('⚠️ Libreria PDF non disponibile: verifica la connessione internet e riprova','gs-error'); return; }
-
-  applyPrintCfgReferto();
-  const c=getPrintCfg(), l=c.layout;
-  document.getElementById('p-nome-print').textContent=`${p.cognome} ${p.nome}`;
-  document.getElementById('p-data-print').textContent=dataStr;
-  document.getElementById('p-nascita-print').textContent=p.nascita?new Date(p.nascita).toLocaleDateString('it-IT'):'–';
-  document.getElementById('p-cf-print').textContent=p.cf||'–';
-  document.getElementById('p-body-print').innerHTML=bodyHtml;
-
-  // applyPrintCfgReferto() applica font/colore/logo solo dentro @media print:
-  // per catturare l'aspetto corretto nel PDF li applichiamo anche qui, in linea.
-  const area=document.getElementById('print-area');
-  const phEl=area.querySelector('.ph');
-  const h1El=area.querySelector('.ph-info h1');
-  const logoEl=document.getElementById('ph-logo');
-  area.style.fontFamily=`'${l.font}','Times New Roman',serif`;
-  area.style.fontSize=l.corpo+'pt';
-  if(phEl) phEl.style.borderBottomColor=l.colore;
-  if(h1El) h1El.style.color=l.colore;
-  if(logoEl && !logoEl.querySelector('img')) logoEl.style.background=l.colore;
-
-  // NOTA IMPORTANTE (bug corretto): html2canvas NON riesce a catturare un
-  // elemento posizionato fuori dall'area visibile con coordinate negative
-  // (es. left:-9999px) — restituisce un'immagine bianca o alta 0px, quindi
-  // un PDF vuoto. Per restare invisibile all'operatore senza usare coordinate
-  // negative, l'area viene tenuta a left:0/top:0 (dentro il documento) ma
-  // portata dietro a tutto il resto con z-index negativo e pointer-events:none.
-  // position:absolute, non fixed: la clonazione interna di html2canvas può
-  // risultare in un'altezza misurata pari a 0 con elementi position:fixed.
-  area.style.display='block';
-  area.style.position='absolute';
-  area.style.left='0';
-  area.style.top='0';
-  area.style.zIndex='-1';
-  area.style.pointerEvents='none';
-  area.style.background='#fff';
-  // Bug corretto: #print-area non ha una larghezza propria (solo padding),
-  // quindi da position:absolute senza width esplicita si restringe al
-  // contenuto ("shrink-to-fit") invece di avere una proporzione A4 prevedibile.
-  // html2canvas catturava quindi una larghezza arbitraria/diversa a ogni
-  // referto (a seconda del contenuto più largo), e html2pdf la riscalava
-  // sulla pagina risultando fuori centro o storta. Una larghezza fissa dà
-  // sempre la stessa proporzione, quindi lo stesso posizionamento centrato.
-  area.style.width='800px';
-  // Bug corretto: in modalità scura il colore del testo veniva ereditato da
-  // body (var(--label), quasi bianco) sopra questo sfondo bianco esplicito
-  // → testo praticamente invisibile, quindi un PDF che sembrava una pagina
-  // bianca. L'esportazione deve avere lo stesso aspetto indipendentemente
-  // dal tema a schermo, quindi forziamo qui un colore scuro esplicito.
-  area.style.color='#1c1c1e';
-
   if(typeof gsToast==='function') gsToast('📄 Generazione PDF in corso…','gs-info');
-
-  const ripristinaSfondo=gsSfondoPaginaCompatibilePdf();
-  const ripristina=()=>{
-    ripristinaSfondo();
-    area.style.display='none';
-    area.style.position=''; area.style.left=''; area.style.top=''; area.style.zIndex=''; area.style.pointerEvents=''; area.style.background=''; area.style.color='';
-    area.style.fontFamily=''; area.style.fontSize=''; area.style.width='';
-    if(phEl) phEl.style.borderBottomColor='';
-    if(h1El) h1El.style.color='';
-    if(logoEl) logoEl.style.background='';
-  };
-
-  // Aspetta un frame prima di catturare: appena cambiato display/position il
-  // browser non ha ancora calcolato il nuovo layout, e html2canvas misurerebbe
-  // l'elemento con altezza 0 (era display:none un istante prima).
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    // html2canvas non rileva sempre da solo le dimensioni reali dell'elemento
-    // (può restituire un'altezza di 0px): le passiamo esplicitamente, misurate
-    // ORA che il layout è stabile.
-    const larghezza=area.scrollWidth, altezza=area.scrollHeight;
-    // Bug corretto: html2canvas cattura di default a partire dallo scroll
-    // ATTUALE della pagina (window.scrollX/scrollY), non dalle coordinate
-    // dell'elemento nel documento. #print-area è però position:absolute a
-    // left:0/top:0 nel DOCUMENTO — se l'operatore aveva scrollato la cartella
-    // (verso il basso per trovare "Esporta Cartella", tipicamente) al momento
-    // del click, la cattura partiva da quello scroll invece che dall'angolo
-    // reale dell'area, tagliando/spostando il referto nel PDF risultante.
-    // scrollX/scrollY:0 forza la cattura sempre dall'origine del documento,
-    // indipendentemente da dove si trovava la pagina in quel momento.
-    const lavoro=html2pdf().set({
-      margin: l.margine||15,
+  let contenitore=null, ripristinaSfondo=()=>{};
+  const fine=()=>{ ripristinaSfondo(); if(contenitore) contenitore.remove(); };
+  _gsPreparaFogli(p, visite, perCartella).then(r=>{
+    contenitore=r.contenitore;
+    const M=r.M, pagine=r.pagine;
+    // I fogli vanno fotografati visibili: html2pdf ne clona uno alla volta.
+    contenitore.style.visibility='visible';
+    ripristinaSfondo=gsSfondoPaginaCompatibilePdf();
+    const opzioni={
+      margin: M.margine,
       filename: nomeFile+'.pdf',
-      image: {type:'jpeg', quality:0.98},
-      // windowWidth = larghezza REALE della finestra (non quella dell'area): html2pdf clona
-      // l'area dentro un contenitore centrato (margin:auto) e html2canvas misura la sua
-      // posizione nella finestra reale ma la rilayouta in una finestra di windowWidth px.
-      // Se i due valori differiscono, la cattura parte da un punto sbagliato (spostamento
-      // pari a metà della differenza): il PDF usciva tagliato a sinistra e vuoto a destra
-      // su monitor larghi, perfetto solo con finestre strette.
-      html2canvas: {scale:2, useCORS:true, onclone:gsColoriCompatibiliPdf, width:larghezza, height:altezza, windowWidth:document.documentElement.clientWidth, windowHeight:altezza, scrollX:0, scrollY:0},
-      jsPDF: {unit:'mm', format:(l.formato||'A4').toLowerCase(), orientation:'portrait'},
-      pagebreak: {mode:['css','legacy']}
-    }).from(area);
-    _gsConsegnaPdf(lavoro, nomeFile+'.pdf').then(salvato=>{
-      ripristina();
-      if(salvato!==false) registraLog('stampa', logDescrizione);
-    }).catch(e=>{
-      console.warn('Generazione PDF:',e);
-      ripristina();
-      if(typeof gsToast==='function') gsToast('⚠️ Errore nella generazione del PDF','gs-error');
+      image: {type:'jpeg', quality:0.95},
+      // windowWidth = larghezza REALE della finestra: html2pdf mette il foglio in
+      // un contenitore centrato e html2canvas lo rimisura in una finestra larga
+      // windowWidth px; se i due valori differiscono la foto parte spostata.
+      // scrollX/scrollY:0: la foto non deve dipendere da dove era scrollata l'app.
+      html2canvas: {scale:2, useCORS:true, backgroundColor:'#ffffff', onclone:gsColoriCompatibiliPdf, width:M.larghezza, height:M.altezza, windowWidth:document.documentElement.clientWidth, windowHeight:Math.max(M.altezza, document.documentElement.clientHeight), scrollX:0, scrollY:0},
+      jsPDF: {unit:'mm', format:M.formato.jspdf, orientation:'portrait'},
+      pagebreak: {mode:'legacy'}
+    };
+    let lavoro=html2pdf().set(opzioni).from(pagine[0]).toPdf();
+    pagine.slice(1).forEach(pg=>{
+      lavoro=lavoro.get('pdf').then(pdf=>{ pdf.addPage(); }).from(pg).toContainer().toCanvas().toPdf();
     });
-  }));
+    return _gsConsegnaPdf(lavoro, nomeFile+'.pdf');
+  }).then(salvato=>{
+    fine();
+    if(salvato!==false) registraLog('stampa', logDescrizione);
+  }).catch(e=>{
+    console.warn('Generazione PDF:',e);
+    fine();
+    if(typeof gsToast==='function') gsToast('⚠️ Errore nella generazione del PDF','gs-error');
+  });
 }
 
 function scaricaPDFReferto(vid){
@@ -12828,26 +12953,20 @@ function scaricaPDFReferto(vid){
   const v=p?.visite.find(x=>x.id===vid);
   if(!v){ if(typeof gsToast==='function') gsToast('Visita non trovata','gs-error'); return; }
   const nomeFile=`Referto_${p.cognome}_${p.nome}_${v.data}`.replace(/\s+/g,'_');
-  _generaEScaricaPdf(p, new Date(v.data).toLocaleDateString('it-IT'), buildRefertoBody(v), nomeFile, 'Referto scaricato in PDF');
+  _generaEScaricaPdf(p, [v], false, nomeFile, 'Referto scaricato in PDF');
 }
 
 // Tutte le visite di una paziente in un unico PDF, in ordine cronologico,
-// con un'interruzione di pagina tra una visita e l'altra.
+// ogni visita su un foglio nuovo.
 function esportaCartellaPDF(){
-  const p=DB.pazienti.find(x=>x.id===curPaz);
-  if(!p){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
-  if(!p.visite||!p.visite.length){ if(typeof gsToast==='function') gsToast('Nessuna visita da esportare','gs-error'); return; }
-  const visiteOrdinate=[...p.visite].sort((a,b)=>new Date(a.data)-new Date(b.data));
-  const corpo=visiteOrdinate.map((v,i)=>
-    `<div style="${i>0?'page-break-before:always;margin-top:20px;border-top:2px solid #ccc;padding-top:16px;':''}">${buildRefertoBody(v)}</div>`
-  ).join('');
-  const nomeFile=`Cartella_${p.cognome}_${p.nome}`.replace(/\s+/g,'_');
-  _generaEScaricaPdf(p, new Date().toLocaleDateString('it-IT'), corpo, nomeFile, 'Cartella completa scaricata in PDF');
+  const x=_gsVisiteCartella(); if(!x) return;
+  const nomeFile=`Cartella_${x.p.cognome}_${x.p.nome}`.replace(/\s+/g,'_');
+  _generaEScaricaPdf(x.p, x.visite, true, nomeFile, 'Cartella completa scaricata in PDF');
 }
 
 // Dati grezzi del referto di una visita, come lista di sezioni {icon,title,rows:[[label,valore],...]}.
 // Usata sia dalla vista a schermo (buildRefertoView) sia dalla stampa
-// (buildRefertoBody): un'unica fonte per i campi di ogni tipo di visita,
+// (_gsBlocchiReferto): un'unica fonte per i campi di ogni tipo di visita,
 // così le due non possono disallinearsi. Chi la consuma filtra da sé le
 // righe vuote — qui i valori sono semplicemente presenti o assenti.
 function getRefertoSezioni(v){
