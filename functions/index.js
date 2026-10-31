@@ -81,6 +81,18 @@ function pulisciPacchetto(p) {
   }
   const lista = (arr, campi) => (Array.isArray(arr) ? arr : []).filter((x) => x && typeof x.titolo === "string" && typeof x.testo === "string")
     .map((x) => Object.fromEntries(campi.filter((c) => typeof x[c] === "string").map((c) => [c, x[c]])));
+  // Ordine delle voci di ogni sezione (Firestore restituisce le chiavi di una
+  // mappa in ordine alfabetico): solo per sezioni a voci {titolo: testo}.
+  if (p.ordine && typeof p.ordine === "object") {
+    const ordine = {};
+    for (const [id, arr] of Object.entries(p.ordine)) {
+      const sez = out.sezioni[id];
+      if (!sez || Array.isArray(sez) || !Array.isArray(arr)) continue;
+      const titoli = arr.filter((t) => typeof t === "string" && Object.prototype.hasOwnProperty.call(sez, t));
+      if (titoli.length) ordine[id] = [...new Set(titoli)];
+    }
+    if (Object.keys(ordine).length) out.ordine = ordine;
+  }
   if (Array.isArray(p.consensi)) out.consensi = lista(p.consensi, ["titolo", "testo", "pdfUfficiale"]);
   if (Array.isArray(p.schemi)) out.schemi = lista(p.schemi, ["titolo", "testo"]);
   if (Buffer.byteLength(JSON.stringify(out)) > MAX_PACCHETTO) throw new HttpsError("invalid-argument", "Pacchetto troppo grande.");
@@ -121,13 +133,15 @@ exports.pacchettoMedico = onCall({ region: REGIONE, timeoutSeconds: 30, memory: 
   const ref = db.collection("pacchetti").doc(uid);
   const doc = await ref.get();
   const attuale = doc.exists ? doc.data() : {};
-  const p = { nome: attuale.nome || "", sezioni: { ...(attuale.sezioni || {}) } };
+  const p = { nome: attuale.nome || "", sezioni: { ...(attuale.sezioni || {}) }, ordine: { ...(attuale.ordine || {}) } };
   if (attuale.consensi) p.consensi = attuale.consensi;
   if (attuale.schemi) p.schemi = attuale.schemi;
   if (d.tipo === "sezione") {
     if (typeof d.id !== "string" || !/^[\w-]{1,60}$/.test(d.id)) throw new HttpsError("invalid-argument", "Sezione non valida.");
     if (d.valore === null) delete p.sezioni[d.id];
     else p.sezioni[d.id] = d.valore;
+    if (Array.isArray(d.ordine)) p.ordine[d.id] = d.ordine;
+    else delete p.ordine[d.id];
   } else if (d.tipo === "consensi" || d.tipo === "schemi") {
     if (d.valore === null) delete p[d.tipo];
     else p[d.tipo] = d.valore;
@@ -307,6 +321,12 @@ exports.portaleUtenti = onCall({ region: REGIONE, timeoutSeconds: 60, memory: "2
     };
   }
   if (azione === "salvaPacchetto") {
+    // Il portale non conosce l'ordine delle voci scelto dal medico: lo conserva
+    // (per le voci che restano; quelle nuove vanno in fondo nell'app).
+    if (d.pacchetto && typeof d.pacchetto === "object" && d.pacchetto.ordine === undefined) {
+      const attuale = await db.collection("pacchetti").doc(uid).get();
+      if (attuale.exists && attuale.data().ordine) d.pacchetto = { ...d.pacchetto, ordine: attuale.data().ordine };
+    }
     const p = pulisciPacchetto(d.pacchetto);
     await salvaPacchetto(uid, p, request.auth.token.email);
     return { ok: true };
