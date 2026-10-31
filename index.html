@@ -1201,6 +1201,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <span style="font-size:1.1rem;">🎭</span>
   <span id="demo-banner-testo" style="flex:1;min-width:220px">Modalità dimostrativa — queste pazienti sono di esempio, non reali. Nessun dato viene salvato online.</span>
   <button id="demo-banner-reset" class="btn btn-ghost btn-sm" style="display:none" onclick="ricominciaSitoDemo()">↺ Ricomincia la demo</button>
+  <button id="demo-banner-scarica" class="btn btn-primary btn-sm" style="display:none" onclick="apriScaricaProgramma()">⬇ Scarica il programma</button>
 </div>
 
 <!-- DASHBOARD -->
@@ -2511,6 +2512,21 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div id="crypto-pass-err" style="color:#c62828;font-size:0.82rem;margin-bottom:10px;display:none;"></div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="confermaPassphraseCifratura()">Conferma</button>
     <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="closeModal('modal-crypto-pass')">Annulla</button>
+  </div>
+</div>
+
+<!-- Modal download del programma dal sito demo: serve la password generata nel portale -->
+<div id="modal-scarica-programma" class="overlay" onclick="if(event.target===this)closeModal('modal-scarica-programma')">
+  <div class="modal-sm">
+    <h3>⬇ Scarica MED System</h3>
+    <div id="scarica-passo-password">
+      <p style="color:var(--label4);font-size:.85rem;margin-bottom:14px">Per scaricare l'ultima versione del programma (Windows) serve la password che ti ha dato chi ti ha presentato MED System.</p>
+      <input type="text" id="scarica-password" placeholder="Es. ABCD-EFGH-JKMN" autocomplete="off" autocapitalize="characters" spellcheck="false" style="width:100%;font-family:Consolas,monospace;letter-spacing:1px;margin-bottom:10px" onkeydown="if(event.key==='Enter')verificaPasswordScarica()">
+      <button id="scarica-verifica" class="btn btn-primary" style="width:100%;justify-content:center" onclick="verificaPasswordScarica()">Continua</button>
+    </div>
+    <div id="scarica-passo-file" style="display:none"></div>
+    <div id="scarica-err" style="color:#c62828;font-size:0.82rem;margin-top:10px;display:none;"></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:10px" onclick="closeModal('modal-scarica-programma')">Chiudi</button>
   </div>
 </div>
 
@@ -7807,6 +7823,7 @@ async function avviaSitoDemo(){
   mostraBannerDemo(true);
   document.getElementById('demo-banner-testo').textContent=`Versione dimostrativa · ${GS_MODELLI[modello].nome} — pazienti di esempio, non reali. Le prove restano solo in questo browser.`;
   document.getElementById('demo-banner-reset').style.display='';
+  document.getElementById('demo-banner-scarica').style.display='';
   naviga('home');
   caricaAppuntamenti();
 }
@@ -7815,6 +7832,41 @@ async function ricominciaSitoDemo(){
   await GS_STORAGE.archivio.scrivi(GS_CHIAVE_SITO_DEMO, JSON.stringify({pazienti:[],agenda:[],modelloDemo:'_'}));
   try{ await GS_STORAGE.allegati.svuota(); }catch(e){}
   location.reload();
+}
+
+// ── Download del programma dal sito demo ──
+// La password la genera l'amministratore nel portale (Sito demo → Download del
+// programma) e la dà a chi vuole installare MED System. La verifica la fa la
+// funzione scaricaProgrammaDemo, che restituisce i link dell'ultima versione.
+const _escScarica=t=>String(t==null?'':t).replace(/[<>&"']/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[x]));
+function apriScaricaProgramma(){
+  document.getElementById('scarica-passo-password').style.display='';
+  document.getElementById('scarica-passo-file').style.display='none';
+  document.getElementById('scarica-err').style.display='none';
+  document.getElementById('scarica-password').value='';
+  document.getElementById('modal-scarica-programma').classList.add('show');
+  setTimeout(()=>document.getElementById('scarica-password').focus(),50);
+}
+async function verificaPasswordScarica(){
+  const err=document.getElementById('scarica-err'), btn=document.getElementById('scarica-verifica');
+  const password=document.getElementById('scarica-password').value.trim();
+  err.style.display='none';
+  if(!password){ err.textContent='Scrivi la password.'; err.style.display=''; return; }
+  if(!gsFunctions){ err.textContent='Servizio non raggiungibile: controlla la connessione e ricarica la pagina.'; err.style.display=''; return; }
+  btn.disabled=true; btn.textContent='Verifica…';
+  try{
+    const r=(await gsFunctions.httpsCallable('scaricaProgrammaDemo')({password})).data;
+    const box=document.getElementById('scarica-passo-file');
+    const tuo=r.file.find(f=>f.modello===GS_MODELLO);
+    const lista=tuo ? [tuo, ...r.file.filter(f=>f!==tuo)] : r.file;
+    box.innerHTML=`<p style="color:var(--label4);font-size:.85rem;margin-bottom:12px">Versione <b>${_escScarica(r.versione)}</b>. Scegli il programma della tua specialità:</p>`+
+      lista.map((f,i)=>`<a class="btn ${i===0&&tuo?'btn-primary':'btn-ghost'}" style="width:100%;justify-content:center;margin-bottom:8px;text-decoration:none" href="${_escScarica(f.url)}" download>⬇ ${_escScarica(f.modello==='base'?'MED System Base (tutte le specialità)':f.nome)} <span style="opacity:.75;font-weight:400">· ${_escScarica(String(f.mb))} MB</span></a>`).join('')+
+      `<p style="color:var(--label4);font-size:.78rem;margin-top:10px">Apri il file scaricato e segui le istruzioni. Se Windows mostra «Windows ha protetto il PC», clicca «Ulteriori informazioni» e poi «Esegui comunque».</p>`;
+    document.getElementById('scarica-passo-password').style.display='none';
+    box.style.display='';
+  }catch(e){
+    err.textContent=(e && e.message) || 'Verifica non riuscita, riprova.'; err.style.display='';
+  }finally{ btn.disabled=false; btn.textContent='Continua'; }
 }
 
 function mostraBannerDemo(mostra){
