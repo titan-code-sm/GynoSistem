@@ -1193,6 +1193,19 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   </div>
 </div>
 
+<!-- Aggiornamento inviato dall'amministratore dal portale (solo app desktop) -->
+<div id="modal-aggiornamento" class="overlay">
+  <div class="modal-sm" style="width:520px;text-align:center;">
+    <div style="font-size:2.4rem;margin-bottom:8px;">⬆️</div>
+    <h3 id="agg-titolo">Aggiornamento pronto</h3>
+    <p id="agg-testo" style="color:var(--label4);font-size:.88rem;margin:12px 0 22px;line-height:1.55;"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-primary" id="agg-ora" style="justify-content:center;" onclick="installaAggiornamento()">⬆️ Aggiorna ora</button>
+      <button class="btn btn-ghost" style="justify-content:center;" onclick="rimandaAggiornamento()">Più tardi (te lo richiedo fra 30 minuti)</button>
+    </div>
+  </div>
+</div>
+
 <!-- MAIN -->
 <main>
 
@@ -2259,7 +2272,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       </div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closeModal('modal-benvenuto')">Più tardi</button>
+      <button class="btn btn-ghost" onclick="rimandaBenvenuto()">Più tardi</button>
       <button class="btn btn-primary" onclick="salvaBenvenuto()">Salva e inizia</button>
     </div>
   </div>
@@ -7140,6 +7153,14 @@ async function bvCaricaLogo(input){
   input.value='';
 }
 function bvRimuoviLogo(){ _bvLogo=''; _bvDisegna(); }
+// «Più tardi»: la scelta si ricorda, così la schermata non si riapre a ogni
+// avvio (prima tornava dopo ogni riavvio, per esempio dopo un aggiornamento).
+// Si completa quando si vuole da Impostazioni → Profilo.
+function rimandaBenvenuto(){
+  try{ localStorage.setItem(_bvChiave(), 'rimandato '+new Date().toISOString()); }catch(e){}
+  closeModal('modal-benvenuto');
+  if(typeof gsToast==='function') gsToast('Puoi completare la configurazione quando vuoi da Impostazioni → Profilo','gs-info');
+}
 async function salvaBenvenuto(){
   if(!haPin()){
     const p1=document.getElementById('bv-pin').value, p2=document.getElementById('bv-pin2').value;
@@ -7297,6 +7318,70 @@ async function _applicaContenutiSenzaProfilo(uid){
   _applicaPreferenzeProfilo(null, uid);
   applicaAbbonamento(null, gsCurrentUser);
 }
+// ── Aggiornamento inviato dal portale ──
+// L'amministratore preme «Aggiorna» nel portale: nel profilo del medico compare
+// aggiornamentoRichiesto {versione, quando}. L'app desktop scarica l'ultima
+// versione in sottofondo (comando Rust aggiornamento_scarica, installer firmato)
+// e poi chiede al medico il momento giusto per riavviarsi, così non si perde
+// una visita che sta scrivendo. Esito per il portale in aggiornamentoEsito.
+let _aggStato = '';            // '', 'scarico', 'pronto'
+let _aggRichiesta = '';        // «quando» della richiesta in lavorazione
+let _aggRimando = null;
+function _versioneMinore(a,b){
+  const pa=String(a).split('.').map(n=>parseInt(n,10)||0), pb=String(b).split('.').map(n=>parseInt(n,10)||0);
+  for(let i=0;i<3;i++){ if((pa[i]||0)!==(pb[i]||0)) return (pa[i]||0)<(pb[i]||0); }
+  return false;
+}
+async function controllaAggiornamentoRemoto(d, ref){
+  const r = d && d.aggiornamentoRichiesto;
+  const T = window.__TAURI__;
+  if(!r || !r.versione || !r.quando || !T || !T.core || !T.app) return;
+  if(_aggStato && _aggRichiesta===r.quando) return;            // già in corso o pronta
+  const esito = d.aggiornamentoEsito;
+  if(esito && esito.richiesta===r.quando && esito.stato==='errore' && _aggRichiesta===r.quando) return; // riprova al prossimo avvio
+  let attuale=''; try{ attuale = await T.app.getVersion(); }catch(e){ return; }
+  if(!_versioneMinore(attuale, r.versione)) return;            // già aggiornata
+  _aggStato='scarico'; _aggRichiesta=r.quando;
+  const scrivi = (stato, extra) => ref.update({ aggiornamentoEsito: Object.assign({ richiesta:r.quando, stato, quando:new Date().toISOString(), da:attuale }, extra||{}) }).catch(()=>{});
+  scrivi('scarico');
+  try{
+    const info = await T.core.invoke('aggiornamento_scarica');
+    if(!info){ _aggStato=''; scrivi('errore', { messaggio:'Nell\'ultima versione pubblicata non c\'è un aggiornamento per questa app (manca il file latest, o la versione non è più recente).' }); return; }
+    _aggStato='pronto';
+    scrivi('pronto', { versione: info.versione });
+    _mostraAggiornamento(info);
+  }catch(e){
+    _aggStato='';
+    scrivi('errore', { messaggio: String(e && e.message || e).slice(0,300) });
+  }
+}
+function _mostraAggiornamento(info){
+  if(info) _mostraAggiornamento.info = info; else info = _mostraAggiornamento.info;
+  const visitaAperta = document.getElementById('editor-overlay')?.classList.contains('show') || document.getElementById('editor-min-bar')?.classList.contains('show');
+  document.getElementById('agg-titolo').textContent = `È pronta la versione ${info.versione}`; // textContent: nessun HTML
+  document.getElementById('agg-testo').innerHTML = `L'amministratore di MED System ha inviato l'aggiornamento (ora hai la ${String(info.attuale).replace(/[^0-9.]/g,'')}). `+
+    `L'app si chiude, si aggiorna e si riapre da sola in circa un minuto. I pazienti e le visite salvate restano dove sono.`+
+    (visitaAperta ? '<br><br><b style="color:var(--red,#c0392b)">Hai una visita aperta: salvala prima di aggiornare.</b>' : '');
+  document.getElementById('modal-aggiornamento').classList.add('show');
+}
+async function installaAggiornamento(){
+  const btn = document.getElementById('agg-ora');
+  btn.disabled = true; btn.textContent = 'Aggiornamento in corso…';
+  try{
+    await window.__TAURI__.core.invoke('aggiornamento_installa');   // l'app si chiude e si riapre
+  }catch(e){
+    btn.disabled = false; btn.textContent = '⬆️ Aggiorna ora';
+    closeModal('modal-aggiornamento'); _aggStato='';
+    alert('Aggiornamento non riuscito: '+(e && e.message || e)+'\n\nRiprova più tardi o avvisa l\'amministratore.');
+    try{ if(gsDb && gsCurrentUser) gsDb.collection('utenti').doc(gsCurrentUser.uid).update({ aggiornamentoEsito:{ richiesta:_aggRichiesta, stato:'errore', quando:new Date().toISOString(), messaggio:String(e && e.message || e).slice(0,300) } }); }catch(_){}
+  }
+}
+function rimandaAggiornamento(){
+  closeModal('modal-aggiornamento');
+  clearTimeout(_aggRimando);
+  _aggRimando = setTimeout(()=>{ if(_aggStato==='pronto') _mostraAggiornamento(); }, 30*60*1000);
+}
+
 async function handleUserProfile(user){
   if(!gsDb){ await _applicaContenutiSenzaProfilo(user.uid); return {ok:true, mustChange:false}; } // se Firestore non è pronto, non blocchiamo l'accesso
   const ref = gsDb.collection('utenti').doc(user.uid);
@@ -7344,6 +7429,7 @@ async function handleUserProfile(user){
       const versione = window.__TAURI__ && window.__TAURI__.app ? await window.__TAURI__.app.getVersion() : '';
       if(versione && data.versioneApp!==versione) await ref.update({ versioneApp: versione });
     }catch(e){}
+    controllaAggiornamentoRemoto(data, ref);
   }
   await caricaPacchetto(user.uid);
   applicaFrasiPersonalizzate();
@@ -7368,6 +7454,7 @@ async function handleUserProfile(user){
       _applicaPreferenzeProfilo(d, gsCurrentUser.uid);
       applicaAbbonamento(d, gsCurrentUser);
       if(d.nome) applyNomeMedico(d.nome);
+      controllaAggiornamentoRemoto(d, ref);
     }
   });
 
