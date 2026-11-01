@@ -1,7 +1,7 @@
 # MED System — sito demo
 
 Questo repository contiene solo il **sito dimostrativo** di MED System
-(https://titan-code-sm.github.io/GynoSistem/): l'app aperta nel browser con
+(https://titan-code-sm.github.io/Med-System-DEMO/): l'app aperta nel browser con
 pazienti di esempio, senza account, e il pulsante **«Scarica il programma»**,
 che funziona con la password generata nel portale (Sito demo → Download del
 programma).
