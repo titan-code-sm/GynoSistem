@@ -4093,6 +4093,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 // Fuori dall'app desktop (sito web) MED System funziona solo come demo, con
 // pazienti di esempio e senza account: i dati reali vivono solo nell'app.
 const GS_SITO_DEMO = !window.__TAURI__;
+// PDF di un consenso: quelli inclusi nell'app (consensi-pdf/…) sono i
+// documenti SIEOG; quelli allegati dal portale hanno un indirizzo web completo.
+function gsEtichettaPdfConsenso(pdf, predefinita){ return /^https?:/i.test(String(pdf||'')) ? 'Documento allegato (PDF)' : predefinita; }
 // "MED System" è la famiglia di app per specialità mediche. Il MODELLO decide
 // quale versione è: "gineco" (visite ginecologiche, ostetriche, ecografie,
 // curve, prontuario e linee guida ginecologiche) oppure "base", valida per
@@ -11501,7 +11504,7 @@ function renderConsensi(){
     <div class="pharma-card">
       <div class="pharma-name" style="margin-bottom:8px;">${_escHtml(s.titolo)}</div>
       <div style="font-size:.78rem;color:var(--label4);line-height:1.5;margin-bottom:12px;max-height:64px;overflow:hidden;">${_escHtml(testoRisolto).slice(0,180)}${testoRisolto.length>180?'…':''}</div>
-      ${s.pdfUfficiale?`<a href="${s.pdfUfficiale}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:var(--primary);margin-bottom:10px;text-decoration:none;">📄 Documento informativo ufficiale SIEOG (PDF)</a>`:''}
+      ${s.pdfUfficiale?`<a href="${s.pdfUfficiale}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:var(--primary);margin-bottom:10px;text-decoration:none;">📄 ${gsEtichettaPdfConsenso(s.pdfUfficiale,'Documento informativo ufficiale SIEOG (PDF)')}</a>`:''}
       <div style="display:flex;flex-wrap:wrap;gap:6px;">
         <button class="btn btn-ghost btn-sm" onclick="_apriPromptNomeConsenso(${i},false)">🖨️ Stampa</button>
         <button class="btn btn-primary btn-sm" onclick="_apriPromptNomeConsenso(${i},true)">✍️ Firma su schermo</button>
@@ -11735,7 +11738,7 @@ function _renderConsensoVisitaLista(tipo){
       <span style="flex:1;">
         <span style="font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">${_escHtml(c.titolo)}${c._match?' <span class="badge badge-blue" style="font-size:.6rem;">Consigliato</span>':''}</span>
         <span style="font-size:.76rem;color:var(--label4);display:block;margin-top:2px;">${_escHtml(testoRisolto.slice(0,140))}${testoRisolto.length>140?'…':''}</span>
-        ${c.pdfUfficiale?`<a href="${c.pdfUfficiale}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--primary);margin-top:4px;text-decoration:none;">📄 Documento ufficiale SIEOG (PDF)</a>`:''}
+        ${c.pdfUfficiale?`<a href="${c.pdfUfficiale}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--primary);margin-top:4px;text-decoration:none;">📄 ${gsEtichettaPdfConsenso(c.pdfUfficiale,'Documento ufficiale SIEOG (PDF)')}</a>`:''}
       </span>
     </label>`;
   }).join('');

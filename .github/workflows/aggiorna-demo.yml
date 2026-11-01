@@ -1,0 +1,54 @@
+# Sito demo di MED System. Il codice dell'app e i PDF dei consensi stanno in
+# titan-code-sm/Gestione-MED-system (cartella app/): questo workflow ne copia
+# qui l'ultima versione, che GitHub Pages pubblica come sito dimostrativo.
+# Parte ogni ora o a mano (Actions → «Aggiorna la demo» → Run workflow).
+# Qui non si modifica niente a mano: le modifiche vanno fatte in Gestione-MED-system.
+name: Aggiorna la demo
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aggiorna-demo
+  cancel-in-progress: false
+
+jobs:
+  copia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Scarica l'app da Gestione-MED-system
+        uses: actions/checkout@v4
+        with:
+          repository: titan-code-sm/Gestione-MED-system
+          ref: main
+          path: .sorgente
+
+      - name: Copia app, dati demo, loghi e PDF dei consensi
+        run: |
+          S=.sorgente/app
+          test -f "$S/index.html" || { echo "::error::Manca app/index.html in Gestione-MED-system"; exit 1; }
+          cp "$S/index.html" index.html
+          for f in logo.png logo-medsystem.png demo-pazienti.json demo-base.json demo-proct.json; do
+            if [ -f "$S/$f" ]; then cp "$S/$f" "$f"; fi
+          done
+          mkdir -p consensi-pdf
+          if [ -d "$S/consensi-pdf" ]; then cp "$S"/consensi-pdf/*.pdf consensi-pdf/ 2>/dev/null || true; fi
+          rm -rf .sorgente
+
+      - name: Pubblica
+        run: |
+          git add -A index.html logo.png logo-medsystem.png demo-*.json consensi-pdf
+          if git diff --cached --quiet; then echo "La demo è già aggiornata."; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898289+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Demo aggiornata da Gestione-MED-system"
+          git push origin HEAD:main
