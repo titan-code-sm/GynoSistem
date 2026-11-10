@@ -814,8 +814,9 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   .mob-bar{display:flex;}
 
   /* Sidebar → drawer */
+  /* Il menu parte sotto la barra in alto: prima il nome del medico ci finiva sotto */
   aside{
-    position:fixed;top:0;bottom:0;
+    position:fixed;top:56px;bottom:0;
     left:-275px;width:275px;
     z-index:89;
     transition:left .3s cubic-bezier(.32,.72,0,1);
@@ -987,6 +988,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     height:calc(56px + env(safe-area-inset-top));
   }
   main{padding-top:calc(56px + env(safe-area-inset-top));}
+  @media(max-width:768px){ aside{top:calc(56px + env(safe-area-inset-top));} }
   .modal-sm,.cal-modal-box,.forgot-card,.mbox{
     padding-bottom:calc(32px + env(safe-area-inset-bottom)) !important;
   }
@@ -7345,7 +7347,8 @@ async function controllaAggiornamentoRemoto(d, ref){
   const scrivi = (stato, extra) => ref.update({ aggiornamentoEsito: Object.assign({ richiesta:r.quando, stato, quando:new Date().toISOString(), da:attuale }, extra||{}) }).catch(()=>{});
   scrivi('scarico');
   try{
-    const info = await T.core.invoke('aggiornamento_scarica');
+    // Sul tablet Android lo scaricamento lo fa il bridge (gsAggiornamentoScarica)
+    const info = window.gsAggiornamentoScarica ? await window.gsAggiornamentoScarica() : await T.core.invoke('aggiornamento_scarica');
     if(!info){ _aggStato=''; scrivi('errore', { messaggio:'Nell\'ultima versione pubblicata non c\'è un aggiornamento per questa app (manca il file latest, o la versione non è più recente).' }); return; }
     _aggStato='pronto';
     scrivi('pronto', { versione: info.versione });
@@ -7360,7 +7363,9 @@ function _mostraAggiornamento(info){
   const visitaAperta = document.getElementById('editor-overlay')?.classList.contains('show') || document.getElementById('editor-min-bar')?.classList.contains('show');
   document.getElementById('agg-titolo').textContent = `È pronta la versione ${info.versione}`; // textContent: nessun HTML
   document.getElementById('agg-testo').innerHTML = `L'amministratore di MED System ha inviato l'aggiornamento (ora hai la ${String(info.attuale).replace(/[^0-9.]/g,'')}). `+
-    `L'app si chiude, si aggiorna e si riapre da sola in circa un minuto. I pazienti e le visite salvate restano dove sono.`+
+    (window.gsAggiornamentoInstalla
+      ? `Premi «Aggiorna ora»: Android chiede di confermare, premi <b>Aggiorna</b> (la prima volta consenti l'installazione da MED System), poi riapri l'app. I pazienti e le visite salvate restano dove sono.`
+      : `L'app si chiude, si aggiorna e si riapre da sola in circa un minuto. I pazienti e le visite salvate restano dove sono.`)+
     (visitaAperta ? '<br><br><b style="color:var(--red,#c0392b)">Hai una visita aperta: salvala prima di aggiornare.</b>' : '');
   document.getElementById('modal-aggiornamento').classList.add('show');
 }
@@ -7368,6 +7373,12 @@ async function installaAggiornamento(){
   const btn = document.getElementById('agg-ora');
   btn.disabled = true; btn.textContent = 'Aggiornamento in corso…';
   try{
+    if(window.gsAggiornamentoInstalla){                               // tablet Android: conferma di Android
+      await window.gsAggiornamentoInstalla();
+      btn.disabled = false; btn.textContent = '⬆️ Aggiorna ora';
+      closeModal('modal-aggiornamento'); _aggStato='';
+      return;
+    }
     await window.__TAURI__.core.invoke('aggiornamento_installa');   // l'app si chiude e si riapre
   }catch(e){
     btn.disabled = false; btn.textContent = '⬆️ Aggiorna ora';
@@ -7428,6 +7439,8 @@ async function handleUserProfile(user){
     try{
       const versione = window.__TAURI__ && window.__TAURI__.app ? await window.__TAURI__.app.getVersion() : '';
       if(versione && data.versioneApp!==versione) await ref.update({ versioneApp: versione });
+      const dispositivo = /Android/i.test(navigator.userAgent) ? 'android' : 'windows';
+      if(versione && data.dispositivoApp!==dispositivo) await ref.update({ dispositivoApp: dispositivo });
     }catch(e){}
     controllaAggiornamentoRemoto(data, ref);
   }
