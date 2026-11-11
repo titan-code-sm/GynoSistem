@@ -7890,7 +7890,7 @@ function caricaFileDemoPersonalizzato(input){
   const r=new FileReader();
   r.onload=async e=>{
     let dati;
-    try{ dati=JSON.parse(e.target.result); }
+    try{ dati=gsTestiSicuri(JSON.parse(e.target.result)); }
     catch(x){ if(err){ err.textContent='File non valido: non è un JSON leggibile.'; err.style.display='block'; } return; }
     if(!dati || !Array.isArray(dati.pazienti)){
       if(err){ err.textContent='File non valido: manca l\'elenco "pazienti".'; err.style.display='block'; }
@@ -11414,11 +11414,11 @@ async function caricaPacchetto(uid){
   const chiave='gs_pacchetto_cache_'+uid;
   try{
     const d=await gsDb.collection('pacchetti').doc(uid).get();
-    gsPacchetto=d.exists ? d.data() : null;
+    gsPacchetto=d.exists ? gsTestiSicuri(d.data()) : null;
     try{ if(gsPacchetto) localStorage.setItem(chiave, JSON.stringify(gsPacchetto)); else localStorage.removeItem(chiave); }catch(e){}
   }catch(e){
     console.warn('Pacchetto studio non raggiungibile, uso la copia locale:', e.message);
-    try{ gsPacchetto=JSON.parse(localStorage.getItem(chiave))||null; }catch(_){ gsPacchetto=null; }
+    try{ gsPacchetto=gsTestiSicuri(JSON.parse(localStorage.getItem(chiave)))||null; }catch(_){ gsPacchetto=null; }
   }
 }
 // Le modifiche del medico (frasi pronte, consensi, schemi di prescrizione)
@@ -11431,7 +11431,7 @@ async function inviaAlPacchetto(modifica){
   if(!gsFunctions || !gsCurrentUser || GS_SITO_DEMO) return false;
   try{
     const r=await gsFunctions.httpsCallable('pacchettoMedico')(modifica);
-    gsPacchetto=(r.data && r.data.pacchetto) || null;
+    gsPacchetto=gsTestiSicuri((r.data && r.data.pacchetto) || null);
     const chiave='gs_pacchetto_cache_'+gsCurrentUser.uid;
     try{ if(gsPacchetto) localStorage.setItem(chiave, JSON.stringify(gsPacchetto)); else localStorage.removeItem(chiave); }catch(e){}
     return true;
@@ -14088,7 +14088,7 @@ async function ripristinaDaFileCifrato(){
     if(!payload || !payload.salt || !payload.data){ alert('Questo file non è un backup cifrato di MED System.'); return; }
     const pass = prompt('Password di cifratura del file selezionato:');
     if(!pass) return;
-    const dati = await gsDecryptJSON(payload, pass);
+    const dati = gsTestiSicuri(await gsDecryptJSON(payload, pass));
     if(!dati || !Array.isArray(dati.pazienti)){ alert('Il file è stato decifrato correttamente ma non contiene un archivio valido (manca l\'elenco "pazienti").'); return; }
     const nPaz=dati.pazienti.length;
     if(!confirm(`Questo file contiene ${nPaz} pazient${nPaz===1?'e':'i'}.\n\nSovrascrivere tutti i dati attuali con quelli di questo file? L'operazione non è reversibile.`)) return;
@@ -14129,6 +14129,24 @@ async function tentaRiconnessioneFileLocale(){
 // desktop sia nella versione web.
 const GS_BACKUP_FORMATO='medsystem-backup';
 const GS_PREFERENZE_GLOBALI=['gs_dark_mode','gyno_diario_personale','gs_ricetta_intestazione'];
+
+// Testi che arrivano da fuori (file di backup, file demo, pacchetto dal
+// portale). Nei dati dell'app non c'è mai codice HTML: un «<» seguito da una
+// lettera (es. <img …>) riceve uno spazio invisibile e una virgoletta seguita
+// da nome= diventa tipografica, così un file manomesso non può far eseguire
+// comandi alla pagina (che nell'app ha accesso al database). Il testo resta
+// uguale a vista; le immagini (data:…) non si toccano.
+function gsTestiSicuri(v){
+  if(typeof v==='string'){
+    if(/^data:[\w.+-]+\/[\w.+-]+(;[\w.+=-]+)*;base64,[A-Za-z0-9+\/=\s]*$/.test(v)) return v; // immagine
+    return v.replace(/<(?=[a-zA-Z\/!?])/g,'<\u200B')
+      .replace(/"(?=[\s\/]*[^\s"'<>\/=]+\s*=)/g,'\u201D')
+      .replace(/'(?=[\s\/]*[^\s"'<>\/=]+\s*=)/g,'\u2019');
+  }
+  if(Array.isArray(v)) return v.map(gsTestiSicuri);
+  if(v && typeof v==='object'){ const o={}; for(const k of Object.keys(v)) o[k]=gsTestiSicuri(v[k]); return o; }
+  return v;
+}
 
 // Salva un file sul dispositivo (download). L'app desktop la sostituisce.
 function gsSalvaFile(blob, nome){
@@ -14227,10 +14245,13 @@ async function esportaBackupCompleto(conPassword){
 function backupData(){ return esportaBackupCompleto(true); }
 
 function exportCSV(){
+  // Campi vuoti come celle vuote (non "undefined"), virgolette raddoppiate e
+  // niente formule: un testo che inizia con = + - @ non viene eseguito da Excel.
+  const cella=v=>{ let t=v==null?'':String(v); if(/^[=+\-@\t\r]/.test(t) && !/^\+[\d\s().\/-]+$/.test(t)) t="'"+t; return '"'+t.replace(/"/g,'""')+'"'; };
   let csv='Cognome,Nome,DataNascita,Telefono,Email,CF,NumeroVisite,UltimaVisita\n';
   DB.pazienti.forEach(p=>{
     const last=p.visite?.length?p.visite[p.visite.length-1].data:'';
-    csv+=`"${p.cognome}","${p.nome}","${p.nascita}","${p.tel}","${p.email}","${p.cf}",${p.visite?.length||0},"${last}"\n`;
+    csv+=[p.cognome,p.nome,p.nascita,p.tel,p.email,p.cf].map(cella).join(',')+`,${p.visite?.length||0},${cella(last)}\n`;
   });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
@@ -14266,7 +14287,7 @@ async function restoreData(input){
       alert('Questo file non è un backup di MED System (manca l\'elenco delle pazienti).\n\nUsa un file creato con "Scarica backup completo" (o un vecchio "Esporta Backup JSON"), non il download automatico di una singola visita.');
       return;
     }
-    const a=backup.archivio;
+    const a=gsTestiSicuri(backup.archivio);
     const nPaz=a.pazienti.length;
     const nVis=a.pazienti.reduce((t,p)=>t+(p.visite?.length||0),0);
     const nApp=(a.appuntamenti||[]).length;
@@ -14297,7 +14318,11 @@ async function restoreData(input){
     }
     if(backup.preferenze){
       const uid=gsCurrentUser?gsCurrentUser.uid:'anon';
-      Object.entries(backup.preferenze).forEach(([k,v])=>{ try{ localStorage.setItem(k.split('{UID}').join(uid), v); }catch(e){} });
+      // Solo impostazioni di questo account o quelle globali note, e solo testi.
+      Object.entries(backup.preferenze).forEach(([k,v])=>{
+        if(typeof v!=='string' || !(k.includes('{UID}') || GS_PREFERENZE_GLOBALI.includes(k))) return;
+        try{ localStorage.setItem(k.split('{UID}').join(uid), gsTestiSicuri(v)); }catch(e){}
+      });
     }
     registraLog('backup','Dati importati da un backup');
     await salvaDBSubito();
