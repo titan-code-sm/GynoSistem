@@ -663,7 +663,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 }
 #print-area{display:none;padding:25px;}
 /* Barra editor minimizzato */
-.editor-min-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--surface);border-top:2px solid var(--primary);box-shadow:0 -4px 20px rgba(0,0,0,0.12);z-index:4000;align-items:center;gap:12px;padding:0 18px;cursor:pointer;transition:background 0.15s;}
+.editor-min-bar{display:none;position:fixed;bottom:0;left:0;right:0;height:58px;background:var(--surface);border-top:2px solid var(--primary);box-shadow:0 -4px 20px rgba(0,0,0,0.12);z-index:4000;height:calc(58px + env(safe-area-inset-bottom,0px));box-sizing:border-box;align-items:center;gap:12px;padding:0 18px env(safe-area-inset-bottom,0px);cursor:pointer;transition:background 0.15s;}
 .editor-min-bar:hover{background:var(--surface2);}
 .editor-min-bar.show{display:flex;}
 .emb-icon{width:36px;height:36px;border-radius:10px;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
@@ -1037,7 +1037,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <img src="logo-medsystem.png" alt="MED System" class="login-logo">
     </div>
     <h1 class="sr-only">MED System</h1>
-    <div class="login-version" style="margin-bottom:22px;">Gineco · v15.0</div>
+    <div class="login-version" style="margin-bottom:22px;">Gineco</div>
     <form id="login-form" autocomplete="on" onsubmit="event.preventDefault();checkLogin();">
       <input type="email" id="login-email" name="email" class="login-input" placeholder="Email" autocomplete="username" style="margin-bottom:10px" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('login-pass').focus();}">
       <div class="pass-wrap">
@@ -2375,11 +2375,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <div style="font-size:0.72rem;font-weight:700;color:var(--label4);text-transform:uppercase;letter-spacing:0.5px;margin:6px 0 10px;">Intestazione</div>
     <div class="field-row r2" style="margin-bottom:10px">
       <div class="form-group"><label class="form-label">Nome medico</label><input type="text" id="set-print-nome" placeholder="es. Dott.ssa Maria Rossi"></div>
-      <div class="form-group"><label class="form-label">Specializzazione / titolo</label><input type="text" id="set-print-spec" placeholder="Specialista in Ginecologia e Ostetricia"></div>
+      <div class="form-group"><label class="form-label">Specializzazione / titolo</label><textarea id="set-print-spec" rows="2" placeholder="Medico Chirurgo&#10;Specialista in Ginecologia e Ostetricia" title="Ogni riga va a capo anche nel referto"></textarea></div>
     </div>
     <div class="field-row r2" style="margin-bottom:10px">
-      <div class="form-group"><label class="form-label">Indirizzo studio</label><input type="text" id="set-print-indirizzo" placeholder="Via Roma 12, Città"></div>
-      <div class="form-group"><label class="form-label">Telefono / email</label><input type="text" id="set-print-contatti" placeholder="Tel. 000 000000 · info@studiomedico.it"></div>
+      <div class="form-group"><label class="form-label">Indirizzo studio</label><textarea id="set-print-indirizzo" rows="2" placeholder="Via Roma 12, Città&#10;Codice fiscale / P. IVA" title="Ogni riga va a capo anche nel referto"></textarea></div>
+      <div class="form-group"><label class="form-label">Telefono / email</label><textarea id="set-print-contatti" rows="2" placeholder="Tel. 000 000000&#10;email: info@studiomedico.it" title="Ogni riga va a capo anche nel referto"></textarea></div>
     </div>
     <div class="field-row r2" style="margin-bottom:10px">
       <div class="form-group"><label class="form-label">Testo della firma</label><input type="text" id="set-print-firma" placeholder="es. Dott.ssa Maria Rossi"></div>
@@ -4146,7 +4146,11 @@ const GS_APP_FILE='MEDSystem'+(GS_APP_SPECIALITA?'_'+GS_APP_SPECIALITA:''); // p
   testo('.app-brand-spec', m.specialita);
   testo('.brand-role', m.ruolo);
   const lv=document.querySelector('#login-overlay .login-version');
-  if(lv) lv.textContent=(m.specialita?m.specialita+' · ':'')+'v15.0';
+  // Versione vera dell'app (era scritta fissa «v15.0», un vecchio numero interno)
+  if(lv){
+    lv.textContent=m.specialita||'';
+    try{ window.__TAURI__.app.getVersion().then(v=>{ lv.textContent=(m.specialita?m.specialita+' · ':'')+'v'+v; }).catch(()=>{}); }catch(e){}
+  }
   if(GS_MODELLO!=='gineco'){
     ['rxv-cfg-spec','bv-spec','set-print-spec'].forEach(id=>{ const el=document.getElementById(id); if(el) el.placeholder='es. Specialista in Cardiologia'; });
     // In Base "paziente" è al maschile/neutro, non solo al femminile
@@ -10590,12 +10594,11 @@ function anteprimaStampa(){
     .ap-bar{position:fixed;top:0;left:0;right:0;background:#fce4ec;padding:10px 16px;font-family:system-ui,sans-serif;font-size:.85rem;color:#880e4f;display:flex;gap:10px;align-items:center}
     .ap-bar button{font:inherit;font-weight:600;padding:6px 14px;border:none;border-radius:8px;background:${l.colore};color:#fff;cursor:pointer}
     body{padding-top:64px}
-    .ph{display:flex;align-items:center;gap:18px;border-bottom:3px solid ${l.colore};padding-bottom:16px;margin-bottom:22px}
-    .ph h1{font-size:1.3rem;margin:0;color:${l.colore}}
-    .ph .sp{font-size:.85rem;color:#555;margin-top:2px}
-    .ph .ct{font-size:.78rem;color:#777;margin-top:3px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8f8f8;border-radius:8px;padding:14px;margin-bottom:18px;font-size:.9em}
-    .lbl{font-size:.72rem;text-transform:uppercase;color:#777;font-weight:bold}
+    .ph{display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:2px solid ${l.colore};padding-bottom:12px;margin-bottom:12px}
+    .ph img{max-height:70px;max-width:170px}
+    .ph .dx{text-align:right;font-size:.88em;line-height:1.5}
+    .grid{display:flex;justify-content:space-between;gap:20px;font-size:.92em;line-height:1.55;border-bottom:2px solid ${l.colore};padding-bottom:10px;margin-bottom:14px}
+    .tit{text-align:center;font-weight:700;text-transform:uppercase;font-size:1.15em;margin:6px 0}
     h2{font-size:1.05rem;margin:16px 0 6px}
     .foot{margin-top:40px;display:flex;justify-content:space-between;align-items:flex-end;font-size:.85rem;color:#555}
     .pp{margin-top:24px;padding-top:8px;border-top:1px solid #ccc;font-size:.7rem;color:#888;text-align:center}
@@ -10605,13 +10608,12 @@ function anteprimaStampa(){
       <button onclick="window.print()">🖨️ Prova stampa</button>
       <button onclick="window.close()" style="background:#fff;color:#880e4f;border:1px solid #f48fb1">Chiudi</button>
     </div>
-    <div class="ph">${logo}<div><h1>${_escHtml(i.nome)}</h1><div class="sp">${_escHtml(i.spec)}</div><div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div></div></div>
+    <div class="ph">${logo||'<span></span>'}<div class="dx">${[i.nome,i.spec,i.indirizzo,i.contatti].flatMap(x=>String(x||'').split(/\r?\n/)).map(x=>x.trim()).filter(Boolean).map(r=>`<div>${_escHtml(r)}</div>`).join('')}</div></div>
     <div class="grid">
-      <div><div class="lbl">Paziente</div><div>Mario Rossi (esempio)</div></div>
-      <div style="text-align:right"><div class="lbl">Data visita</div><div>${new Date().toLocaleDateString('it-IT')}</div></div>
-      <div><div class="lbl">Data di nascita</div><div>01/01/1990</div></div>
-      <div style="text-align:right"><div class="lbl">Codice fiscale</div><div>—</div></div>
+      <div><div>Rossi Maria (esempio)</div><div>Data di nascita: 01/01/1990</div><div>CF: –</div></div>
+      <div style="text-align:right">Data della visita: ${new Date().toLocaleDateString('it-IT')}</div>
     </div>
+    <div class="tit">Visita ginecologica</div>
     <h2>ANAMNESI</h2>
     <p>Testo di esempio del referto. Qui compaiono soltanto i campi effettivamente compilati durante la visita, con questo carattere e questo corpo.</p>
     <h2>CONCLUSIONI</h2>
@@ -12779,17 +12781,14 @@ function _gsCssDocumento(l, M){
 .gs-pg-corpo{flex:1 1 auto;min-height:0;overflow:hidden;}
 .gs-pg-piede{flex:none;display:flex;justify-content:space-between;gap:12px;font-size:7.5pt;line-height:1.3;color:#777;border-top:1px solid #d9d9d9;padding-top:4px;margin-top:8px;}
 .gs-pg-piede .gs-pg-num{white-space:nowrap;margin-left:auto;}
-.gs-int{display:flex;align-items:center;gap:16px;border-bottom:2.5px solid ${col};padding-bottom:12px;margin-bottom:14px;}
-.gs-int img{height:58px;width:auto;max-width:120px;object-fit:contain;flex:none;}
-.gs-int .nm{font-size:1.35em;font-weight:700;line-height:1.2;color:${col};}
-.gs-int .sp{font-size:.86em;color:#555;margin-top:2px;}
-.gs-int .ct{font-size:.78em;color:#777;margin-top:2px;}
-.gs-paz{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;background:#f5f5f5;border:1px solid #e4e4e4;border-radius:6px;padding:9px 14px;margin-bottom:16px;}
-.gs-paz .lb{font-size:.66em;text-transform:uppercase;letter-spacing:.5px;color:#777;font-weight:700;}
-.gs-paz .vl{font-size:.95em;font-weight:600;color:#1c1c1e;}
-.gs-paz .dx{text-align:right;}
-.gs-tit{font-size:1.22em;font-weight:700;line-height:1.25;color:#1c1c1e;}
-.gs-sub{font-size:.8em;color:#666;margin:1px 0 6px;}
+.gs-int{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:2px solid ${col};padding-bottom:12px;margin-bottom:12px;}
+.gs-int img{height:70px;width:auto;max-width:170px;object-fit:contain;flex:none;}
+.gs-int .dx{text-align:right;font-size:.88em;line-height:1.5;color:#1c1c1e;}
+.gs-int .nm{font-size:1.08em;}
+.gs-paz{display:flex;justify-content:space-between;gap:20px;font-size:.92em;line-height:1.55;border-bottom:2px solid ${col};padding-bottom:10px;margin-bottom:14px;}
+.gs-paz .dx{text-align:right;white-space:nowrap;}
+.gs-tit{font-size:1.15em;font-weight:700;line-height:1.25;color:#1c1c1e;text-align:center;text-transform:uppercase;letter-spacing:.3px;}
+.gs-sub{font-size:.8em;color:#666;margin:1px 0 6px;text-align:center;}
 .gs-sez{font-size:.8em;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:${col};border-bottom:1px solid #e3e3e3;padding:10px 0 2px;margin-bottom:5px;}
 .gs-riga{padding-bottom:3px;overflow-wrap:anywhere;}
 .gs-riga.cont{padding-top:0;}
@@ -12807,7 +12806,7 @@ function _gsDataIt(d){ if(!d) return '–'; const x=new Date(d); return isNaN(x)
 // righe; una riga lunga viene spezzata tra le parole se non c'è più spazio.
 function _gsBlocchiReferto(v, c, perCartella){
   const b=[];
-  const tit=`Referto ${_GS_TIPI_REFERTO[v.tipo]||_GS_TIPI_REFERTO.gyno}`;
+  const tit=_GS_TIPI_REFERTO[v.tipo]||_GS_TIPI_REFERTO.gyno;
   const sub=[perCartella?`Visita del ${_gsDataIt(v.data)}`:'', v.ora?(perCartella?`ore ${v.ora}`:`Ora di compilazione: ${v.ora}`):''].filter(Boolean).join(' · ');
   b.push({html:`<div><div class="gs-tit">${_escHtml(tit)}</div>${sub?`<div class="gs-sub">${_escHtml(sub)}</div>`:''}</div>`, lega:true});
   getRefertoSezioni(v).forEach(s=>{
@@ -12823,16 +12822,18 @@ function _gsBlocchiReferto(v, c, perCartella){
   b.push({html:`<div class="gs-firma"><div><div class="fn">${_escHtml(c.firma||c.intestazione.nome||'')}</div><div class="fl">Timbro e Firma</div></div></div>`, conPrecedente:true});
   return b;
 }
+// Intestazione del referto (come la carta intestata dello studio): logo a
+// sinistra, dati del medico a destra riga per riga, linea colorata; sotto i
+// dati della paziente a sinistra e la data a destra, poi un'altra linea.
 function _gsBlocchiIntestazione(p, c, etichettaData, dataStr){
   const i=c.intestazione;
-  const logo=(c.layout.logo && i.logo)?`<img src="${i.logo}" alt="">`:'';
+  const logo=(c.layout.logo && i.logo)?`<img src="${i.logo}" alt="">`:'<span></span>';
+  const righe=[i.nome, i.spec, i.indirizzo, i.contatti].flatMap(x=>String(x||'').split(/\r?\n/)).map(x=>x.trim()).filter(Boolean);
   return [
-    {html:`<div class="gs-int">${logo}<div><div class="nm">${_escHtml(i.nome)}</div>${i.spec?`<div class="sp">${_escHtml(i.spec)}</div>`:''}${(i.indirizzo||i.contatti)?`<div class="ct">${[i.indirizzo,i.contatti].filter(Boolean).map(_escHtml).join(' · ')}</div>`:''}</div></div>`, lega:true},
+    {html:`<div class="gs-int">${logo}<div class="dx">${righe.map((r,k)=>`<div${k===0?' class="nm"':''}>${_escHtml(r)}</div>`).join('')}</div></div>`, lega:true},
     {html:`<div class="gs-paz">
-      <div><div class="lb">Paziente</div><div class="vl">${_escHtml(`${p.cognome} ${p.nome}`)}</div></div>
-      <div class="dx"><div class="lb">${_escHtml(etichettaData)}</div><div class="vl">${_escHtml(dataStr)}</div></div>
-      <div><div class="lb">Data di nascita</div><div class="vl">${_escHtml(_gsDataIt(p.nascita))}</div></div>
-      <div class="dx"><div class="lb">Codice fiscale</div><div class="vl">${_escHtml(p.cf||'–')}</div></div>
+      <div><div>${_escHtml(`${p.cognome} ${p.nome}`)}</div><div>Data di nascita: ${_escHtml(_gsDataIt(p.nascita))}</div><div>CF: ${_escHtml(p.cf||'–')}</div></div>
+      <div class="dx">${_escHtml(etichettaData)}: ${_escHtml(dataStr)}</div>
     </div>`, lega:true}
   ];
 }
@@ -12936,7 +12937,7 @@ async function _gsPreparaFogli(p, visite, perCartella){
   contenitore.id='gs-doc-fogli';
   contenitore.style.cssText='position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;z-index:-1;';
   document.body.appendChild(contenitore);
-  const etichettaData=perCartella?'Cartella aggiornata al':'Data visita';
+  const etichettaData=perCartella?'Cartella aggiornata al':'Data della visita';
   const dataStr=perCartella?_gsDataIt(new Date()):_gsDataIt(visite[0].data);
   const documenti=visite.map((v,i)=>{
     const b=_gsBlocchiReferto(v, c, perCartella);
@@ -14762,6 +14763,69 @@ function gsToast(msg, cls='gs-info') {
   t.textContent = msg;
   tc.appendChild(t);
   setTimeout(() => t.remove(), 3800);
+}
+
+// Tablet: nei campi data il calendario di Android costringe a scorrere anno
+// per anno (es. per la data di nascita). Lì ogni campo data diventa un campo
+// da scrivere con la tastiera numerica (gg/mm/aaaa, le barre si mettono da
+// sole) più il pulsante 📅 che apre comunque il calendario. Il campo originale
+// resta (invisibile) con il valore aaaa-mm-gg che usa il resto del programma.
+function gsDataScrivibile(orig){
+  if(!orig || orig.dataset.scrivibile || orig.type!=='date') return;
+  orig.dataset.scrivibile = '1';
+  const d = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+  const daIso = (v) => /^\d{4}-\d{2}-\d{2}$/.test(v||'') ? v.slice(8,10)+'/'+v.slice(5,7)+'/'+v.slice(0,4) : '';
+  const box = document.createElement('span');
+  box.className = 'gs-data-box';
+  const t = document.createElement('input');
+  t.type = 'text'; t.inputMode = 'numeric'; t.placeholder = 'gg/mm/aaaa'; t.maxLength = 10;
+  t.autocomplete = 'off'; t.className = orig.className; if(orig.id) t.id = orig.id + '-testo';
+  const cal = document.createElement('button');
+  cal.type = 'button'; cal.className = 'gs-data-cal'; cal.textContent = '📅'; cal.title = 'Scegli dal calendario';
+  const allinea = () => { t.value = daIso(d.get.call(orig)); t.style.borderColor = ''; };
+  Object.defineProperty(orig, 'value', {
+    configurable: true,
+    get(){ return d.get.call(this); },
+    set(v){ d.set.call(this, v); allinea(); }
+  });
+  orig.addEventListener('change', allinea);   // data scelta dal calendario
+  t.addEventListener('input', () => {
+    const c = t.value.replace(/\D/g,'').slice(0,8);
+    t.value = c.length>4 ? c.slice(0,2)+'/'+c.slice(2,4)+'/'+c.slice(4) : c.length>2 ? c.slice(0,2)+'/'+c.slice(2) : c;
+    let iso = '';
+    if(c.length===8){
+      const g=+c.slice(0,2), m=+c.slice(2,4), a=+c.slice(4), dt=new Date(a, m-1, g);
+      if(a>1900 && dt.getFullYear()===a && dt.getMonth()===m-1 && dt.getDate()===g) iso = c.slice(4)+'-'+c.slice(2,4)+'-'+c.slice(0,2);
+    }
+    t.style.borderColor = (c.length===8 && !iso) ? 'var(--red,#c0392b)' : '';
+    if(iso===d.get.call(orig)) return;
+    d.set.call(orig, iso);
+    orig.dispatchEvent(new Event('input', {bubbles:true}));
+    orig.dispatchEvent(new Event('change', {bubbles:true}));
+  });
+  cal.addEventListener('click', () => {
+    try{ orig.showPicker(); }catch(e){ try{ orig.focus(); orig.click(); }catch(_){} }
+  });
+  orig.classList.add('gs-data-nascosto');
+  orig.insertAdjacentElement('afterend', box);
+  box.append(t, cal, orig);
+  allinea();
+}
+if(/Android/i.test(navigator.userAgent)){
+  const st = document.createElement('style');
+  st.textContent = '.gs-data-box{display:flex;gap:6px;align-items:center;position:relative;width:100%}'
+    + '.gs-data-box>input[type=text]{flex:1;min-width:0}'
+    + '.gs-data-cal{flex:none;border:1px solid var(--sep,#ccc);background:var(--bg2,#fff);border-radius:8px;padding:6px 10px;font-size:1.1rem;cursor:pointer}'
+    + '.gs-data-nascosto{position:absolute!important;right:0;bottom:0;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none;padding:0!important;border:0!important}';
+  document.head.appendChild(st);
+  const tutti = (radice) => radice.querySelectorAll && radice.querySelectorAll('input[type=date]:not([data-scrivibile])').forEach(gsDataScrivibile);
+  document.addEventListener('DOMContentLoaded', () => {
+    tutti(document);
+    new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => {
+      if(n.nodeType!==1) return;
+      if(n.matches && n.matches('input[type=date]')) gsDataScrivibile(n); else tutti(n);
+    }))).observe(document.body, {childList:true, subtree:true});
+  });
 }
 </script>
 </body>
