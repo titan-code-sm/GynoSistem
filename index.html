@@ -26,36 +26,37 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root{
-  --bg:#f4f6f9;
+  --bg:#f4f6f8;
   --surface:#ffffff;
-  --surface2:#f8fafc;
-  --sidebar:#ffffff;
-  --sidebar2:#f8fafc;
-  --sidebar-item:#eef2f7;
-  --primary:#2563eb;
-  --primary-dim:rgba(37,99,235,0.08);
-  --primary-ring:rgba(37,99,235,0.18);
-  --green:#16a34a;
-  --green-dim:rgba(22,163,74,0.10);
-  --red:#dc2626;
-  --red-dim:rgba(220,38,38,0.08);
-  --orange:#d97706;
-  --orange-dim:rgba(217,119,6,0.10);
+  --surface2:#f7f9fa;
+  --sidebar:#fbfcfd;
+  --sidebar2:#f4f6f8;
+  --sidebar-item:#eef1f4;
+  --primary:#0d6e78;
+  --primary-dim:rgba(13,110,120,0.08);
+  --primary-ring:rgba(13,110,120,0.20);
+  --on-primary:#ffffff;
+  --green:#12805c;
+  --green-dim:rgba(18,128,92,0.10);
+  --red:#c93a3a;
+  --red-dim:rgba(201,58,58,0.08);
+  --orange:#b7791f;
+  --orange-dim:rgba(183,121,31,0.10);
   --purple:#7c3aed;
   --teal:#0891b2;
   --yellow:#ca8a04;
-  --label:#0f172a;
-  --label2:#334155;
-  --label3:#475569;
-  --label4:#64748b;
-  --separator:#e4e8ef;
-  --border-strong:#d5dbe5;
-  --radius:12px;
+  --label:#101828;
+  --label2:#344054;
+  --label3:#475467;
+  --label4:#667085;
+  --separator:#e4e8ec;
+  --border-strong:#d0d6dd;
+  --radius:10px;
   --radius-sm:8px;
-  --radius-lg:16px;
-  --shadow:0 1px 2px rgba(15,23,42,0.04),0 1px 3px rgba(15,23,42,0.04);
-  --shadow-md:0 4px 14px rgba(15,23,42,0.07);
-  --shadow-lg:0 18px 44px rgba(15,23,42,0.14);
+  --radius-lg:14px;
+  --shadow:none;
+  --shadow-md:0 4px 12px rgba(16,24,40,0.06);
+  --shadow-lg:0 20px 48px rgba(16,24,40,0.16);
   --font:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
   --font-serif:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
   --transition:cubic-bezier(0.32,0.72,0,1);
@@ -66,26 +67,39 @@
    di proposito (il login ha una sua identità grafica fissa, la stampa deve
    restare leggibile su carta bianca indipendentemente dal tema a schermo). */
 body.dark-mode{
-  --bg:#0f1115;
-  --surface:#171a20;
-  --surface2:#1d2129;
-  --sidebar:#13161b;
-  --sidebar2:#1a1d24;
-  --sidebar-item:#232833;
+  --bg:#0d1214;
+  --surface:#141a1d;
+  --surface2:#1a2125;
+  --sidebar:#10161a;
+  --sidebar2:#141a1d;
+  --sidebar-item:#1f272c;
   --border-strong:rgba(255,255,255,0.16);
-  --label:#f2f2f7;
-  --label2:#d1d1d6;
-  --label3:#a1a1a6;
-  --label4:#8e8e93;
-  --separator:rgba(255,255,255,0.12);
-  --shadow:0 2px 20px rgba(0,0,0,0.35);
+  --label:#eef2f4;
+  --label2:#cfd6da;
+  --label3:#a3adb3;
+  --label4:#7f8a91;
+  --separator:rgba(255,255,255,0.09);
+  --green:#3fb58a;
+  --red:#ef6b6b;
+  --orange:#e0a243;
+  --shadow:none;
   --shadow-md:0 8px 30px rgba(0,0,0,0.45);
   --shadow-lg:0 20px 60px rgba(0,0,0,0.55);
+}
+/* Col tema predefinito (petrolio) in modalità scura il colore principale si
+   schiarisce per restare leggibile, e il testo sui pulsanti diventa scuro. */
+:root:not([data-tema]) body.dark-mode{
+  --primary:#4fb8c2;--primary-dim:rgba(79,184,194,0.12);--primary-ring:rgba(79,184,194,0.28);--on-primary:#06262a;
 }
 /* Temi colore — scelti in Impostazioni → Profilo e aspetto (per account).
    --primary colora tutta l'app; le variabili --l-* la schermata di accesso.
    Senza data-tema sull'<html> vale il blu predefinito. */
 :root{
+  --l-bg1:#eef5f6;--l-bg2:#e1eef0;--l-bg3:#d3e6e9;--l-acc1:#0d6e78;--l-acc2:#2b8a94;--l-acc-rgb:13,110,120;
+  --l-glow1:rgba(90,170,180,0.20);--l-glow2:rgba(120,170,190,0.14);--l-deep:#0f3d44;--l-soft:#5b8087;--l-ph:#9bb7bc;--l-btn2:#0d6e78;
+}
+:root[data-tema="azzurro"]{
+  --primary:#2563eb;--primary-dim:rgba(37,99,235,0.08);--primary-ring:rgba(37,99,235,0.18);
   --l-bg1:#eef4ff;--l-bg2:#e2ecff;--l-bg3:#d4e3ff;--l-acc1:#3d8bfd;--l-acc2:#6c7cf5;--l-acc-rgb:61,139,253;
   --l-glow1:rgba(122,170,250,0.25);--l-glow2:rgba(150,140,240,0.18);--l-deep:#1f3a68;--l-soft:#5b78a8;--l-ph:#9db2d4;--l-btn2:#2563eb;
 }
@@ -113,17 +127,6 @@ body.dark-mode{
   --primary:#475569;--primary-dim:rgba(71,85,105,0.09);--primary-ring:rgba(71,85,105,0.2);
   --l-bg1:#f3f4f6;--l-bg2:#e7eaed;--l-bg3:#dbe0e4;--l-acc1:#607d8b;--l-acc2:#78909c;--l-acc-rgb:96,125,139;
   --l-glow1:rgba(140,160,175,0.25);--l-glow2:rgba(160,170,180,0.18);--l-deep:#263238;--l-soft:#6b7c85;--l-ph:#a7b3ba;--l-btn2:#455a64;
-}
-/* Sfondo morbido, tinto col colore del tema (azzurrino col tema blu): meno
-   abbagliante del bianco pieno. Il tema scuro (body.dark-mode) ridefinisce
-   questi colori e non ne è toccato. */
-:root{
-  --bg:color-mix(in srgb, var(--primary) 8%, #edf2f7);
-  --surface:color-mix(in srgb, var(--primary) 3%, #fbfcfd);
-  --surface2:color-mix(in srgb, var(--primary) 6%, #f3f6f9);
-  --sidebar:color-mix(in srgb, var(--primary) 5%, #f7f9fb);
-  --sidebar2:color-mix(in srgb, var(--primary) 7%, #f1f5f9);
-  --separator:color-mix(in srgb, var(--primary) 12%, #e1e7ee);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 body{font-family:var(--font);background:var(--bg);color:var(--label);display:flex;height:100vh;overflow:hidden;}
@@ -987,7 +990,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     padding-top:env(safe-area-inset-top);
     height:calc(56px + env(safe-area-inset-top));
   }
-  main{padding-top:calc(56px + env(safe-area-inset-top));}
+  @media(max-width:768px){ main{padding-top:calc(56px + env(safe-area-inset-top));} }
   @media(max-width:768px){ aside{top:calc(56px + env(safe-area-inset-top));} }
   .modal-sm,.cal-modal-box,.forgot-card,.mbox{
     padding-bottom:calc(32px + env(safe-area-inset-bottom)) !important;
@@ -1005,6 +1008,205 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   }
   .btn:active{filter:brightness(.94);}
   .cal-day:active{background:var(--primary-dim,rgba(0,122,255,.12)) !important;}
+}
+
+/* ══════════════════════════════════════════════════
+   STILE «CLINICA» (app 1.9.0)
+   Bianco e grigi freddi, un solo colore principale, bordi sottili, niente
+   ombre sulle superfici. Queste regole stanno in fondo al foglio di stile e
+   ridefiniscono l'aspetto dei componenti sopra; i colori vengono sempre
+   dalle variabili (--primary, --surface…), quindi valgono per tutti i temi
+   e per la modalità scura.
+══════════════════════════════════════════════════ */
+/* Icone a linea: sostituiscono le emoji (vedi gsIcone in fondo alla pagina) */
+.ic{width:1.15em;height:1.15em;flex:none;vertical-align:-0.2em;display:inline-block;}
+.ic-fatto{display:contents;}
+.ic-rosso{color:var(--red);fill:currentColor;}
+.ic-verde{color:var(--green);fill:currentColor;}
+.ic-blu{color:var(--primary);fill:currentColor;}
+.ic-giallo{color:var(--orange);fill:currentColor;}
+
+aside{background:var(--sidebar);}
+main{background:var(--bg);}
+.section{padding:32px 40px;animation:fadeUp .2s var(--transition);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Menu laterale: icone a linea senza riquadro */
+nav button{min-height:40px;padding:8px 12px;gap:12px;font-size:.88rem;border-radius:var(--radius-sm);transition:background .15s,color .15s;}
+nav button.active::before{content:none;}
+.nav-icon,nav button:hover .nav-icon,nav button.active .nav-icon{width:20px;height:20px;background:none;border:none;box-shadow:none;font-size:1.05rem;color:inherit;}
+.nav-icon .ic{width:19px;height:19px;}
+.nav-group-label{font-size:.66rem;letter-spacing:.09em;margin-bottom:8px;}
+.brand-area{border-radius:var(--radius);}
+.brand-avatar{border-radius:50%;}
+.fb-status-bar{border-bottom:none;padding:4px 22px 8px;}
+.cerca-rapida-btn{min-height:40px;border-radius:var(--radius-sm);transition:border-color .15s,color .15s;}
+.opts-trigger{min-height:42px;border-radius:var(--radius-sm);}
+.opts-trigger .ot-icon{background:none;border:none;width:20px;font-size:1rem;}
+.opts-trigger .ot-icon .ic{width:19px;height:19px;}
+.opts-item{min-height:38px;}
+
+/* Pulsanti */
+.btn{min-height:38px;border-radius:var(--radius-sm);transition:background .15s,border-color .15s,box-shadow .15s,transform .1s,filter .15s;}
+.btn:active{transform:scale(.98);}
+.btn:focus-visible,nav button:focus-visible,.paz-tab:focus-visible,.editor-nav-btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+.btn-sm{min-height:32px;}
+.btn-icon{min-height:34px;}
+.btn-primary,.btn-green{background:var(--primary);color:var(--on-primary);box-shadow:none;}
+.patient-hero .btn:not(.btn-ghost){color:var(--on-primary)!important;}
+.paz-index-azione,.guide-tab.active,.cal-day.today .cal-num,.paz-tab.active .pt-badge,.editor-nav-btn.active .step-num{color:var(--on-primary);}
+.btn-ghost:hover{border-color:var(--label4);}
+
+/* Intestazioni, schede */
+.page-title{font-size:1.6rem;font-weight:650;letter-spacing:-.025em;}
+.card{padding:24px;}
+.card-title{font-size:1rem;font-weight:650;}
+.card,.paz-shell,.patient-hero,.section-card,.visit-item,.stat-card{box-shadow:none;}
+.stat-card,.g4>.stat-card:nth-child(n){border-top:1px solid var(--separator);}
+.stat-card:hover,.visit-item:hover,.pharma-card:hover,.day-card:hover,.cal-event-item:hover{box-shadow:none;border-color:var(--border-strong);}
+.day-card::before{content:none;}
+.badge{border-radius:999px;padding:3px 10px;white-space:nowrap;}
+.badge-gray{background:var(--surface2);border:1px solid var(--separator);}
+.badge-green{color:var(--green);}
+.badge-red{color:var(--red);}
+.badge-orange{color:var(--orange);}
+
+/* Avvisi: sobri, il colore solo sul bordo e sul titolo */
+.gs-avviso{background:var(--surface);color:var(--label3);border:1px solid var(--separator);border-radius:var(--radius);}
+.gs-avviso-rosso{color:var(--label);border-left:3px solid var(--red);}
+.gs-avviso-rosso .gs-avviso-titolo{color:var(--red);}
+.gs-avviso-riga{background:var(--surface2);border:1px solid var(--separator);border-radius:var(--radius-sm);}
+
+/* Scheda paziente */
+.patient-hero{background:var(--surface);border-left:1px solid var(--separator);padding:28px 30px;}
+.patient-hero h2{font-size:1.7rem;font-weight:650;letter-spacing:-.025em;}
+.grav-badge-hero{border:none;border-radius:999px;font-size:.86rem;font-weight:600;padding:5px 12px;}
+.paz-tab{min-height:40px;}
+.paz-tab .pt-ic{font-size:1rem;}
+.paz-tab .pt-badge{background:var(--surface);border:1px solid var(--separator);}
+.paz-tab.active .pt-badge{border-color:transparent;}
+.visit-item{border-radius:var(--radius);}
+#p-note{background:var(--surface);border-color:var(--border-strong);}
+
+/* Editor della visita */
+.editor-topbar{padding:14px 24px;}
+.editor-nav-btn{min-height:40px;}
+.edit-panel{animation:fadeUp .18s var(--transition);}
+.section-card{padding:20px 22px;margin-bottom:14px;}
+.section-card h4{font-size:.9rem;color:var(--label);border-bottom:none;padding-bottom:0;margin-bottom:14px;font-weight:650;}
+.section-card h4::before{content:'';width:3px;height:14px;border-radius:2px;background:var(--primary);flex:none;}
+.edit-panel input,.edit-panel select,.edit-panel textarea{padding:9px 12px;font-size:.88rem;}
+.edit-panel .field-row{gap:14px;margin-bottom:4px;}
+label.form-label{font-weight:550;}
+
+/* Notifiche: conferma di salvataggio e caricamento */
+.gs-toast{border-radius:var(--radius);box-shadow:var(--shadow-md);animation:toastSlide .2s var(--transition);}
+.gs-toast.gs-success .ic:first-child{color:var(--green);animation:gsSpunta .25s var(--transition);}
+.gs-toast.gs-error .ic:first-child{color:var(--red);}
+@keyframes gsSpunta{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.gs-toast .gs-rotella + .ic-fatto > .ic:first-child{display:none;}
+.pharma-card{min-width:0;}
+.pharma-card *{min-width:0;overflow-wrap:anywhere;}
+.pharma-card .badge{white-space:nowrap;flex-shrink:0;}
+.gs-rotella{width:15px;height:15px;flex:none;border:2px solid var(--separator);border-top-color:var(--primary);border-radius:50%;animation:gsGira .7s linear infinite;}
+@keyframes gsGira{to{transform:rotate(360deg)}}
+.opts-popover{animation-duration:.16s;}
+
+/* Dashboard: fascia «Oggi» */
+.dash-oggi{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin-bottom:24px;align-items:start;}
+.dash-oggi.con-scaduti{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);}
+.dash-rapidi{display:flex;gap:8px;flex-wrap:wrap;}
+.oggi-riga{display:flex;align-items:center;gap:14px;padding:10px 4px;border-top:1px solid var(--separator);min-height:52px;}
+.oggi-riga:first-child{border-top:none;}
+.oggi-ora{font-weight:650;font-variant-numeric:tabular-nums;color:var(--primary);min-width:48px;}
+.oggi-nome{font-weight:600;color:var(--label);}
+.oggi-nome[onclick]:hover{text-decoration:underline;}
+.oggi-tipo{color:var(--label4);font-size:.82rem;flex:1;text-transform:capitalize;}
+.oggi-riga.fatto .oggi-ora,.oggi-riga.fatto .oggi-nome{color:var(--label4);}
+.oggi-vuoto{color:var(--label4);font-size:.88rem;padding:14px 4px 4px;border-top:1px solid var(--separator);}
+#overdue-alert-banner .gs-avviso-riga{font-size:.86rem;}
+.cal-day{min-height:78px;}
+@media(max-width:1150px){ .dash-oggi.con-scaduti{grid-template-columns:minmax(0,1fr);} }
+
+/* Menu: «Nuova paziente» in evidenza, voci raggruppate, impostazioni in fondo */
+.nav-nuova-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 10px 0;min-height:40px;padding:8px 12px;border:none;border-radius:var(--radius-sm);background:var(--primary);color:var(--on-primary);font-family:var(--font);font-size:.88rem;font-weight:600;cursor:pointer;transition:filter .15s,transform .1s;}
+.nav-nuova-btn:hover{filter:brightness(.93);}
+.nav-nuova-btn:active{transform:scale(.98);}
+.nav-nuova-btn .nav-icon{color:inherit;}
+.nav-group{margin-bottom:16px;}
+.opts-item.active,.opts-trigger.active{color:var(--primary);background:var(--primary-dim);}
+
+/* Cartella paziente: menu «Altro», allergie, visite colorate per tipo */
+.gs-menu{position:relative;}
+.gs-menu-lista{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:50;min-width:250px;background:var(--surface);border:1px solid var(--separator);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:6px;animation:popoverIn .16s var(--transition);}
+.gs-menu.aperto .gs-menu-lista{display:block;}
+.gs-menu-lista button{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 12px;border:none;background:transparent;border-radius:var(--radius-sm);font-family:var(--font);font-size:.86rem;font-weight:500;color:var(--label2);text-align:left;cursor:pointer;transition:background .12s;}
+.gs-menu-lista button:hover{background:var(--surface2);color:var(--label);}
+.patient-hero{overflow:visible;}
+.paz-allergie{align-items:center;gap:8px;margin-top:16px;padding:8px 14px;border-radius:var(--radius-sm);background:var(--red-dim);color:var(--red);font-weight:600;font-size:.9rem;width:fit-content;max-width:100%;}
+.paz-allergie-tit{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;}
+.visit-item{border-left:3px solid var(--vt,var(--primary));}
+.visit-icon{background:var(--vt-dim,var(--primary-dim));color:var(--vt,var(--primary));}
+.visit-tipo-ob{--vt:var(--purple);--vt-dim:rgba(124,58,237,.10);}
+.visit-tipo-eco{--vt:var(--teal);--vt-dim:rgba(8,145,178,.10);}
+.visit-tipo-pr{--vt:var(--orange);--vt-dim:var(--orange-dim);}
+.visit-type{letter-spacing:.04em;font-weight:600;color:var(--vt,var(--label4));}
+body.dark-mode{--purple:#a78bfa;--teal:#38bdf8;}
+@media(pointer:coarse){ .gs-menu-lista button{min-height:46px;} }
+
+/* Visita: sezioni compilate, bozza salvata, frasi rapide sopra il campo */
+.editor-bozza{align-self:center;font-size:.78rem;color:var(--label4);white-space:nowrap;margin-right:4px;}
+.editor-bozza .ic{color:var(--green);}
+.editor-nav-btn.compilata::after{content:'';margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--green);flex:none;}
+.macro-wrap{margin:0 0 10px;gap:6px;}
+.edit-panel .macro-wrap{margin-top:0;}
+.macro-btn,.edit-panel .macro-btn{padding:5px 12px;border-radius:999px;font-size:.78rem;background:var(--surface2);border-color:var(--separator);color:var(--label2);transition:background .15s,color .15s,border-color .15s;}
+
+/* Menu a sole icone: tablet in verticale e finestre strette */
+@media(min-width:769px) and (max-width:1000px){
+  aside{width:72px;}
+  .app-brand{padding:16px 0 6px;justify-content:center;}
+  .app-brand>div,.brand-area>div:last-child,.fb-status-bar span,.cerca-rapida-txt,.cerca-rapida-btn kbd,.nav-group-label,.opts-trigger .ot-arrow{display:none;}
+  .brand-area{margin:10px auto 8px;padding:6px;border:none;background:none;justify-content:center;}
+  .fb-status-bar{justify-content:center;padding:4px 0 8px;}
+  .cerca-rapida-btn{margin:6px 12px 0;justify-content:center;padding:8px 0;}
+  nav{padding:10px 12px;}
+  nav button,.nav-nuova-btn{font-size:0;justify-content:center;padding:0;min-height:46px;gap:0;}
+  .nav-nuova-btn{margin:8px 12px 0;}
+  .nav-nuova-btn .nav-icon .ic{width:22px;height:22px;}
+  nav button .nav-icon{font-size:1.2rem;}
+  nav button .nav-icon .ic{width:22px;height:22px;}
+  .nav-badge{position:absolute;top:4px;right:4px;font-size:.6rem;padding:1px 5px;}
+  .nav-group{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--separator);}
+  .nav-group:last-child{border-bottom:none;}
+  .sidebar-footer-new{padding:10px 12px 14px;}
+  .opts-trigger{font-size:0;justify-content:center;padding:0;gap:0;}
+  .opts-popover{left:10px;right:auto;width:250px;}
+  .section{padding:24px 22px;}
+  .visit-item{flex-wrap:wrap;}
+  .visit-info{flex:1 1 60%;}
+  .visit-actions{flex:1 1 100%;justify-content:flex-start;}
+  .patient-hero{padding:22px;}
+}
+
+/* Tocco (tablet): bersagli grandi */
+@media(pointer:coarse){
+  .btn{min-height:44px;padding-left:18px;padding-right:18px;}
+  .btn-sm{min-height:40px;}
+  .btn-icon{min-width:44px;min-height:44px;}
+  nav button{min-height:46px;}
+  .paz-tab,.editor-nav-btn,.opts-item,.guide-tab{min-height:44px;}
+  input:not([type=checkbox]):not([type=radio]),select{min-height:44px;}
+  .edit-panel input:not([type=checkbox]):not([type=radio]),.edit-panel select{min-height:44px;}
+  input[type="checkbox"],input[type="radio"]{width:24px;height:24px;min-width:24px;}
+  .cal-nav-btn{width:44px;height:44px;}
+  .macro-btn,.edit-panel .macro-btn{min-height:36px;padding:6px 12px;font-size:.8rem;}
+}
+
+/* «Riduci animazioni» del sistema: niente movimento */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+  .btn:active{transform:none;}
 }
 </style>
 </head>
@@ -1100,14 +1302,19 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <span>🔍</span><span class="cerca-rapida-txt">Cerca paziente</span><kbd>Ctrl K</kbd>
   </button>
 
+  <!-- «Nuova paziente»: l'azione più usata, in evidenza fuori dall'elenco -->
+  <button class="nav-nuova-btn" onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
+
   <nav>
     <div class="nav-group" id="nav-group-principale">
-      <div class="nav-group-label">Principale</div>
+      <div class="nav-group-label">Lavoro</div>
       <button onclick="naviga('home')" id="nav-home" class="active"><span class="nav-icon">🏠</span>Dashboard</button>
-      <button onclick="naviga('archivio')" id="nav-archivio"><span class="nav-icon">👩‍⚕️</span>Pazienti</button>
-      <button onclick="naviga('storico-date')" id="nav-storico-date"><span class="nav-icon">🕘</span>Storico Visite</button>
+      <button onclick="naviga('archivio')" id="nav-archivio"><span class="nav-icon">👥</span>Pazienti</button>
       <button onclick="naviga('appuntamenti')" id="nav-appuntamenti"><span class="nav-icon">📅</span>Appuntamenti</button>
-      <button onclick="naviga('nuova')" id="nav-nuova"><span class="nav-icon">➕</span>Nuova Paziente</button>
+      <button onclick="naviga('storico-date')" id="nav-storico-date"><span class="nav-icon">🕘</span>Storico Visite</button>
+    </div>
+    <div class="nav-group" id="nav-group-documenti">
+      <div class="nav-group-label">Documenti</div>
       <button onclick="naviga('ricettario')" id="nav-ricettario"><span class="nav-icon">🧾</span>Ricettario</button>
       <button onclick="naviga('consensi')" id="nav-consensi"><span class="nav-icon">✍️</span>Consensi</button>
       <button onclick="naviga('email')" id="nav-email"><span class="nav-icon">📧</span>Email</button>
@@ -1118,7 +1325,6 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
       <button onclick="naviga('farmacia')" id="nav-farmacia" data-modelli="gineco"><span class="nav-icon">💊</span>Farmacia</button>
       <button onclick="naviga('utility')" id="nav-utility"><span class="nav-icon">🧮</span>Utility</button>
       <button onclick="naviga('backup')" id="nav-backup"><span class="nav-icon">🗄️</span>Archiviazione</button>
-      <button onclick="naviga('impostazioni')" id="nav-impostazioni"><span class="nav-icon">⚙️</span>Impostazioni</button>
     </div>
     <div class="nav-group" id="nav-group-admin" style="display:none">
       <div class="nav-group-label">Amministrazione</div>
@@ -1130,8 +1336,8 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
   <div class="sidebar-footer-new">
     <!-- Popover menu -->
     <div class="opts-popover" id="opts-popover">
-      <button class="opts-item" onclick="naviga('appuntamenti');closeOpts()">
-        <span class="oi">🗓️</span>Vedi Appuntamenti
+      <button class="opts-item" onclick="naviga('impostazioni');closeOpts()" id="nav-impostazioni">
+        <span class="oi">⚙️</span>Impostazioni
       </button>
       <div class="opts-divider"></div>
       <button class="opts-item" onclick="closeOpts();bloccaApp()">
@@ -1165,7 +1371,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     <!-- Trigger button -->
     <button class="opts-trigger" id="opts-trigger" onclick="toggleOpts()">
       <span class="ot-icon">⚙️</span>
-      Opzioni
+      Impostazioni e altro
       <span class="ot-arrow">‹</span>
     </button>
     <input type="file" id="file-upload" accept=".json,application/json" style="display:none" onchange="restoreData(this)">
@@ -1212,7 +1418,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 <main>
 
 <!-- Banner modalità demo: visibile SOLO quando l'account è in modalità dimostrativa -->
-<div id="demo-banner" style="display:none;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-left:4px solid #f97316;padding:10px 16px;border-radius:12px;margin-bottom:18px;font-weight:600;font-size:0.85rem;align-items:center;gap:10px;flex-wrap:wrap;">
+<div id="demo-banner" class="gs-avviso" style="display:none;padding:10px 16px;margin-bottom:18px;font-weight:500;font-size:0.85rem;align-items:center;gap:10px;flex-wrap:wrap;">
   <span style="font-size:1.1rem;">🎭</span>
   <span id="demo-banner-testo" style="flex:1;min-width:220px">Modalità dimostrativa — queste pazienti sono di esempio, non reali. Nessun dato viene salvato online.</span>
   <button id="demo-banner-reset" class="btn btn-ghost btn-sm" style="display:none" onclick="ricominciaSitoDemo()">↺ Ricomincia la demo</button>
@@ -1232,13 +1438,28 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
     </div>
   </div>
 
-  <!-- Alert promemoria scaduti: visibile solo se ce ne sono, un solo colpo d'occhio -->
-  <div id="overdue-alert-banner" style="display:none;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;border-left:4px solid var(--red);border-radius:12px;padding:16px 18px;margin-bottom:20px;">
-    <div style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:0.95rem;margin-bottom:10px;">
-      <span style="font-size:1.3rem;">⚠️</span>
+  <!-- Fascia «Oggi»: gli appuntamenti della giornata con i tasti rapidi e, di
+       fianco, i promemoria scaduti (solo se ce ne sono). -->
+  <div class="dash-oggi" id="dash-oggi">
+  <div class="card dash-oggi-agenda">
+    <div class="card-header" style="flex-wrap:wrap;gap:12px;">
+      <div><div class="card-title">Oggi</div><div class="card-subtitle" id="oggi-sottotitolo"></div></div>
+      <div class="dash-rapidi">
+        <button class="btn btn-primary" onclick="nuovaVisitaRapida()">🩺 Nuova visita</button>
+        <button class="btn btn-ghost" onclick="naviga('nuova')">➕ Nuova paziente</button>
+        <button class="btn btn-ghost" onclick="apriNuovaPrenotazioneGS()">📅 Appuntamento</button>
+        <button class="btn btn-ghost" onclick="apriCercaRapida()">🔍 Cerca</button>
+      </div>
+    </div>
+    <div id="oggi-lista"></div>
+  </div>
+  <div id="overdue-alert-banner" class="gs-avviso gs-avviso-rosso" style="display:none;padding:16px 18px;">
+    <div class="gs-avviso-titolo" style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:0.95rem;margin-bottom:10px;">
+      <span style="font-size:1.05rem;">⚠️</span>
       <span id="overdue-alert-title">Promemoria scaduti</span>
     </div>
     <div id="overdue-alert-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
   </div>
 
   <div id="dash-widgets">
@@ -1307,7 +1528,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
           <div class="stat-label">Promemoria Attivi</div>
           <div class="stat-trend trend-neutral">📌 Da verificare</div>
         </div>
-        <div class="stat-card" onclick="naviga('storico-date');apriGiornata(new Date().toISOString().split('T')[0])" title="Vai alle visite di oggi">
+        <div class="stat-card" onclick="naviga('storico-date');apriGiornata(gsOggi())" title="Vai alle visite di oggi">
           <div class="stat-icon" style="background:rgba(175,82,222,0.12);">📆</div>
           <div class="stat-value" id="stat-oggi">0</div>
           <div class="stat-label">Visite Oggi</div>
@@ -2007,23 +2228,36 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
           <span id="h-cf">🪪 CF</span>
         </div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost" id="h-grav-conclusa-btn" data-modelli="gineco" style="display:none;background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna Gravidanza Conclusa</button>
-        <button class="btn btn-ghost" onclick="esportaCartellaPDF()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" title="Tutte le visite di questa paziente in un unico PDF">📄 Esporta Cartella</button>
-        <button class="btn btn-ghost" onclick="stampaCartella()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;" title="Stampa tutte le visite di questa paziente, una per foglio">🖨️ Stampa Cartella</button>
-        <button class="btn btn-ghost" onclick="toggleEdit()" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;">✏️ Modifica</button>
-        <button class="btn" style="background:rgba(255,255,255,0.9);color:var(--label);" onclick="openTypeModal()">+ Nuova Visita</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-ghost" onclick="toggleEdit()">✏️ Modifica</button>
+        <div class="gs-menu">
+          <button class="btn btn-ghost" onclick="gsMenuApri(this)" aria-haspopup="true">Altro ▾</button>
+          <div class="gs-menu-lista">
+            <button onclick="esportaCartellaPDF()" title="Tutte le visite di questa paziente in un unico PDF">📄 Esporta cartella in PDF</button>
+            <button onclick="stampaCartella()" title="Stampa tutte le visite di questa paziente, una per foglio">🖨️ Stampa cartella</button>
+            <button onclick="apriAppuntamentoDaCartella()">📅 Nuovo appuntamento</button>
+            <button id="h-grav-conclusa-btn" data-modelli="gineco" style="display:none;" onclick="chiudiGravidanzaManualmente(curPaz)">🤰 Segna gravidanza conclusa</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openTypeModal()">🩺 Nuova Visita</button>
       </div>
+    </div>
+    <!-- Allergie: sempre in vista sotto il nome se sono note, mai nascondibili -->
+    <div id="allergie-banner" class="paz-allergie" style="display:none;">
+      <span>⚠️</span>
+      <span class="paz-allergie-tit">Allergie</span>
+      <span id="allergie-banner-testo" style="white-space:pre-wrap;"></span>
     </div>
   </div>
 
-  <!-- Banner allergie: sempre visibile in cima alla cartella se sono note allergie, mai nascondibile -->
-  <div id="allergie-banner" style="display:none;background:var(--red-dim);border:2px solid var(--red);border-radius:14px;padding:14px 18px;margin-bottom:20px;align-items:center;gap:14px;">
-    <span style="font-size:1.6rem;flex-shrink:0;">⚠️</span>
-    <div>
-      <div style="font-weight:800;color:var(--red);font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;">Allergie note</div>
-      <div id="allergie-banner-testo" style="font-weight:700;color:var(--red);font-size:1rem;margin-top:2px;white-space:pre-wrap;"></div>
+  <!-- Promemoria scaduti di questa paziente: una fascia nella pagina (prima era
+       una finestra da chiudere a ogni apertura della cartella) -->
+  <div id="paz-prom-scaduti" class="gs-avviso gs-avviso-rosso" style="display:none;padding:14px 18px;margin-bottom:20px;">
+    <div class="gs-avviso-titolo" style="display:flex;align-items:center;gap:10px;font-weight:700;font-size:.92rem;">
+      <span>⚠️</span><span id="paz-prom-scaduti-titolo" style="flex:1"></span>
+      <button class="btn btn-ghost btn-sm" onclick="pazSwitchTab('promemoria');document.querySelector('.paz-shell').scrollIntoView({behavior:'smooth'})">Vedi promemoria</button>
     </div>
+    <div id="paz-prom-scaduti-lista" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:.86rem;color:var(--label2);"></div>
   </div>
 
   <div id="edit-anagrafica" style="display:none;" class="card" style="margin-bottom:20px;">
@@ -2108,7 +2342,7 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
 
       <div class="paz-pane" id="paz-pane-note">
         <div class="paz-pane-header"><div class="paz-pane-title">📝 Note & Anamnesi</div></div>
-        <textarea id="p-note" rows="14" style="background:#fffbeb;border-color:#fde68a;" placeholder="Anamnesi patologica remota, allergie, familiarità, note cliniche..." onblur="salvaNote()"></textarea>
+        <textarea id="p-note" rows="14" placeholder="Anamnesi patologica remota, allergie, familiarità, note cliniche..." onblur="salvaNote()"></textarea>
       </div>
 
       <div class="paz-pane" id="paz-pane-screening">
@@ -2697,10 +2931,11 @@ input.ob-settimane-big{font-size:1.5rem;font-weight:800;font-family:var(--font-s
         </label>
       </div>
       <div style="display:flex;gap:8px;">
+        <span id="editor-bozza" class="editor-bozza" title="La visita in compilazione viene messa al sicuro da sola: se il programma si chiude la ritrovi alla riapertura"></span>
         <button class="btn btn-ghost" onclick="apriConsensoVisitaCorrente()" title="Consenso/i informato/i per questa visita">✍️ Consenso</button>
         <button class="btn btn-ghost" onclick="minimizeEditor()" title="Riduci a icona">➖ Riduci</button>
         <button class="btn btn-ghost" onclick="confermaAnnullaVisita()">Annulla</button>
-        <button class="btn btn-green" onclick="salvaVisita()">💾 Salva Referto</button>
+        <button class="btn btn-green" onclick="salvaVisita()" title="Salva il referto (Ctrl+S)">💾 Salva Referto</button>
       </div>
     </div>
     <div class="editor-body">
@@ -4126,6 +4361,12 @@ const GS_MODELLI={
   proct:{ nome:'Proctologia', specialita:'Proct', ruolo:'Proctologia',
     spec:'Specialista in Chirurgia – Proctologia', dati:'demo-proct.json' }
 };
+// Data di OGGI (e di una data qualsiasi) secondo l'orologio del computer, in
+// formato aaaa-mm-gg. Prima si usava toISOString(), che ragiona sull'ora di
+// Greenwich: tra mezzanotte e le 1-2 di notte dava il giorno prima, e un
+// «prossimo controllo 15/07/2026» creava il promemoria per il 14.
+function gsDataLocale(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function gsOggi(){ return gsDataLocale(new Date()); }
 const GS_MODELLO=(()=>{
   let m=window.GS_MODELLO_APP;
   if(!m && GS_SITO_DEMO){ try{ m=localStorage.getItem('gs_modello_demo'); }catch(e){} }
@@ -5823,13 +6064,13 @@ function calcolaSettimaneGravidanza(p, gravidanzaId, dataRif, extra){
 function dataVisitaEditor(){
   const v=document.getElementById('editor-data-visita')?.value;
   if(!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return null;
-  return v>new Date().toISOString().split('T')[0] ? null : v;
+  return v>gsOggi() ? null : v;
 }
 function cambiaDataVisitaEditor(){
   const el=document.getElementById('editor-data-visita');
   if(el && el.value && !dataVisitaEditor()){
     if(typeof gsToast==='function') gsToast('La data della visita non può essere nel futuro','gs-error');
-    el.value=new Date().toISOString().split('T')[0];
+    el.value=gsOggi();
   }
   if(curMode==='ob') ricalcolaSettimaneOb(true); // settimane di gestazione alla data della visita
 }
@@ -6990,7 +7231,8 @@ let gsUserGenere = 'n'; // 'f' femminile, 'm' maschile, 'n' neutro
 function gsG(f, m, n){ return gsUserGenere==='f' ? f : (gsUserGenere==='m' ? m : n); }
 function gsIconaOperatore(){ return gsG('👩‍⚕️','👨‍⚕️','🧑‍⚕️'); }
 const GS_TEMI=[
-  {id:'blu', nome:'Blu', colore:'#2563eb'},
+  {id:'blu', nome:'Petrolio', colore:'#0d6e78'}, // predefinito (l'id resta 'blu' per i profili già salvati)
+  {id:'azzurro', nome:'Blu', colore:'#2563eb'},
   {id:'rosa', nome:'Rosa', colore:'#db2777'},
   {id:'verde', nome:'Verde', colore:'#059669'},
   {id:'viola', nome:'Viola', colore:'#7c3aed'},
@@ -7237,7 +7479,7 @@ function _controllaLicenza(d, user){
     return {blocco:`Questo account è abilitato a ${nomeApp}, non a questa versione del programma. Contatta l'amministratore.`};
   }
   if(_PIANI_CON_SCADENZA.includes(d.piano) && d.scadenza){
-    const oggi=new Date().toISOString().slice(0,10);
+    const oggi=gsOggi();
     const dataIt=new Date(d.scadenza+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     const cosa = d.piano==='prova' ? 'Il periodo di prova' : 'L\'abbonamento';
     if(d.scadenza < oggi) return {blocco:`${cosa} è scaduto il ${dataIt}. Per continuare a usare MED System contatta l'amministratore. I tuoi dati restano su questo PC.`};
@@ -7259,7 +7501,7 @@ function _statoAbbonamento(a){
   const nome = GS_PIANI_NOME[a.piano] || a.piano;
   if(!_PIANI_CON_SCADENZA.includes(a.piano) || !a.scadenza)
     return {etichetta:nome, classe:'', testo:'Attivo, senza scadenza', badge:'badge-green'};
-  const oggi=new Date().toISOString().slice(0,10);
+  const oggi=gsOggi();
   const giorni=Math.round((new Date(a.scadenza)-new Date(oggi))/86400000);
   if(giorni<0) return {etichetta:nome+' · scaduto', classe:'scaduto', testo:'Scaduto il '+_dataIt(a.scadenza), badge:'badge-red', giorni};
   const tra = giorni===0 ? 'oggi' : 'tra '+giorni+' giorn'+(giorni===1?'o':'i');
@@ -7573,6 +7815,7 @@ async function proceedAfterLogin(){
   // dei medici (regole Firestore + chiave localStorage per utente).
   if(navPrincipale) navPrincipale.style.display='';
   if(navStrumenti) navStrumenti.style.display='';
+  const navDocumenti=document.getElementById('nav-group-documenti'); if(navDocumenti) navDocumenti.style.display='';
   applyFeatureFlags(); // nasconde le voci di menu disattivate da Impostazioni → Funzionalità
 
   if(gsDemoMode){
@@ -7682,7 +7925,8 @@ function naviga(id){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   const s=document.getElementById('sec-'+id);
   if(s) s.classList.add('active');
-  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('nav button, #nav-nuova, #nav-impostazioni').forEach(b=>b.classList.remove('active'));
+  document.getElementById('opts-trigger')?.classList.toggle('active', id==='impostazioni');
   const b=document.getElementById('nav-'+id);
   if(b) b.classList.add('active');
   // Render sezione
@@ -7966,7 +8210,7 @@ async function avviaSitoDemo(){
     // Dati con "dataRiferimento": le date si spostano in avanti fino a oggi,
     // così la demo mostra sempre visite recenti e appuntamenti in arrivo.
     if(dati.dataRiferimento){
-      const giorni=Math.round((new Date(new Date().toISOString().slice(0,10))-new Date(dati.dataRiferimento))/86400000);
+      const giorni=Math.round((new Date(gsOggi())-new Date(dati.dataRiferimento))/86400000);
       const sposta=o=>{ if(o && o.data){ const d=new Date(o.data+'T12:00:00'); d.setDate(d.getDate()+giorni); o.data=d.toISOString().slice(0,10); } };
       if(giorni){
         (dati.pazienti||[]).forEach(p=>{ (p.visite||[]).forEach(sposta); (p.alerts||[]).forEach(sposta); });
@@ -8115,10 +8359,12 @@ function renderDashboard(){
   animaStatValue('stat-paz', DB.pazienti.length);
   animaStatValue('stat-visite', totalVisite);
   animaStatValue('stat-alert', totalAlert);
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   let visitOggi=0;
   DB.pazienti.forEach(p=>(p.visite||[]).forEach(v=>{if(v.data===oggi)visitOggi++;}));
   animaStatValue('stat-oggi', visitOggi);
+  renderOggi(visitOggi);
+  bozzaControlla();
   renderAlertsHome();
   renderPromemoriaHome();
   renderPromemoriaScaduti();
@@ -8126,11 +8372,42 @@ function renderDashboard(){
 
 // Widget "Appuntamenti": SOLO le visite/prenotazioni delle pazienti,
 // niente promemoria — quelli hanno il loro widget dedicato (renderPromemoriaHome).
+// Fascia «Oggi» della Dashboard: appuntamenti della giornata in ordine di ora.
+// Il nome apre la cartella, «Visita» apre la cartella e la scelta del tipo.
+function renderOggi(visiteFatte){
+  const lista=document.getElementById('oggi-lista'), sub=document.getElementById('oggi-sottotitolo');
+  if(!lista||!sub) return;
+  const oggi=gsOggi();
+  const appt=(GS_APPTS||[]).filter(a=>a.data===oggi && a.stato!=='cancellato').sort((x,y)=>(x.ora||'').localeCompare(y.ora||''));
+  const giorno=new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
+  sub.textContent=`${giorno} · ${appt.length} appuntament${appt.length===1?'o':'i'} · ${visiteFatte||0} visit${visiteFatte===1?'a':'e'} registrat${visiteFatte===1?'a':'e'}`;
+  if(!appt.length){ lista.innerHTML='<div class="oggi-vuoto">Nessun appuntamento per oggi.</div>'; return; }
+  lista.innerHTML=appt.map(a=>{
+    const localId=trovaPazienteLocaleId(a.pazienteId);
+    const fatto=a.stato==='completato';
+    return `<div class="oggi-riga${fatto?' fatto':''}">
+      <span class="oggi-ora">${_escHtml(a.ora||'—')}</span>
+      <span class="oggi-nome"${localId?` onclick="openPaziente(${localId})" style="cursor:pointer"`:''}>${_escHtml(a.pazienteNome||'–')}</span>
+      <span class="oggi-tipo">${_escHtml(String(a.tipo||'').replace(/_/g,' '))}</span>
+      ${localId && !fatto?`<button class="btn btn-ghost btn-sm" onclick="openPaziente(${localId});setTimeout(openTypeModal,200)">Visita</button>`:(fatto?'<span class="badge badge-green">Fatto</span>':'')}
+    </div>`;
+  }).join('');
+}
+// «Nuova visita» dalla Dashboard: si sceglie la paziente con la ricerca rapida
+// e si apre subito la scelta del tipo di visita.
+let _cercaPerVisita=false;
+function nuovaVisitaRapida(){
+  apriCercaRapida();
+  if(document.getElementById('modal-cerca-rapida').classList.contains('show')){
+    _cercaPerVisita=true;
+    document.getElementById('cerca-rapida-input').placeholder='Nuova visita: scrivi il nome della paziente…';
+  }
+}
 function renderAlertsHome(){
   const c=document.getElementById('dashboard-alerts');
   if(!c) return;
   c.innerHTML='';
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   const ICONS={visita:'🩺',proctologica:'🔍',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
 
   // Tutti gli appuntamenti da oggi in poi
@@ -8208,25 +8485,27 @@ function renderPromemoriaScaduti(){
   const list=document.getElementById('overdue-alert-list');
   const title=document.getElementById('overdue-alert-title');
   if(!banner||!list||!title) return;
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   const dismessi=new Set(_getPromDismessi());
   let scaduti=[];
   DB.pazienti.forEach(p=>(p.alerts||[]).forEach(a=>{
     if(a.data && a.data<oggi && !dismessi.has(a.id)) scaduti.push({p,a});
   }));
+  document.getElementById('dash-oggi')?.classList.toggle('con-scaduti', scaduti.length>0);
   if(!scaduti.length){ banner.style.display='none'; return; }
   scaduti.sort((x,y)=>(x.a.data||'').localeCompare(y.a.data||''));
-  title.textContent=`${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'} — nessuna visita/controllo registrato da allora`;
+  title.textContent=`${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'}`;
+  title.title='Nessuna visita o controllo registrato da allora';
   // Se sono tanti se ne mostrano solo i primi (i più vecchi): il resto si apre
   // a richiesta, così il calendario e il resto della Dashboard restano in vista.
   const MAX_VISIBILI=3, nascosti=_promScadutiTutti ? 0 : Math.max(0, scaduti.length-MAX_VISIBILI);
   list.innerHTML=scaduti.slice(0, scaduti.length-nascosti).map(({p,a})=>{
     const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     const giorni=Math.round((new Date(oggi)-new Date(a.data))/(1000*60*60*24));
-    return `<div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #fde2e2;border-radius:8px;padding:9px 12px;cursor:pointer;flex-wrap:wrap;color:var(--label2);" onclick="openPaziente(${p.id})">
+    return `<div class="gs-avviso-riga" style="display:flex;align-items:center;gap:10px;border-radius:8px;padding:9px 12px;cursor:pointer;flex-wrap:wrap;color:var(--label2);" onclick="openPaziente(${p.id})">
       <span style="font-weight:600;color:var(--label);">${_escHtml(p.cognome)} ${_escHtml(p.nome)}</span>
       <span>${_escHtml(a.testo)}</span>
-      <span style="margin-left:auto;font-size:0.78rem;color:#b91c1c;white-space:nowrap;">${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</span>
+      <span style="margin-left:auto;font-size:0.78rem;color:var(--red);white-space:nowrap;">${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</span>
       <span class="prom-dismiss-btn" onclick="dismissPromemoriaScaduto(${JSON.stringify(a.id)},event)" title="Nascondi da questo elenco" style="flex-shrink:0;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--label4);">✕</span>
     </div>`;
   }).join('') + (scaduti.length>MAX_VISIBILI
@@ -8238,27 +8517,30 @@ function renderPromemoriaScaduti(){
 // Popup di allerta ROSSA all'apertura della cartella di una paziente che ha
 // promemoria con data già passata (nessun controllo registrato da allora).
 function mostraAllertaPromemoriaScaduti(p){
-  const modal=document.getElementById('modal-promemoria-scaduti');
-  if(!modal||!p) return;
-  const oggi=new Date().toISOString().split('T')[0];
+  const box=document.getElementById('paz-prom-scaduti');
+  if(!box||!p) return;
+  const oggi=gsOggi();
   const scaduti=(p.alerts||[]).filter(a=>a.data && a.data<oggi)
     .sort((x,y)=>(x.data||'').localeCompare(y.data||''));
-  if(!scaduti.length){ modal.classList.remove('show'); return; }
-  const tit=document.getElementById('prom-scad-titolo');
-  const sub=document.getElementById('prom-scad-sottotitolo');
-  const lista=document.getElementById('prom-scad-lista');
-  if(tit) tit.textContent = `${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'}`;
-  if(sub) sub.textContent = `${p.cognome} ${p.nome} — nessuna visita o controllo registrato da allora.`;
-  if(lista) lista.innerHTML = scaduti.map(a=>{
+  if(!scaduti.length){ box.style.display='none'; return; }
+  document.getElementById('paz-prom-scaduti-titolo').textContent=`${scaduti.length} promemoria scadut${scaduti.length===1?'o':'i'} — nessuna visita o controllo registrato da allora`;
+  document.getElementById('paz-prom-scaduti-lista').innerHTML=scaduti.map(a=>{
     const dStr=new Date(a.data+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
     const giorni=Math.round((new Date(oggi+'T12:00:00')-new Date(a.data+'T12:00:00'))/86400000);
-    return `<div style="background:var(--red-dim);border-radius:10px;padding:12px 14px;">
-      <div style="font-weight:700;color:var(--red);margin-bottom:3px;">${a.testo||'Promemoria'}</div>
-      <div style="font-size:.8rem;color:var(--label3);">Scaduto il ${dStr} · ${giorni} giorn${giorni===1?'o':'i'} fa</div>
-    </div>`;
+    return `<div><strong>${_escHtml(a.testo||'Promemoria')}</strong> <span style="color:var(--label4)">· scaduto il ${dStr}, ${giorni} giorn${giorni===1?'o':'i'} fa</span></div>`;
   }).join('');
-  modal.classList.add('show');
+  box.style.display='';
 }
+// Menu a tendina generico («Altro ▾»): si chiude scegliendo una voce o cliccando fuori
+function gsMenuApri(btn){
+  const m=btn.parentElement, era=m.classList.contains('aperto');
+  document.querySelectorAll('.gs-menu.aperto').forEach(x=>x.classList.remove('aperto'));
+  if(!era) m.classList.add('aperto');
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('.gs-menu>button')) return;
+  document.querySelectorAll('.gs-menu.aperto').forEach(x=>x.classList.remove('aperto'));
+});
 
 // ═══════════════════════════════════════════════════
 //  CALENDAR
@@ -8271,7 +8553,7 @@ function renderCalendar(){
   document.getElementById('cal-title').textContent=calDate.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
   const first=new Date(y,m,1).getDay(), start=first===0?6:first-1, dim=new Date(y,m+1,0).getDate();
   const b=document.getElementById('calendar-body'); b.innerHTML='';
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   const esc=s=>String(s==null?'':s).replace(/[<>&"]/g,x=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[x]));
   const MAX_VISIBILI=3;
   for(let i=0;i<start;i++) b.innerHTML+='<div class="cal-empty"></div>';
@@ -8627,7 +8909,7 @@ function chiudiGravidanzaManualmente(pazId){
   let g=p.gravidanze.find(x=>x.id===grav.gravidanzaId);
   if(!g){ g={id:grav.gravidanzaId}; p.gravidanze.push(g); }
   g.conclusa=true;
-  g.dataConclusione=new Date().toISOString().split('T')[0];
+  g.dataConclusione=gsOggi();
   salvaDB();
   if(typeof gsToast==='function')gsToast('✅ Gravidanza segnata come conclusa','gs-success');
   if(curPaz===pazId) openPaziente(pazId); // refresh della cartella se è quella aperta
@@ -9052,6 +9334,7 @@ function apriCercaRapida(){
   if(!gsCurrentUser || !DB || !Array.isArray(DB.pazienti)) return;
   if(document.querySelector('.overlay.show')) return;
   const inp=document.getElementById('cerca-rapida-input');
+  _cercaPerVisita=false; inp.placeholder='Cognome, nome, telefono o codice fiscale…';
   inp.value=''; _cercaRapidaSel=0;
   renderCercaRapida();
   document.getElementById('modal-cerca-rapida').classList.add('show');
@@ -9081,6 +9364,7 @@ function scegliCercaRapida(i){
   const p=_cercaRapidaRis[i]; if(!p) return;
   closeModal('modal-cerca-rapida');
   openPaziente(p.id);
+  if(_cercaPerVisita){ _cercaPerVisita=false; setTimeout(openTypeModal,220); }
 }
 function tastoCercaRapida(e){
   if(e.key==='ArrowDown'){ e.preventDefault(); _cercaRapidaSel=Math.min(_cercaRapidaSel+1,_cercaRapidaRis.length-1); renderCercaRapida(); }
@@ -9700,7 +9984,7 @@ function confermaFarmaciSelezionatiVisita(ancheStampa){
     const p=DB.pazienti.find(x=>x.id===curPaz);
     if(p){
       if(!p.farmaciManuali) p.farmaciManuali=[];
-      const oggiIso=new Date().toISOString().split('T')[0];
+      const oggiIso=gsOggi();
       const inTerapiaVisite=document.getElementById('mfv-anche-terapia-visite')?.checked||false;
       scelti.forEach((f,i)=>{
         p.farmaciManuali.push({
@@ -9749,7 +10033,7 @@ function salvaDiarioPersonale(){
   const stato=document.getElementById('diario-stato');
   if(stato){
     stato.textContent='💾 Salvato '+new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-    setTimeout(()=>{ if(stato.textContent.startsWith('💾')) stato.textContent=''; },3000);
+    setTimeout(()=>{ if(stato.textContent.includes('Salvato')) stato.textContent=''; },3000);
   }
 }
 
@@ -9847,6 +10131,7 @@ function restoreEditor(){
 // Conferma prima di annullare la visita
 function confermaAnnullaVisita(){
   if(confirm('⚠️ Vuoi annullare la visita?\n\nLe modifiche non salvate andranno perse.')){
+    bozzaElimina();
     document.getElementById('editor-overlay').classList.remove('show');
     document.getElementById('editor-min-bar').classList.remove('show');
   }
@@ -9891,7 +10176,7 @@ function risolviGravidanzaPerNuovaVisita(pazId){
 }
 
 function creaNuovaGravidanza(p){
-  const g={id:'grav_'+Date.now(),dataInizio:new Date().toISOString().split('T')[0]};
+  const g={id:'grav_'+Date.now(),dataInizio:gsOggi()};
   p.gravidanze.push(g);
   return g.id;
 }
@@ -9902,7 +10187,7 @@ function startEditor(tipo, vid=null){
   if(vid){
     const p=DB.pazienti.find(x=>x.id===curPaz);
     const v=p?.visite.find(x=>x.id===vid);
-    const oggi=new Date().toISOString().split('T')[0];
+    const oggi=gsOggi();
     if(v && v.data!==oggi){
       if(typeof gsToast==='function')gsToast('🔒 Le visite di giorni precedenti non sono più modificabili','gs-error');
       return;
@@ -9911,6 +10196,7 @@ function startEditor(tipo, vid=null){
   closeModal('modal-type');
   document.getElementById('editor-overlay').classList.add('show');
   curMode=tipo; curVisita=vid; _editorPazId=curPaz;
+  { const eb=document.getElementById('editor-bozza'); if(eb) eb.textContent=''; }
 
   // Reset campi di TUTTI i moduli (anche quelli non visibili, per sicurezza)
   document.querySelectorAll('#editor-overlay input:not([readonly]), #editor-overlay textarea, #editor-overlay select').forEach(el=>{
@@ -9921,7 +10207,7 @@ function startEditor(tipo, vid=null){
 
   // Data della visita: oggi per una visita nuova (modificabile per inserirne una
   // passata), quella salvata per una visita esistente.
-  const _oggiStr=new Date().toISOString().split('T')[0];
+  const _oggiStr=gsOggi();
   const dataEl=document.getElementById('editor-data-visita');
   if(dataEl){
     const pz=DB.pazienti.find(x=>x.id===curPaz);
@@ -9988,7 +10274,100 @@ function setEditorTab(btn,id){
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.editor-nav-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
+  const cont=document.querySelector('#editor-overlay .editor-content'); if(cont) cont.scrollTop=0;
+  editorSegnaCompilate();
 }
+// Indice della visita: un pallino sulle sezioni in cui è già stato scritto qualcosa
+function editorSegnaCompilate(){
+  document.querySelectorAll('#editor-overlay .editor-nav-btn').forEach(b=>{
+    const m=(b.getAttribute('onclick')||'').match(/setEditorTab\(this,'([^']+)'\)/);
+    const pan=m && document.getElementById(m[1]);
+    if(!pan) return;
+    const piena=[...pan.querySelectorAll('textarea, input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([readonly])')].some(el=>!el.closest('.gs-data-box') ? (el.value||'').trim()!=='' : false)
+      || [...pan.querySelectorAll('input[type=date]')].some(el=>el.value);
+    b.classList.toggle('compilata', piena);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  BOZZA DELLA VISITA IN COMPILAZIONE
+// ═══════════════════════════════════════════════════
+// Mentre si scrive, la visita aperta viene messa al sicuro ogni pochi secondi
+// nello stesso deposito cifrato dell'archivio, ma in una voce A PARTE
+// («…:bozza-visita»): l'archivio delle pazienti non cambia formato e non viene
+// toccato finché non si preme «Salva Referto». Se il programma si chiude a
+// metà visita, alla riapertura si può riprenderla.
+let _bozzaTimer=null, _bozzaControllata=false;
+function _bozzaChiave(){ return gsDbStorageKey ? gsDbStorageKey+':bozza-visita' : null; }
+function _bozzaEditorAperto(){
+  return document.getElementById('editor-overlay').classList.contains('show') || document.getElementById('editor-min-bar').classList.contains('show');
+}
+function bozzaTocca(){
+  editorSegnaCompilate();
+  clearTimeout(_bozzaTimer);
+  _bozzaTimer=setTimeout(bozzaSalva, 1500);
+}
+async function bozzaSalva(){
+  const chiave=_bozzaChiave();
+  if(!chiave || !_bozzaEditorAperto() || _editorPazId==null) return;
+  try{
+    const dati = curMode==='ob' ? getObData() : curMode==='eco' ? getEcoData() : curMode==='gen' ? getGenData() : curMode==='pr' ? getProctData() : getGynoData();
+    const b={ pazId:_editorPazId, tipo:curMode, vid:curVisita||null, dataVisita:dataVisitaEditor()||null, gravidanzaId:curGravidanzaId||null, dati, quando:new Date().toISOString() };
+    await GS_STORAGE.archivio.scrivi(chiave, JSON.stringify(b));
+    if(!_bozzaEditorAperto()){ GS_STORAGE.archivio.scrivi(chiave,'').catch(()=>{}); return; } // salvata o annullata nel frattempo
+    const el=document.getElementById('editor-bozza');
+    if(el) el.textContent='✓ Bozza salvata '+new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){ console.warn('Bozza non salvata', e); }
+}
+function bozzaElimina(){
+  clearTimeout(_bozzaTimer);
+  const el=document.getElementById('editor-bozza'); if(el) el.textContent='';
+  const chiave=_bozzaChiave();
+  if(chiave) Promise.resolve().then(()=>GS_STORAGE.archivio.scrivi(chiave,'')).catch(()=>{});
+}
+// All'apertura del programma: se c'è una visita rimasta a metà, propone di riprenderla.
+async function bozzaControlla(){
+  const chiave=_bozzaChiave();
+  if(_bozzaControllata || !chiave || !gsCurrentUser) return;
+  _bozzaControllata=true;
+  let b=null;
+  try{ const j=await GS_STORAGE.archivio.leggi(chiave); if(j) b=JSON.parse(j); }catch(e){ return; }
+  if(!b || !b.dati || _bozzaEditorAperto()) return;
+  const p=DB.pazienti.find(x=>x.id===b.pazId);
+  if(!p){ bozzaElimina(); return; }
+  const quando=new Date(b.quando).toLocaleString('it-IT',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+  if(!confirm(`C'è una visita di ${p.cognome} ${p.nome} rimasta a metà (${quando}) e non salvata.\n\nOK per riprenderla, Annulla per scartarla.`)){ bozzaElimina(); return; }
+  openPaziente(p.id);
+  document.querySelectorAll('.overlay.show').forEach(o=>o.classList.remove('show'));
+  const vid = b.vid && p.visite.some(v=>v.id===b.vid && v.data===gsOggi()) ? b.vid : null;
+  startEditor(b.tipo, vid);
+  if(!document.getElementById('editor-overlay').classList.contains('show')) return;
+  if(b.tipo==='ob'){ setObData(b.dati); if(b.gravidanzaId) curGravidanzaId=b.gravidanzaId; }
+  else if(b.tipo==='eco'){ setEcoData(b.dati); if(b.gravidanzaId) curGravidanzaId=b.gravidanzaId; }
+  else if(b.tipo==='gen') setGenData(b.dati);
+  else if(b.tipo==='pr') setProctData(b.dati);
+  else { initGynoSelects(); setGynoData(b.dati); }
+  const dataEl=document.getElementById('editor-data-visita');
+  if(dataEl && b.dataVisita && b.dataVisita<=gsOggi()){ dataEl.value=b.dataVisita; dataEl.dispatchEvent(new Event('change')); }
+  editorSegnaCompilate();
+  bozzaTocca();
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const ed=document.getElementById('editor-overlay');
+  if(!ed) return;
+  ['input','change'].forEach(ev=>ed.addEventListener(ev,bozzaTocca));
+  // frasi pronte e tendine scrivono nei campi senza «input»: basta il clic
+  ed.addEventListener('click',e=>{ if(e.target.closest('.editor-content')) bozzaTocca(); });
+  // Frasi rapide SOPRA il campo di testo: si vedono prima di cominciare a scrivere
+  ed.querySelectorAll('.macro-wrap').forEach(w=>{ const prima=w.previousElementSibling; if(prima && (prima.matches('textarea') || prima.querySelector('textarea'))) prima.before(w); });
+});
+// Ctrl+S (o Cmd+S) salva il referto quando la visita è aperta
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey) && !e.altKey && (e.key==='s'||e.key==='S')){
+    const ed=document.getElementById('editor-overlay');
+    if(ed && ed.classList.contains('show') && !document.querySelector('.overlay.show:not(#editor-overlay)')){ e.preventDefault(); salvaVisita(); }
+  }
+});
 
 // ═══════════════════════════════════════════════════
 //  PROMEMORIA AUTOMATICI DAL CAMPO "PROSSIMO CONTROLLO"
@@ -10012,12 +10391,12 @@ function parseDataProssimoControllo(testo){
     if(unita.startsWith('giorn')) d.setDate(d.getDate()+n);
     else if(unita.startsWith('settiman')) d.setDate(d.getDate()+n*7);
     else if(unita.startsWith('mes')) d.setMonth(d.getMonth()+n);
-    return d.toISOString().split('T')[0];
+    return gsDataLocale(d);
   }
 
   // "domani" / "dopodomani"
-  if(/\bdopodomani\b/.test(t)){ const d=new Date(oggi); d.setDate(d.getDate()+2); return d.toISOString().split('T')[0]; }
-  if(/\bdomani\b/.test(t)){ const d=new Date(oggi); d.setDate(d.getDate()+1); return d.toISOString().split('T')[0]; }
+  if(/\bdopodomani\b/.test(t)){ const d=new Date(oggi); d.setDate(d.getDate()+2); return gsDataLocale(d); }
+  if(/\bdomani\b/.test(t)){ const d=new Date(oggi); d.setDate(d.getDate()+1); return gsDataLocale(d); }
 
   // "1 settimana" / "un mese" (senza "tra", scrittura abbreviata comune)
   m=t.match(/\b(\d+|un|una)\s*(giorn[oi]|settiman[ae]|mes[ei])\b/);
@@ -10028,7 +10407,7 @@ function parseDataProssimoControllo(testo){
     if(unita.startsWith('giorn')) d.setDate(d.getDate()+n);
     else if(unita.startsWith('settiman')) d.setDate(d.getDate()+n*7);
     else if(unita.startsWith('mes')) d.setMonth(d.getMonth()+n);
-    return d.toISOString().split('T')[0];
+    return gsDataLocale(d);
   }
 
   // Data esplicita numerica: 15/07/2026, 15-07-2026, 15/07/26
@@ -10037,7 +10416,7 @@ function parseDataProssimoControllo(testo){
     let [,gg,mm,aaaa]=m;
     if(aaaa.length===2) aaaa='20'+aaaa;
     const d=new Date(parseInt(aaaa),parseInt(mm)-1,parseInt(gg));
-    if(!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    if(!isNaN(d.getTime())) return gsDataLocale(d);
   }
 
   // Data esplicita testuale: 15 luglio 2026, 15 luglio (anno corrente o successivo se già passata)
@@ -10047,7 +10426,7 @@ function parseDataProssimoControllo(testo){
     let anno=m[3]?parseInt(m[3]):oggi.getFullYear();
     let d=new Date(anno,mese,gg);
     if(!m[3] && d<oggi) d=new Date(anno+1,mese,gg); // se l'anno non è specificato e la data è già passata, assume l'anno prossimo
-    if(!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+    if(!isNaN(d.getTime())) return gsDataLocale(d);
   }
 
   return null;
@@ -10288,7 +10667,7 @@ async function caricaConsensoCartaceo(){
   if(file.size>15*1024*1024){ if(typeof gsToast==='function') gsToast('⚠️ File troppo grande (limite 15 MB)','gs-error'); return; }
   if(!curPaz){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
   const titolo=document.getElementById('cc-titolo').value.trim() || 'Consenso informato';
-  const dataFirma=document.getElementById('cc-data').value || new Date().toISOString().split('T')[0];
+  const dataFirma=document.getElementById('cc-data').value || gsOggi();
   try{
     await GS_STORAGE.allegati.aggiungi({
       pazienteId:curPaz,
@@ -10373,7 +10752,7 @@ function salvaVisita(){
   const esistente=curVisita?p.visite.find(x=>x.id===curVisita):null;
   const v={
     id:curVisita||Date.now(),
-    data:dataVisitaEditor()||(esistente?esistente.data:new Date().toISOString().split('T')[0]),
+    data:dataVisitaEditor()||(esistente?esistente.data:gsOggi()),
     ora:esistente?.ora||new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}),
     tipo:curMode
   };
@@ -10395,6 +10774,7 @@ function salvaVisita(){
   creaPromemoriaDaProssimoControllo(p, v, testoProssimo);
 
   salvaDB();
+  bozzaElimina();
   closeModal('editor-overlay');
   document.getElementById('editor-min-bar').classList.remove('show');
   renderVisiteList(p);
@@ -10615,7 +10995,7 @@ function anteprimaStampa(){
   // Anteprima con lo STESSO motore del referto vero (prima era un modello a
   // parte e non corrispondeva alla stampa), con le impostazioni ancora da salvare.
   const c=_leggiImpostazioniStampa();
-  const oggi=new Date().toISOString().slice(0,10);
+  const oggi=gsOggi();
   const p={nome:'Maria', cognome:'Rossi', nascita:'1985-05-08', cf:'RSSMRA85E48H501X'};
   const v={tipo:'gen', data:oggi, genData:{
     motivo:'Controllo annuale.',
@@ -10656,7 +11036,7 @@ function apriNuovaPrenotazioneGS(pazIdPreselezionato){
   document.getElementById('np-paz-chip').style.display='none';
   document.getElementById('np-paz-chip').innerHTML='';
   document.getElementById('np-paz-dropdown').classList.remove('show');
-  document.getElementById('np-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('np-data').value=gsOggi();
   document.getElementById('np-ora').value='';
   document.getElementById('np-tipo').value='';
   document.getElementById('np-durata').value='30';
@@ -10860,18 +11240,18 @@ function renderVisiteList(p){
     else { const d=v.gynoData||{}; conclShort=d.conclusioni||d.motivo||'–'; terapia=d.terapia||''; }
     if(conclShort.length>80) conclShort=conclShort.slice(0,80)+'…';
     const haTerapia=terapia&&terapia.trim().length>0;
-    const oggi=new Date().toISOString().split('T')[0];
+    const oggi=gsOggi();
     const modificabile=v.data===oggi;
     const editBtn=modificabile
       ?`<button class="btn btn-ghost btn-sm" onclick="startEditor('${tipo}',${v.id})" title="Modifica la visita di oggi">✏️ Modifica</button>`
       :`<span class="visit-chiusa" title="Le visite di giorni precedenti non sono più modificabili">🔒 Chiusa</span>`;
 
-    c.innerHTML+=`<div class="visit-item">
-      <div class="visit-icon" style="background:var(--primary-dim)">${meta.icon}</div>
+    c.innerHTML+=`<div class="visit-item visit-tipo-${tipo}">
+      <div class="visit-icon">${meta.icon}</div>
       <div class="visit-info">
         <div class="visit-date">${new Date(v.data).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}${v.ora?` <span class="visit-ora">🕐 ${v.ora}</span>`:''}</div>
         <div class="visit-type">${meta.label}</div>
-        <div class="visit-diag">${conclShort}</div>
+        <div class="visit-diag">${_escHtml(conclShort)}</div>
       </div>
       <div class="visit-actions">
         <button class="btn btn-ghost btn-sm" onclick="visualizzaVisita(${v.id})" title="Visualizza il referto">👁️ Apri</button>
@@ -10975,7 +11355,7 @@ function renderFarmaciAttuali(p){
 function apriNuovoFarmacoManuale(){
   document.getElementById('fm-farmaco').value='';
   document.getElementById('fm-dosaggio').value='';
-  document.getElementById('fm-da-quando').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fm-da-quando').value=gsOggi();
   document.getElementById('fm-note').value='';
   document.getElementById('fm-in-terapia').checked=true;
   document.getElementById('m-farmaco-manuale').classList.add('show');
@@ -11125,7 +11505,7 @@ function getIntestazioneRicetta(){
 function apriRicettaVergine(){
   const cfg=getIntestazioneRicetta();
   document.getElementById('rxv-paziente').value='';
-  document.getElementById('rxv-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('rxv-data').value=gsOggi();
   document.getElementById('rxv-testo').value='';
   document.getElementById('rxv-cfg-nome').value=cfg.nome||'';
   document.getElementById('rxv-cfg-spec').value=cfg.spec||'';
@@ -11718,7 +12098,7 @@ function _apriPromptNomeConsenso(i, modoFirma){
   _cnIndiceCorrente=i; _cnModoFirma=modoFirma;
   const p=curPaz?DB.pazienti.find(x=>x.id===curPaz):null;
   const nomeEl=document.getElementById('cn-nome'); if(nomeEl) nomeEl.value = p?`${p.nome} ${p.cognome}`:'';
-  const dataEl=document.getElementById('cn-data'); if(dataEl) dataEl.value = new Date().toISOString().split('T')[0];
+  const dataEl=document.getElementById('cn-data'); if(dataEl) dataEl.value = gsOggi();
   _firmatarioTutoreMap['cn-nome']=false;
   document.getElementById('modal-consenso-nome').classList.add('show');
 }
@@ -11795,7 +12175,7 @@ function _apriModalConsensoVisita(tipo, preseleziona){
   if(sub) sub.textContent = `Scegli uno o più moduli per questa ${_META_TIPO_VISITA[tipo]||'visita'} — verranno stampati insieme su un unico foglio da far firmare. In evidenza i più pertinenti.`;
   const nomeEl=document.getElementById('cv-nome'), dataEl=document.getElementById('cv-data');
   if(nomeEl) nomeEl.value = p ? `${p.nome} ${p.cognome}` : '';
-  if(dataEl) dataEl.value = new Date().toISOString().split('T')[0];
+  if(dataEl) dataEl.value = gsOggi();
   _firmatarioTutoreMap['cv-nome']=false;
 
   const prefix=_consensoVisitaPrefix(tipo);
@@ -11884,7 +12264,7 @@ function pazFirmaCombinataEProsegui(){
   if(!_consensoVisitaSelezionati.size){ if(typeof gsToast==='function') gsToast('Seleziona almeno un modulo, oppure usa "Salta"','gs-error'); return; }
   const nome=(document.getElementById('cv-nome')?.value||'').trim();
   if(!nome){ if(typeof gsToast==='function') gsToast('Inserisci il nome di chi firma','gs-error'); return; }
-  const dataIso=document.getElementById('cv-data')?.value || new Date().toISOString().split('T')[0];
+  const dataIso=document.getElementById('cv-data')?.value || gsOggi();
   const tipo=_consensoVisitaTipoPending || curMode;
   const prefix=_consensoVisitaPrefix(tipo);
   const scelti=getConsensi().filter(c=>_consensoVisitaSelezionati.has(c.titolo));
@@ -11912,7 +12292,7 @@ function pazStampaSenzaFirma(){
   if(!_consensoVisitaSelezionati.size){ if(typeof gsToast==='function') gsToast('Seleziona almeno un modulo, oppure usa "Salta"','gs-error'); return; }
   const nome=(document.getElementById('cv-nome')?.value||'').trim();
   if(!nome){ if(typeof gsToast==='function') gsToast('Inserisci il nome di chi firma','gs-error'); return; }
-  const dataIso=document.getElementById('cv-data')?.value || new Date().toISOString().split('T')[0];
+  const dataIso=document.getElementById('cv-data')?.value || gsOggi();
   const tipo=_consensoVisitaTipoPending || curMode;
   const prefix=_consensoVisitaPrefix(tipo);
   const scelti=getConsensi().filter(c=>_consensoVisitaSelezionati.has(c.titolo));
@@ -12127,7 +12507,7 @@ async function inviaPromemoriaAppuntamenti(avvisa){
   const c=getPromemoriaEmail();
   if(!c.attivo || _promEmailInCorso || gsDemoMode || !gsCurrentUser || !gsDbStorageKey || !gsFunctions) return;
   const dom=new Date(); dom.setDate(dom.getDate()+1);
-  const domani=dom.toISOString().split('T')[0], oggi=new Date().toISOString().split('T')[0];
+  const domani=dom.toISOString().split('T')[0], oggi=gsOggi();
   // Domani, oppure oggi se l'app non era aperta ieri (purché l'ora non sia passata).
   const adesso=new Date().toTimeString().slice(0,5);
   const daInviare=(DB.appuntamenti||[]).filter(a=>!a.promemoriaInviato && a.stato!=='cancellato' && a.stato!=='completato'
@@ -12366,7 +12746,7 @@ function apriScoreTev(entryId){
   const p = curPaz ? DB.pazienti.find(x=>x.id===curPaz) : null;
   if(!p){ if(typeof gsToast==='function') gsToast('Apri prima una paziente','gs-error'); return; }
   if(!p.scoreTev) p.scoreTev=[];
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = gsOggi();
   let entry = entryId ? p.scoreTev.find(x=>x.id===entryId) : p.scoreTev.find(x=>x.data===oggi);
   if(!entry){
     entry = { id:'st'+Date.now().toString(36), data:oggi, cognome:p.cognome, nome:p.nome, nascita:p.nascita||'', settimane:document.getElementById('ob-settimane')?.value||'', checked:[] };
@@ -12426,7 +12806,7 @@ function salvaScoreTev(){
   const nome=spazio>0?nomeCompleto.slice(spazio+1):'';
   const entry={
     id: _stevIdCorrente || 'st'+Date.now().toString(36),
-    data: document.getElementById('stev-data').value || new Date().toISOString().split('T')[0],
+    data: document.getElementById('stev-data').value || gsOggi(),
     cognome: cognome||p.cognome, nome: nome||p.nome,
     nascita: document.getElementById('stev-nascita').value||'',
     settimane: document.getElementById('stev-settimane').value||'',
@@ -13900,7 +14280,7 @@ function visualizzaVisita(vid){
   }else{
     riepilogoBtn.style.display='none';
   }
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   const editBtn=document.getElementById('vv-edit-btn');
   if(v.data===oggi){
     editBtn.style.display='inline-flex';
@@ -14268,7 +14648,7 @@ async function esportaBackupCompleto(conPassword){
       contenuto={ formato:GS_BACKUP_FORMATO+'-cifrato', ...(await gsEncryptJSON(backup,key,saltB64)) };
       suffisso='_protetto';
     }
-    const data=new Date().toISOString().slice(0,10);
+    const data=gsOggi();
     gsSalvaFile(new Blob([JSON.stringify(contenuto)],{type:'application/json'}), `${GS_APP_FILE}_BackupCompleto_${data}${suffisso}.json`);
     localStorage.setItem('gyno_ultimo_backup_auto', new Date().toISOString());
     if(typeof renderBackupStats==='function') renderBackupStats();
@@ -14295,7 +14675,7 @@ function exportCSV(){
   });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
-  a.download=`${GS_APP_FILE}_Pazienti_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download=`${GS_APP_FILE}_Pazienti_${gsOggi()}.csv`;
   a.click();
 }
 
@@ -14555,7 +14935,7 @@ function caricaAppuntamenti(riepilogoOggi){
   GS_APPTS=DB.appuntamenti;
   GS_APPTS.sort((a,b)=>(a.data||'').localeCompare(b.data||'') || (a.ora||'').localeCompare(b.ora||''));
   renderFBAppts(); renderAlertsHome(); renderCalendar();
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   const apptOggi=GS_APPTS.filter(a=>a.data===oggi && a.stato!=='cancellato');
   const nb=document.getElementById('appt-sidebar-badge');
   if(nb) nb.textContent=apptOggi.length||'';
@@ -14602,7 +14982,7 @@ function showApptPopup(appts, oggi){
 }
 
 function renderFBAppts(){
-  const oggi=new Date().toISOString().split('T')[0];
+  const oggi=gsOggi();
   const filtDate=document.getElementById('appt-filter-date')?.value||'';
   const filtTipo=document.getElementById('appt-filter-tipo')?.value||'';
   const ICONS={visita:'🩺',proctologica:'🔍',ginecologica:'🌸',ostetrica:'🤰',ecografia:'🖥️',primo_accesso:'🔬',controllo:'💊',ritiro_referto:'📋'};
@@ -14800,6 +15180,8 @@ function gsToast(msg, cls='gs-info') {
   const t = document.createElement('div');
   t.className = `gs-toast ${cls}`;
   t.textContent = msg;
+  // Lavori in corso («…in corso…»): rotellina di caricamento al posto dell'icona
+  if(/in corso|attendere|carico|scarico/i.test(msg) && /…|\.\.\./.test(msg)){ const r=document.createElement('span'); r.className='gs-rotella'; t.prepend(r); }
   tc.appendChild(t);
   setTimeout(() => t.remove(), 3800);
 }
@@ -14866,6 +15248,112 @@ if(/Android/i.test(navigator.userAgent)){
     }))).observe(document.body, {childList:true, subtree:true});
   });
 }
+</script>
+<!-- Icone a linea al posto delle emoji: tutte dello stesso tratto, prendono il
+     colore del testo e funzionano in modalità chiara e scura. I testi del
+     programma restano quelli di prima (con le emoji): qui vengono solo
+     DISEGNATI diversamente a schermo. Non si toccano le stampe, i PDF, i
+     campi di testo, le tendine e i documenti aperti in altre finestre. Le
+     emoji senza un'icona corrispondente restano come sono. -->
+<script>
+(function gsIcone(){
+const P={
+home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+userplus:'<path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
+file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+pen:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
+pill:'<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7z"/><path d="m8.5 8.5 7 7"/>',
+calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>',
+db:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/>',
+settings:'<path d="M4 6h9M19 6h1M4 12h3M13 12h7M4 18h11"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="17.5" cy="18" r="2"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+printer:'<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/>',
+save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+unlock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',
+alert:'<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+id:'<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.6-1.2 1.7-2 3-2s2.4.8 3 2M14 10h4M14 14h4"/>',
+clipboard:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/>',
+moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+download:'<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
+upload:'<path d="M12 15V3M7 8l5-5 5 5M4 21h16"/>',
+refresh:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>',
+card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>',
+stetho:'<path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M10 12v3a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="2"/>',
+baby:'<circle cx="12" cy="12" r="9"/><path d="M9 10h.01M15 10h.01M9 15c.8.9 1.8 1.4 3 1.4s2.2-.5 3-1.4M12 3c-1 1.4-.6 2.6.6 3"/>',
+visita:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8 13h2l1.200-2.500 1.800 5 1.200-2.500H16"/>',
+flask:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.400a2 2 0 0 0 1.8-3l-5-9V3M7.500 15h9"/>',
+drop:'<path d="M12 3s6 6.500 6 11a6 6 0 0 1-12 0c0-4.500 6-11 6-11z"/>',
+minus:'<path d="M5 12h14"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.500h.01"/>',
+chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+trend:'<path d="m3 17 6-6 4 4 8-8M15 7h6v6"/>',
+monitor:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+check:'<path d="m5 12 5 5 9-10"/>',
+x:'<path d="M6 6l12 12M18 6 6 18"/>',
+ban:'<circle cx="12" cy="12" r="9"/><path d="m5.600 5.600 12.800 12.800"/>',
+box:'<path d="M21 8 12 3 3 8v8l9 5 9-5zM3 8l9 5 9-5M12 13v8"/>',
+arrowup:'<path d="M12 19V5M6 11l6-6 6 6"/>',
+key:'<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M14 9l2 2"/>',
+logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 11v6M14 11v6"/>',
+folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 3h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8M10 20a2 2 0 0 0 4 0"/>',
+clip:'<path d="m21 11-9 9a5 5 0 0 1-7-7l9-9a3.500 3.500 0 0 1 5 5l-9 9a2 2 0 0 1-3-3l8-8"/>',
+link:'<path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/>',
+bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.500c.700.700 1 1.500 1 2.500h6c0-1 .300-1.800 1-2.500A6 6 0 0 0 12 3z"/>',
+ruler:'<path d="m3 17 14-14 4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2"/>',
+msg:'<path d="M21 12a8 8 0 0 1-11.500 7.200L4 21l1.800-5.500A8 8 0 1 1 21 12z"/>',
+target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+leaf:'<path d="M5 19c0-9 5-14 15-14 0 10-5 15-14 15M5 19c2-4 5-7 9-9"/>',
+pin:'<path d="M12 21s7-6.500 7-12a7 7 0 0 0-14 0c0 5.500 7 12 7 12z"/><circle cx="12" cy="9" r="2.500"/>',
+cloud:'<path d="M7 18a4 4 0 0 1-.500-8A6 6 0 0 1 18 9.500 4.200 4.200 0 0 1 17.500 18z"/>',
+palette:'<path d="M12 3a9 9 0 0 0 0 18c1.500 0 2-1 2-2s-.500-1.500-.500-2.500S14.500 15 16 15h2a3 3 0 0 0 3-3c0-5-4-9-9-9z"/><path d="M7.500 11h.01M10 7.500h.01M14.500 7.500h.01"/>',
+scale:'<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>',
+image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+building:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v6M9 11h6M9 21v-3h6v3"/>',
+globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+euro:'<path d="M18 7a6 6 0 1 0 0 10M4 10h9M4 14h9"/>',
+disc:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.500"/>',
+tablet:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>',
+dot:'<circle cx="12" cy="12" r="6" stroke="none"/>'
+};
+const M={'🆕':'plus','ℹ️':'info','ℹ':'info','🏠':'home','👩‍⚕️':'user','👨‍⚕️':'user','🧑‍⚕️':'user','👤':'user','👩':'user','👥':'users','👪':'users','🚻':'users','🕘':'clock','🕐':'clock','⏳':'clock','⏱️':'clock','📅':'calendar','🗓️':'calendar','📆':'calendar','➕':'plus','🧾':'file','📄':'file','📑':'file','🗒️':'file','📜':'file','📓':'book','📚':'book','📋':'clipboard','✍️':'pen','✏️':'pen','📝':'pen','📧':'mail','✉️':'mail','📭':'mail','📖':'book','💊':'pill','🧮':'calc','🔢':'calc','🗄️':'db','⚙️':'settings','🧰':'settings','🔍':'search','🔎':'search','🔦':'search','🖨️':'printer','💾':'save','👁️':'eye','🔒':'lock','🔐':'lock','🔓':'unlock','⚠️':'alert','🚨':'alert','📞':'phone','🪪':'id','🌙':'moon','☀️':'sun','🛡️':'shield','⬇':'download','⬇️':'download','📤':'upload','⬆️':'arrowup','💳':'card','🩺':'stetho','🌸':'visita','🤰':'baby','👶':'baby','🔬':'flask','🧪':'flask','🧫':'flask','🦠':'flask','🩸':'drop','➖':'minus','🎭':'info','💡':'bulb','📊':'chart','📈':'trend','🖥️':'monitor','📡':'monitor','📦':'box','🧩':'box','✅':'check','✔️':'check','❌':'x','🚫':'ban','⭕':'ban','🔑':'key','↺':'refresh','↻':'refresh','🔄':'refresh','🚪':'logout','🗑️':'trash','📁':'folder','📂':'folder','🗂️':'folder','🔔':'bell','📢':'bell','📎':'clip','🔗':'link','📏':'ruler','📐':'ruler','💬':'msg','🎯':'target','🌿':'leaf','🌱':'leaf','🌳':'leaf','📌':'pin','☁️':'cloud','🎨':'palette','⚖️':'scale','🖼️':'image','🏥':'building','🌐':'globe','💶':'euro','💰':'euro','💿':'disc','📘':'book','📱':'tablet','🔴':'dot ic-rosso','🟢':'dot ic-verde','🔵':'dot ic-blu','🟡':'dot ic-giallo','🟠':'dot ic-giallo'};
+const svg=k=>{ const [n,c]=k.split(' '); return '<svg class="ic'+(c?' '+c:'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+P[n].replace(/(\.\d)00/g,'$1')+'</svg>'; };
+const re=/(\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic})*️?|[↺↻])/gu;
+const icona=e=>M[e]||M[e.replace(/️/g,'')]||M[e+'️'];
+const ESCLUSI='script,style,textarea,select,option,svg,canvas,[contenteditable],.ic-fatto,#print-area,#gs-doc-fogli,.gs-foglio,[data-no-icone]';
+function disegna(radice){
+  if(!radice || radice.nodeType!==1 || radice.closest(ESCLUSI)) return;
+  const tw=document.createTreeWalker(radice,NodeFilter.SHOW_TEXT), nodi=[]; let n;
+  while((n=tw.nextNode())){ re.lastIndex=0; if(re.test(n.nodeValue) && n.parentElement && !n.parentElement.closest(ESCLUSI)) nodi.push(n); }
+  nodi.forEach(t=>{
+    let cambiato=false;
+    const html=t.nodeValue.replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])).replace(re,e=>{ const k=icona(e); if(!k) return e; cambiato=true; return svg(k); });
+    if(!cambiato) return;
+    const s=document.createElement('span'); s.className='ic-fatto'; s.innerHTML=html; t.replaceWith(s);
+  });
+  // Emoji all'inizio dei segnaposto dei campi («🔍 Cerca…»): lì un'icona non si può disegnare
+  radice.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(i=>{ const p=i.placeholder; re.lastIndex=0; const m=re.exec(p); if(m && m.index===0 && icona(m[0])) i.placeholder=p.slice(m[0].length).trim(); });
+}
+window.gsIcona=k=>P[k.split(' ')[0]]?svg(k):'';
+function avvia(){
+  disegna(document.body);
+  new MutationObserver(ms=>{ for(const m of ms){ if(m.type==='characterData'){ if(m.target.parentElement) disegna(m.target.parentElement); } else m.addedNodes.forEach(x=>{ if(x.nodeType===1) disegna(x); else if(x.nodeType===3 && x.parentElement) disegna(x.parentElement); }); } }).observe(document.body,{childList:true,subtree:true,characterData:true});
+}
+if(document.body) avvia(); else document.addEventListener('DOMContentLoaded',avvia);
+})();
 </script>
 </body>
 </html>
